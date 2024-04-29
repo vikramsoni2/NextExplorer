@@ -24,7 +24,7 @@ const browseVolume = (volumeName) => {
         <div 
         v-for="volume in volumes" :key="volume.name"
         @click="browseVolume(volume.name)"
-        class=" cursor-pointer flex items-center gap-3 px-3 py-[6px] rounded-lg hover:bg-nextgray-300 dark:hover:bg-zinc-700">
+        class=" cursor-pointer flex items-center gap-3 px-3 py-[6px] rounded-lg hover:bg-nextgray-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
             <ServerIcon class="h-5"/> {{volume.name}}
         </div>
     </div>

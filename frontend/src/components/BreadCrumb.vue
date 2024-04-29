@@ -32,17 +32,17 @@ watch(route, (to, from) => {
 <template>
     <div class="flex items-center gap-3">
       <template v-if="paths[0]">
-        <div @click="openBreadcrumb(paths[0].path)">{{ paths[0].name }}</div>
+        <div class="cursor-pointer" @click="openBreadcrumb(paths[0].path)">{{ paths[0].name }}</div>
       </template>
       
       <template v-if="paths[1]">
       <ChevronRight16Filled class="h-4 text-gray-500"/>
-      <div @click="openBreadcrumb(paths[1].path)">{{ paths[1].name }}</div>
+      <div class="cursor-pointer" @click="openBreadcrumb(paths[1].path)">{{ paths[1].name }}</div>
       </template>
 
       <template v-if="paths[2]">
       <ChevronRight16Filled class="h-4 text-gray-500"/>
-      <div @click="openBreadcrumb(paths[2].path)">{{ paths[2].name }}</div>
+      <div class="cursor-pointer" @click="openBreadcrumb(paths[2].path)">{{ paths[2].name }}</div>
       </template>
       
     </div>

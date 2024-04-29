@@ -18,8 +18,17 @@ import { AlignSpaceAroundVertical20Regular } from '@vicons/fluent';
 const settings = useSettingsStore()
 
 import { useRoute } from 'vue-router';
+import { computed } from 'vue';
 
 const route = useRoute()
+
+const currentPathName = computed(() => {
+  if (typeof route.params.path === 'string') {
+    const segments = route.params.path.split("/");
+    return segments.pop(); // Safely return the last segment if available.
+  }
+  return 'Volumes';
+})
 
 </script>
 
@@ -36,7 +45,7 @@ const route = useRoute()
       
       <div>
         <div class="flex items-center justify-between">
-          <!-- <h2 class="text-lg font-bold ">{{ route.params.path.split("/").pop() }}</h2> -->
+          <h2 class="text-lg font-bold ">{{ currentPathName }}</h2>
           <div class="">
             <MagnifyingGlassIcon class="absolute h-5 mt-[6px] ml-2"/>
             <input type="text" placeholder="search" 
@@ -50,7 +59,7 @@ const route = useRoute()
 
             <button
             @click="settings.tabView"
-            class="p-[6px] rounded-md dark:hover:bg-zinc-700" 
+            class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600" 
             :class="{'dark:bg-zinc-700 dark:bg-opacity-70':settings.view=='tab'}">
               <AlignSpaceAroundVertical20Regular class="w-6"/>
             </button>
@@ -58,16 +67,18 @@ const route = useRoute()
 
             <button 
             @click="settings.listView"
-            class="p-[6px] rounded-md dark:hover:bg-zinc-700" 
+            class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600" 
             :class="{'dark:bg-zinc-700 dark:bg-opacity-70':settings.view=='list'}">
               <ListBulletIcon class="w-6" />
             </button>
             <button 
             @click="settings.gridView"
-            class="p-[6px] rounded-md dark:hover:bg-zinc-700"
+            class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
             :class="{'dark:bg-zinc-700 dark:bg-opacity-70':settings.view=='grid'}">
               <Squares2X2Icon class="w-6" />
             </button>
+
+
             <button class="ml-4"><Cog8ToothIcon class="w-6"/></button>
           </div>
         </div>

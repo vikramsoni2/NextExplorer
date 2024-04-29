@@ -1,6 +1,4 @@
-import FileIcon from '@/icons/FileIcon.vue';
 import { useRouter, useRoute } from 'vue-router';
-import { formatBytes } from '@/utils';
 
 export function useNavigation() {
     
@@ -20,6 +18,28 @@ export function useNavigation() {
     router.push({ name: 'browse', params: {path: path} });
   } 
 
+  // const goForward = ()=>{
+  //   router.go(1);
+  // }
+
+  // const goBackward = ()=>{
+  //   router.go(-1);
+  // }
+
+  // const goUpward = ()=>{
+  //   const path = route.params.path.split('/');
+  //   path.pop();
+  //   const new_path = path.join('/');
+  //   router.push({ name: 'browse', params: {path: new_path} });
+  // }
+
+  // const canGoForward = ()=>{
+
+  //   //check in router object if the route can go forward.
+  //   return router.currentRoute.value.meta.canGoForward;
+    
+
+  // }
 
   return {
     openItem,
