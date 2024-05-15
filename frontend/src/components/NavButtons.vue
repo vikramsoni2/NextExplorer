@@ -11,7 +11,7 @@ const goOneDirUp = () => {
 
   const segments = path.split('/').slice(2);
 
-  console.log(segments);
+  // console.log(segments);
   if (segments.length > 1) {
     segments.pop();
     router.push({ path: `/browse/${segments.join('/')}` });

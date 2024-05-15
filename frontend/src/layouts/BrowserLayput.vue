@@ -61,23 +61,24 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] bg-nextgray-200 dark:bg-nextgray-700 p-6 px-5 shrink-0">
+    <aside class="w-[230px] bg-nextgray-200 dark:bg-nextgray-700 p-6 px-5 shrink-0 ">
       <HeaderLogo />
       <CreateNew />
       <FavMenu />
       <VolMenu />
     </aside>
 
-    <main class="flex flex-col p-6 overflow-scroll grow dark:bg-opacity-95 dark:bg-neutral-800">
+    <main class="flex flex-col p-6 overflow-scroll grow dark:bg-opacity-95 dark:bg-neutral-800 shadow-lg">
       <div>
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-bold ">{{ currentPathName }}</h2>
-          <SearchBar/>
+          <ViewMode/>
         </div>
         <div class="flex items-center my-3 mt-5">
           <NavButtons />
           <BreadCrumb />
-          <ViewMode/>
+          
+          <SearchBar/>
         </div>
         <hr class="h-px my-3 border-0 bg-nextgray-400 dark:bg-neutral-700" />
       </div>
@@ -86,6 +87,7 @@ useTitle(currentPathName)
         <router-view></router-view>
       </div>
     </main>
+    
 
   <UploadProgress/>
   </div>

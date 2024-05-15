@@ -1,45 +1,120 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import Uppy from '@uppy/core';
+import Uppy, { debugLogger } from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
-import { useDropZone } from '@vueuse/core'
-
-
-const defaultDialogOptions = {
-  multiple: true,
-  accept: '*'
-};
+import {useNavStore} from '@/stores/navStore';
 
 export function useFileUploader({...options}) {
 
+  const disallowedFiles = ['.DS_Store', 'thumbs.db'];
   const uppyStore = useUppyStore();
+  const navStore = useNavStore();
   const inputRef = ref(null);
   const files = ref([]);
 
-  console.log({
-    getState: uppyStore.getState,
-    setState: uppyStore.setState,
-    subscribe: uppyStore.subscribe,
-  })
-
   const uppy = new Uppy({
     debug: true,
-    autoProceed: false,
-    store: {
-      getState: uppyStore.getState,
-      setState: uppyStore.setState,
-      subscribe: uppyStore.subscribe,
-    }
-  })
+    autoProceed: true,
+    // logger: debugLogger,
+    store: uppyStore,
+  });
 
-  uppyStore.uppy = uppy;
 
   uppy.use(XHRUpload, {
     endpoint: 'http://localhost:3000/api/upload', // your server endpoint
     formData: true,
-    fieldName: 'files',
+    fieldName: 'filedata',
     bundle: false,
+    allowedMetaFields: null
   });
+
+  uppy.on('file-added', (file) => {
+    uppy.setFileMeta(file.id, {
+      uploadTo: navStore.currentPath
+    });
+  });
+
+
+  function uppyFile(file){
+    return {
+      name: file.name,
+      type: file.type,
+      data: file,
+      meta: {
+        relativePath: file.webkitRelativePath || file.name,
+      }
+    }
+  }
+
+
+  function setDialogAttributes(options) {
+    inputRef.value.accept = options.accept;
+    inputRef.value.multiple = options.multiple;
+    inputRef.value.webkitdirectory = !!options.directory;
+    inputRef.value.directory = !!options.directory;
+    inputRef.value.mozdirectory = !!options.directory;
+  }
+
+
+  function openDialog(opts) {
+
+    const defaultDialogOptions = {
+      multiple: true,
+      accept: '*',
+    };
+
+    return new Promise((resolve) => {
+      if (!inputRef.value) return;
+
+      // TODO: files array should be in uppyFile format
+      files.value = [];
+      const options = { ...defaultDialogOptions, ...opts };
+      
+      setDialogAttributes(options);
+
+      inputRef.value.onchange = (e) => {
+        
+        files.value = Array.from(e.target.files).filter(
+          file => !disallowedFiles.includes(file.name)
+        );
+        files.value.forEach(file => uppy.addFile(uppyFile(file)));
+        resolve();
+      };
+
+      inputRef.value.click();
+    });
+  }
+  
+
+  // function process() {
+
+  //   if (Array.isArray(files.value)) {
+  //     // Handle the case where it's directly an array
+  //     files.value.forEach(file => uppy.addFile(file));
+
+  //   } else if (typeof files.value === 'object') {
+  //     // Handle the case where it's an object of arrays
+  //     Object.keys(files.value).forEach(key => {
+  //       if (Array.isArray(files.value[key])) {
+  //         console.log(`Processing list at key: ${key}`);
+  //         files.value[key].forEach(file => uppy.addFile(file));
+  //       } else {
+  //         console.warn(`Expected an array at key: ${key}, but found:`, files.value[key]);
+  //       }
+  //     });
+  //   } else {
+  //     console.error('Unexpected data type for files.value:', files.value);
+  //   }
+
+  //   uppy.upload().then(result => {
+  //     console.log(' uploads:', result);
+  //     console.log('Successful uploads:', result.successful);
+  //     console.log('Failed uploads:', result.failed);
+  //   }).catch(error => {
+  //     console.error('Upload error:', error);
+  //   });
+
+  // }
 
   onMounted(() => {
     const input = document.createElement("input");
@@ -54,120 +129,11 @@ export function useFileUploader({...options}) {
     uppy.close();
   });
 
-  function openDialog(opts) {
-    return new Promise((resolve) => {
-      if (!inputRef.value) {
-        return;
-      }
-      files.value = [];
-
-      const options = { ...defaultDialogOptions, ...opts };
-      inputRef.value.accept = options.accept;
-      inputRef.value.multiple = options.multiple;
-      
-      console.log(options.directory)
-      if (options.directory) {
-        inputRef.value.webkitdirectory = !!options.directory;  
-        inputRef.value.directory = !!options.directory;       
-        inputRef.value.mozdirectory = !!options.directory;
-      }
-      else {
-        inputRef.value.webkitdirectory = false;  
-        inputRef.value.directory = false;       
-        inputRef.value.mozdirectory = false;
-      }
-
-      inputRef.value.onchange = (e) => {
-        if (options.directory) {
-          // Process directory files
-          const items = Array.from(e.target.files);
-          const directories = {};
-          items.forEach(file => {
-            const path = file.webkitRelativePath.split('/');
-            const dir = path[0];
-            if (!directories[dir]) {
-              directories[dir] = [];
-            }
-            directories[dir].push(file);
-          });
-          files.value = directories;
-        } else {
-          // Process individual files
-          files.value = Array.from(e.target.files);
-        }
-        resolve();
-      };
-
-      inputRef.value.click();
-    });
-  }
-  
-
-  function process() {
-
-    if (Array.isArray(files.value)) {
-      // Handle the case where it's directly an array
-      files.value.forEach(file => uppy.addFile({
-        name: file.name,
-        type: file.type,
-        data: file,
-        meta: {
-          relativePath: file.webkitRelativePath || file.name, // handle folders or individual files
-        }
-      }));
-    } else if (typeof files.value === 'object') {
-      // Handle the case where it's an object of arrays
-      Object.keys(files.value).forEach(key => {
-        if (Array.isArray(files.value[key])) {
-          console.log(`Processing list at key: ${key}`);
-          files.value[key].forEach(file => uppy.addFile({
-            name: file.name,
-            type: file.type,
-            data: file,
-            meta: {
-              relativePath: file.webkitRelativePath || file.name, // handle folders or individual files
-            }
-          }));
-        } else {
-          console.warn(`Expected an array at key: ${key}, but found:`, files.value[key]);
-        }
-      });
-    } else {
-      console.error('Unexpected data type for files.value:', files.value);
-    }
-
-
-
-
-
-
-
-
-
-    console.log(files.value)
-
-    // files.value.forEach(file => uppy.addFile({
-    //   name: file.name,
-    //   type: file.type,
-    //   data: file,
-    //   meta: {
-    //     relativePath: file.webkitRelativePath || file.name, // handle folders or individual files
-    //   }
-    // }));
-
-    uppy.upload().then(result => {
-      console.log('Successful uploads:', result.successful);
-      console.log('Failed uploads:', result.failed);
-    }).catch(error => {
-      console.error('Upload error:', error);
-    });
-
-  }
+  uppyStore.uppy = uppy;
 
   return {
     files,
-    openDialog,
-    process
+    openDialog
   }
 
 }

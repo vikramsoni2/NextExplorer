@@ -1,20 +1,16 @@
 <script setup>
 import {ServerIcon } from '@heroicons/vue/24/outline'
-
 import {getVolumes} from '@/api'
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import {useNavigation} from '@/composables/navigation';
 
-const router = useRouter()
+const {openItem} = useNavigation()
 
 const volumes = ref([])
+
 onMounted(async () => {
     volumes.value = await getVolumes()
 })
-
-const browseVolume = (volumeName) => {
-    router.push({ path: `/browse/${volumeName}` } );
-}
 
 </script>
 
@@ -23,7 +19,7 @@ const browseVolume = (volumeName) => {
         <h4 class="py-[6px] text-sm text-neutral-400 font-medium">Volumes</h4>
         <div 
         v-for="volume in volumes" :key="volume.name"
-        @click="browseVolume(volume.name)"
+        @click="openItem(volume)"
         class=" cursor-pointer flex items-center gap-3 px-3 py-[6px] rounded-lg hover:bg-nextgray-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
             <ServerIcon class="h-5"/> {{volume.name}}
         </div>

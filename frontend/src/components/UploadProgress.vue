@@ -14,7 +14,7 @@ const { x, y, style } = useDraggable(el, {
   preventDefault: true,
 })
 
-const progress = computed(() => uppyStore.state.totalProgress || 74)
+const progress = computed(() => uppyStore.state.totalProgress)
 
 const uploadInProgress = computed(() => Object.keys(uppyStore.state.currentUploads).length > 0)
 
@@ -30,15 +30,17 @@ const uploadedBytes = computed(() => Object.values(uppyStore.state.files)
 
 </script>
 <template>
-  <div  ref="el" class="fixed p-6 bg-zinc-900 shadow-lg min-w-[500px] rounded-xl" :style="style">
+  <div v-if="uploadInProgress" ref="el" class="fixed p-6 bg-neutral-100 dark:bg-zinc-900 shadow-lg min-w-[500px] rounded-xl
+  border border-neutral-200 d dark:border-none
+  " :style="style">
     <h3 class="text-xl font-extrabold mb-3">{{progress}}% complete</h3>
     <div class="text-md flex items-center gap-2">
-      <div>Uploading 2 items to <span class="text-sky-300">Photos</span></div>
+      <div>Uploading 2 items to <span class="text-sky-600 dark:text-sky-300">Photos</span></div>
       <button @click="uppyStore.uppy.pauseAll()" class="ml-auto"> <PauseIcon class="w-6 h-6" /></button>
       <button @click="uppyStore.uppy.cancelAll({ reason: 'user' })"><XMarkIcon class="w-6 h-6" /></button>
     </div>
     <div class="my-2">
-      <div class="bg-zinc-700 h-2 rounded-full">
+      <div class="bg-zinc-300 dark:bg-zinc-700 h-2 rounded-full">
         <div class="bg-sky-500 h-2 rounded-full" :style="`width: ${progress}%`"></div>
       </div>
     </div>

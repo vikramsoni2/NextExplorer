@@ -1,4 +1,7 @@
 import { useRouter, useRoute } from 'vue-router';
+// import navStore
+
+
 
 export function useNavigation() {
     
@@ -7,26 +10,27 @@ export function useNavigation() {
 
   const openItem = (item)=>{
 
-      console.log(item.kind)
+    console.log(item.kind)
 
-      if(item.kind==='directory'){
-          const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
-          router.push({ path: `/browse/${newPath}` });
-      }
-      
-      if(item.kind==='json' || item.kind==='txt' || item.kind==='md' ){
-        const fileToEdit = `${item.path}/${item.name}`;
-        router.push({ path: `/editor/${fileToEdit}` });
-      }
+    if(item.kind==='volume'){
+      router.push({ path: `/browse/${item.name}` });
+    }
 
+    if(item.kind==='directory'){
+        const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
+        router.push({ path: `/browse/${newPath}` });
+    }
+    
+    if(item.kind==='json' || item.kind==='txt' || item.kind==='md' ){
+      const fileToEdit = `${item.path}/${item.name}`;
+      router.push({ path: `/editor/${fileToEdit}` });
+    }
 
   }
 
   const openBreadcrumb = (path)=>{
     router.push({ path: `/browse/${path}` });
   } 
-
-  
 
   return {
     openItem,

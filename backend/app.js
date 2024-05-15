@@ -14,20 +14,16 @@ const corsOptions = {
   methods: ['GET', 'PUT', 'UPDATE', 'DELETE']  
 };
 
+
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
  
-
+// const upload = multer({ dest: 'uploads/' })
 
 const upload = multer({
   storage: multer.diskStorage({
     destination: (req, file, cb) => {
-      const directory = `/tmp/${req.query.userId}`
-
-      if (!fss.existsSync(directory)) {
-        fss.mkdirSync(directory, { recursive: true })
-      }
-
+      const directory = `/uploads/`
       cb(null, directory)
     },
     filename: (req, file, cb) => {
@@ -36,10 +32,95 @@ const upload = multer({
   })
 })
 
-app.post('/api/upload', upload.fields([{ name: 'files', maxCount: 50 }]), function (req, res) {
-  console.log('Files uploaded:', req.files);
-  res.send('Files uploaded successfully!');
+
+
+app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), async function (req, res) {
+  try {
+    for (const file of req.files.filedata) {
+      const relativePath = req.body.relativePath;
+      const uploadTo = path.join("/mnt/", req.body.uploadTo);
+      let destinationPath;
+
+      if (relativePath.includes('/')) {
+        destinationPath = path.join(uploadTo, relativePath);
+      } else {
+        destinationPath = path.join(uploadTo, path.basename(relativePath));
+      }
+
+      console.log("file: ", file);
+      console.log("destinationPath: ", destinationPath);
+
+      const destinationDir = path.dirname(destinationPath);
+
+      // Ensure the destination directory exists
+      await fs.mkdir(destinationDir, { recursive: true });
+
+      // Move the file to the destination
+      const tmpPath = file.path;
+      console.log(`moving file from ${tmpPath} to ${destinationPath}`);
+
+      await fs.copyFile(tmpPath, destinationPath);
+      await fs.unlink(tmpPath);
+
+      console.log(`File moved to ${destinationPath}`);
+    }
+
+    res.send('Files uploaded successfully');
+  } catch (err) {
+    console.error(`Error: ${err}`);
+    res.status(500).send('Server error');
+  }
 });
+
+
+
+// app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), function (req, res) {
+  
+//   req.files.filedata.forEach(file => {
+//     const relativePath = req.body.relativePath;
+//     const uploadTo = path.join("/mnt/", req.body.uploadTo);
+//     let destinationPath;
+
+//     if (relativePath.includes('/')) {
+//       destinationPath = path.join(uploadTo, relativePath);
+//     } else {
+//       destinationPath = path.join(uploadTo, path.basename(relativePath));
+//     }
+
+//     console.log("file: ", file)
+//     console.log("destinationPath: ", destinationPath)
+
+
+//     const destinationDir = path.dirname(destinationPath);
+
+//     // Ensure the destination directory exists
+//     fs.mkdir(destinationDir, { recursive: true }, (err) => {
+//       if (err) {
+//         console.error(`Error creating directory: ${err}`);
+//         return res.status(500).send('Server error');
+//       }
+
+//       // Move the file to the destination
+//       const tmpPath = file.path;
+//       console.log(`movinf file from ${tmpPath} to ${destinationPath}`)
+
+//       fs.rename(tmpPath, destinationPath, (err) => {
+//         if (err) {
+//           console.error(`Error moving file: ${err}`);
+//           return res.status(500).send('Server error');
+//         }
+
+//         console.log(`File moved to ${destinationPath}`);
+//       });
+//     });
+    
+//   });
+
+//   res.send('Files uploaded successfully');
+    
+// });
+
+
 
 
 app.get('/api/volumes', async (req, res) => {
@@ -49,7 +130,8 @@ app.get('/api/volumes', async (req, res) => {
     const volumeData = volumes.map((volume) => {
       return {
         name: volume,
-        path: volume
+        path: volume,
+        kind: 'volume',
       };
     });
     res.json(volumeData);
@@ -145,11 +227,6 @@ app.put('/api/editor', (req, res) => {
       res.send('File updated successfully.');
   });
 });
-
-
-
-
-
 
 
 

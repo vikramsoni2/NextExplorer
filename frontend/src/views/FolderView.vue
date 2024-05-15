@@ -3,20 +3,24 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
+import { useNavStore } from '@/stores/navStore';
 import { browse } from '@/api';
 
 const settings = useSettingsStore()
+const navStore = useNavStore()
 const route = useRoute()
 const resources = ref(null)
 
 const loadFiles = async()=>{
   const path = route.params.path || ''
+  navStore.setCurrentPath(path);
   resources.value = await browse(path);
 }
 
 onMounted(loadFiles)
 
 watch(route, (to, from) => {
+  
   loadFiles()
 });
 </script>

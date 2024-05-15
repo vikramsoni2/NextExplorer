@@ -3,6 +3,8 @@ import { ref, watch } from 'vue'
 import {PlusIcon} from '@heroicons/vue/24/outline'
 import { useToggle, onClickOutside } from '@vueuse/core'
 import {CreateNewFolderRound, UploadFileRound, DriveFolderUploadRound} from '@vicons/material'
+import { useRoute } from 'vue-router';
+
 
 
 const popuplRef  = ref(null)
@@ -18,16 +20,16 @@ onClickOutside(
 
 import { useFileUploader } from '@/composables/fileUploader';
 
-const {files, openDialog, process } = useFileUploader({'url':'http://localhost:3020/upload'});
+const {files, openDialog } = useFileUploader({'url':'http://localhost:3020/upload'});
 
 const uploadFolder = async ()=>{
   await openDialog({directory: true})
-  process()
+  //process()
 }
 
 const uploadFiles = async ()=>{
   await openDialog()
-  process()
+  //process()
 }
 
 </script>
