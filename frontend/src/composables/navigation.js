@@ -2,15 +2,12 @@ import { useRouter, useRoute } from 'vue-router';
 // import navStore
 
 
-
 export function useNavigation() {
     
   const router = useRouter()
   const route = useRoute()
 
   const openItem = (item)=>{
-
-    console.log(item.kind)
 
     if(item.kind==='volume'){
       router.push({ path: `/browse/${item.name}` });

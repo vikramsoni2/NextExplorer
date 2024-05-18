@@ -14,7 +14,7 @@ import UploadProgress from '@/components/UploadProgress.vue';
 import { RouterView, useRoute } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 
-import SortBy from '@/components/SortBy.vue'
+import MenuSortBy from '@/components/MenuSortBy.vue'
 
 const route = useRoute()
 
@@ -62,7 +62,7 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] bg-nextgray-200 dark:bg-nextgray-700 p-6 px-5 shrink-0 ">
+    <aside class="w-[230px] bg-nextgray-200 dark:bg-neutral-900 p-6 px-5 shrink-0 ">
       <HeaderLogo />
       <CreateNew />
       <FavMenu />
@@ -79,11 +79,11 @@ useTitle(currentPathName)
           <NavButtons />
           <BreadCrumb />
           
-          <SortBy/>
+          <MenuSortBy/>
           <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
           <ViewMode/>
         </div>
-        <hr class="h-px my-3 border-0 bg-nextgray-400 dark:bg-neutral-700" />
+        <hr class=" -ml-6 -mr-6 h-px my-3 border-0 bg-nextgray-400 dark:bg-neutral-700" />
       </div>
 
       <div class="overflow-y-scroll grow">

@@ -33,9 +33,11 @@ const settings = useSettingsStore()
 
 <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
 
-<button>
+<button
+class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
   <Cog8ToothIcon class="w-6" />
 </button>
+
 </div>
 
 </template>
