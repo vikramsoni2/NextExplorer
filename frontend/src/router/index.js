@@ -16,7 +16,7 @@ const router = createRouter({
       component: BrowserLayput,
       children: [
         {
-          path: "",
+          path: "/",
           component: FolderView,
         },
 

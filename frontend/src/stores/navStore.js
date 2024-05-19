@@ -14,9 +14,7 @@ export const useNavStore = defineStore('navStore', () => {
 
   // get sorted currentPathItems
   const getCurrentPathItems = computed(() => {
-
     const settings = useSettingsStore();
-    
     return currentPathItems.value.sort((a, b) => {
       if (a.kind === 'directory' && b.kind != 'directory') return -1;
       if (a.kind != 'directory' && b.kind === 'directory') return 1;
@@ -34,6 +32,8 @@ export const useNavStore = defineStore('navStore', () => {
 
   async function fetchPathItems(path) {
     if(path) currentPath.value = path;
+    else currentPath.value = "/"; 
+    selectedItems.value = [];
     currentPathItems.value = await browse(currentPath.value);
     return currentPathItems
   }

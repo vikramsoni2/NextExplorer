@@ -62,7 +62,7 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] bg-nextgray-200 dark:bg-neutral-900 p-6 px-5 shrink-0 ">
+    <aside class="w-[230px] bg-nextgray-200 dark:bg-nextgray-700 p-6 px-5 shrink-0 ">
       <HeaderLogo />
       <CreateNew />
       <FavMenu />

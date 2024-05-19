@@ -8,9 +8,7 @@ const router = useRouter();
 
 const goOneDirUp = () => {
   const path = decodeURIComponent(router.currentRoute.value.path);
-
   const segments = path.split('/').slice(2);
-
   // console.log(segments);
   if (segments.length > 0) {
     segments.pop();
