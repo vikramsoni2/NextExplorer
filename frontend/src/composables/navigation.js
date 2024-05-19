@@ -1,5 +1,5 @@
 import { useRouter, useRoute } from 'vue-router';
-// import navStore
+// import fileStore
 
 
 export function useNavigation() {

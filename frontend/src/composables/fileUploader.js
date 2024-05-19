@@ -2,13 +2,13 @@ import { ref, onMounted, onBeforeUnmount } from "vue";
 import Uppy, { debugLogger } from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
-import {useNavStore} from '@/stores/navStore';
+import {useFileStore} from '@/stores/fileStore';
 
 export function useFileUploader({...options}) {
 
   const disallowedFiles = ['.DS_Store', 'thumbs.db'];
   const uppyStore = useUppyStore();
-  const navStore = useNavStore();
+  const fileStore = useFileStore();
   const inputRef = ref(null);
   const files = ref([]);
 
@@ -30,7 +30,7 @@ export function useFileUploader({...options}) {
 
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {
-      uploadTo: navStore.currentPath
+      uploadTo: fileStore.currentPath
     });
   });
 

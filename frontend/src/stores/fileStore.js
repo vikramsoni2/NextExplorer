@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { browse } from '@/api';
 import { useSettingsStore } from '@/stores/settings'
 
-export const useNavStore = defineStore('navStore', () => {
+export const useFileStore = defineStore('fileStore', () => {
   // State
   const currentPath = ref(null);
   const currentPathItems = ref([]);

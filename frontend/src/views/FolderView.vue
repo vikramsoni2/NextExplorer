@@ -3,18 +3,18 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
-import { useNavStore } from '@/stores/navStore';
+import { useFileStore } from '@/stores/fileStore';
 import LoadingIcon from '@/icons/LoadingIcon.vue';
 
 const settings = useSettingsStore()
-const navStore = useNavStore()
+const fileStore = useFileStore()
 const route = useRoute()
 const loading = ref(true)
 const selectedItems = ref([]);
 
 const loadFiles = async()=>{
   const path = route.params.path || ''
-  await navStore.fetchPathItems(path)
+  await fileStore.fetchPathItems(path)
   loading.value = false
 }
 
@@ -31,7 +31,7 @@ onMounted(loadFiles)
 //     }
 //   } else if (event.shiftKey) {
 //     // Shift + Click: Select range
-//     const currentItems = navStore.getCurrentPathItems;
+//     const currentItems = fileStore.getCurrentPathItems;
 //     const lastSelectedItem = selectedItems.value[selectedItems.value.length - 1];
 //     const lastIndex = currentItems.indexOf(lastSelectedItem);
 //     const currentIndex = currentItems.indexOf(item);
@@ -57,7 +57,7 @@ onMounted(loadFiles)
     settings.view === 'tab'? 'grid grid-cols-[repeat(auto-fill,20rem)] gap-2':
     'flex flex-col gap-2'">
       <FileObject 
-      v-for="item in navStore.getCurrentPathItems" 
+      v-for="item in fileStore.getCurrentPathItems" 
       :key="item.name" 
       :item="item" 
       :view="settings.view"
