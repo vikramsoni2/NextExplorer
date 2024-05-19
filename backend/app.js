@@ -285,6 +285,12 @@ app.get('/api/volumes', async (req, res) => {
 
 
 async function getThumbnail(filePath){
+  // if the filePath in in thumbnailDir
+  // then just return the path to original file and do not create thumbnail
+  if(filePath.includes(thumbnailDir)){
+    return ''
+  }
+
   const thumbFile = crypto.createHash('sha1').update(filePath).digest('hex') + '.png'
   const thumbPath = path.join(thumbnailDir, thumbFile)
     
@@ -320,7 +326,6 @@ app.get('/api/browse/*', async (req, res) => {
 
         if (stats.isFile() && 
         [...imageExtensions, ...videoExtensions].includes(extension.toLowerCase())) {
-          console.log(`getting thumbnail for '${extension}' extention`)
           item.thumbnail = await getThumbnail(filePath)
         }
         

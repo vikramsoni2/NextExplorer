@@ -9,9 +9,27 @@ async function getVolumes(){
     return response.json();
 }
 
+async function copyItem(items, path){
+    const response = await fetch(`http://localhost:3000/api/copy/${item.path}/${path}`);
+    return response.json();
+}
+
+async function moveItem(items, path){
+    //use HTTP POST method to send the item and path to the server
+}   
+
+async function deleteItem(item){
+    //use HTTP DELETE method to send the item to the server
+}
+
+
+
 export {
     browse, 
-    getVolumes
+    getVolumes,
+    copyItem,
+    moveItem,
+    deleteItem
 }
 
 

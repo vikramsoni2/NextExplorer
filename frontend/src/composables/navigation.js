@@ -7,31 +7,58 @@ export function useNavigation() {
   const router = useRouter()
   const route = useRoute()
 
-  const openItem = (item)=>{
 
+  const openItemInner = (item)=>{
     if(item.kind==='volume'){
       router.push({ path: `/browse/${item.name}` });
     }
-
     if(item.kind==='directory'){
         const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
         router.push({ path: `/browse/${newPath}` });
     }
-    
     if(item.kind==='json' || item.kind==='txt' || item.kind==='md' ){
       const fileToEdit = `${item.path}/${item.name}`;
       router.push({ path: `/editor/${fileToEdit}` });
     }
-
+  }
+  
+  function openItem(item) {
+    if (!document.startViewTransition) {
+      openItem();
+      return;
+    }
+    document.startViewTransition(() => openItemInner(item));
   }
 
   const openBreadcrumb = (path)=>{
     router.push({ path: `/browse/${path}` });
   } 
 
+  const goNext = ()=>{  
+    router.go(1);
+  }
+
+  const goPrev = ()=>{  
+    router.go(-1);
+  }
+
+  const goUp = () => {
+    const path = decodeURIComponent(router.currentRoute.value.path);
+    const segments = path.split('/').slice(2);
+    // console.log(segments);
+    if (segments.length > 0) {
+      segments.pop();
+      router.push({ path: `/browse/${segments.join('/')}` });
+    }
+  }
+
+
   return {
     openItem,
-    openBreadcrumb
+    openBreadcrumb,
+    goNext,
+    goPrev,
+    goUp
   }
 }
 

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { browse } from '@/api';
+import { browse, copyItem, moveItem, deleteItem } from '@/api';
 import { useSettingsStore } from '@/stores/settings'
 
 export const useFileStore = defineStore('fileStore', () => {
@@ -9,6 +9,37 @@ export const useFileStore = defineStore('fileStore', () => {
   const currentPathItems = ref([]);
   const selectedItems = ref([]);
 
+  const copiedItems = ref([]);
+  const cutItems = ref([]);
+
+  const copy = () => {
+    cutItems.value = []
+    copiedItems.value = selectedItems.value;
+  }
+  const cut = () => {
+    copyItems.value = []
+    cutItems.value = selectedItems.value;
+  }
+
+  const paste = async () => {
+    if(copiedItems.value.length > 0){
+      copiedItems.value.forEach(async (item) => {
+        await copyItem(item, currentPath.value);
+      });
+    }
+    if(cutItems.value.length > 0){
+      cutItems.value.forEach(async (item) => {
+        await moveItem(item, currentPath.value);
+      });
+    }
+  }
+
+  const del = async () => {
+    selectedItems.value.forEach(async (item) => {
+      await deleteItem(item);
+    });
+  }
+  
   // Getters
   const getCurrentPath = computed(() => currentPath.value);
 
@@ -45,6 +76,9 @@ export const useFileStore = defineStore('fileStore', () => {
     currentPathItems,
     getCurrentPathItems,
     fetchPathItems,
-    selectedItems
+    selectedItems,
+    copy, 
+    cut,
+    del
   };
 });
