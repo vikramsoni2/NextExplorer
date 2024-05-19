@@ -5,11 +5,9 @@ import {useNavigation} from '@/composables/navigation';
 import { useSelection } from '@/composables/itemSelection';
 
 const emit = defineEmits(['click'])
-
 const props = defineProps(['item', 'view'])
 
 const {openItem} = useNavigation()
-
 const {handleSelection, isSelected} = useSelection();
 
 </script>

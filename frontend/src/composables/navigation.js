@@ -1,5 +1,5 @@
 import { useRouter, useRoute } from 'vue-router';
-// import fileStore
+import { withViewTransition } from '@/utils';
 
 
 export function useNavigation() {
@@ -8,7 +8,7 @@ export function useNavigation() {
   const route = useRoute()
 
 
-  const openItemInner = (item)=>{
+  const openItem = withViewTransition((item)=>{
     if(item.kind==='volume'){
       router.push({ path: `/browse/${item.name}` });
     }
@@ -20,29 +20,18 @@ export function useNavigation() {
       const fileToEdit = `${item.path}/${item.name}`;
       router.push({ path: `/editor/${fileToEdit}` });
     }
-  }
+  });
   
-  function openItem(item) {
-    if (!document.startViewTransition) {
-      openItem();
-      return;
-    }
-    document.startViewTransition(() => openItemInner(item));
-  }
 
-  const openBreadcrumb = (path)=>{
+  const openBreadcrumb = withViewTransition((path)=>{
     router.push({ path: `/browse/${path}` });
-  } 
+  });
 
-  const goNext = ()=>{  
-    router.go(1);
-  }
+  const goNext = withViewTransition(()=>router.go(1));
 
-  const goPrev = ()=>{  
-    router.go(-1);
-  }
+  const goPrev = withViewTransition(()=>router.go(-1));
 
-  const goUp = () => {
+  const goUp = withViewTransition(() => {
     const path = decodeURIComponent(router.currentRoute.value.path);
     const segments = path.split('/').slice(2);
     // console.log(segments);
@@ -50,7 +39,7 @@ export function useNavigation() {
       segments.pop();
       router.push({ path: `/browse/${segments.join('/')}` });
     }
-  }
+  });
 
 
   return {
