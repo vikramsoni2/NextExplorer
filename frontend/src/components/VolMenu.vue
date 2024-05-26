@@ -43,7 +43,9 @@ const open = ref(true);
             <button 
                 v-for="volume in volumes" :key="volume.name"
                 @click="openItem(volume)"
-                class="cursor-pointer flex w-full items-center gap-3 px-3 py-[6px] rounded-lg hover:bg-nextgray-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
+                class="cursor-pointer flex w-full items-center gap-3 px-3 py-[6px] 
+                hover:bg-nextgray-300 
+                rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
                     <ServerIcon class="h-5"/> {{volume.name}}
             </button>
         </div>

@@ -55,7 +55,7 @@ onMounted(loadFiles)
     <div v-if="!loading"
     :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
     settings.view === 'tab'? 'grid grid-cols-[repeat(auto-fill,20rem)] gap-2':
-    'flex flex-col gap-2'">
+    'flex flex-col gap-[1px]'">
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
       :key="item.name" 

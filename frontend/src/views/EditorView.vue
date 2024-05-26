@@ -4,8 +4,6 @@
   <h1>File Editor</h1>
   <div class="w-full overflow-scroll">
    
-
-
     <Codemirror
     v-model="fileContent"
     placeholder="Code goes here..."

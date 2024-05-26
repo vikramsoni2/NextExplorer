@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 // import { useDropZone } from '@vueuse/core'
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import FavMenu from '@/components/FavMenu.vue';
@@ -16,6 +16,8 @@ import { RouterView, useRoute } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
+import TerminalPanel from '@/components/TerminalPanel.vue';
+
 
 const route = useRoute()
 
@@ -27,32 +29,7 @@ const currentPathName = computed(() => {
   return 'Volumes';
 })
 
-
-
 useTitle(currentPathName)
-
-
-// const dropZoneRef = ref(null)
-
-
-// function onDrop(files) {
-//   console.log('Files dropped:', files)
-// }
-
-// const { isOverDropZone } = useDropZone(dropZoneRef, {
-//   onDrop,
-//   // specify the types of data to be received.
-//   // dataTypes: ['image/jpeg']
-// })
-
-
-// onMounted(() => {
-//   console.log('mounted')
-//   const dropzone = new Dropzone("div.my-dropzone", { url: "/file/post" });
-// })
-
-// import { Dropzone } from "dropzone";
-
 
 
 
@@ -63,17 +40,18 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0 ">
+    <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
       <HeaderLogo />
       <CreateNew />
       <FavMenu />
       <VolMenu />
     </aside>
 
-    <main class="flex flex-col overflow-scroll grow dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg">
+    <main class="flex flex-col grow
+    dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg">
       
 
-      <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+       <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
         <MenuItemInfo/>
@@ -89,17 +67,18 @@ useTitle(currentPathName)
         class="ml-4 h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center font-bold">
         </div>
       </div>
-      <!-- <hr class="h-px border-0 bg-nextgray-400 dark:bg-neutral-700 mb-4" /> -->
 
-
-      <div class="p-6 pt-0 overflow-y-scroll grow">
+      <div class="p-6 pt-0 overflow-y-auto grow">
         <router-view :key="route.fullPath">
         </router-view>
       </div>
+      <!-- <hr class="h-px border-0 bg-nextgray-400 dark:bg-neutral-700 mb-4" /> -->
+      <div>
+        <TerminalPanel/>
+      </div>
     </main>
-    
-
   <UploadProgress/>
   </div>
 
 </template>
+

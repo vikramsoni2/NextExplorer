@@ -9,6 +9,8 @@ export const useSettingsStore = defineStore('settings', () => {
   const listView=()=>{view.value = 'list'}
   const tabView=()=>{view.value = 'tab'}
 
+  const terminalHeight = ref(10);
+  
   const isDark = useDark({ disableTransition: false });
   const toggleDark = useToggle(isDark);
 
@@ -37,6 +39,7 @@ export const useSettingsStore = defineStore('settings', () => {
     toggleDark,
     sortBy,
     setSortBy,
-    sortOptions
+    sortOptions,
+    terminalHeight
   }
 })

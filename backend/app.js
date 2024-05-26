@@ -8,19 +8,19 @@ const fs = require('fs').promises;
 const express = require('express');
 const ffmpeg = require('fluent-ffmpeg');
 const bodyParser = require('body-parser');
-
-
+const WebSocket = require('ws');
+const pty = require('node-pty');
 
 const port = 3000; 
-const cacheDir = '/cache'
-const thumbnailDir = '/cache/thumbnails'
+// const volumeDir = '/mnt/';
+// const cacheDir = '/cache'
+// const thumbnailDir = '/cache/thumbnails'
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif']
 const videoExtensions = ['mp4', 'avi', 'mov', 'mkv']
 
-
-
-
-
+const volumeDir = '/Users/vikram/Downloads/vols';
+const cacheDir = '/Users/vikram/Downloads/cache'
+const thumbnailDir = '/Users/vikram/Downloads/cache/thumbnails'
 
 async function generateThumbnail(filePath, thumbPath) {
   const extension = path.extname(filePath).split(".").splice(-1)[0].toLowerCase();
@@ -100,7 +100,7 @@ CustomStorage.prototype._handleFile = function (req, file, cb) {
     }
 
     const relativePath = path.normalize(req.body.relativePath);
-    const uploadTo = path.join("/mnt/", path.normalize(req.body.uploadTo));
+    const uploadTo = path.join(volumeDir, path.normalize(req.body.uploadTo));
     let destinationPath;
 
     if (relativePath.includes('/')) {
@@ -178,7 +178,7 @@ app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asy
 //   try {
 //     for (const file of req.files.filedata) {
 //       const relativePath = req.body.relativePath;
-//       const uploadTo = path.join("/mnt/", req.body.uploadTo);
+//       const uploadTo = path.join(volumeDir, req.body.uploadTo);
 //       let destinationPath;
 
 //       if (relativePath.includes('/')) {
@@ -218,7 +218,7 @@ app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asy
   
 //   req.files.filedata.forEach(file => {
 //     const relativePath = req.body.relativePath;
-//     const uploadTo = path.join("/mnt/", req.body.uploadTo);
+//     const uploadTo = path.join(volumeDir, req.body.uploadTo);
 //     let destinationPath;
 
 //     if (relativePath.includes('/')) {
@@ -265,7 +265,7 @@ app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asy
 
 app.get('/api/volumes', async (req, res) => {
   try {
-    const directoryPath = '/mnt/';
+    const directoryPath = volumeDir;
     const volumes = await fs.readdir(directoryPath);
     const volumeData = volumes.map((volume) => {
       return {
@@ -302,7 +302,7 @@ async function getThumbnail(filePath){
 
 
 app.get('/api/browse/*', async (req, res) => {
-  const directoryPath = `/mnt/${req.params[0]}`; 
+  const directoryPath = path.join(volumeDir,req.params[0]); 
 
   try {
     const files = await fs.readdir(directoryPath);
@@ -343,7 +343,7 @@ app.get('/api/browse/*', async (req, res) => {
 
 
 app.get('/api/file/:path', (req, res) => {
-  const filePath = "/mnt/"+req.params.path
+  const filePath = path.join(volumeDir, req.params.path);
   console.log("hitting file endpoint")
   console.log(filePath)
 
@@ -373,7 +373,7 @@ app.post('/api/editor', async (req, res) => {
 
 
 app.put('/api/editor', (req, res) => {
-  const filePath = "/mnt/"+ request.body.path
+  const filePath = path.join(volumeDir, request.body.path);
   const content = req.body.content; // Assuming the new content is passed as a JSON payload
 
   fs.writeFile(filePath, content, (err) => {
@@ -386,7 +386,7 @@ app.put('/api/editor', (req, res) => {
 });
 
 
-app.use('/static/thumbnails', express.static('/cache/thumbnails'));
+app.use('/static/thumbnails', express.static(thumbnailDir));
 
 
 
@@ -395,9 +395,32 @@ app.use((req, res, next) => {
   next();
 });
 
-app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
 });
 
-// Start the queue processor
+const wss = new WebSocket.Server({ server, path: '/terminal' });
+
+wss.on('connection', (ws) => {
+  const shell = process.env.SHELL || 'bash';
+  const ptyProcess = pty.spawn(shell, [], {
+    name: 'xterm-color',
+    cols: 80,
+    rows: 30,
+    cwd: process.env.HOME,
+    env: process.env
+  });
+
+  ptyProcess.on('data', (data) => {
+    ws.send(data);
+  });
+
+  ws.on('message', (message) => {
+    ptyProcess.write(message);
+  });
+
+  ws.on('close', () => {
+    ptyProcess.kill();
+  });
+});
 
