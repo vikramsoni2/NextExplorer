@@ -12,16 +12,16 @@ const WebSocket = require('ws');
 const pty = require('node-pty');
 
 const port = 3000; 
-// const volumeDir = '/mnt/';
-// const cacheDir = '/cache'
-// const thumbnailDir = '/cache/thumbnails'
+const volumeDir = '/mnt/';
+const cacheDir = '/cache'
+const thumbnailDir = '/cache/thumbnails'
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif']
 const videoExtensions = ['mp4', 'avi', 'mov', 'mkv']
 const excludedFiles = ['thumbs.db', '.DS_Store']
 
-const volumeDir = '/Users/vikram/Downloads/vols';
-const cacheDir = '/Users/vikram/Downloads/cache'
-const thumbnailDir = '/Users/vikram/Downloads/cache/thumbnails'
+// const volumeDir = '/Users/vikram/Downloads/vols';
+// const cacheDir = '/Users/vikram/Downloads/cache'
+// const thumbnailDir = '/Users/vikram/Downloads/cache/thumbnails'
 
 
 
