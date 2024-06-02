@@ -9,6 +9,7 @@ import ViewMode from '@/components/ViewMode.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import NavButtons from '@/components/NavButtons.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import MenuClipboard from '@/components/MenuClipboard.vue';
 import UploadProgress from '@/components/UploadProgress.vue';
 import SettingsBar from '@/components/SettingsBar.vue';
 import MenuItemInfo from '@/components/MenuItemInfo.vue';
@@ -54,6 +55,9 @@ useTitle(currentPathName)
        <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
+
+        <MenuClipboard/>
+        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <MenuItemInfo/>
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <MenuSortBy/>

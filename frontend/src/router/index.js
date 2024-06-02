@@ -3,6 +3,7 @@ import FolderView from '@/views/FolderView.vue'
 import EditorView from '@/views/EditorView.vue'
 import BrowserLayput from '@/layouts/BrowserLayput.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
+import AboutView from '@/views/AboutView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,10 @@ const router = createRouter({
         },
       ],
 
+    },
+    {
+      path: '/about',
+      component: AboutView
     },
   ]
 })

@@ -1,17 +1,17 @@
 
 async function browse(path){
-    const response = await fetch(`http://localhost:3000/api/browse/${path}`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/browse/${path}`);
     return response.json();
 }
 
 async function getVolumes(){
-    const response = await fetch(`http://localhost:3000/api/volumes`);
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/volumes`);
     return response.json();
 }
 
 async function copyItem(items, path){
-    const response = await fetch(`http://localhost:3000/api/copy/${item.path}/${path}`);
-    return response.json();
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/copy/${item.path}/${path}`);
+    return response.json();3
 }
 
 async function moveItem(items, path){

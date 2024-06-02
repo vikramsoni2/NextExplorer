@@ -17,15 +17,22 @@ const port = 3000;
 // const thumbnailDir = '/cache/thumbnails'
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif']
 const videoExtensions = ['mp4', 'avi', 'mov', 'mkv']
+const excludedFiles = ['thumbs.db', '.DS_Store']
 
 const volumeDir = '/Users/vikram/Downloads/vols';
 const cacheDir = '/Users/vikram/Downloads/cache'
 const thumbnailDir = '/Users/vikram/Downloads/cache/thumbnails'
 
-async function generateThumbnail(filePath, thumbPath) {
-  const extension = path.extname(filePath).split(".").splice(-1)[0].toLowerCase();
 
-  console.log(extension)
+
+async function generateThumbnail(filePath, thumbPath) {
+
+  // Ensure the thumbnail directory exists
+  if (!fss.existsSync(path.dirname(thumbPath))) {
+    await fs.mkdir(path.dirname(thumbPath), { recursive: true });
+  }
+
+  const extension = path.extname(filePath).split(".").splice(-1)[0].toLowerCase();
   if (imageExtensions.includes(extension)) {
     // Generate image thumbnail
     await sharp(filePath)
@@ -267,13 +274,17 @@ app.get('/api/volumes', async (req, res) => {
   try {
     const directoryPath = volumeDir;
     const volumes = await fs.readdir(directoryPath);
-    const volumeData = volumes.map((volume) => {
+
+    console.log(volumes)
+    const volumeData = volumes
+      .filter((volume) => !excludedFiles.includes(volume))
+      .map((volume) => {
       return {
         name: volume,
         path: volume,
         kind: 'volume',
       };
-    });
+      });
     res.json(volumeData);
   } catch (err) {
     console.error(err);
@@ -306,7 +317,9 @@ app.get('/api/browse/*', async (req, res) => {
 
   try {
     const files = await fs.readdir(directoryPath);
-    const filteredFiles = files.filter(file => path.extname(file).toLowerCase() !== '.download');
+    const filteredFiles = files
+    .filter((file) => !excludedFiles.includes(file))
+    .filter(file => path.extname(file).toLowerCase() !== '.download');
 
     const fileDataPromises =  filteredFiles.map(async (file) => {
       const filePath = path.join(directoryPath, file);
