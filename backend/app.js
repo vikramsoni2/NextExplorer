@@ -338,7 +338,11 @@ app.get('/api/browse/*', async (req, res) => {
 
       if (stats.isFile() && 
       [...imageExtensions, ...videoExtensions].includes(extension.toLowerCase())) {
-        item.thumbnail = await getThumbnail(filePath)
+        try {
+          item.thumbnail = await getThumbnail(filePath)
+        } catch (err) {
+          console.log(`Failed to generate thumbnail for ${filePath}: Continuing`, err);
+        }
       }
       return item;
     });

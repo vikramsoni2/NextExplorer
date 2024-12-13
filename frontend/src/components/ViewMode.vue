@@ -22,17 +22,17 @@ const settings = useSettingsStore()
 <div class="flex gap-1 items-center">
 
 <button @click="settings.listView" class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-  :class="{ 'dark:bg-zinc-700 dark:bg-opacity-70': settings.view == 'list' }">
+  :class="{ 'dark:bg-zinc-700 ': settings.view == 'list' }">
   <ListBulletIcon class="w-6" />
 </button>
 
 <button @click="settings.tabView" class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-  :class="{ 'dark:bg-zinc-700 dark:bg-opacity-70': settings.view == 'tab' }">
+  :class="{ 'dark:bg-zinc-700 ': settings.view == 'tab' }">
   <AlignSpaceAroundVertical20Regular class="w-6" />
 </button>
 
 <button @click="settings.gridView" class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-  :class="{ 'dark:bg-zinc-700 dark:bg-opacity-70': settings.view == 'grid' }">
+  :class="{ 'dark:bg-zinc-700 ': settings.view == 'grid' }">
   <Squares2X2Icon class="w-6" />
 </button>
 
