@@ -103,14 +103,42 @@ async function saveFileContent(path, content) {
   });
 }
 
-const getDownloadUrl = (relativePath) => {
-  const normalizedPath = normalizePath(relativePath);
-  if (!normalizedPath) {
-    return null;
+const downloadItems = async (paths, basePath = '') => {
+  const normalizedList = (Array.isArray(paths) ? paths : [paths])
+    .map((item) => normalizePath(item))
+    .filter(Boolean);
+
+  if (normalizedList.length === 0) {
+    throw new Error('At least one path is required for download.');
   }
 
-  const params = new URLSearchParams({ path: normalizedPath });
-  return buildUrl(`/api/download?${params.toString()}`);
+  const normalizedBase = normalizePath(basePath || '');
+
+  const response = await fetch(buildUrl('/api/download'), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      items: normalizedList,
+      basePath: normalizedBase,
+    }),
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData?.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (error) {
+      // Ignore JSON parsing errors and fall back to default error message
+    }
+    throw new Error(errorMessage);
+  }
+
+  return response;
 };
 
 const getPreviewUrl = (relativePath) => {
@@ -132,7 +160,7 @@ export {
   deleteItems,
   fetchFileContent,
   saveFileContent,
-  getDownloadUrl,
+  downloadItems,
   getPreviewUrl,
   normalizePath,
   encodePath,

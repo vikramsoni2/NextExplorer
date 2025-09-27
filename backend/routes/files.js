@@ -2,9 +2,14 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
 const fss = require('fs');
+const archiver = require('archiver');
 
 const { transferItems, deleteItems } = require('../services/fileTransferService');
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const {
+  normalizeRelativePath,
+  resolveVolumePath,
+  combineRelativePath,
+} = require('../utils/pathUtils');
 const { extensions, mimeTypes } = require('../config/index');
 
 const router = express.Router();
@@ -42,22 +47,106 @@ router.delete('/files', async (req, res) => {
   }
 });
 
-router.get('/download', async (req, res) => {
-  try {
-    const { path: relative = '' } = req.query;
-    if (typeof relative !== 'string' || !relative) {
-      return res.status(400).json({ error: 'A file path is required.' });
+const collectInputPaths = (...sources) => {
+  const collected = [];
+
+  const add = (value) => {
+    if (!value) return;
+
+    if (Array.isArray(value)) {
+      value.forEach(add);
+      return;
     }
 
-    const relativePath = normalizeRelativePath(relative);
+    if (typeof value === 'string') {
+      if (value.trim()) {
+        collected.push(value);
+      }
+      return;
+    }
+
+    if (value && typeof value === 'object') {
+      if (typeof value.relativePath === 'string') {
+        add(value.relativePath);
+        return;
+      }
+
+      if (typeof value.path === 'string' && typeof value.name === 'string') {
+        try {
+          add(combineRelativePath(value.path, value.name));
+        } catch (error) {
+          // ignore invalid combined paths and continue collecting
+        }
+        return;
+      }
+
+      if (typeof value.path === 'string') {
+        add(value.path);
+      }
+    }
+  };
+
+  sources.forEach(add);
+  return collected;
+};
+
+const toPosix = (value = '') => value.replace(/\\/g, '/');
+
+const stripBasePath = (relativePath, basePath) => {
+  const relPosix = toPosix(relativePath);
+  const basePosix = toPosix(basePath);
+
+  if (!basePosix) {
+    return relPosix;
+  }
+
+  if (relPosix === basePosix) {
+    const segments = relPosix.split('/');
+    return segments[segments.length - 1] || relPosix;
+  }
+
+  const basePrefix = basePosix.endsWith('/') ? basePosix : `${basePosix}/`;
+  if (relPosix.startsWith(basePrefix)) {
+    const trimmed = relPosix.slice(basePrefix.length);
+    return trimmed || relPosix.split('/').pop() || relPosix;
+  }
+
+  return relPosix;
+};
+
+const handleDownloadRequest = async (paths, res, basePath = '') => {
+  if (!Array.isArray(paths) || paths.length === 0) {
+    throw new Error('At least one path is required.');
+  }
+
+  const normalizedPaths = [...new Set(paths.map((item) => normalizeRelativePath(item)).filter(Boolean))];
+  if (normalizedPaths.length === 0) {
+    throw new Error('No valid paths provided.');
+  }
+
+  const baseNormalized = basePath ? normalizeRelativePath(basePath) : '';
+
+  const targets = await Promise.all(normalizedPaths.map(async (relativePath) => {
     const absolutePath = resolveVolumePath(relativePath);
     const stats = await fs.stat(absolutePath);
+    return { relativePath, absolutePath, stats };
+  }));
 
-    if (stats.isDirectory()) {
-      return res.status(400).json({ error: 'Downloading directories is not supported yet.' });
-    }
+  const hasDirectory = targets.some(({ stats }) => stats.isDirectory());
+  const shouldArchive = hasDirectory || targets.length > 1;
 
-    res.download(absolutePath, path.basename(absolutePath), (err) => {
+  if (!shouldArchive) {
+    const [{ absolutePath, relativePath }] = targets;
+    const filename = (() => {
+      if (!baseNormalized) {
+        return path.basename(absolutePath);
+      }
+
+      const relativePosix = stripBasePath(relativePath, baseNormalized);
+      const basename = relativePosix.split('/').pop();
+      return basename || path.basename(absolutePath);
+    })();
+    res.download(absolutePath, filename, (err) => {
       if (err) {
         console.error('Download failed:', err);
         if (!res.headersSent) {
@@ -65,9 +154,72 @@ router.get('/download', async (req, res) => {
         }
       }
     });
+    return;
+  }
+
+  const archiveName = (() => {
+    if (targets.length === 1) {
+      const segments = targets[0].relativePath
+        ? targets[0].relativePath.split(path.sep).filter(Boolean)
+        : [];
+      const baseName = segments.length > 0
+        ? segments[segments.length - 1]
+        : path.basename(targets[0].absolutePath);
+      return `${baseName || 'download'}.zip`;
+    }
+
+    if (baseNormalized) {
+      const segments = baseNormalized.split(path.sep).filter(Boolean);
+      const baseName = segments.length > 0 ? segments[segments.length - 1] : baseNormalized;
+      if (baseName) {
+        return `${baseName}.zip`;
+      }
+    }
+
+    return 'download.zip';
+  })();
+
+  res.setHeader('Content-Type', 'application/zip');
+  res.setHeader('Content-Disposition', `attachment; filename="${archiveName}"`);
+
+  const archive = archiver('zip', { zlib: { level: 9 } });
+  archive.on('error', (archiveError) => {
+    console.error('Archive creation failed:', archiveError);
+    if (!res.headersSent) {
+      res.status(500).json({ error: 'Failed to create archive.' });
+    } else {
+      res.end();
+    }
+  });
+
+  archive.pipe(res);
+
+  targets.forEach(({ relativePath, absolutePath, stats }) => {
+    const entryNameRaw = stripBasePath(relativePath, baseNormalized);
+    const entryName = entryNameRaw
+      ? entryNameRaw.replace(/\\/g, '/').replace(/^\/+/, '')
+      : path.basename(absolutePath);
+
+    if (stats.isDirectory()) {
+      archive.directory(absolutePath, entryName);
+    } else {
+      archive.file(absolutePath, { name: entryName || path.basename(absolutePath) });
+    }
+  });
+
+  await archive.finalize();
+};
+
+router.post('/download', async (req, res) => {
+  try {
+    const basePath = req.body?.basePath || req.body?.currentPath || '';
+    const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
+    await handleDownloadRequest(paths, res, basePath);
   } catch (error) {
     console.error('Download request failed:', error);
-    res.status(400).json({ error: error.message });
+    if (!res.headersSent) {
+      res.status(400).json({ error: error.message });
+    }
   }
 });
 

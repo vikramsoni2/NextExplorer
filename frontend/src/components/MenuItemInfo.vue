@@ -1,41 +1,82 @@
 <script setup>
-import { computed } from 'vue';
-import { ArrowDownTrayIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import { computed, ref } from 'vue';
+import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import { useFileStore } from '@/stores/fileStore';
-import { getDownloadUrl, normalizePath } from '@/api';
+import { normalizePath, downloadItems } from '@/api';
 
 const fileStore = useFileStore();
 
 const selectedItems = computed(() => fileStore.selectedItems);
 const selectedItem = computed(() => selectedItems.value[0] ?? null);
 const hasSelection = computed(() => selectedItems.value.length > 0);
+const isSingleFileSelected = computed(() => selectedItems.value.length === 1 && selectedItems.value[0]?.kind !== 'directory');
+const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
+const isPreparingDownload = ref(false);
 
-const isSingleFileSelected = computed(() => {
-  if (!selectedItem.value) return false;
-  return selectedItems.value.length === 1 && selectedItem.value.kind !== 'directory';
-});
+const getResolvedPaths = () => selectedItems.value
+  .map((item) => {
+    const parent = normalizePath(item.path || '');
+    const combined = parent ? `${parent}/${item.name}` : item.name;
+    return normalizePath(combined);
+  })
+  .filter(Boolean);
 
-const selectedPath = computed(() => {
-  if (!selectedItem.value) return null;
-  const parent = normalizePath(selectedItem.value.path || '');
-  const combined = parent ? `${parent}/${selectedItem.value.name}` : selectedItem.value.name;
-  return normalizePath(combined);
-});
+const extractFilename = (contentDisposition) => {
+  if (!contentDisposition) return null;
 
-const downloadHref = computed(() => {
-  if (!isSingleFileSelected.value || !selectedPath.value) return null;
-  return getDownloadUrl(selectedPath.value);
-});
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match && utf8Match[1]) {
+    try {
+      return decodeURIComponent(utf8Match[1].replace(/"/g, ''));
+    } catch (error) {
+      return utf8Match[1].replace(/"/g, '');
+    }
+  }
 
-const handleDownload = () => {
-  if (!downloadHref.value) return;
-  const anchor = document.createElement('a');
-  anchor.href = downloadHref.value;
-  anchor.download = selectedItem.value.name;
-  anchor.rel = 'noopener';
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
+  const asciiMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+  if (asciiMatch && asciiMatch[1]) {
+    return asciiMatch[1];
+  }
+
+  return null;
+};
+
+const handleDownload = async () => {
+  if (!hasSelection.value || isPreparingDownload.value) return;
+
+  const paths = getResolvedPaths();
+  if (!paths.length) return;
+
+  isPreparingDownload.value = true;
+  try {
+    const response = await downloadItems(paths, currentPath.value);
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const suggestedName = extractFilename(disposition)
+      || (isSingleFileSelected.value && selectedItem.value
+        ? selectedItem.value.name
+        : selectedItems.value.length === 1 && selectedItem.value
+          ? `${selectedItem.value.name}.zip`
+          : (() => {
+            const segments = currentPath.value.split('/').filter(Boolean);
+            const base = segments[segments.length - 1];
+            return base ? `${base}.zip` : 'download.zip';
+          })());
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = downloadUrl;
+    anchor.rel = 'noopener';
+    anchor.download = suggestedName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
+  } catch (error) {
+    console.error('Download failed', error);
+  } finally {
+    isPreparingDownload.value = false;
+  }
 };
 
 const handleDelete = async () => {
@@ -53,13 +94,14 @@ const handleDelete = async () => {
     <button
       type="button"
       @click="handleDownload"
-      :disabled="!isSingleFileSelected"
+      :disabled="!hasSelection || isPreparingDownload"
       class="p-[6px] rounded-md transition-colors
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-      :class="{ 'opacity-50 cursor-not-allowed': !isSingleFileSelected }"
+      :class="{ 'opacity-50 cursor-not-allowed': !hasSelection || isPreparingDownload }"
     >
-      <ArrowDownTrayIcon class="w-6" />
+      <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
+      <ArrowDownTrayIcon v-else class="w-6" />
     </button>
     <button
       type="button"
