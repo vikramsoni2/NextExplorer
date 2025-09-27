@@ -15,16 +15,33 @@ router.post('/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asyn
       return res.status(400).json({ error: 'No files were provided.' });
     }
 
+    console.log(req.files)
+    /*
+    prints like
+    [
+      {
+        fieldname: 'filedata',
+        originalname: 'OnyX.dmg',
+        encoding: '7bit',
+        mimetype: 'application/x-diskcopy',
+        path: '/mnt/Projects/OnyX.dmg',
+        size: 7062382
+      }
+    ]
+    */
+
+
     const fileData = [];
 
     for (const file of req.files.filedata) {
       const stats = await fs.stat(file.path);
       const relativeFilePath = normalizeRelativePath(path.relative(directories.volume, file.path));
       const parentPath = normalizeRelativePath(path.dirname(relativeFilePath));
-      const extension = path.extname(file.originalname).toLowerCase().replace('.', '');
+      const storedName = path.basename(relativeFilePath);
+      const extension = path.extname(storedName).toLowerCase().replace('.', '');
 
       fileData.push({
-        name: file.originalname,
+        name: storedName,
         path: parentPath,
         dateModified: stats.mtime,
         size: stats.size,

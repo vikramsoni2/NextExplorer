@@ -40,7 +40,7 @@ export function useFileUploader() {
   });
 
 
-  function uppyFile(file){
+  function uppyFile(file) {
     return {
       name: file.name,
       type: file.type,
@@ -71,18 +71,21 @@ export function useFileUploader() {
     return new Promise((resolve) => {
       if (!inputRef.value) return;
 
-      // TODO: files array should be in uppyFile format
       files.value = [];
       const options = { ...defaultDialogOptions, ...opts };
       
       setDialogAttributes(options);
 
       inputRef.value.onchange = (e) => {
-        
-        files.value = Array.from(e.target.files).filter(
-          file => !disallowedFiles.includes(file.name)
+        const selectedFiles = Array.from(e.target.files || []).filter(
+          (file) => !disallowedFiles.includes(file.name)
         );
-        files.value.forEach(file => uppy.addFile(uppyFile(file)));
+
+        files.value = selectedFiles.map((file) => uppyFile(file));
+        files.value.forEach((file) => uppy.addFile(file));
+
+        // Reset the input so the same file can be selected again if needed
+        e.target.value = '';
         resolve();
       };
 
