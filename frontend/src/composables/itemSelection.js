@@ -69,5 +69,6 @@ export function useSelection() {
   return {
     isSelected,
     handleSelection,
+    clearSelection,
   }
 }
