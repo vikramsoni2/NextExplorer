@@ -1,14 +1,20 @@
 <script setup>
+import { computed } from 'vue';
 import FileIcon from '@/icons/FileIcon.vue';
 import { formatBytes, formatDate } from '@/utils';
-import {useNavigation} from '@/composables/navigation';
+import { useNavigation } from '@/composables/navigation';
 import { useSelection } from '@/composables/itemSelection';
+import { useFileStore } from '@/stores/fileStore';
 
-const emit = defineEmits(['click'])
 const props = defineProps(['item', 'view'])
 
 const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
+const fileStore = useFileStore();
+
+const isCut = computed(() => fileStore.cutItems.some(
+  (cutItem) => cutItem.name === props.item.name && (cutItem.path || '') === (props.item.path || '')
+));
 
 </script>
 
@@ -20,6 +26,7 @@ const {handleSelection, isSelected} = useSelection();
     @click="handleSelection(item, $event)"
     @dblclick="openItem(item)"
     class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"    
+    :class="{ 'opacity-60': isCut }"
     > 
         <FileIcon 
         :item="item" 
@@ -36,12 +43,16 @@ const {handleSelection, isSelected} = useSelection();
     @click="handleSelection(item, $event)"
     @dblclick="openItem(item)"
     
-    class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none">
+    class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
+    :class="{ 'opacity-60': isCut }">
+        
         <FileIcon 
         :item="item" 
         class="w-16 shrink-0"/> 
         <div class="grow rounded-md px-2 -mx-2"
-        :class="{'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) }" >
+        :class="{
+          'bg-blue-500 text-white dark:bg-blue-600': isSelected(item)
+        }" >
             <div class="break-all line-clamp-2"
             >
             {{ item.name }}</div>
@@ -59,7 +70,10 @@ const {handleSelection, isSelected} = useSelection();
     cursor-pointer auto-cols-fr p-1 px-4 rounded-md
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
     "
-    :class="{'!text-white !bg-blue-500 !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item) }" 
+    :class="{
+      '!text-white !bg-blue-500 !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
+      'opacity-60': isCut && !isSelected(item)
+    }" 
      >
         
         <FileIcon 

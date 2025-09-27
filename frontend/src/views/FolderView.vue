@@ -12,10 +12,16 @@ const route = useRoute()
 const loading = ref(true)
 const selectedItems = ref([]);
 
-const loadFiles = async()=>{
+const loadFiles = async () => {
+  loading.value = true
   const path = route.params.path || ''
-  await fileStore.fetchPathItems(path)
-  loading.value = false
+  try {
+    await fileStore.fetchPathItems(path)
+  } catch (error) {
+    console.error('Failed to load directory contents', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(loadFiles)

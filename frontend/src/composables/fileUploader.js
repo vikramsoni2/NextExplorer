@@ -1,10 +1,11 @@
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import Uppy, { debugLogger } from '@uppy/core';
+import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
 import {useFileStore} from '@/stores/fileStore';
+import { apiBase, normalizePath } from '@/api';
 
-export function useFileUploader({...options}) {
+export function useFileUploader() {
 
   const disallowedFiles = ['.DS_Store', 'thumbs.db'];
   const uppyStore = useUppyStore();
@@ -15,13 +16,12 @@ export function useFileUploader({...options}) {
   const uppy = new Uppy({
     debug: true,
     autoProceed: true,
-    // logger: debugLogger,
     store: uppyStore,
   });
 
 
   uppy.use(XHRUpload, {
-    endpoint: 'http://localhost:3000/api/upload', // your server endpoint
+    endpoint: `${apiBase}/api/upload`,
     formData: true,
     fieldName: 'filedata',
     bundle: false,
@@ -30,11 +30,11 @@ export function useFileUploader({...options}) {
 
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {
-      uploadTo: fileStore.currentPath
+      uploadTo: normalizePath(fileStore.currentPath || ''),
     });
   });
 
-  uppy.on('upload-success', (file, response) => {
+  uppy.on('upload-success', () => {
     console.log("upload-success")
     fileStore.fetchPathItems(fileStore.currentPath)
   });

@@ -1,23 +1,192 @@
 const fss = require('fs');
 const path = require('path');
-const cors = require('cors'); 
+const cors = require('cors');
 const sharp = require('sharp');
 const crypto = require('crypto');
 const multer = require('multer');
 const fs = require('fs').promises;
 const express = require('express');
 const ffmpeg = require('fluent-ffmpeg');
-const bodyParser = require('body-parser');
 const WebSocket = require('ws');
 // const pty = require('node-pty');
 
-const port = 3000; 
-const volumeDir = '/mnt/';
-const cacheDir = '/cache'
-const thumbnailDir = '/cache/thumbnails'
-const imageExtensions = ['jpg', 'jpeg', 'png', 'gif']
-const videoExtensions = ['mp4', 'avi', 'mov', 'mkv']
-const excludedFiles = ['thumbs.db', '.DS_Store']
+const port = Number(process.env.PORT) || 3000;
+const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
+const volumeDirWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
+const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
+const thumbnailDir = path.join(cacheDir, 'thumbnails');
+const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
+const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
+const excludedFiles = ['thumbs.db', '.DS_Store'];
+
+const mimeTypes = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  svg: 'image/svg+xml',
+  ico: 'image/x-icon',
+  tif: 'image/tiff',
+  tiff: 'image/tiff',
+  avif: 'image/avif',
+  heic: 'image/heic',
+  mp4: 'video/mp4',
+  mov: 'video/quicktime',
+  mkv: 'video/x-matroska',
+  webm: 'video/webm',
+  m4v: 'video/x-m4v',
+  avi: 'video/x-msvideo',
+  wmv: 'video/x-ms-wmv',
+  flv: 'video/x-flv',
+  mpg: 'video/mpeg',
+  mpeg: 'video/mpeg',
+};
+
+const previewableExtensions = new Set([...imageExtensions, ...videoExtensions]);
+
+const ensureDir = async (targetPath) => {
+  await fs.mkdir(targetPath, { recursive: true });
+};
+
+const pathExists = async (targetPath) => {
+  try {
+    await fs.access(targetPath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+const normalizeRelativePath = (relativePath = '') => {
+  if (!relativePath || relativePath === '/') {
+    return '';
+  }
+
+  const normalized = path
+    .normalize(relativePath.replace(/\\/g, '/'))
+    .replace(/^[\\/]+/, '');
+
+  if (normalized === '.' ) {
+    return '';
+  }
+
+  if (normalized === '..' || normalized.startsWith('..' + path.sep)) {
+    throw new Error('Invalid path. Traversal outside the volume root is not allowed.');
+  }
+
+  return normalized;
+};
+
+const resolveVolumePath = (relativePath = '') => {
+  const safeRelativePath = normalizeRelativePath(relativePath);
+  const absolutePath = path.resolve(volumeDir, safeRelativePath);
+
+  if (absolutePath !== volumeDir && !absolutePath.startsWith(volumeDirWithSep)) {
+    throw new Error('Resolved path is outside the configured volume root.');
+  }
+
+  return absolutePath;
+};
+
+const readMetaField = (req, key, fallback = '') => {
+  if (!req || !req.body) return fallback;
+
+  if (typeof req.body[key] === 'string') {
+    return req.body[key];
+  }
+
+  const bracketKey = `meta[${key}]`;
+  const bracketValue = req.body[bracketKey];
+  if (typeof bracketValue === 'string') {
+    return bracketValue;
+  }
+
+  return fallback;
+};
+
+const splitName = (name) => {
+  const extension = path.extname(name);
+  const base = extension ? name.slice(0, -extension.length) : name;
+  return { base, extension };
+};
+
+const findAvailableName = async (directory, desiredName) => {
+  let candidate = desiredName;
+  let counter = 1;
+
+  while (await pathExists(path.join(directory, candidate))) {
+    const { base, extension } = splitName(desiredName);
+    candidate = `${base} (${counter})${extension}`;
+    counter += 1;
+  }
+
+  return candidate;
+};
+
+const combineRelativePath = (parent = '', name = '') => {
+  const normalizedParent = normalizeRelativePath(parent);
+  const combined = path.posix.join(normalizedParent, name);
+  return normalizeRelativePath(combined);
+};
+
+const copyEntry = async (sourcePath, destinationPath, isDirectory) => {
+  if (isDirectory) {
+    if (typeof fs.cp === 'function') {
+      await fs.cp(sourcePath, destinationPath, {
+        recursive: true,
+        force: false,
+        errorOnExist: true,
+      });
+    } else {
+      await fs.mkdir(destinationPath, { recursive: true });
+      const entries = await fs.readdir(sourcePath, { withFileTypes: true });
+      for (const entry of entries) {
+        const src = path.join(sourcePath, entry.name);
+        const dest = path.join(destinationPath, entry.name);
+        // eslint-disable-next-line no-await-in-loop
+        await copyEntry(src, dest, entry.isDirectory());
+      }
+    }
+  } else {
+    await fs.copyFile(sourcePath, destinationPath);
+  }
+};
+
+const moveEntry = async (sourcePath, destinationPath, isDirectory) => {
+  try {
+    await fs.rename(sourcePath, destinationPath);
+  } catch (error) {
+    if (error.code === 'EXDEV') {
+      await copyEntry(sourcePath, destinationPath, isDirectory);
+      await fs.rm(sourcePath, { recursive: isDirectory, force: true });
+    } else {
+      throw error;
+    }
+  }
+};
+
+const resolveItemPaths = (item = {}) => {
+  if (!item || typeof item.name !== 'string') {
+    throw new Error('Each item must include a name.');
+  }
+
+  const parentPath = item.path || '';
+  const relativePath = combineRelativePath(parentPath, item.name);
+  const absolutePath = resolveVolumePath(relativePath);
+
+  return { relativePath, absolutePath };
+};
+
+(async () => {
+  try {
+    await ensureDir(cacheDir);
+    await ensureDir(thumbnailDir);
+  } catch (error) {
+    console.error('Failed to initialize cache directories:', error);
+  }
+})();
 
 // const volumeDir = '/Users/vikram/Downloads/vols';
 // const cacheDir = '/Users/vikram/Downloads/cache'
@@ -26,10 +195,8 @@ const excludedFiles = ['thumbs.db', '.DS_Store']
 
 
 async function generateThumbnail(filePath, thumbPath) {
-
-  // Ensure the thumbnail directory exists
   if (!fss.existsSync(path.dirname(thumbPath))) {
-    await fs.mkdir(path.dirname(thumbPath), { recursive: true });
+    await ensureDir(path.dirname(thumbPath));
   }
 
   const extension = path.extname(filePath).split(".").splice(-1)[0].toLowerCase();
@@ -82,13 +249,18 @@ async function generateThumbnail(filePath, thumbPath) {
 const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200,
-  methods: ['GET', 'PUT', 'UPDATE', 'DELETE']  
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
 const app = express();
 
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
  
 // const upload = multer({ dest: 'uploads/' })
 
@@ -100,49 +272,56 @@ function CustomStorage(opts) {
 }
 
 CustomStorage.prototype._handleFile = function (req, file, cb) {
-  this.getDestination(req, file, async (err, destination) => {
+  this.getDestination(req, file, async (err) => {
     if (err) {
-      console.error("Error in getDestination:", err);
+      console.error('Error in getDestination:', err);
       return cb(err);
     }
 
-    const relativePath = path.normalize(req.body.relativePath);
-    const uploadTo = path.join(volumeDir, path.normalize(req.body.uploadTo));
-    let destinationPath;
-
-    if (relativePath.includes('/')) {
-      destinationPath = path.join(uploadTo, relativePath);
-    } else {
-      destinationPath = path.join(uploadTo, path.basename(relativePath));
-    }
-
-    const destinationDir = path.dirname(destinationPath);
-    const tempPath = destinationPath + '.download';
-
     try {
-      await fs.mkdir(destinationDir, { recursive: true });
-      const outStream = fss.createWriteStream(tempPath);
+      const relativePathMeta = readMetaField(req, 'relativePath');
+      const uploadToMeta = readMetaField(req, 'uploadTo');
 
+      const uploadTo = normalizeRelativePath(uploadToMeta);
+      const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
+
+      const destinationRoot = resolveVolumePath(uploadTo);
+      const destinationPath = path.join(destinationRoot, relativePath);
+      const destinationDir = path.dirname(destinationPath);
+      const tempPath = `${destinationPath}.download`;
+
+      await ensureDir(destinationDir);
+
+      const outStream = fss.createWriteStream(tempPath);
       file.stream.pipe(outStream);
-      outStream.on('error', (streamErr) => {
-        console.error("Error during file streaming:", streamErr);
+
+      outStream.on('error', async (streamErr) => {
+        console.error('Error during file streaming:', streamErr);
+        try {
+          if (await pathExists(tempPath)) {
+            await fs.rm(tempPath, { force: true });
+          }
+        } catch (cleanupErr) {
+          console.error('Failed to remove temporary upload file:', cleanupErr);
+        }
         cb(streamErr);
       });
+
       outStream.on('finish', async () => {
         try {
           await fs.rename(tempPath, destinationPath);
           cb(null, {
             path: destinationPath,
-            size: outStream.bytesWritten
+            size: outStream.bytesWritten,
           });
         } catch (renameErr) {
-          console.error("Error during file renaming:", renameErr);
+          console.error('Error during file renaming:', renameErr);
           cb(renameErr);
         }
       });
-    } catch (err) {
-      console.error("Error during file upload:", err);
-      cb(err);
+    } catch (uploadError) {
+      console.error('Error during file upload:', uploadError);
+      cb(uploadError);
     }
   });
 };
@@ -158,14 +337,20 @@ const upload = multer({ storage: customStorage({}) });
 
 app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), async (req, res) => {
   try {
+    if (!req.files || !Array.isArray(req.files.filedata) || req.files.filedata.length === 0) {
+      return res.status(400).json({ error: 'No files were provided.' });
+    }
+
     const fileData = [];
     for (const file of req.files.filedata) {
       const filePath = file.path;
       const stats = await fs.stat(filePath);
+      const relativeFilePath = normalizeRelativePath(path.relative(volumeDir, filePath));
+      const parentPath = normalizeRelativePath(path.dirname(relativeFilePath));
       const extension = path.extname(file.originalname).toLowerCase().replace('.', '');
       const item = {
         name: file.originalname,
-        path: req.body.relativePath,
+        path: parentPath,
         dateModified: stats.mtime,
         size: stats.size,
         kind: extension
@@ -177,6 +362,224 @@ app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asy
   } catch (err) {
     console.error(`Error: ${err}`);
     res.status(500).send('Server error');
+  }
+});
+
+const handleFileTransfer = async (items, destination, operation) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error('At least one item is required.');
+  }
+
+  const destinationRelative = normalizeRelativePath(destination);
+  const destinationAbsolute = resolveVolumePath(destinationRelative);
+  await ensureDir(destinationAbsolute);
+
+  const results = [];
+
+  for (const item of items) {
+    const { relativePath: sourceRelative, absolutePath: sourceAbsolute } = resolveItemPaths(item);
+    if (!(await pathExists(sourceAbsolute))) {
+      throw new Error(`Source path not found: ${sourceRelative}`);
+    }
+
+    const stats = await fs.stat(sourceAbsolute);
+    const sourceParent = normalizeRelativePath(path.dirname(sourceRelative));
+
+    if (operation === 'move' && destinationRelative === sourceParent) {
+      results.push({ from: sourceRelative, to: sourceRelative, skipped: true });
+      continue;
+    }
+
+    const desiredName = item.newName || item.name;
+    const availableName = await findAvailableName(destinationAbsolute, desiredName);
+    const targetAbsolute = path.join(destinationAbsolute, availableName);
+    const targetRelative = combineRelativePath(destinationRelative, availableName);
+
+    if (operation === 'copy') {
+      await copyEntry(sourceAbsolute, targetAbsolute, stats.isDirectory());
+    } else if (operation === 'move') {
+      await moveEntry(sourceAbsolute, targetAbsolute, stats.isDirectory());
+    } else {
+      throw new Error(`Unsupported operation: ${operation}`);
+    }
+
+    results.push({ from: sourceRelative, to: targetRelative });
+  }
+
+  return { destination: destinationRelative, items: results };
+};
+
+app.post('/api/files/copy', async (req, res) => {
+  try {
+    const { items = [], destination = '' } = req.body || {};
+    const result = await handleFileTransfer(items, destination, 'copy');
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Copy operation failed:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/files/move', async (req, res) => {
+  try {
+    const { items = [], destination = '' } = req.body || {};
+    const result = await handleFileTransfer(items, destination, 'move');
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Move operation failed:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/files', async (req, res) => {
+  try {
+    const { items = [] } = req.body || {};
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ success: false, error: 'At least one item is required.' });
+    }
+
+    const results = [];
+
+    for (const item of items) {
+      const { relativePath, absolutePath } = resolveItemPaths(item);
+      if (!(await pathExists(absolutePath))) {
+        results.push({ path: relativePath, status: 'missing' });
+        continue;
+      }
+
+      const stats = await fs.stat(absolutePath);
+      await fs.rm(absolutePath, { recursive: stats.isDirectory(), force: true });
+      results.push({ path: relativePath, status: 'deleted' });
+    }
+
+    res.json({ success: true, items: results });
+  } catch (error) {
+    console.error('Delete operation failed:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+app.get('/api/download', async (req, res) => {
+  try {
+    const { path: relative = '' } = req.query;
+    if (typeof relative !== 'string' || !relative) {
+      return res.status(400).json({ error: 'A file path is required.' });
+    }
+
+    const relativePath = normalizeRelativePath(relative);
+    const absolutePath = resolveVolumePath(relativePath);
+    const stats = await fs.stat(absolutePath);
+
+    if (stats.isDirectory()) {
+      return res.status(400).json({ error: 'Downloading directories is not supported yet.' });
+    }
+
+    res.download(absolutePath, path.basename(absolutePath), (err) => {
+      if (err) {
+        console.error('Download failed:', err);
+        if (!res.headersSent) {
+          res.status(500).send('Failed to download file.');
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Download request failed:', error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+
+app.get('/api/preview', async (req, res) => {
+  try {
+    const { path: relative = '' } = req.query || {};
+    if (typeof relative !== 'string' || !relative) {
+      return res.status(400).json({ error: 'A file path is required.' });
+    }
+
+    const relativePath = normalizeRelativePath(relative);
+    const absolutePath = resolveVolumePath(relativePath);
+    const stats = await fs.stat(absolutePath);
+
+    if (stats.isDirectory()) {
+      return res.status(400).json({ error: 'Cannot preview a directory.' });
+    }
+
+    const extension = path.extname(absolutePath).slice(1).toLowerCase();
+
+    if (!previewableExtensions.has(extension)) {
+      return res.status(415).json({ error: 'Preview is not available for this file type.' });
+    }
+
+    const mimeType = mimeTypes[extension] || 'application/octet-stream';
+    const isVideo = videoExtensions.includes(extension);
+
+    const streamFile = (options = undefined) => {
+      const stream = options ? fss.createReadStream(absolutePath, options) : fss.createReadStream(absolutePath);
+      stream.on('error', (streamError) => {
+        console.error('Preview stream failed:', streamError);
+        if (!res.headersSent) {
+          res.status(500).end();
+        } else {
+          res.destroy(streamError);
+        }
+      });
+      stream.pipe(res);
+    };
+
+    if (isVideo) {
+      const rangeHeader = req.headers.range;
+      if (rangeHeader) {
+        const bytesPrefix = 'bytes=';
+        if (!rangeHeader.startsWith(bytesPrefix)) {
+          res.status(416).send('Malformed Range header');
+          return;
+        }
+
+        const [startString, endString] = rangeHeader.slice(bytesPrefix.length).split('-');
+        let start = Number(startString);
+        let end = endString ? Number(endString) : stats.size - 1;
+
+        if (Number.isNaN(start)) start = 0;
+        if (Number.isNaN(end) || end >= stats.size) end = stats.size - 1;
+
+        if (start > end) {
+          res.status(416).send('Range Not Satisfiable');
+          return;
+        }
+
+        const chunkSize = end - start + 1;
+        res.writeHead(206, {
+          'Content-Range': `bytes ${start}-${end}/${stats.size}`,
+          'Accept-Ranges': 'bytes',
+          'Content-Length': chunkSize,
+          'Content-Type': mimeType,
+        });
+        streamFile({ start, end });
+        return;
+      }
+
+      res.writeHead(200, {
+        'Content-Type': mimeType,
+        'Content-Length': stats.size,
+        'Accept-Ranges': 'bytes',
+      });
+      streamFile();
+      return;
+    }
+
+    res.writeHead(200, {
+      'Content-Type': mimeType,
+      'Content-Length': stats.size,
+    });
+    streamFile();
+  } catch (error) {
+    console.error('Preview request failed:', error);
+    if (!res.headersSent) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.end();
+    }
   }
 });
 
@@ -272,19 +675,18 @@ app.post('/api/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asy
 
 app.get('/api/volumes', async (req, res) => {
   try {
-    const directoryPath = volumeDir;
-    const volumes = await fs.readdir(directoryPath);
+    const entries = await fs.readdir(volumeDir, { withFileTypes: true });
 
-    console.log(volumes)
-    const volumeData = volumes
-      .filter((volume) => !excludedFiles.includes(volume))
-      .map((volume) => {
-      return {
-        name: volume,
-        path: volume,
+    const volumeData = entries
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name)
+      .filter((name) => !excludedFiles.includes(name))
+      .map((name) => ({
+        name,
+        path: name,
         kind: 'volume',
-      };
-      });
+      }));
+
     res.json(volumeData);
   } catch (err) {
     console.error(err);
@@ -313,9 +715,14 @@ async function getThumbnail(filePath){
 
 
 app.get('/api/browse/*', async (req, res) => {
-  const directoryPath = path.join(volumeDir,req.params[0]); 
-
   try {
+    const relativePath = normalizeRelativePath(req.params[0]);
+    const directoryPath = resolveVolumePath(relativePath);
+
+    if (!(await pathExists(directoryPath))) {
+      return res.status(404).json({ error: 'Path not found.' });
+    }
+
     const files = await fs.readdir(directoryPath);
     const filteredFiles = files
     .filter((file) => !excludedFiles.includes(file))
@@ -330,7 +737,7 @@ app.get('/api/browse/*', async (req, res) => {
 
       let item = {
         name: file,
-        path: req.params[0], 
+        path: relativePath,
         dateModified: stats.mtime,
         size: stats.size,
         kind: extension
@@ -357,30 +764,22 @@ app.get('/api/browse/*', async (req, res) => {
 });
 
 
-
-
-app.get('/api/file/:path', (req, res) => {
-  const filePath = path.join(volumeDir, req.params.path);
-  console.log("hitting file endpoint")
-  console.log(filePath)
-
-  fs.readFile(filePath, { encoding: 'utf-8' }, (err, data) => {
-      if (err) {
-          console.error('Error reading the file:', err);
-          return res.status(500).send('Failed to read file.');
-      }
-      res.send(data);
-  });
-});
-
-
 app.post('/api/editor', async (req, res) => {
-  const basePath = "/mnt";
-  const safeFilePath = path.join(basePath, req.body.path.replace(/\.\./g, ''));
-
   try {
-    const data = await fs.readFile(safeFilePath, { encoding: 'utf-8' });
-    console.log(data);
+    const { path: relative = '' } = req.body || {};
+    if (typeof relative !== 'string' || !relative) {
+      return res.status(400).json({ error: 'A valid file path is required.' });
+    }
+
+    const relativePath = normalizeRelativePath(relative);
+    const absolutePath = resolveVolumePath(relativePath);
+    const stats = await fs.stat(absolutePath);
+
+    if (stats.isDirectory()) {
+      return res.status(400).json({ error: 'Cannot open a directory in the editor.' });
+    }
+
+    const data = await fs.readFile(absolutePath, { encoding: 'utf-8' });
     res.send({ content: data });
   } catch (err) {
     console.error('Error reading the file:', err);
@@ -389,28 +788,28 @@ app.post('/api/editor', async (req, res) => {
 });
 
 
-app.put('/api/editor', (req, res) => {
-  const filePath = path.join(volumeDir, request.body.path);
-  const content = req.body.content; // Assuming the new content is passed as a JSON payload
+app.put('/api/editor', async (req, res) => {
+  try {
+    const { path: relative = '', content = '' } = req.body || {};
+    if (typeof relative !== 'string' || !relative) {
+      return res.status(400).json({ error: 'A valid file path is required.' });
+    }
 
-  fs.writeFile(filePath, content, (err) => {
-      if (err) {
-          console.error('Error writing to the file:', err);
-          return res.status(500).send('Failed to update file.');
-      }
-      res.send('File updated successfully.');
-  });
+    const relativePath = normalizeRelativePath(relative);
+    const absolutePath = resolveVolumePath(relativePath);
+    await ensureDir(path.dirname(absolutePath));
+    await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
+    res.send({ success: true });
+  } catch (err) {
+    console.error('Error writing to the file:', err);
+    res.status(500).json({ error: 'Failed to update file.' });
+  }
 });
 
 
 app.use('/static/thumbnails', express.static(thumbnailDir));
 
 
-
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
 
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
@@ -440,4 +839,3 @@ const server = app.listen(port, '0.0.0.0', () => {
 //     ptyProcess.kill();
 //   });
 // });
-

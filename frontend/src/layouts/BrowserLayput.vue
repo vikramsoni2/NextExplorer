@@ -17,6 +17,7 @@ import { RouterView, useRoute } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
+import ImagePreview from '@/components/ImagePreview.vue';
 // import TerminalPanel from '@/components/TerminalPanel.vue';
 
 
@@ -82,7 +83,7 @@ useTitle(currentPathName)
       </div> -->
     </main>
   <UploadProgress/>
+  <ImagePreview/>
   </div>
 
 </template>
-

@@ -1,55 +1,139 @@
+const DEFAULT_API_BASE = 'http://localhost:3000';
+const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
-async function browse(path){
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/browse/${path}`);
-    return response.json();
+const encodePath = (relativePath = '') => {
+  if (!relativePath) return '';
+  return relativePath
+    .split('/')
+    .filter(Boolean)
+    .map(encodeURIComponent)
+    .join('/');
+};
+
+const normalizePath = (relativePath = '') => {
+  if (!relativePath) {
+    return '';
+  }
+
+  const trimmed = relativePath.replace(/^\/+|\/+$/g, '');
+  return trimmed;
+};
+
+const buildUrl = (endpoint) => `${apiBase}${endpoint}`;
+
+const requestJson = async (endpoint, options = {}) => {
+  const method = (options.method || 'GET').toUpperCase();
+  const headers = {
+    ...(options.headers || {}),
+  };
+
+  if (method !== 'GET' && method !== 'HEAD') {
+    headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+  }
+
+  const response = await fetch(buildUrl(endpoint), {
+    ...options,
+    method,
+    headers,
+  });
+
+  if (!response.ok) {
+    let errorMessage = `Request failed with status ${response.status}`;
+    try {
+      const errorData = await response.json();
+      if (errorData?.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (error) {
+      // Ignore JSON parsing errors and fall back to default error message
+    }
+    throw new Error(errorMessage);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+};
+
+async function browse(path = '') {
+  const normalizedPath = normalizePath(path);
+  const encodedPath = encodePath(normalizedPath);
+  const endpoint = encodedPath ? `/api/browse/${encodedPath}` : '/api/browse/';
+  return requestJson(endpoint, { method: 'GET' });
 }
 
-async function getVolumes(){
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/volumes`);
-    return response.json();
+async function getVolumes() {
+  return requestJson('/api/volumes', { method: 'GET' });
 }
 
-async function copyItem(items, path){
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/copy/${item.path}/${path}`);
-    return response.json();3
+async function copyItems(items, destination) {
+  return requestJson('/api/files/copy', {
+    method: 'POST',
+    body: JSON.stringify({ items, destination }),
+  });
 }
 
-async function moveItem(items, path){
-    //use HTTP POST method to send the item and path to the server
-}   
-
-async function deleteItem(item){
-    //use HTTP DELETE method to send the item to the server
+async function moveItems(items, destination) {
+  return requestJson('/api/files/move', {
+    method: 'POST',
+    body: JSON.stringify({ items, destination }),
+  });
 }
 
+async function deleteItems(items) {
+  return requestJson('/api/files', {
+    method: 'DELETE',
+    body: JSON.stringify({ items }),
+  });
+}
 
+async function fetchFileContent(path) {
+  return requestJson('/api/editor', {
+    method: 'POST',
+    body: JSON.stringify({ path }),
+  });
+}
+
+async function saveFileContent(path, content) {
+  return requestJson('/api/editor', {
+    method: 'PUT',
+    body: JSON.stringify({ path, content }),
+  });
+}
+
+const getDownloadUrl = (relativePath) => {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    return null;
+  }
+
+  const params = new URLSearchParams({ path: normalizedPath });
+  return buildUrl(`/api/download?${params.toString()}`);
+};
+
+const getPreviewUrl = (relativePath) => {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    return null;
+  }
+
+  const params = new URLSearchParams({ path: normalizedPath });
+  return buildUrl(`/api/preview?${params.toString()}`);
+};
 
 export {
-    browse, 
-    getVolumes,
-    copyItem,
-    moveItem,
-    deleteItem
-}
-
-
-
-
-
-// async function fetchData(url, method, payload, signal = undefined) {
-//     let response;
-//     if (method === 'POST') {
-//         response = await fetch(url, {
-//             method: "POST",
-//             headers: { 
-//                 "Content-Type": "application/json",
-//                 // "Authorization": `Bearer ${auth.getAccessToken()}`
-//             },
-//             body: JSON.stringify(payload),
-//             signal:signal
-//         });
-//     } else {
-//         response = await fetch(`${url}?query_message="${payload.query_message}"`, {signal});
-//     }
-//     return response;
-// }
+  apiBase,
+  browse,
+  getVolumes,
+  copyItems,
+  moveItems,
+  deleteItems,
+  fetchFileContent,
+  saveFileContent,
+  getDownloadUrl,
+  getPreviewUrl,
+  normalizePath,
+  encodePath,
+};

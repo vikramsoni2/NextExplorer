@@ -9,7 +9,11 @@ const {openItem} = useNavigation()
 const volumes = ref([])
 
 onMounted(async () => {
-    volumes.value = await getVolumes()
+    try {
+        volumes.value = await getVolumes()
+    } catch (error) {
+        console.error('Failed to load volumes', error)
+    }
 })
 
 const open = ref(true);

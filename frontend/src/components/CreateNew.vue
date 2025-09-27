@@ -1,9 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import {PlusIcon} from '@heroicons/vue/24/outline'
 import { useToggle, onClickOutside } from '@vueuse/core'
 import {CreateNewFolderRound, UploadFileRound, DriveFolderUploadRound} from '@vicons/material'
-import { useRoute } from 'vue-router';
 
 
 
@@ -13,14 +12,14 @@ const [menuOpen, toggle] = useToggle()
 
 onClickOutside(
   popuplRef,
-  (event) => {
+  () => {
     menuOpen.value = false
   },
 )
 
 import { useFileUploader } from '@/composables/fileUploader';
 
-const {files, openDialog } = useFileUploader({'url':'http://localhost:3020/upload'});
+const { openDialog } = useFileUploader();
 
 const uploadFolder = async ()=>{
   await openDialog({directory: true})

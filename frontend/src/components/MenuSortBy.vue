@@ -45,6 +45,7 @@ onClickOutside(menuPopup, () => {
         <div class="flex flex-col gap-1  p-1">
 
           <button v-for="option in settings.sortOptions"
+            :key="option.key"
             @click="settings.setSortBy(option.key); menuOpen = false"
             class="
             flex items-center 
