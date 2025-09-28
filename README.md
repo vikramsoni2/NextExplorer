@@ -1,6 +1,24 @@
 # nextExplorer
 
-A full-stack file explorer that lets you browse host volumes, upload files or folders, generate thumbnails, and manage content (download, copy, move, delete) through a Vue 3 interface backed by an Express API.
+Your self-hosted, full-stack file explorer with secure access control, polished UX, and a modern Vue 3 + Express stack.
+
+## Highlights
+
+- Secure the workspace with an app-level password before browsing host volumes.
+- Fast navigation, previews, and inline editing for anything under the configured mount points.
+- Upload entire folders with resumable progress and automatic thumbnail generation for visual assets.
+- Consistent light and dark themes tuned for prolonged file management sessions.
+
+## Screenshots
+
+| | |
+| --- | --- |
+| ![Password creation screen showing Explorer branding and secure access badge](./screenshots/1.png) | ![Unlock modal prompting for the workspace password](./screenshots/2.png) |
+| Create a password so only trusted users can launch the workspace. | Unlock the explorer with the password you set on first launch. |
+| ![Dark theme grid view of folders and mixed media files](./screenshots/3.png) | ![Light theme view of a project directory with files and folders](./screenshots/4.png) |
+| Organize and manage multiple volumes with a modern dark UI. | Switch to a bright layout when navigating shared workspaces. |
+| ![Dark list view showing metadata like size and modified time](./screenshots/5.png) | ![Upload manager tracking progress for multiple files](./screenshots/6.png) |
+| Inspect file details including size and modified dates in list mode. | Monitor large folder uploads with per-file progress feedback. |
 
 ## Project structure
 
@@ -70,9 +88,8 @@ The dev server runs on http://localhost:5173 by default.
 - Browse any directory exposed under `VOLUME_ROOT`
 - Upload files or entire folders with progress feedback (Uppy + XHR)
 - Automatic thumbnail generation for images and videos (cached on disk)
-- Download individual files
-- Copy, cut, paste between folders (unique-name handling + cross-volume support)
-- Delete selected items
+- View folders in grid or detailed list layouts with theme-aware styling
+- Download, copy, move, and delete files with conflict-safe operations
 - Inline code editor for text-based files (Vue Codemirror)
 
 ## API highlights
