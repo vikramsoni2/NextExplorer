@@ -1,15 +1,17 @@
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
 import {useFileStore} from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
+import { useAuthStore } from '@/stores/auth';
 
 export function useFileUploader() {
 
   const disallowedFiles = ['.DS_Store', 'thumbs.db'];
   const uppyStore = useUppyStore();
   const fileStore = useFileStore();
+  const authStore = useAuthStore();
   const inputRef = ref(null);
   const files = ref([]);
 
@@ -27,6 +29,25 @@ export function useFileUploader() {
     bundle: false,
     allowedMetaFields: null
   });
+
+  const applyAuthHeaders = (token) => {
+    const plugin = uppy.getPlugin('XHRUpload');
+    if (!plugin) {
+      return;
+    }
+
+    plugin.setOptions({
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  };
+
+  watch(
+    () => authStore.token,
+    (token) => {
+      applyAuthHeaders(token);
+    },
+    { immediate: true },
+  );
 
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {

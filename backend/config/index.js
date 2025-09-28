@@ -5,6 +5,7 @@ const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
 const volumeWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
 const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
 const thumbnailDir = path.join(cacheDir, 'thumbnails');
+const passwordConfigFile = path.join(cacheDir, 'app-config.json');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
 const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
@@ -50,6 +51,9 @@ module.exports = {
     volumeWithSep,
     cache: cacheDir,
     thumbnails: thumbnailDir,
+  },
+  files: {
+    passwordConfig: passwordConfigFile,
   },
   extensions: {
     images: imageExtensions,

@@ -1,6 +1,18 @@
 const DEFAULT_API_BASE = 'http://localhost:3000';
 const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
+let authToken = null;
+
+const setAuthToken = (token) => {
+  authToken = token || null;
+};
+
+const getAuthToken = () => authToken;
+
+const clearAuthToken = () => {
+  authToken = null;
+};
+
 const encodePath = (relativePath = '') => {
   if (!relativePath) return '';
   return relativePath
@@ -21,6 +33,26 @@ const normalizePath = (relativePath = '') => {
 
 const buildUrl = (endpoint) => `${apiBase}${endpoint}`;
 
+const applyAuthHeader = (headers = {}) => {
+  if (!authToken) {
+    return headers;
+  }
+
+  return {
+    ...headers,
+    Authorization: `Bearer ${authToken}`,
+  };
+};
+
+const appendAuthQuery = (url) => {
+  if (!authToken) {
+    return url;
+  }
+
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}token=${encodeURIComponent(authToken)}`;
+};
+
 const requestJson = async (endpoint, options = {}) => {
   const method = (options.method || 'GET').toUpperCase();
   const headers = {
@@ -31,10 +63,12 @@ const requestJson = async (endpoint, options = {}) => {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json';
   }
 
+  const finalHeaders = applyAuthHeader(headers);
+
   const response = await fetch(buildUrl(endpoint), {
     ...options,
     method,
-    headers,
+    headers: finalHeaders,
   });
 
   if (!response.ok) {
@@ -116,9 +150,9 @@ const downloadItems = async (paths, basePath = '') => {
 
   const response = await fetch(buildUrl('/api/download'), {
     method: 'POST',
-    headers: {
+    headers: applyAuthHeader({
       'Content-Type': 'application/json',
-    },
+    }),
     body: JSON.stringify({
       items: normalizedList,
       basePath: normalizedBase,
@@ -148,11 +182,31 @@ const getPreviewUrl = (relativePath) => {
   }
 
   const params = new URLSearchParams({ path: normalizedPath });
-  return buildUrl(`/api/preview?${params.toString()}`);
+  const url = buildUrl(`/api/preview?${params.toString()}`);
+  return appendAuthQuery(url);
 };
+
+const fetchAuthStatus = () => requestJson('/api/auth/status', { method: 'GET' });
+
+const setupPassword = (password) => requestJson('/api/auth/setup', {
+  method: 'POST',
+  body: JSON.stringify({ password }),
+});
+
+const login = (password) => requestJson('/api/auth/login', {
+  method: 'POST',
+  body: JSON.stringify({ password }),
+});
+
+const logout = () => requestJson('/api/auth/logout', {
+  method: 'POST',
+});
 
 export {
   apiBase,
+  setAuthToken,
+  getAuthToken,
+  clearAuthToken,
   browse,
   getVolumes,
   copyItems,
@@ -164,4 +218,9 @@ export {
   getPreviewUrl,
   normalizePath,
   encodePath,
+  appendAuthQuery,
+  fetchAuthStatus,
+  setupPassword,
+  login,
+  logout,
 };

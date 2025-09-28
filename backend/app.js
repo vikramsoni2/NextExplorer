@@ -4,6 +4,9 @@ const cors = require('cors');
 const { port, directories, corsOptions } = require('./config/index');
 const { ensureDir } = require('./utils/fsUtils');
 const registerRoutes = require('./routes');
+const authRoutes = require('./routes/auth');
+const authMiddleware = require('./middleware/authMiddleware');
+const { initializeAuth } = require('./services/authService');
 
 const app = express();
 
@@ -19,10 +22,14 @@ app.use((req, res, next) => {
   try {
     await ensureDir(directories.cache);
     await ensureDir(directories.thumbnails);
+    await initializeAuth();
   } catch (error) {
-    console.error('Failed to initialize cache directories:', error);
+    console.error('Failed to initialize application:', error);
   }
 })();
+
+app.use('/api/auth', authRoutes);
+app.use(authMiddleware);
 
 app.use('/static/thumbnails', express.static(directories.thumbnails));
 

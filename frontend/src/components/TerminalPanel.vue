@@ -18,6 +18,8 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 
+import { apiBase, appendAuthQuery } from '@/api';
+
 // import { useSettingsStore } from '@/stores/settings';
 
 // const settings = useSettingsStore()
@@ -33,8 +35,26 @@ const sendInput = (data) => {
   socket.send(data);
 };
 
+const toWebSocketScheme = (url) => {
+  if (url.startsWith('https://')) {
+    return `wss://${url.slice(8)}`;
+  }
+
+  if (url.startsWith('http://')) {
+    return `ws://${url.slice(7)}`;
+  }
+
+  return url;
+};
+
+const buildTerminalUrl = () => {
+  const base = `${apiBase}/terminal`;
+  const withScheme = toWebSocketScheme(base);
+  return appendAuthQuery(withScheme);
+};
+
 const connectToBackend = () => {
-  socket = new WebSocket('ws://localhost:3000/terminal');
+  socket = new WebSocket(buildTerminalUrl());
   socket.onmessage = event => {
     term.write(event.data);
   };
@@ -97,5 +117,4 @@ useDraggable(dragline, {
 }
 
 </style>
-
 

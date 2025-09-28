@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { apiBase, getPreviewUrl, normalizePath } from '@/api';
+import { apiBase, getPreviewUrl, normalizePath, appendAuthQuery } from '@/api';
 import { isPreviewableImage, isPreviewableVideo } from '@/config/media';
 
 const resolveExtension = (item) => {
@@ -44,7 +44,7 @@ export const usePreviewStore = defineStore('preview', () => {
     if (/^https?:\/\//i.test(thumbnailPath)) {
       return thumbnailPath;
     }
-    return `${apiBase}${thumbnailPath}`;
+    return appendAuthQuery(`${apiBase}${thumbnailPath}`);
   });
 
   const open = (item) => {
