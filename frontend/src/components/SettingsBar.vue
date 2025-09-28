@@ -1,12 +1,22 @@
 <script setup>
+import { useRouter } from 'vue-router'
 import { useSettingsStore } from '@/stores/settings'
+import { useAuthStore } from '@/stores/auth'
 import {
-  Cog8ToothIcon
+  Cog8ToothIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/vue/24/outline'
 
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline'
 
 const settings = useSettingsStore()
+const auth = useAuthStore()
+const router = useRouter()
+
+const handleLogout = async () => {
+  await auth.logout()
+  router.push({ name: 'auth-login' })
+}
 
 
 
@@ -22,9 +32,17 @@ const settings = useSettingsStore()
       <MoonIcon class="w-6" v-else />
     </button>
 
-    <button class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
-      <Cog8ToothIcon class="w-6" />
+    <button
+      title="sign out"
+      class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      @click="handleLogout"
+    >
+      <ArrowRightOnRectangleIcon class="w-6" />
     </button>
+
+    <!-- <button class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
+      <Cog8ToothIcon class="w-6" />
+    </button> -->
 
   </div>
 

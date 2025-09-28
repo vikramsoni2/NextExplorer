@@ -1,9 +1,8 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import {PlusIcon} from '@heroicons/vue/24/outline'
 import { useToggle, onClickOutside } from '@vueuse/core'
 import {CreateNewFolderRound, UploadFileRound, DriveFolderUploadRound} from '@vicons/material'
-import { useRoute } from 'vue-router';
 
 
 
@@ -13,14 +12,17 @@ const [menuOpen, toggle] = useToggle()
 
 onClickOutside(
   popuplRef,
-  (event) => {
+  () => {
     menuOpen.value = false
   },
 )
 
 import { useFileUploader } from '@/composables/fileUploader';
+import { useFileStore } from '@/stores/fileStore';
 
-const {files, openDialog } = useFileUploader({'url':'http://localhost:3020/upload'});
+const { openDialog } = useFileUploader();
+const fileStore = useFileStore();
+const isCreating = ref(false);
 
 const uploadFolder = async ()=>{
   await openDialog({directory: true})
@@ -30,6 +32,20 @@ const uploadFolder = async ()=>{
 const uploadFiles = async ()=>{
   await openDialog()
   //process()
+}
+
+const createFolder = async () => {
+  if (isCreating.value) return;
+
+  isCreating.value = true;
+  try {
+    await fileStore.createFolder();
+  } catch (error) {
+    console.error('Failed to create folder', error);
+  } finally {
+    menuOpen.value = false;
+    isCreating.value = false;
+  }
 }
 
 </script>
@@ -52,7 +68,10 @@ const uploadFiles = async ()=>{
     class="
     absolute top-0
     bg-white dark:bg-zinc-700 rounded-lg shadow-lg">
-      <button class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg"> <CreateNewFolderRound class="w-5 text-yellow-400"/> New Folder</button>
+      <button
+      @click="createFolder"
+      :disabled="isCreating"
+      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg disabled:opacity-60 disabled:cursor-not-allowed"> <CreateNewFolderRound class="w-5 text-yellow-400"/> New Folder</button>
       <button 
       @click="uploadFiles"
       class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white">

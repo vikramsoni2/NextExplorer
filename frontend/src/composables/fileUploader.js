@@ -1,46 +1,67 @@
-import { ref, onMounted, onBeforeUnmount } from "vue";
-import Uppy, { debugLogger } from '@uppy/core';
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
 import {useFileStore} from '@/stores/fileStore';
+import { apiBase, normalizePath } from '@/api';
+import { useAuthStore } from '@/stores/auth';
 
-export function useFileUploader({...options}) {
+export function useFileUploader() {
 
   const disallowedFiles = ['.DS_Store', 'thumbs.db'];
   const uppyStore = useUppyStore();
   const fileStore = useFileStore();
+  const authStore = useAuthStore();
   const inputRef = ref(null);
   const files = ref([]);
 
   const uppy = new Uppy({
     debug: true,
     autoProceed: true,
-    // logger: debugLogger,
     store: uppyStore,
   });
 
 
   uppy.use(XHRUpload, {
-    endpoint: 'http://localhost:3000/api/upload', // your server endpoint
+    endpoint: `${apiBase}/api/upload`,
     formData: true,
     fieldName: 'filedata',
     bundle: false,
     allowedMetaFields: null
   });
 
+  const applyAuthHeaders = (token) => {
+    const plugin = uppy.getPlugin('XHRUpload');
+    if (!plugin) {
+      return;
+    }
+
+    plugin.setOptions({
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  };
+
+  watch(
+    () => authStore.token,
+    (token) => {
+      applyAuthHeaders(token);
+    },
+    { immediate: true },
+  );
+
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {
-      uploadTo: fileStore.currentPath
+      uploadTo: normalizePath(fileStore.currentPath || ''),
     });
   });
 
-  uppy.on('upload-success', (file, response) => {
+  uppy.on('upload-success', () => {
     console.log("upload-success")
     fileStore.fetchPathItems(fileStore.currentPath)
   });
 
 
-  function uppyFile(file){
+  function uppyFile(file) {
     return {
       name: file.name,
       type: file.type,
@@ -71,18 +92,21 @@ export function useFileUploader({...options}) {
     return new Promise((resolve) => {
       if (!inputRef.value) return;
 
-      // TODO: files array should be in uppyFile format
       files.value = [];
       const options = { ...defaultDialogOptions, ...opts };
       
       setDialogAttributes(options);
 
       inputRef.value.onchange = (e) => {
-        
-        files.value = Array.from(e.target.files).filter(
-          file => !disallowedFiles.includes(file.name)
+        const selectedFiles = Array.from(e.target.files || []).filter(
+          (file) => !disallowedFiles.includes(file.name)
         );
-        files.value.forEach(file => uppy.addFile(uppyFile(file)));
+
+        files.value = selectedFiles.map((file) => uppyFile(file));
+        files.value.forEach((file) => uppy.addFile(file));
+
+        // Reset the input so the same file can be selected again if needed
+        e.target.value = '';
         resolve();
       };
 

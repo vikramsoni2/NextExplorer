@@ -1,24 +1,49 @@
 import { useRouter, useRoute } from 'vue-router';
 import { withViewTransition } from '@/utils';
+import { isEditableExtension } from '@/config/editor';
+import { isPreviewableImage, isPreviewableVideo } from '@/config/media';
+import { usePreviewStore } from '@/stores/previewStore';
 
 
 export function useNavigation() {
     
   const router = useRouter()
   const route = useRoute()
+  const previewStore = usePreviewStore();
 
 
   const openItem = withViewTransition((item)=>{
+    if (!item) return;
+
+    const extensionFromKind = typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
+    const extensionFromName = typeof item.name === 'string' && item.name.includes('.')
+      ? item.name.split('.').pop().toLowerCase()
+      : '';
+
     if(item.kind==='volume'){
       router.push({ path: `/browse/${item.name}` });
+      return;
     }
     if(item.kind==='directory'){
         const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
         router.push({ path: `/browse/${newPath}` });
+        return;
     }
-    if(item.kind==='json' || item.kind==='txt' || item.kind==='md' ){
-      const fileToEdit = `${item.path}/${item.name}`;
+    if(isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)){
+      const basePath = item.path ? `${item.path}/${item.name}` : item.name;
+      const fileToEdit = basePath.replace(/^\/+/, '');
       router.push({ path: `/editor/${fileToEdit}` });
+      return;
+    }
+
+    const shouldPreview =
+      isPreviewableImage(extensionFromKind)
+      || isPreviewableVideo(extensionFromKind)
+      || isPreviewableImage(extensionFromName)
+      || isPreviewableVideo(extensionFromName);
+
+    if (shouldPreview) {
+      previewStore.open(item);
     }
   });
   

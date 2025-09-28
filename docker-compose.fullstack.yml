@@ -1,0 +1,14 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.fullstack
+    ports:
+      - 3000:3000
+    volumes:
+      - /Users/vikram/projects:/mnt/Projects
+      - /Users/vikram/Downloads:/mnt/Downloads
+      - /Users/vikram/Downloads/cache:/cache
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped

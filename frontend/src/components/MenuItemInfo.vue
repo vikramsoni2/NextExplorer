@@ -1,41 +1,138 @@
 <script setup>
-import {
-  InformationCircleIcon
-} from '@heroicons/vue/24/outline'
-import { onMounted } from 'vue';
+import { computed, ref } from 'vue';
+import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/vue/24/outline';
+import { useFileStore } from '@/stores/fileStore';
+import { normalizePath, downloadItems } from '@/api';
 
+const fileStore = useFileStore();
 
-onMounted(() => {
-  console.log('MenuItemInfo.vue mounted')
+const selectedItems = computed(() => fileStore.selectedItems);
+const selectedItem = computed(() => selectedItems.value[0] ?? null);
+const hasSelection = computed(() => selectedItems.value.length > 0);
+const isSingleItemSelected = computed(() => selectedItems.value.length === 1);
+const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'directory');
+const canRename = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'volume');
+const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
+const isPreparingDownload = ref(false);
 
-  document.getElementById('btn-download').addEventListener('click', async () => {
+const getResolvedPaths = () => selectedItems.value
+  .map((item) => {
+    const parent = normalizePath(item.path || '');
+    const combined = parent ? `${parent}/${item.name}` : item.name;
+    return normalizePath(combined);
+  })
+  .filter(Boolean);
+
+const extractFilename = (contentDisposition) => {
+  if (!contentDisposition) return null;
+
+  const utf8Match = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf8Match && utf8Match[1]) {
     try {
-        const dirHandle = await window.showDirectoryPicker();
-        const newDirHandle = await dirHandle.getDirectoryHandle('NewDirectory', { create: true });
-        const fileHandle = await newDirHandle.getFileHandle('NewFile.txt', { create: true });
-        const writable = await fileHandle.createWritable();
-        await writable.write('Hello, world!');
-        await writable.close();
-
-        alert('New directory and file created successfully!');
+      return decodeURIComponent(utf8Match[1].replace(/"/g, ''));
     } catch (error) {
-        console.error('Error:', error);
+      return utf8Match[1].replace(/"/g, '');
     }
-  });
-})
+  }
 
+  const asciiMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+  if (asciiMatch && asciiMatch[1]) {
+    return asciiMatch[1];
+  }
 
+  return null;
+};
 
+const handleDownload = async () => {
+  if (!hasSelection.value || isPreparingDownload.value) return;
+
+  const paths = getResolvedPaths();
+  if (!paths.length) return;
+
+  isPreparingDownload.value = true;
+  try {
+    const response = await downloadItems(paths, currentPath.value);
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const suggestedName = extractFilename(disposition)
+      || (isSingleFileSelected.value && selectedItem.value
+        ? selectedItem.value.name
+        : selectedItems.value.length === 1 && selectedItem.value
+          ? `${selectedItem.value.name}.zip`
+          : (() => {
+            const segments = currentPath.value.split('/').filter(Boolean);
+            const base = segments[segments.length - 1];
+            return base ? `${base}.zip` : 'download.zip';
+          })());
+
+    const downloadUrl = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = downloadUrl;
+    anchor.rel = 'noopener';
+    anchor.download = suggestedName;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => window.URL.revokeObjectURL(downloadUrl), 1000);
+  } catch (error) {
+    console.error('Download failed', error);
+  } finally {
+    isPreparingDownload.value = false;
+  }
+};
+
+const handleDelete = async () => {
+  if (!selectedItems.value.length) return;
+  try {
+    await fileStore.del();
+  } catch (error) {
+    console.error('Delete operation failed', error);
+  }
+};
+
+const handleRename = () => {
+  if (!canRename.value) return;
+  const target = selectedItems.value[0];
+  if (!target) return;
+  fileStore.beginRename(target);
+};
 </script>
-<template>
 
+<template>
   <div class="flex gap-1 items-center">
-    <button id="btn-download"
-    class="p-[6px] rounded-md 
-    hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-    dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
-      <InformationCircleIcon class="w-6" />
+    <button
+      type="button"
+      @click="handleRename"
+      :disabled="!canRename"
+      class="p-[6px] rounded-md transition-colors
+        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
+        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="{ 'opacity-50 cursor-not-allowed': !canRename }"
+    >
+      <PencilSquareIcon class="w-6" />
+    </button>
+    <button
+      type="button"
+      @click="handleDownload"
+      :disabled="!hasSelection || isPreparingDownload"
+      class="p-[6px] rounded-md transition-colors
+        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
+        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="{ 'opacity-50 cursor-not-allowed': !hasSelection || isPreparingDownload }"
+    >
+      <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
+      <ArrowDownTrayIcon v-else class="w-6" />
+    </button>
+    <button
+      type="button"
+      @click="handleDelete"
+      :disabled="!hasSelection"
+      class="p-[6px] rounded-md transition-colors
+        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
+        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="{ 'opacity-50 cursor-not-allowed': !hasSelection }"
+    >
+      <TrashIcon class="w-6" />
     </button>
   </div>
-
 </template>

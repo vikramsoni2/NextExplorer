@@ -1,0 +1,113 @@
+const path = require('path');
+const fs = require('fs/promises');
+const fss = require('fs');
+const multer = require('multer');
+
+const { ensureDir, pathExists } = require('../utils/fsUtils');
+const { normalizeRelativePath, resolveVolumePath, findAvailableName } = require('../utils/pathUtils');
+const { readMetaField } = require('../utils/requestUtils');
+
+const resolveUploadPaths = (req, file) => {
+  const relativePathMeta = readMetaField(req, 'relativePath');
+  const uploadToMeta = readMetaField(req, 'uploadTo');
+
+  const uploadTo = normalizeRelativePath(uploadToMeta);
+  const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
+
+  const destinationRoot = resolveVolumePath(uploadTo);
+  const destinationPath = path.join(destinationRoot, relativePath);
+  const destinationDir = path.dirname(destinationPath);
+
+  return {
+    destinationPath,
+    destinationDir,
+  };
+};
+
+function CustomStorage(opts) {
+  this.getDestination = opts.destination || function (req, file, cb) {
+    cb(null, '/uploads/');
+  };
+}
+
+CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
+  this.getDestination(req, file, async (err) => {
+    if (err) {
+      return cb(err);
+    }
+
+    try {
+      const { destinationPath, destinationDir } = resolveUploadPaths(req, file);
+      await ensureDir(destinationDir);
+
+      let finalPath = destinationPath;
+      if (await pathExists(finalPath)) {
+        const desiredName = path.basename(destinationPath);
+        const availableName = await findAvailableName(destinationDir, desiredName);
+        finalPath = path.join(destinationDir, availableName);
+      }
+
+      const temporaryPath = `${finalPath}.uploading`;
+
+      const cleanupTemporary = async () => {
+        try {
+          if (await pathExists(temporaryPath)) {
+            await fs.rm(temporaryPath, { force: true });
+          }
+        } catch (cleanupErr) {
+          console.error('Failed to remove temporary upload file:', cleanupErr);
+        }
+      };
+
+      const outStream = fss.createWriteStream(temporaryPath);
+      file.stream.pipe(outStream);
+
+      const handleStreamError = async (streamErr) => {
+        await cleanupTemporary();
+        cb(streamErr);
+      };
+
+      file.stream.on('error', handleStreamError);
+      outStream.on('error', handleStreamError);
+
+      outStream.on('finish', async () => {
+        try {
+          await fs.rename(temporaryPath, finalPath);
+          cb(null, {
+            path: finalPath,
+            size: outStream.bytesWritten,
+            filename: path.basename(finalPath),
+          });
+        } catch (renameErr) {
+          await cleanupTemporary();
+          cb(renameErr);
+        }
+      });
+    } catch (uploadError) {
+      cb(uploadError);
+    }
+  });
+};
+
+CustomStorage.prototype._removeFile = function removeFile(req, file, cb) {
+  if (!file || !file.path) {
+    cb(null);
+    return;
+  }
+
+  fs.unlink(file.path)
+    .then(() => cb(null))
+    .catch((error) => {
+      if (error && error.code === 'ENOENT') {
+        cb(null);
+        return;
+      }
+      cb(error);
+    });
+};
+
+const createUploadMiddleware = () => multer({ storage: new CustomStorage({}) });
+
+module.exports = {
+  createUploadMiddleware,
+};

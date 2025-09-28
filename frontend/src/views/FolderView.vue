@@ -5,17 +5,25 @@ import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
 import { useFileStore } from '@/stores/fileStore';
 import LoadingIcon from '@/icons/LoadingIcon.vue';
+import { useSelection } from '@/composables/itemSelection';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
 const route = useRoute()
 const loading = ref(true)
 const selectedItems = ref([]);
+const { clearSelection } = useSelection();
 
-const loadFiles = async()=>{
+const loadFiles = async () => {
+  loading.value = true
   const path = route.params.path || ''
-  await fileStore.fetchPathItems(path)
-  loading.value = false
+  try {
+    await fileStore.fetchPathItems(path)
+  } catch (error) {
+    console.error('Failed to load directory contents', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(loadFiles)
@@ -55,7 +63,8 @@ onMounted(loadFiles)
     <div v-if="!loading"
     :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
     settings.view === 'tab'? 'grid grid-cols-[repeat(auto-fill,20rem)] gap-2':
-    'flex flex-col gap-[1px]'">
+    'flex flex-col gap-[1px]'"
+    @click.self="clearSelection()">
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
       :key="item.name" 

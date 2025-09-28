@@ -17,6 +17,7 @@ import { RouterView, useRoute } from 'vue-router'
 import { useTitle } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
+import ImagePreview from '@/components/ImagePreview.vue';
 // import TerminalPanel from '@/components/TerminalPanel.vue';
 
 
@@ -53,6 +54,7 @@ useTitle(currentPathName)
       
 
        <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+        
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
 
@@ -66,10 +68,10 @@ useTitle(currentPathName)
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <SettingsBar/>
 
-        <div 
+        <!-- <div 
         style="background:url('http://gravatar.com/userimage/106458114/6eb8be0fbf770f939299c3e5f67ff6da.jpeg?size=256'); background-size: contain"
         class="ml-4 h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center font-bold">
-        </div>
+        </div> -->
       </div>
 
       <div class="p-6 pt-0 overflow-y-auto grow">
@@ -82,7 +84,7 @@ useTitle(currentPathName)
       </div> -->
     </main>
   <UploadProgress/>
+  <ImagePreview/>
   </div>
 
 </template>
-
