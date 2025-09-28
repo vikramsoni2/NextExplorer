@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import FileIcon from '@/icons/FileIcon.vue';
 import { formatBytes, formatDate } from '@/utils';
 import { useNavigation } from '@/composables/navigation';
@@ -11,10 +12,109 @@ const props = defineProps(['item', 'view'])
 const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
 const fileStore = useFileStore();
+const { renameState } = storeToRefs(fileStore);
+
+const renameInputRef = ref(null);
+const baseRenameInputClass = 'w-full rounded border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
+
+const isRenaming = computed(() => fileStore.isItemBeingRenamed(props.item));
+
+const renameDraft = computed({
+  get: () => {
+    if (!isRenaming.value || !renameState.value) {
+      return '';
+    }
+    return renameState.value.draft ?? '';
+  },
+  set: (value) => {
+    if (isRenaming.value) {
+      fileStore.setRenameDraft(value);
+    }
+  },
+});
 
 const isCut = computed(() => fileStore.cutItems.some(
   (cutItem) => cutItem.name === props.item.name && (cutItem.path || '') === (props.item.path || '')
 ));
+
+const handleClick = (event) => {
+  if (isRenaming.value) return;
+  handleSelection(props.item, event);
+};
+
+const handleDblClick = () => {
+  if (isRenaming.value) return;
+  openItem(props.item);
+};
+
+const selectRenameText = (input) => {
+  if (!input) return;
+  const value = input.value;
+  const kind = renameState.value?.kind || props.item.kind;
+
+  if (!value) {
+    input.select();
+    return;
+  }
+
+  if (kind === 'directory') {
+    input.select();
+    return;
+  }
+
+  const lastDot = value.lastIndexOf('.');
+  if (lastDot > 0) {
+    input.setSelectionRange(0, lastDot);
+  } else {
+    input.select();
+  }
+};
+
+const focusRenameInput = async () => {
+  await nextTick();
+  const input = renameInputRef.value;
+  if (!input) return;
+  input.focus();
+  selectRenameText(input);
+};
+
+watch(isRenaming, (value) => {
+  if (value) {
+    focusRenameInput();
+  }
+});
+
+const commitRename = async () => {
+  if (!isRenaming.value) return;
+  try {
+    await fileStore.applyRename();
+  } catch (error) {
+    console.error('Rename operation failed', error);
+    if (error && error.message) {
+      window.alert(error.message);
+    }
+    focusRenameInput();
+  }
+};
+
+const cancelRename = () => {
+  if (!isRenaming.value) return;
+  fileStore.cancelRename();
+};
+
+const handleRenameKeydown = async (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    await commitRename();
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    cancelRename();
+  }
+};
+
+const handleRenameBlur = async () => {
+  await commitRename();
+};
 
 </script>
 
@@ -23,8 +123,8 @@ const isCut = computed(() => fileStore.cutItems.some(
     <div 
     :title="item.name"
     v-if="view==='grid'"
-    @click="handleSelection(item, $event)"
-    @dblclick="openItem(item)"
+    @click="handleClick"
+    @dblclick="handleDblClick"
     class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"    
     :class="{ 'opacity-60': isCut }"
     > 
@@ -32,16 +132,33 @@ const isCut = computed(() => fileStore.cutItems.some(
         :item="item" 
         class="h-16 shrink-0"/> 
         <div class="text-sm text-center break-all line-clamp-2 rounded-md px-2 -mx-2 "
-        :class="{'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) }" 
-        >{{ item.name }}</div>
+        :class="{'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) && !isRenaming }" 
+        >
+          <template v-if="isRenaming">
+            <input
+              ref="renameInputRef"
+              v-model="renameDraft"
+              type="text"
+              :class="[baseRenameInputClass, 'text-center']"
+              @keydown.stop="handleRenameKeydown"
+              @blur="handleRenameBlur"
+              @click.stop
+              @mousedown.stop
+              autocomplete="off"
+            />
+          </template>
+          <template v-else>
+            {{ item.name }}
+          </template>
+        </div>
     </div>
 
 
     <div 
     :title="item.name"
     v-if="view==='tab'"
-    @click="handleSelection(item, $event)"
-    @dblclick="openItem(item)"
+    @click="handleClick"
+    @dblclick="handleDblClick"
     
     class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
     :class="{ 'opacity-60': isCut }">
@@ -51,11 +168,26 @@ const isCut = computed(() => fileStore.cutItems.some(
         class="w-16 shrink-0"/> 
         <div class="grow rounded-md px-2 -mx-2"
         :class="{
-          'bg-blue-500 text-white dark:bg-blue-600': isSelected(item)
+          'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) && !isRenaming
         }" >
-            <div class="break-all line-clamp-2"
-            >
-            {{ item.name }}</div>
+            <div class="break-all line-clamp-2">
+              <template v-if="isRenaming">
+                <input
+                  ref="renameInputRef"
+                  v-model="renameDraft"
+                  type="text"
+                  :class="baseRenameInputClass"
+                  @keydown.stop="handleRenameKeydown"
+                  @blur="handleRenameBlur"
+                  @click.stop
+                  @mousedown.stop
+                  autocomplete="off"
+                />
+              </template>
+              <template v-else>
+                {{ item.name }}
+              </template>
+            </div>
             <p class="text-xs text-stone-400">
                 {{ formatBytes(item.size) }}
             </p>  
@@ -64,8 +196,8 @@ const isCut = computed(() => fileStore.cutItems.some(
 
     <div 
     v-if="view==='list'"
-    @click="handleSelection(item, $event)"
-    @dblclick="openItem(item)"
+    @click="handleClick"
+    @dblclick="handleDblClick"
     class="grid select-none items-center grid-cols-[30px_1fr_150px_200px] 
     cursor-pointer auto-cols-fr p-1 px-4 rounded-md
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
@@ -79,7 +211,24 @@ const isCut = computed(() => fileStore.cutItems.some(
         <FileIcon 
         :item="item" 
         class="w-6 shrink-0"/> 
-        <div :title="item.name" class="break-all text-sm line-clamp-1">{{ item.name }}</div>
+        <div :title="item.name" class="break-all text-sm line-clamp-1">
+          <template v-if="isRenaming">
+            <input
+              ref="renameInputRef"
+              v-model="renameDraft"
+              type="text"
+              :class="[baseRenameInputClass, 'py-1']"
+              @keydown.stop="handleRenameKeydown"
+              @blur="handleRenameBlur"
+              @click.stop
+              @mousedown.stop
+              autocomplete="off"
+            />
+          </template>
+          <template v-else>
+            {{ item.name }}
+          </template>
+        </div>
         <div class="text-sm">
             {{ item.kind==="directory"? "&mdash;" : formatBytes(item.size) }}
         </div>

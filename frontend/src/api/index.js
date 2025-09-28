@@ -123,6 +123,32 @@ async function deleteItems(items) {
   });
 }
 
+async function createFolder(destination, name) {
+  const normalizedDestination = normalizePath(destination || '');
+  const payload = { path: normalizedDestination };
+
+  if (typeof name === 'string' && name.trim()) {
+    payload.name = name;
+  }
+
+  return requestJson('/api/files/folder', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+async function renameItem(path, name, newName) {
+  const normalizedPath = normalizePath(path || '');
+  return requestJson('/api/files/rename', {
+    method: 'POST',
+    body: JSON.stringify({
+      path: normalizedPath,
+      name,
+      newName,
+    }),
+  });
+}
+
 async function fetchFileContent(path) {
   return requestJson('/api/editor', {
     method: 'POST',
@@ -212,6 +238,8 @@ export {
   copyItems,
   moveItems,
   deleteItems,
+  createFolder,
+  renameItem,
   fetchFileContent,
   saveFileContent,
   downloadItems,

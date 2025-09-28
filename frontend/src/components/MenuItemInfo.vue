@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
+import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon, PencilSquareIcon } from '@heroicons/vue/24/outline';
 import { useFileStore } from '@/stores/fileStore';
 import { normalizePath, downloadItems } from '@/api';
 
@@ -9,7 +9,9 @@ const fileStore = useFileStore();
 const selectedItems = computed(() => fileStore.selectedItems);
 const selectedItem = computed(() => selectedItems.value[0] ?? null);
 const hasSelection = computed(() => selectedItems.value.length > 0);
-const isSingleFileSelected = computed(() => selectedItems.value.length === 1 && selectedItems.value[0]?.kind !== 'directory');
+const isSingleItemSelected = computed(() => selectedItems.value.length === 1);
+const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'directory');
+const canRename = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'volume');
 const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
 const isPreparingDownload = ref(false);
 
@@ -87,10 +89,28 @@ const handleDelete = async () => {
     console.error('Delete operation failed', error);
   }
 };
+
+const handleRename = () => {
+  if (!canRename.value) return;
+  const target = selectedItems.value[0];
+  if (!target) return;
+  fileStore.beginRename(target);
+};
 </script>
 
 <template>
   <div class="flex gap-1 items-center">
+    <button
+      type="button"
+      @click="handleRename"
+      :disabled="!canRename"
+      class="p-[6px] rounded-md transition-colors
+        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
+        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="{ 'opacity-50 cursor-not-allowed': !canRename }"
+    >
+      <PencilSquareIcon class="w-6" />
+    </button>
     <button
       type="button"
       @click="handleDownload"

@@ -9,10 +9,121 @@ const {
   normalizeRelativePath,
   resolveVolumePath,
   combineRelativePath,
+  findAvailableFolderName,
+  ensureValidName,
 } = require('../utils/pathUtils');
+const { pathExists } = require('../utils/fsUtils');
 const { extensions, mimeTypes } = require('../config/index');
 
 const router = express.Router();
+
+const buildItemMetadata = async (absolutePath, relativeParent, name) => {
+  const stats = await fs.stat(absolutePath);
+  const kind = stats.isDirectory()
+    ? 'directory'
+    : (() => {
+      const extension = path.extname(name).slice(1).toLowerCase();
+      return extension.length > 10 ? 'unknown' : extension || 'unknown';
+    })();
+
+  return {
+    name,
+    path: relativeParent,
+    kind,
+    size: stats.size,
+    dateModified: stats.mtime,
+  };
+};
+
+router.post('/files/folder', async (req, res) => {
+  try {
+    const destination = req.body?.path ?? req.body?.destination ?? '';
+    const requestedName = req.body?.name;
+
+    const parentRelative = normalizeRelativePath(destination);
+    const parentAbsolute = resolveVolumePath(parentRelative);
+
+    let parentStats;
+    try {
+      parentStats = await fs.stat(parentAbsolute);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new Error('Destination path does not exist.');
+      }
+      throw error;
+    }
+
+    if (!parentStats.isDirectory()) {
+      throw new Error('Destination must be an existing directory.');
+    }
+
+    const baseName = typeof requestedName === 'string' && requestedName.trim()
+      ? ensureValidName(requestedName)
+      : 'Untitled Folder';
+
+    const finalName = await findAvailableFolderName(parentAbsolute, baseName);
+    const folderAbsolute = path.join(parentAbsolute, finalName);
+
+    await fs.mkdir(folderAbsolute);
+
+    const item = await buildItemMetadata(folderAbsolute, parentRelative, finalName);
+    res.status(201).json({ success: true, item });
+  } catch (error) {
+    console.error('Create folder failed:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/files/rename', async (req, res) => {
+  try {
+    const parentPath = req.body?.path ?? '';
+    const originalName = req.body?.name;
+    const newNameRaw = req.body?.newName;
+
+    if (typeof originalName !== 'string' || !originalName) {
+      throw new Error('Original name is required.');
+    }
+
+    const parentRelative = normalizeRelativePath(parentPath);
+    const parentAbsolute = resolveVolumePath(parentRelative);
+
+    const currentRelative = combineRelativePath(parentRelative, originalName);
+    const currentAbsolute = resolveVolumePath(currentRelative);
+
+    if (!(await pathExists(currentAbsolute))) {
+      throw new Error('Item not found.');
+    }
+
+    const validatedNewName = typeof newNameRaw === 'string'
+      ? ensureValidName(newNameRaw)
+      : null;
+
+    if (!validatedNewName) {
+      throw new Error('A new name is required.');
+    }
+
+    if (validatedNewName === originalName) {
+      const item = await buildItemMetadata(currentAbsolute, parentRelative, originalName);
+      res.json({ success: true, item });
+      return;
+    }
+
+    const targetRelative = combineRelativePath(parentRelative, validatedNewName);
+    const targetAbsolute = resolveVolumePath(targetRelative);
+
+    if (await pathExists(targetAbsolute)) {
+      throw new Error(`The name "${validatedNewName}" is already taken.`);
+    }
+
+    await fs.rename(currentAbsolute, targetAbsolute);
+
+    const item = await buildItemMetadata(targetAbsolute, parentRelative, validatedNewName);
+    res.json({ success: true, item });
+  } catch (error) {
+    console.error('Rename operation failed:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
 
 router.post('/files/copy', async (req, res) => {
   try {

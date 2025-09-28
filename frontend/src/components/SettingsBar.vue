@@ -40,9 +40,9 @@ const handleLogout = async () => {
       <ArrowRightOnRectangleIcon class="w-6" />
     </button>
 
-    <button class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
+    <!-- <button class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
       <Cog8ToothIcon class="w-6" />
-    </button>
+    </button> -->
 
   </div>
 

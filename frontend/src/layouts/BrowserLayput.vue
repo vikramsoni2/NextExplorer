@@ -54,6 +54,7 @@ useTitle(currentPathName)
       
 
        <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+        
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
 

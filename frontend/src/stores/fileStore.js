@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { browse, copyItems, moveItems, deleteItems, normalizePath } from '@/api';
+import {
+  browse,
+  copyItems,
+  moveItems,
+  deleteItems,
+  normalizePath,
+  createFolder as createFolderApi,
+  renameItem as renameItemApi,
+} from '@/api';
 import { useSettingsStore } from '@/stores/settings';
 
 export const useFileStore = defineStore('fileStore', () => {
@@ -8,12 +16,24 @@ export const useFileStore = defineStore('fileStore', () => {
   const currentPath = ref('');
   const currentPathItems = ref([]);
   const selectedItems = ref([]);
+  const renameState = ref(null);
 
   const copiedItems = ref([]);
   const cutItems = ref([]);
 
   const hasSelection = computed(() => selectedItems.value.length > 0);
   const hasClipboardItems = computed(() => copiedItems.value.length > 0 || cutItems.value.length > 0);
+
+  const itemKey = (item) => {
+    if (!item || !item.name) {
+      return '';
+    }
+
+    const parent = normalizePath(item.path || '');
+    return `${parent}::${item.name}`;
+  };
+
+  const findItemByKey = (key) => currentPathItems.value.find((item) => itemKey(item) === key);
 
   const serializeItems = (items) => items
     .filter((item) => item && item.name && item.kind !== 'volume')
@@ -70,6 +90,90 @@ export const useFileStore = defineStore('fileStore', () => {
     selectedItems.value = [];
     await fetchPathItems(currentPath.value);
   };
+
+  const createFolder = async (baseName) => {
+    const destination = normalizePath(currentPath.value || '');
+    const response = await createFolderApi(destination, baseName);
+    const createdName = response?.item?.name;
+
+    await fetchPathItems(destination);
+
+    if (createdName) {
+      const createdKey = `${destination}::${createdName}`;
+      const createdItem = findItemByKey(createdKey);
+      if (createdItem) {
+        selectedItems.value = [createdItem];
+        beginRename(createdItem, { isNew: true });
+      }
+    }
+
+    return response;
+  };
+
+  const beginRename = (item, options = {}) => {
+    if (!item || !item.name) return;
+
+    const key = itemKey(item);
+    const existing = findItemByKey(key);
+    const target = existing || { ...item };
+
+    selectedItems.value = [target];
+
+    renameState.value = {
+      key,
+      path: normalizePath(target.path || currentPath.value || ''),
+      originalName: target.name,
+      draft: target.name,
+      kind: target.kind,
+      isNew: Boolean(options.isNew),
+    };
+  };
+
+  const setRenameDraft = (value) => {
+    if (!renameState.value) return;
+    renameState.value.draft = value;
+  };
+
+  const cancelRename = () => {
+    renameState.value = null;
+  };
+
+  const applyRename = async () => {
+    const state = renameState.value;
+    if (!state) return;
+
+    const newName = state.draft ?? '';
+    if (!newName.trim()) {
+      renameState.value = null;
+      return;
+    }
+
+    if (newName === state.originalName) {
+      renameState.value = null;
+      return;
+    }
+
+    const targetPath = state.path;
+
+    try {
+      const response = await renameItemApi(targetPath, state.originalName, newName);
+      const renamedName = response?.item?.name ?? newName;
+      renameState.value = null;
+      await fetchPathItems(targetPath);
+      const renamedKey = `${targetPath}::${renamedName}`;
+      const renamedItem = findItemByKey(renamedKey);
+      if (renamedItem) {
+        selectedItems.value = [renamedItem];
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const isItemBeingRenamed = (item) => {
+    if (!renameState.value) return false;
+    return itemKey(item) === renameState.value.key;
+  };
   
   // Getters
   const getCurrentPath = computed(() => currentPath.value);
@@ -119,5 +223,12 @@ export const useFileStore = defineStore('fileStore', () => {
     paste,
     del,
     resetClipboard,
+    createFolder,
+    renameState,
+    beginRename,
+    setRenameDraft,
+    cancelRename,
+    applyRename,
+    isItemBeingRenamed,
   };
 });
