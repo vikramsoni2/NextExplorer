@@ -8,7 +8,11 @@ const { excludedFiles, extensions } = require('../config/index');
 const { getThumbnail } = require('../services/thumbnailService');
 
 const router = express.Router();
-const previewable = new Set([...extensions.images, ...extensions.videos]);
+const previewable = new Set([
+  ...extensions.images,
+  ...extensions.videos,
+  ...(extensions.documents || []),
+]);
 
 router.get('/browse/*', async (req, res) => {
   try {

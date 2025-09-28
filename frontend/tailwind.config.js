@@ -1,5 +1,7 @@
+import typography from '@tailwindcss/typography';
+
 /** @type {import('tailwindcss').Config} */
-export const purge = ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'];
+export const content = ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'];
 export const darkMode = 'class';
 export const theme = {
   extend: {
@@ -30,5 +32,4 @@ export const theme = {
 export const variants = {
   extend: {},
 };
-export const plugins = [];
-
+export const plugins = [typography];

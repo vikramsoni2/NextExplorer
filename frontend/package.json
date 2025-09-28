@@ -29,7 +29,9 @@
     "browser-fs-access": "^0.35.0",
     "codemirror": "^6.0.1",
     "dayjs": "^1.11.11",
+    "dompurify": "^3.0.8",
     "dropzone": "^6.0.0-beta.2",
+    "marked": "^12.0.2",
     "nanoid": "^5.0.7",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
@@ -38,6 +40,7 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.19",
     "@vicons/antd": "^0.12.0",
     "@vicons/carbon": "^0.12.0",
     "@vicons/fluent": "^0.12.0",

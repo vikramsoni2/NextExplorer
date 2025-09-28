@@ -1,14 +1,22 @@
 <template>
-    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-            d="M6.5 29h19c.275 0 .5-.225.5-.5V9h-4.5c-.827 0-1.5-.673-1.5-1.5V3H6.5c-.275 0-.5.225-.5.5v25c0 .275.225.5.5.5z"
-            fill="#fff" />
-        <path d="M25.293 8 21 3.707V7.5c0 .275.225.5.5.5h3.793z" fill="#fff" />
-        <path opacity=".67" fill-rule="evenodd" clip-rule="evenodd"
-            d="m26.56 7.854-5.414-5.415A1.51 1.51 0 0 0 20.086 2H6.5C5.673 2 5 2.673 5 3.5v25c0 .827.673 1.5 1.5 1.5h19c.827 0 1.5-.673 1.5-1.5V8.914c0-.4-.156-.777-.44-1.06zM21 3.707 25.293 8H21.5a.501.501 0 0 1-.5-.5V3.707zM6.5 29h19c.275 0 .5-.225.5-.5V9h-4.5c-.827 0-1.5-.673-1.5-1.5V3H6.5c-.275 0-.5.225-.5.5v25c0 .276.224.5.5.5z"
-            fill="#605E5C" />
-        <path fill-rule="evenodd" clip-rule="evenodd"
-            d="M23.5 15h-15a.5.5 0 0 1 0-1h15a.5.5 0 0 1 0 1zm0 2h-15a.5.5 0 0 1 0-1h15a.5.5 0 0 1 0 1zm-15 2h15a.5.5 0 0 0 0-1h-15a.5.5 0 0 0 0 1zm15 2h-15a.5.5 0 0 1 0-1h15a.5.5 0 0 1 0 1zm-15 2h15a.5.5 0 0 0 0-1h-15a.5.5 0 0 0 0 1z"
-            fill="#C8C6C4" />
-    </svg>
+    <!-- <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+
+        <path fill="#fff" d="M6.5 2h13.6l6.4 6.4V28.5c0 .8-.7 1.5-1.5 1.5h-18c-.8 0-1.5-.7-1.5-1.5v-25c0-.8.7-1.5 1.5-1.5z"/>
+        <path fill="#fff" d="M20 2v6c0 .6.4 1 1 1h6L20 2z"/>
+
+        <path fill="currentColor" d="M9 14h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9z"/>
+    </svg>  -->
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">
+
+  <path fill="#FFFFFF" stroke="#D1D5DB" stroke-width="1" d="M6 4h14l6 6v18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/>
+
+  <path fill="#F3F4F6" d="M20 4v6h6l-6-6z"/>
+
+  <rect x="9" y="14" width="14" height="2" rx="1" fill="#9CA3AF"/>
+  <rect x="9" y="18" width="12" height="2" rx="1" fill="#9CA3AF"/>
+  <rect x="9" y="22" width="10" height="2" rx="1" fill="#9CA3AF"/>
+</svg> 
+
+
 </template>
