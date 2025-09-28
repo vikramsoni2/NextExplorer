@@ -1,15 +1,15 @@
-const fs = require('fs/promises');
 const crypto = require('crypto');
 
-const { directories, files } = require('../config/index');
+const { directories } = require('../config/index');
 const { ensureDir } = require('../utils/fsUtils');
+const {
+  DEFAULT_ITERATIONS,
+  getAuthConfig,
+  setAuthConfig,
+} = require('./appConfigService');
 
-const CONFIG_ENCODING = 'utf8';
 const HASH_ALGORITHM = 'sha512';
 const DERIVED_KEY_LENGTH = 64;
-const DEFAULT_ITERATIONS = 210000;
-
-const configFilePath = files.passwordConfig;
 
 let passwordConfig = {
   passwordHash: null,
@@ -30,51 +30,18 @@ const deriveKey = (password, salt, iterations) => new Promise((resolve, reject) 
   });
 });
 
-const writeConfig = async () => {
-  const payload = {
-    version: 1,
-    passwordHash: passwordConfig.passwordHash,
-    salt: passwordConfig.salt,
-    iterations: passwordConfig.iterations,
-    createdAt: passwordConfig.createdAt,
-  };
-
-  await fs.writeFile(configFilePath, `${JSON.stringify(payload, null, 2)}\n`, CONFIG_ENCODING);
-};
-
-const ensureConfigFileExists = async () => {
+const initializeAuth = async () => {
+  await ensureDir(directories.cache);
   try {
-    await fs.access(configFilePath);
+    const authConfig = await getAuthConfig();
+    passwordConfig = {
+      passwordHash: authConfig.passwordHash || null,
+      salt: authConfig.salt || null,
+      iterations: authConfig.iterations || DEFAULT_ITERATIONS,
+      createdAt: authConfig.createdAt || null,
+    };
   } catch (error) {
-    if (error && error.code === 'ENOENT') {
-      await writeConfig();
-      return;
-    }
-    throw error;
-  }
-};
-
-const loadConfig = async () => {
-  try {
-    const raw = await fs.readFile(configFilePath, CONFIG_ENCODING);
-    if (!raw) {
-      return;
-    }
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === 'object') {
-      passwordConfig = {
-        passwordHash: parsed.passwordHash || null,
-        salt: parsed.salt || null,
-        iterations: parsed.iterations || DEFAULT_ITERATIONS,
-        createdAt: parsed.createdAt || null,
-      };
-    }
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      await writeConfig();
-      return;
-    }
-    console.warn('Failed to load password config, defaulting to setup required.', error);
+    console.warn('Failed to load auth configuration; defaulting to setup required.', error);
     passwordConfig = {
       passwordHash: null,
       salt: null,
@@ -82,12 +49,6 @@ const loadConfig = async () => {
       createdAt: null,
     };
   }
-};
-
-const initializeAuth = async () => {
-  await ensureDir(directories.cache);
-  await ensureConfigFileExists();
-  await loadConfig();
 };
 
 const isPasswordSet = () => Boolean(passwordConfig.passwordHash && passwordConfig.salt);
@@ -105,7 +66,7 @@ const setPassword = async (password) => {
   };
 
   activeTokens.clear();
-  await writeConfig();
+  await setAuthConfig(passwordConfig);
 };
 
 const verifyPassword = async (password) => {

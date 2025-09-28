@@ -2,9 +2,14 @@ const { isPasswordSet, isSessionTokenValid } = require('../services/authService'
 const { extractToken } = require('../utils/auth');
 
 const authMiddleware = (req, res, next) => {
+  const requestPath = req.path || '';
+  const apiRoute = requestPath.startsWith('/api');
+  const isAuthRoute = requestPath.startsWith('/api/auth');
 
-  const apiRoute = req.path.startsWith('/api');
-  const isAuthRoute = req.path.startsWith('/api/auth');
+  if (!apiRoute) {
+    next();
+    return;
+  }
 
   if (req.method === 'OPTIONS') {
     next();
@@ -28,7 +33,7 @@ const authMiddleware = (req, res, next) => {
 
   const token = extractToken(req);
 
-  if (apiRoute &&  (!token || !isSessionTokenValid(token))) {
+  if (!token || !isSessionTokenValid(token)) {
     res.status(401).json({ error: 'Authentication required' });
     return;
   }

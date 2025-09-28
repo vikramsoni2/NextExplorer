@@ -28,7 +28,7 @@ const paths = computed(() => {
       <div v-if="index > 0">
         <ChevronRight16Filled class="h-4 text-gray-500 dark:text-gray-400" />
       </div>
-      <button class="cursor-pointer" @click="openBreadcrumb(path.path)">{{ path.name || 'Volumes' }}</button>
+      <button class="cursor-pointer line-clamp-1 text-ellipsis" @click="openBreadcrumb(path.path)">{{ path.name || 'Volumes' }}</button>
     </template>
   </div>
 </template>

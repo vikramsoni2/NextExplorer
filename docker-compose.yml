@@ -1,24 +1,14 @@
 services:
-
-  frontend:
-    build: ./frontend
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - 5173:5173
+      - 3005:3000
     volumes:
-      - ./frontend:/app
-      # - frontend_node_modules:/app/node_modules
-
-  backend:
-    build: ./backend
-    ports:
-      - 3000:3000
-    volumes:
-      - ./backend:/app
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads
-      # - backend_node_modules:/app/node_modules
       - /Users/vikram/Downloads/cache:/cache
-
-# volumes:
-#   frontend_node_modules:
-#   backend_node_modules:
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
