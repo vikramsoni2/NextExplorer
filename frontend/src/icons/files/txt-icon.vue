@@ -4,7 +4,7 @@
         <path fill="#fff" d="M6.5 2h13.6l6.4 6.4V28.5c0 .8-.7 1.5-1.5 1.5h-18c-.8 0-1.5-.7-1.5-1.5v-25c0-.8.7-1.5 1.5-1.5z"/>
         <path fill="#fff" d="M20 2v6c0 .6.4 1 1 1h6L20 2z"/>
 
-        <path fill="#C8C6C4" d="M9 14h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9z"/>
+        <path fill="currentColor" d="M9 14h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9zm0 3h14v1H9z"/>
     </svg> 
 <!-- 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true">

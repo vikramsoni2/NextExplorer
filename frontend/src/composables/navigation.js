@@ -1,15 +1,14 @@
 import { useRouter, useRoute } from 'vue-router';
 import { withViewTransition } from '@/utils';
 import { isEditableExtension } from '@/config/editor';
-import { isPreviewableImage, isPreviewableVideo } from '@/config/media';
-import { usePreviewStore } from '@/stores/previewStore';
+import { usePreviewManager } from '@/plugins/preview/manager';
 
 
 export function useNavigation() {
     
   const router = useRouter()
   const route = useRoute()
-  const previewStore = usePreviewStore();
+  const previewManager = usePreviewManager();
 
 
   const openItem = withViewTransition((item)=>{
@@ -29,21 +28,15 @@ export function useNavigation() {
         router.push({ path: `/browse/${newPath}` });
         return;
     }
+    if (previewManager.open(item)) {
+      return;
+    }
+
     if(isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)){
       const basePath = item.path ? `${item.path}/${item.name}` : item.name;
       const fileToEdit = basePath.replace(/^\/+/, '');
       router.push({ path: `/editor/${fileToEdit}` });
       return;
-    }
-
-    const shouldPreview =
-      isPreviewableImage(extensionFromKind)
-      || isPreviewableVideo(extensionFromKind)
-      || isPreviewableImage(extensionFromName)
-      || isPreviewableVideo(extensionFromName);
-
-    if (shouldPreview) {
-      previewStore.open(item);
     }
   });
   

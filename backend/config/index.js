@@ -9,6 +9,7 @@ const passwordConfigFile = path.join(cacheDir, 'app-config.json');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
 const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
+const documentExtensions = ['pdf'];
 const excludedFiles = ['thumbs.db', '.DS_Store'];
 
 const mimeTypes = {
@@ -34,9 +35,10 @@ const mimeTypes = {
   flv: 'video/x-flv',
   mpg: 'video/mpeg',
   mpeg: 'video/mpeg',
+  pdf: 'application/pdf',
 };
 
-const previewableExtensions = new Set([...imageExtensions, ...videoExtensions]);
+const previewableExtensions = new Set([...imageExtensions, ...videoExtensions, ...documentExtensions]);
 
 const corsOptions = {
   origin: '*',
@@ -58,6 +60,7 @@ module.exports = {
   extensions: {
     images: imageExtensions,
     videos: videoExtensions,
+    documents: documentExtensions,
     previewable: previewableExtensions,
   },
   excludedFiles,
