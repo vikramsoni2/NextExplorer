@@ -2,9 +2,9 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.fullstack
+      dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - 3005:3000
     volumes:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads

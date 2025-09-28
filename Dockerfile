@@ -1,27 +1,27 @@
 # Multi-stage image that builds the frontend and serves it through the backend
-FROM node:lts AS frontend-builder
+FROM public.ecr.aws/docker/library/node:lts-bookworm AS frontend-builder
 WORKDIR /frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
 RUN npm run build -- --sourcemap false
 
-FROM node:lts AS backend-deps
+FROM public.ecr.aws/docker/library/node:lts-bookworm AS backend-deps
 WORKDIR /app
 COPY backend/package*.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY backend/ ./
 RUN npm prune --omit=dev
 
-FROM jrottenberg/ffmpeg:6.0-alpine AS ffmpeg
-
-FROM node:20-bookworm-slim AS production
+FROM public.ecr.aws/docker/library/node:20-bookworm-slim AS production
+ENV UID=1000
+ENV GID=1000
 WORKDIR /app
 ENV NODE_ENV=production
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ffmpeg \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=backend-deps /app ./
 COPY --from=frontend-builder /frontend/dist ./public
-COPY --from=ffmpeg /usr/local/bin/ffmpeg /usr/local/bin/ffmpeg
-COPY --from=ffmpeg /usr/local/bin/ffprobe /usr/local/bin/ffprobe
-RUN chmod +x /usr/local/bin/ffmpeg /usr/local/bin/ffprobe
 EXPOSE 3000
 CMD ["node", "app.js"]

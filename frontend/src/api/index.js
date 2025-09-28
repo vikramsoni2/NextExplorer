@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE = 'http://localhost:3000';
+const DEFAULT_API_BASE = '/';
 const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
 let authToken = null;
