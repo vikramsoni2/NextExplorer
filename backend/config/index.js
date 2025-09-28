@@ -5,6 +5,7 @@ const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
 const volumeWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
 const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
 const thumbnailDir = path.join(cacheDir, 'thumbnails');
+const tusUploadDir = path.join(cacheDir, 'tus-uploads');
 const passwordConfigFile = path.join(cacheDir, 'app-config.json');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
@@ -43,7 +44,7 @@ const previewableExtensions = new Set([...imageExtensions, ...videoExtensions, .
 const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
 };
 
 module.exports = {
@@ -53,6 +54,7 @@ module.exports = {
     volumeWithSep,
     cache: cacheDir,
     thumbnails: thumbnailDir,
+    tusUploads: tusUploadDir,
   },
   files: {
     passwordConfig: passwordConfigFile,

@@ -9,6 +9,7 @@ const registerRoutes = require('./routes');
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middleware/authMiddleware');
 const { initializeAuth } = require('./services/authService');
+const { createTusService, ensureTusDirectory, TUS_ENDPOINT_PATH } = require('./services/tusService');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use((req, res, next) => {
   try {
     await ensureDir(directories.cache);
     await ensureDir(directories.thumbnails);
+    await ensureTusDirectory();
     await initializeAuth();
   } catch (error) {
     console.error('Failed to initialize application:', error);
@@ -32,6 +34,9 @@ app.use((req, res, next) => {
 
 app.use('/api/auth', authRoutes);
 app.use(authMiddleware);
+
+const { router: tusRouter } = createTusService();
+app.use(TUS_ENDPOINT_PATH, tusRouter);
 
 app.use('/static/thumbnails', express.static(directories.thumbnails));
 

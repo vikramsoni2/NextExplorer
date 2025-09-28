@@ -1,6 +1,6 @@
 import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 import Uppy from '@uppy/core';
-import XHRUpload from '@uppy/xhr-upload';
+import Tus from '@uppy/tus';
 import { useUppyStore } from '@/stores/uppyStore';
 import {useFileStore} from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
@@ -22,16 +22,15 @@ export function useFileUploader() {
   });
 
 
-  uppy.use(XHRUpload, {
-    endpoint: `${apiBase}/api/upload`,
-    formData: true,
-    fieldName: 'filedata',
-    bundle: false,
-    allowedMetaFields: null
+  uppy.use(Tus, {
+    endpoint: `${apiBase}/api/uploads/tus`,
+    retryDelays: [0, 1000, 3000, 5000],
+    allowedMetaFields: null,
+    headers: {},
   });
 
   const applyAuthHeaders = (token) => {
-    const plugin = uppy.getPlugin('XHRUpload');
+    const plugin = uppy.getPlugin('Tus');
     if (!plugin) {
       return;
     }
