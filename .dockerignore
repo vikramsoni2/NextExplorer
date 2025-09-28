@@ -7,3 +7,13 @@ backend/node_modules
 cache
 screenshots
 npm-debug.log
+**/node_modules
+**/.cache
+**/.next
+**/dist-ssr
+**/coverage
+**/.git
+**/.DS_Store
+**/README.md
+**/tests
+**/*.log
