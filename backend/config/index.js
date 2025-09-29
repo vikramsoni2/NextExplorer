@@ -66,4 +66,8 @@ module.exports = {
   excludedFiles,
   mimeTypes,
   corsOptions,
+  thumbnails: {
+    size: 200,
+    quality: 70
+  }
 };
