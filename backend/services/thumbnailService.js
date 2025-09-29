@@ -9,9 +9,14 @@ const fsPromises = fs.promises;
 const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions, thumbnails } = require('../config/index');
 
+const THUMB_SIZE = typeof thumbnails?.size === 'number' ? thumbnails.size : 200;
+const THUMB_QUALITY = typeof thumbnails?.quality === 'number' ? thumbnails.quality : 70;
+
 const currentConcurrency = sharp.concurrency();
 sharp.concurrency(Math.max(1, Math.min(8, currentConcurrency)));
 sharp.cache({ memory: 256, files: 0 });
+
+const supportsPdfInput = Boolean(sharp.format?.pdf?.input);
 
 const EXECUTABLE_CANDIDATES = {
   ffmpeg: [
@@ -67,6 +72,7 @@ configureFfmpegBinaries();
 
 const isImage = (ext) => extensions.images.includes(ext);
 const isVideo = (ext) => extensions.videos.includes(ext);
+const isDocument = (ext) => extensions.documents.includes(ext);
 
 const inflight = new Map();
 
@@ -89,16 +95,40 @@ const atomicWrite = async (finalPath, buffer) => {
 const makeImageThumb = async (srcPath, destPath) => {
   const buffer = await sharp(srcPath)
     .resize({
-      width: thumbnails.size,
-      height: thumbnails.size,
+      width: THUMB_SIZE,
+      height: THUMB_SIZE,
       fit: 'inside',
       withoutEnlargement: true,
       fastShrinkOnLoad: true,
     })
-    .webp({ quality: thumbnails.quality, effort: 4 })
+    .webp({ quality: THUMB_QUALITY, effort: 4 })
     .toBuffer();
 
   await atomicWrite(destPath, buffer);
+};
+
+const makePdfThumb = async (srcPath, destPath) => {
+  if (!supportsPdfInput) {
+    console.warn(`Skipping PDF thumbnail (sharp built without PDF support): ${srcPath}`);
+    return;
+  }
+
+  try {
+    const buffer = await sharp(srcPath, { density: 200 })
+      .resize({
+        width: THUMB_SIZE,
+        height: THUMB_SIZE,
+        fit: 'inside',
+        withoutEnlargement: true,
+        fastShrinkOnLoad: true,
+      })
+      .webp({ quality: THUMB_QUALITY, effort: 4 })
+      .toBuffer();
+
+    await atomicWrite(destPath, buffer);
+  } catch (error) {
+    console.warn(`Failed to generate PDF thumbnail for ${srcPath}: ${error.message}`);
+  }
 };
 
 const probeDuration = (filePath) =>
@@ -128,14 +158,14 @@ const makeVideoThumb = async (srcPath, destPath) => {
     const command = ffmpeg(srcPath)
       .inputOptions(['-hide_banner', '-loglevel', 'error'])
       .seekInput(seconds)
-      .outputOptions(['-frames:v', '1', '-vf', 'scale=200:-1:flags=lanczos', '-vcodec', 'png'])
+      .outputOptions(['-frames:v', '1', '-vf', `scale=${THUMB_SIZE}:-1:flags=lanczos`, '-vcodec', 'png'])
       .format('image2pipe')
       .on('error', reject);
 
     const stream = command.pipe();
     stream.on('error', reject);
 
-    const pipeline = sharp().webp({ quality: thumbnails.quality, effort: 4 });
+    const pipeline = sharp().webp({ quality: THUMB_QUALITY, effort: 4 });
     stream.pipe(pipeline);
 
     pipeline
@@ -156,6 +186,11 @@ const generateThumbnail = async (filePath, thumbPath) => {
 
   if (isVideo(extension)) {
     await makeVideoThumb(filePath, thumbPath);
+    return;
+  }
+
+  if (isDocument(extension)) {
+    await makePdfThumb(filePath, thumbPath);
     return;
   }
 
