@@ -18,12 +18,12 @@ npm-debug.log
 **/tests
 **/*.log
 .env
+**/.env
 
 
 # Ignore development and local environment files
 .git
 .gitignore
-.env
 README.md
 node_modules
 npm-debug.log
