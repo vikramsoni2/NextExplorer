@@ -24,11 +24,14 @@ import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 const route = useRoute()
 
 const currentPathName = computed(() => {
+  if(route.params.path==''){
+    return 'Volumes';
+  }
   if (typeof route.params.path === 'string') {
     const segments = route.params.path.split("/");
-    return segments.pop(); // Safely return the last segment if available.
+    return segments.pop(); 
   }
-  return 'Volumes';
+  
 })
 
 useTitle(currentPathName)
