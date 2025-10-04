@@ -30,6 +30,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Determine version tag
         id: version
         run: |
@@ -73,6 +76,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: ${{ github.event_name == 'push' && steps.version.outputs.publish == 'true' }}
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
