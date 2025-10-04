@@ -11,7 +11,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: next-explorer
+  IMAGE_NAME: explorer
 
 concurrency:
   group: docker-build-${{ github.ref }}
