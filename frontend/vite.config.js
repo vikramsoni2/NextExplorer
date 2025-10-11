@@ -14,5 +14,12 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/api': { target: 'http://backend:3000', changeOrigin: true },
+      '/static/thumbnails': { target: 'http://backend:3000', changeOrigin: true }
+    }
   }
+
 })

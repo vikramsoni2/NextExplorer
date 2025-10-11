@@ -1,20 +1,6 @@
-# Dockerfile
-FROM node:lts
-
-RUN apt-get update && \
-    apt-get install -y ffmpeg
-    
+FROM public.ecr.aws/docker/library/node:20-bookworm
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-COPY package*.json ./
-
-ARG CACHEBUST=1
-RUN npm install
-
-COPY . .
-
-RUN mkdir /uploads
-
+ENV NODE_ENV=development
 EXPOSE 3000
-
-CMD ["npm", "start"]
+CMD ["bash", "-lc", "npm ci && npm run start"]

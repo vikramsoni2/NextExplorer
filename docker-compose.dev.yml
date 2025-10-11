@@ -1,24 +1,40 @@
 services:
-
-  frontend:
-    build: ./frontend
-    ports:
-      - 5173:5173
-    volumes:
-      - ./frontend:/app
-      # - frontend_node_modules:/app/node_modules
-
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - 3000:3000
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - VOLUME_ROOT=/mnt
+      - CACHE_DIR=/cache
     volumes:
       - ./backend:/app
+      - backend_node_modules:/app/node_modules
+      # Adjust these host paths to your needs:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads
-      # - backend_node_modules:/app/node_modules
       - /Users/vikram/Downloads/cache:/cache
+    # user: "${UID:-1000}:${GID:-1000}"
 
-# volumes:
-#   frontend_node_modules:
-#   backend_node_modules:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      # Using Vite proxy; no VITE_API_URL needed
+      # Often needed on macOS/Windows for file change detection:
+      - CHOKIDAR_USEPOLLING=1
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    # user: "${UID:-1000}:${GID:-1000}"
+
+volumes:
+  backend_node_modules:
+  frontend_node_modules:
