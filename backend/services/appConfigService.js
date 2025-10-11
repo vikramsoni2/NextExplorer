@@ -9,12 +9,27 @@ const DEFAULT_ITERATIONS = 210000;
 const CONFIG_FILE_PATH = files.passwordConfig;
 
 const DEFAULT_CONFIG = {
-  version: 2,
+  version: 3,
   auth: {
     passwordHash: null,
     salt: null,
     iterations: DEFAULT_ITERATIONS,
     createdAt: null,
+  },
+  // App-level settings (extendable)
+  settings: {
+    thumbnails: {
+      enabled: true,
+      size: 200,
+      quality: 70,
+    },
+    security: {
+      authEnabled: true,
+    },
+    access: {
+      // Array of rules { id, path, recursive, permissions: 'rw'|'ro'|'hidden' }
+      rules: [],
+    },
   },
   favorites: [],
 };
@@ -93,12 +108,48 @@ const sanitizeConfig = (candidate = {}) => {
 
   const favorites = sanitizeFavorites(candidate?.favorites);
 
-  const candidateVersion = Number.isFinite(candidate?.version) ? candidate.version : 2;
-  const version = candidateVersion >= 2 ? candidateVersion : 2;
+  const sanitizeSettings = (settings) => {
+    const t = settings?.thumbnails || {};
+    const s = settings?.security || {};
+    const a = settings?.access || {};
+    const rules = Array.isArray(a.rules) ? a.rules : [];
+
+    const sanitizedRules = rules
+      .map((r) => {
+        if (!r || typeof r !== 'object') return null;
+        const path = typeof r.path === 'string' ? r.path.trim() : '';
+        if (!path) return null;
+        const recursive = Boolean(r.recursive);
+        const permissions = ['rw', 'ro', 'hidden'].includes(r.permissions) ? r.permissions : 'rw';
+        const id = typeof r.id === 'string' && r.id ? r.id : String(Date.now()) + Math.random().toString(36).slice(2);
+        return { id, path, recursive, permissions };
+      })
+      .filter(Boolean);
+
+    return {
+      thumbnails: {
+        enabled: typeof t.enabled === 'boolean' ? t.enabled : true,
+        size: Number.isFinite(t.size) ? Math.max(64, Math.min(1024, Math.floor(t.size))) : 200,
+        quality: Number.isFinite(t.quality) ? Math.max(1, Math.min(100, Math.floor(t.quality))) : 70,
+      },
+      security: {
+        authEnabled: typeof s.authEnabled === 'boolean' ? s.authEnabled : true,
+      },
+      access: {
+        rules: sanitizedRules,
+      },
+    };
+  };
+
+  const candidateVersion = Number.isFinite(candidate?.version) ? candidate.version : 3;
+  const version = candidateVersion >= 3 ? candidateVersion : 3;
+
+  const settings = sanitizeSettings(candidate?.settings || {});
 
   return {
     version,
     auth: sanitizedAuth,
+    settings,
     favorites,
   };
 };
@@ -180,6 +231,27 @@ const setAuthConfig = async (authConfig) => {
     auth: nextAuth,
   }));
   return { ...updated.auth };
+};
+
+// SETTINGS helpers
+const getSettings = async () => {
+  const config = await getConfig();
+  // return deep clone to avoid external mutation
+  return JSON.parse(JSON.stringify(config.settings || DEFAULT_CONFIG.settings));
+};
+
+const setSettings = async (partial) => {
+  const updated = await updateConfig((config) => ({
+    ...config,
+    settings: sanitizeConfig({ settings: { ...config.settings, ...(partial || {}) } }).settings,
+  }));
+  return JSON.parse(JSON.stringify(updated.settings));
+};
+
+const updateSettings = async (updater) => {
+  const current = await getSettings();
+  const next = typeof updater === 'function' ? updater(current) : { ...current, ...(updater || {}) };
+  return setSettings(next);
 };
 
 const ensureDirectoryExists = async (relativePath) => {
@@ -289,6 +361,9 @@ module.exports = {
   updateConfig,
   getAuthConfig,
   setAuthConfig,
+  getSettings,
+  setSettings,
+  updateSettings,
   getFavorites,
   addFavorite,
   removeFavorite,

@@ -6,6 +6,7 @@ const multer = require('multer');
 const { ensureDir, pathExists } = require('../utils/fsUtils');
 const { normalizeRelativePath, resolveVolumePath, findAvailableName } = require('../utils/pathUtils');
 const { readMetaField } = require('../utils/requestUtils');
+const { getPermissionForPath } = require('./accessControlService');
 
 const resolveUploadPaths = (req, file) => {
   const relativePathMeta = readMetaField(req, 'relativePath');
@@ -39,6 +40,14 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
     try {
       const { destinationPath, destinationDir } = resolveUploadPaths(req, file);
       await ensureDir(destinationDir);
+
+      // Enforce access control: destination directory must be writable
+      const volumeRoot = resolveVolumePath('');
+      const relDestDir = normalizeRelativePath(path.relative(volumeRoot, destinationDir));
+      const perm = await getPermissionForPath(relDestDir);
+      if (perm !== 'rw') {
+        throw new Error('Destination path is read-only.');
+      }
 
       let finalPath = destinationPath;
       if (await pathExists(finalPath)) {

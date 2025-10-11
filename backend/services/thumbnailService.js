@@ -7,10 +7,15 @@ const ffmpeg = require('fluent-ffmpeg');
 const fsPromises = fs.promises;
 
 const { ensureDir } = require('../utils/fsUtils');
-const { directories, extensions, thumbnails } = require('../config/index');
+const { directories, extensions } = require('../config/index');
+const { getSettings } = require('./appConfigService');
 
-const THUMB_SIZE = typeof thumbnails?.size === 'number' ? thumbnails.size : 200;
-const THUMB_QUALITY = typeof thumbnails?.quality === 'number' ? thumbnails.quality : 70;
+const getThumbOptions = async () => {
+  const settings = await getSettings();
+  const size = Number.isFinite(settings?.thumbnails?.size) ? settings.thumbnails.size : 200;
+  const quality = Number.isFinite(settings?.thumbnails?.quality) ? settings.thumbnails.quality : 70;
+  return { size, quality };
+};
 
 const currentConcurrency = sharp.concurrency();
 sharp.concurrency(Math.max(1, Math.min(8, currentConcurrency)));
@@ -91,15 +96,16 @@ const atomicWrite = async (finalPath, buffer) => {
 };
 
 const makeImageThumb = async (srcPath, destPath) => {
+  const { size, quality } = await getThumbOptions();
   const buffer = await sharp(srcPath)
     .resize({
-      width: THUMB_SIZE,
-      height: THUMB_SIZE,
+      width: size,
+      height: size,
       fit: 'inside',
       withoutEnlargement: true,
       fastShrinkOnLoad: true,
     })
-    .webp({ quality: THUMB_QUALITY, effort: 4 })
+    .webp({ quality, effort: 4 })
     .toBuffer();
 
   await atomicWrite(destPath, buffer);
@@ -129,24 +135,29 @@ const makeVideoThumb = async (srcPath, destPath) => {
     : 1;
 
   await new Promise((resolve, reject) => {
+    // Size is dynamic; capture inside ffmpeg filter
+    let size = 200;
+    getThumbOptions().then(({ size: sz }) => { size = sz; }).catch(() => {});
     const command = ffmpeg(srcPath)
       .inputOptions(['-hide_banner', '-loglevel', 'error'])
       .seekInput(seconds)
-      .outputOptions(['-frames:v', '1', '-vf', `scale=${THUMB_SIZE}:-1:flags=lanczos`, '-vcodec', 'png'])
+      .outputOptions(['-frames:v', '1', '-vf', `scale=${size}:-1:flags=lanczos`, '-vcodec', 'png'])
       .format('image2pipe')
       .on('error', reject);
 
     const stream = command.pipe();
     stream.on('error', reject);
 
-    const pipeline = sharp().webp({ quality: THUMB_QUALITY, effort: 4 });
-    stream.pipe(pipeline);
-
-    pipeline
-      .toBuffer()
-      .then((buffer) => atomicWrite(destPath, buffer))
-      .then(resolve)
-      .catch(reject);
+    (async () => {
+      const { quality } = await getThumbOptions();
+      const pipeline = sharp().webp({ quality, effort: 4 });
+      stream.pipe(pipeline);
+      pipeline
+        .toBuffer()
+        .then((buffer) => atomicWrite(destPath, buffer))
+        .then(resolve)
+        .catch(reject);
+    })().catch(reject);
   });
 };
 

@@ -1,7 +1,8 @@
 const { isPasswordSet, isSessionTokenValid } = require('../services/authService');
 const { extractToken } = require('../utils/auth');
+const { getSettings } = require('../services/appConfigService');
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
   const apiRoute = requestPath.startsWith('/api');
   const isAuthRoute = requestPath.startsWith('/api/auth');
@@ -12,6 +13,15 @@ const authMiddleware = (req, res, next) => {
   }
 
   if (req.method === 'OPTIONS') {
+    next();
+    return;
+  }
+
+  const settings = await getSettings();
+  const authEnabled = settings?.security?.authEnabled !== false;
+
+  if (!authEnabled) {
+    // Public mode: allow all API requests without auth
     next();
     return;
   }

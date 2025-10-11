@@ -14,8 +14,18 @@ const {
 } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
 const { extensions, mimeTypes } = require('../config/index');
+const { getPermissionForPath } = require('../services/accessControlService');
 
 const router = express.Router();
+
+const assertWritable = async (relativePath) => {
+  const perm = await getPermissionForPath(relativePath);
+  if (perm !== 'rw') {
+    const err = new Error('Path is read-only.');
+    err.status = 403;
+    throw err;
+  }
+};
 
 const buildItemMetadata = async (absolutePath, relativeParent, name) => {
   const stats = await fs.stat(absolutePath);
@@ -41,6 +51,7 @@ router.post('/files/folder', async (req, res) => {
     const requestedName = req.body?.name;
 
     const parentRelative = normalizeRelativePath(destination);
+    await assertWritable(parentRelative);
     const parentAbsolute = resolveVolumePath(parentRelative);
 
     let parentStats;
@@ -90,6 +101,8 @@ router.post('/files/rename', async (req, res) => {
     const currentRelative = combineRelativePath(parentRelative, originalName);
     const currentAbsolute = resolveVolumePath(currentRelative);
 
+    await assertWritable(parentRelative);
+
     if (!(await pathExists(currentAbsolute))) {
       throw new Error('Item not found.');
     }
@@ -128,6 +141,17 @@ router.post('/files/rename', async (req, res) => {
 router.post('/files/copy', async (req, res) => {
   try {
     const { items = [], destination = '' } = req.body || {};
+    // validate read on each source (hidden not allowed), write on destination
+    for (const item of items) {
+      if (!item || !item.name) continue;
+      const srcRel = combineRelativePath(normalizeRelativePath(item.path || ''), item.name);
+      const perm = await getPermissionForPath(srcRel);
+      if (perm === 'hidden') {
+        throw new Error('Source path is not accessible.');
+      }
+    }
+    await assertWritable(normalizeRelativePath(destination));
+
     const result = await transferItems(items, destination, 'copy');
     res.json({ success: true, ...result });
   } catch (error) {
@@ -139,6 +163,12 @@ router.post('/files/copy', async (req, res) => {
 router.post('/files/move', async (req, res) => {
   try {
     const { items = [], destination = '' } = req.body || {};
+    for (const item of items) {
+      const parent = normalizeRelativePath(item?.path || '');
+      await assertWritable(parent);
+    }
+    await assertWritable(normalizeRelativePath(destination));
+
     const result = await transferItems(items, destination, 'move');
     res.json({ success: true, ...result });
   } catch (error) {
@@ -150,6 +180,10 @@ router.post('/files/move', async (req, res) => {
 router.delete('/files', async (req, res) => {
   try {
     const { items = [] } = req.body || {};
+    for (const item of items) {
+      const parent = normalizeRelativePath(item?.path || '');
+      await assertWritable(parent);
+    }
     const results = await deleteItems(items);
     res.json({ success: true, items: results });
   } catch (error) {

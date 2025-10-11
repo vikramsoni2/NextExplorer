@@ -9,8 +9,10 @@ const {
   getThumbnailPathIfExists,
   queueThumbnailGeneration,
 } = require('../services/thumbnailService');
+const { getSettings } = require('../services/appConfigService');
 
 const router = express.Router();
+const { getPermissionForPath } = require('../services/accessControlService');
 const previewable = new Set([
   ...extensions.images,
   ...extensions.videos,
@@ -19,6 +21,8 @@ const previewable = new Set([
 
 router.get('/browse/*', async (req, res) => {
   try {
+    const settings = await getSettings();
+    const thumbsEnabled = settings?.thumbnails?.enabled !== false;
     const relativePath = normalizeRelativePath(req.params[0]);
     const directoryPath = resolveVolumePath(relativePath);
 
@@ -48,7 +52,14 @@ router.get('/browse/*', async (req, res) => {
         kind: extension,
       };
 
-      if (stats.isFile() && previewable.has(extension.toLowerCase()) && extension !== 'pdf') {
+      // Enforce hidden rules in listings
+      const fullRel = relativePath ? `${relativePath}/${file}` : file;
+      const perm = await getPermissionForPath(fullRel);
+      if (perm === 'hidden') {
+        return null;
+      }
+
+      if (thumbsEnabled && stats.isFile() && previewable.has(extension.toLowerCase()) && extension !== 'pdf') {
         try {
           const existingThumbnail = await getThumbnailPathIfExists(filePath);
           if (existingThumbnail) {
@@ -64,7 +75,7 @@ router.get('/browse/*', async (req, res) => {
       return item;
     });
 
-    const fileData = await Promise.all(fileDataPromises);
+    const fileData = (await Promise.all(fileDataPromises)).filter(Boolean);
     res.json(fileData);
   } catch (error) {
     console.error('Failed to read directory:', error);
