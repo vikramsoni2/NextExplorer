@@ -12,7 +12,7 @@
   <text
     x="16" y="22.75"
     font-family="Segoe UI, Roboto, Arial, Helvetica, sans-serif"
-    font-size="4.8" font-weight="800"
+    font-size="6" font-weight="800"
     text-anchor="middle" dominant-baseline="middle"
     fill="#FFFFFF"
     stroke="#000000" stroke-opacity=".25" stroke-width=".4"

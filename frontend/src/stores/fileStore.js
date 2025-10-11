@@ -11,6 +11,7 @@ import {
   fetchThumbnail as fetchThumbnailApi,
 } from '@/api';
 import { useSettingsStore } from '@/stores/settings';
+import { useAppSettings } from '@/stores/appSettings';
 
 export const useFileStore = defineStore('fileStore', () => {
   // State
@@ -195,6 +196,19 @@ export const useFileStore = defineStore('fileStore', () => {
     const kind = (item.kind || '').toLowerCase();
     if (kind === 'directory' || kind === 'pdf') {
       return null;
+    }
+
+    // Respect app settings: if thumbnails disabled or settings not yet loaded, skip
+    try {
+      const appSettings = useAppSettings();
+      if (!appSettings.loaded) {
+        if (!appSettings.loading) await appSettings.load();
+      }
+      if (appSettings.loaded && appSettings.state.thumbnails?.enabled === false) {
+        return null;
+      }
+    } catch (e) {
+      // If settings store fails, fail open to avoid breaking UI, but do not spam
     }
 
     const key = itemKey(item);
