@@ -27,7 +27,7 @@ const categories = [
   { key: 'logging', name: 'Logging', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'integrations', name: 'Integrations', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'advanced', name: 'Advanced', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'about', name: 'About', icon: Cog8ToothIcon, comingSoon: true },
+  { key: 'about', name: 'About', icon: Cog8ToothIcon },
 ];
 
 const isActive = (key) => route.path.endsWith(`/settings/${key}`);
@@ -83,4 +83,3 @@ const closeSettings = () => {
     </main>
   </div>
 </template>
-

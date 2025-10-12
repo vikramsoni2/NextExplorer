@@ -8,6 +8,7 @@ import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vu
 import SettingsSecurity from '@/views/settings/SettingsSecurity.vue'
 import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue'
 import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue'
+import SettingsAbout from '@/views/settings/SettingsAbout.vue'
 import AboutView from '@/views/AboutView.vue'
 import AuthSetupView from '@/views/AuthSetupView.vue'
 import AuthLoginView from '@/views/AuthLoginView.vue'
@@ -37,7 +38,7 @@ const router = createRouter({
         { path: 'logging', component: SettingsComingSoon },
         { path: 'integrations', component: SettingsComingSoon },
         { path: 'advanced', component: SettingsComingSoon },
-        { path: 'about', component: SettingsComingSoon },
+        { path: 'about', component: SettingsAbout },
       ],
     },
     {
