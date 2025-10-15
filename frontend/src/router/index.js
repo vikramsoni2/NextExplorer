@@ -3,6 +3,12 @@ import FolderView from '@/views/FolderView.vue'
 import EditorView from '@/views/EditorView.vue'
 import BrowserLayput from '@/layouts/BrowserLayput.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
+import SettingsLayout from '@/views/settings/SettingsLayout.vue'
+import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue'
+import SettingsSecurity from '@/views/settings/SettingsSecurity.vue'
+import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue'
+import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue'
+import SettingsAbout from '@/views/settings/SettingsAbout.vue'
 import AboutView from '@/views/AboutView.vue'
 import AuthSetupView from '@/views/AuthSetupView.vue'
 import AuthLoginView from '@/views/AuthLoginView.vue'
@@ -14,6 +20,26 @@ const router = createRouter({
     {
       path: '/',
       redirect: '/browse/'
+    },
+    {
+      path: '/settings',
+      component: SettingsLayout,
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', redirect: '/settings/files-thumbnails' },
+        { path: 'files-thumbnails', component: SettingsFilesThumbnails },
+        { path: 'security', component: SettingsSecurity },
+        { path: 'access-control', component: SettingsAccessControl },
+        // Scaffolded routes
+        { path: 'general', component: SettingsComingSoon },
+        { path: 'appearance', component: SettingsComingSoon },
+        { path: 'uploads-downloads', component: SettingsComingSoon },
+        { path: 'performance', component: SettingsComingSoon },
+        { path: 'logging', component: SettingsComingSoon },
+        { path: 'integrations', component: SettingsComingSoon },
+        { path: 'advanced', component: SettingsComingSoon },
+        { path: 'about', component: SettingsAbout },
+      ],
     },
     {
       path: '/browse',

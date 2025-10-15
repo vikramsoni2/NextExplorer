@@ -5,6 +5,8 @@ import { useRoute, useRouter } from 'vue-router';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import { useAuthStore } from '@/stores/auth';
 
+const version = __APP_VERSION__
+
 const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
@@ -100,7 +102,7 @@ const handleSetupSubmit = async () => {
         <div class="flex items-center justify-between border-b border-white/5 pb-6">
           <HeaderLogo class="mb-0" />
           <span class="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white/70">
-            Secure Access
+            Version {{ version }}
           </span>
         </div>
 

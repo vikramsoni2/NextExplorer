@@ -7,6 +7,7 @@ const { extensions } = require('../config/index');
 const { getThumbnail } = require('../services/thumbnailService');
 
 const router = express.Router();
+const { getSettings } = require('../services/appConfigService');
 
 const isPreviewable = (extension = '') => {
   if (!extension) {
@@ -17,6 +18,11 @@ const isPreviewable = (extension = '') => {
 
 router.get('/thumbnails/*', async (req, res) => {
   try {
+    const settings = await getSettings();
+    const thumbsEnabled = settings?.thumbnails?.enabled !== false;
+    if (!thumbsEnabled) {
+      return res.json({ thumbnail: '' });
+    }
     const rawPath = req.params[0];
     const relativePath = normalizeRelativePath(rawPath);
 

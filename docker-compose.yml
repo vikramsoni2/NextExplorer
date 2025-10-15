@@ -11,4 +11,7 @@ services:
       - /Users/vikram/Downloads/cache:/cache
     environment:
       - NODE_ENV=production
+      # Match these to your host user/group IDs (check with `id -u` / `id -g`)
+      - PUID=1000
+      - PGID=1000
     restart: unless-stopped

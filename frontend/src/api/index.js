@@ -287,6 +287,26 @@ export {
   encodePath,
   appendAuthQuery,
   fetchAuthStatus,
+  // settings
+  // GET /api/settings
+  // PATCH /api/settings
+};
+
+// Settings API (export after function declarations below)
+async function getSettings() {
+  return requestJson('/api/settings', { method: 'GET' });
+}
+
+async function patchSettings(partial) {
+  return requestJson('/api/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(partial || {}),
+  });
+}
+
+export {
+  getSettings,
+  patchSettings,
   setupPassword,
   login,
   logout,

@@ -46,9 +46,9 @@ services:
       - "3000:3000"  # host:container
     environment:
       - NODE_ENV=production
-      # Optional: match the container user/group to your host UID/GID
-      # - UID=1000
-      # - GID=1000
+      # Optional: match the container user/group to your host IDs
+      # - PUID=1000
+      # - PGID=1000
     volumes:
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
@@ -66,13 +66,18 @@ docker compose up -d
 
 The API and UI are both served on `http://localhost:3000`.
 
-### 5. First-run setup
+### 5. Map container user IDs (recommended)
+1. On the host, run `id -u` and `id -g` to capture your user and group IDs.
+2. Set the `PUID` and `PGID` environment variables in your Compose file so the container runs as your user.
+3. Restart the stack; any files created through nextExplorer will now be owned by your user on the host.
+
+### 6. First-run setup
 1. Open the app in your browser.
 2. Set a password when prompted; this gate protects all future sessions.
 3. Browse the Volumes panel to verify each mount shows up as expected.
 4. Start uploading or editing files—thumbnails will populate the cache automatically.
 
-### 6. Updating
+### 7. Updating
 To pull the latest release:
 
 ```bash

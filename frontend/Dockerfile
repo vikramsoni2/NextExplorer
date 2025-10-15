@@ -1,14 +1,5 @@
-# Dockerfile
-FROM node:lts
-
+FROM public.ecr.aws/docker/library/node:20-bookworm
 WORKDIR /app
-
-COPY package*.json ./
-
-RUN npm install
-
-COPY . .
-
+ENV NODE_ENV=development
 EXPOSE 5173
-
-CMD ["npm", "run", "dev"]
+CMD ["bash", "-lc", "npm ci && npm run dev -- --host 0.0.0.0"]

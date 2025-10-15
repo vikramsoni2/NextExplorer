@@ -14,14 +14,23 @@ COPY backend/ ./
 RUN npm prune --omit=dev
 
 FROM public.ecr.aws/docker/library/node:20-bookworm-slim AS production
-ENV UID=1000
-ENV GID=1000
 WORKDIR /app
 ENV NODE_ENV=production
+
+# Pre-create the application user; UID/GID will be adjusted at runtime.
+RUN groupadd --system appuser && \
+    useradd --system --gid appuser --shell /bin/bash --create-home appuser
+
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg \
+  && apt-get install -y --no-install-recommends ffmpeg gosu \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=backend-deps /app ./
 COPY --from=frontend-builder /frontend/dist ./public
+
+# Bootstrap entrypoint script responsible for dynamic user mapping.
+COPY entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 3000
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["node", "app.js"]

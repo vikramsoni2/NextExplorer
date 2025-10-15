@@ -12,15 +12,19 @@ const {
 const { extractToken } = require('../utils/auth');
 
 const router = express.Router();
+const { getSettings } = require('../services/appConfigService');
 
-router.get('/status', (req, res) => {
+router.get('/status', async (req, res) => {
   const token = extractToken(req);
   const status = getStatus();
   const authenticated = Boolean(token && isSessionTokenValid(token));
+  const settings = await getSettings();
+  const authEnabled = settings?.security?.authEnabled !== false;
 
   res.json({
     ...status,
     authenticated,
+    authEnabled,
   });
 });
 

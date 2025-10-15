@@ -24,6 +24,7 @@ const loadStoredToken = () => {
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(loadStoredToken());
   const requiresSetup = ref(false);
+  const authEnabled = ref(true);
   const isLoading = ref(false);
   const hasStatus = ref(false);
   const lastError = ref(null);
@@ -33,7 +34,9 @@ export const useAuthStore = defineStore('auth', () => {
     setAuthToken(token.value);
   }
 
-  const isAuthenticated = computed(() => Boolean(token.value));
+  const isAuthenticated = computed(() => {
+    return !authEnabled.value || Boolean(token.value);
+  });
 
   const persistToken = (newToken) => {
     token.value = newToken || null;
@@ -62,6 +65,7 @@ export const useAuthStore = defineStore('auth', () => {
       try {
         const status = await fetchAuthStatus();
         requiresSetup.value = Boolean(status.requiresSetup);
+        authEnabled.value = status?.authEnabled !== false;
 
         if (!requiresSetup.value && token.value) {
           if (!status.authenticated) {
@@ -116,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     hasStatus,
     isAuthenticated,
+    authEnabled,
     lastError,
     initialize,
     ensureStatus: initialize,
