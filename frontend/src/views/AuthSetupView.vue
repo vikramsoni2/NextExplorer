@@ -11,6 +11,7 @@ const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
+const setupUsernameValue = ref('admin');
 const setupPasswordValue = ref('');
 const setupConfirmValue = ref('');
 const setupError = ref('');
@@ -62,6 +63,11 @@ const resetErrors = () => {
 const handleSetupSubmit = async () => {
   resetErrors();
 
+  if (!setupUsernameValue.value.trim()) {
+    setupError.value = 'Username is required.';
+    return;
+  }
+
   if (setupPasswordValue.value.length < 6) {
     setupError.value = 'Password must be at least 6 characters long.';
     return;
@@ -75,7 +81,11 @@ const handleSetupSubmit = async () => {
   isSubmittingSetup.value = true;
 
   try {
-    await auth.setupPassword(setupPasswordValue.value);
+    await auth.setupAccount({
+      username: setupUsernameValue.value.trim(),
+      password: setupPasswordValue.value,
+    });
+    setupUsernameValue.value = '';
     setupPasswordValue.value = '';
     setupConfirmValue.value = '';
     redirectToDestination();
@@ -108,14 +118,29 @@ const handleSetupSubmit = async () => {
 
         <div class="mt-6 space-y-6">
           <div>
-            <h2 class="text-2xl font-semibold text-white">Create your explorer password</h2>
+            <h2 class="text-2xl font-semibold text-white">Create your explorer account</h2>
             <p class="mt-2 text-sm text-white/60">
-              Protect your workspace with a password only you know. You’ll use it every time you launch the app.
+              Choose a username and a secure password to unlock your explorer. You’ll use these credentials every time you launch the app.
             </p>
           </div>
 
           <form class="space-y-6" @submit.prevent="handleSetupSubmit">
             <div class="space-y-4">
+              <div>
+                <label for="setup-username" class="block text-sm font-medium uppercase tracking-wide text-white/70">
+                  Username
+                </label>
+                <input
+                  id="setup-username"
+                  v-model="setupUsernameValue"
+                  type="text"
+                  autocomplete="username"
+                  :class="inputBaseClasses"
+                  placeholder="Choose a username (e.g. admin)"
+                  :disabled="isSubmittingSetup"
+                />
+              </div>
+
               <div>
                 <label for="setup-password" class="block text-sm font-medium uppercase tracking-wide text-white/70">
                   Password

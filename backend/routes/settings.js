@@ -34,7 +34,20 @@ router.patch('/settings', async (req, res) => {
       const s = payload.security;
       nextPartial.security = {
         ...(s.authEnabled != null ? { authEnabled: Boolean(s.authEnabled) } : {}),
+        ...(typeof s.authMode === 'string' ? { authMode: s.authMode } : {}),
+        ...(typeof s.sessionSecret === 'string' && s.sessionSecret.trim() ? { sessionSecret: s.sessionSecret.trim() } : {}),
       };
+
+      if (s.oidc && typeof s.oidc === 'object') {
+        nextPartial.security.oidc = {
+          ...(s.oidc.enabled != null ? { enabled: Boolean(s.oidc.enabled) } : {}),
+          ...(typeof s.oidc.issuer === 'string' && s.oidc.issuer.trim() ? { issuer: s.oidc.issuer.trim() } : {}),
+          ...(typeof s.oidc.clientId === 'string' && s.oidc.clientId.trim() ? { clientId: s.oidc.clientId.trim() } : {}),
+          ...(typeof s.oidc.clientSecret === 'string' && s.oidc.clientSecret.trim() ? { clientSecret: s.oidc.clientSecret.trim() } : {}),
+          ...(typeof s.oidc.callbackUrl === 'string' && s.oidc.callbackUrl.trim() ? { callbackUrl: s.oidc.callbackUrl.trim() } : {}),
+          ...(Array.isArray(s.oidc.scopes) ? { scopes: s.oidc.scopes } : {}),
+        };
+      }
     }
 
     if (payload.access && typeof payload.access === 'object') {
@@ -53,4 +66,3 @@ router.patch('/settings', async (req, res) => {
 });
 
 module.exports = router;
-

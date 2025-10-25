@@ -5,9 +5,11 @@ import {
   setAuthToken,
   clearAuthToken,
   fetchAuthStatus,
-  setupPassword as setupPasswordApi,
+  setupAccount as setupAccountApi,
   login as loginApi,
   logout as logoutApi,
+  fetchCurrentUser,
+  issueAuthToken,
 } from '@/api';
 
 const STORAGE_KEY = 'next-explorer-auth-token';
@@ -25,6 +27,12 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(loadStoredToken());
   const requiresSetup = ref(false);
   const authEnabled = ref(true);
+  const authMode = ref('local');
+  const strategies = ref({
+    local: true,
+    oidc: false,
+  });
+  const currentUser = ref(null);
   const isLoading = ref(false);
   const hasStatus = ref(false);
   const lastError = ref(null);
@@ -35,7 +43,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const isAuthenticated = computed(() => {
-    return !authEnabled.value || Boolean(token.value);
+    if (!authEnabled.value) {
+      return true;
+    }
+    return Boolean(currentUser.value) || Boolean(token.value);
   });
 
   const persistToken = (newToken) => {
@@ -66,11 +77,12 @@ export const useAuthStore = defineStore('auth', () => {
         const status = await fetchAuthStatus();
         requiresSetup.value = Boolean(status.requiresSetup);
         authEnabled.value = status?.authEnabled !== false;
+        authMode.value = typeof status?.authMode === 'string' ? status.authMode : 'local';
+        strategies.value = status?.strategies || { local: true, oidc: false };
+        currentUser.value = status?.user || null;
 
-        if (!requiresSetup.value && token.value) {
-          if (!status.authenticated) {
-            persistToken(null);
-          }
+        if (!requiresSetup.value && token.value && !status.authenticated) {
+          persistToken(null);
         }
       } catch (error) {
         lastError.value = error instanceof Error ? error.message : 'Failed to load authentication status.';
@@ -84,19 +96,21 @@ export const useAuthStore = defineStore('auth', () => {
     return initPromise;
   };
 
-  const setupPassword = async (password) => {
+  const setupAccount = async ({ username, password }) => {
     lastError.value = null;
-    const response = await setupPasswordApi(password);
+    const response = await setupAccountApi({ username, password });
     persistToken(response?.token || null);
     requiresSetup.value = false;
     hasStatus.value = true;
+    currentUser.value = response?.user || null;
   };
 
-  const login = async (password) => {
+  const login = async ({ username, password }) => {
     lastError.value = null;
-    const response = await loginApi(password);
+    const response = await loginApi({ username, password });
     persistToken(response?.token || null);
     hasStatus.value = true;
+    currentUser.value = response?.user || null;
   };
 
   const logout = async () => {
@@ -108,10 +122,28 @@ export const useAuthStore = defineStore('auth', () => {
     }
     persistToken(null);
     hasStatus.value = true;
+    currentUser.value = null;
   };
 
   const clearError = () => {
     lastError.value = null;
+  };
+
+  const refreshCurrentUser = async () => {
+    try {
+      const response = await fetchCurrentUser();
+      currentUser.value = response?.user || null;
+      return currentUser.value;
+    } catch (error) {
+      currentUser.value = null;
+      throw error;
+    }
+  };
+
+  const mintToken = async () => {
+    const response = await issueAuthToken();
+    persistToken(response?.token || null);
+    return response?.token || null;
   };
 
   return {
@@ -121,12 +153,17 @@ export const useAuthStore = defineStore('auth', () => {
     hasStatus,
     isAuthenticated,
     authEnabled,
+    authMode,
+    strategies,
+    currentUser,
     lastError,
     initialize,
     ensureStatus: initialize,
-    setupPassword,
+    setupAccount,
     login,
     logout,
     clearError,
+    refreshCurrentUser,
+    mintToken,
   };
 });

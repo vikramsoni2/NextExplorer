@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+const crypto = require('crypto');
 
 const { directories, files } = require('../config/index');
 const { ensureDir } = require('../utils/fsUtils');
@@ -7,15 +8,18 @@ const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils
 const CONFIG_ENCODING = 'utf8';
 const DEFAULT_ITERATIONS = 210000;
 const CONFIG_FILE_PATH = files.passwordConfig;
+const SUPPORTED_AUTH_MODES = ['local', 'oidc', 'both'];
+const DEFAULT_AUTH_MODE = 'local';
 
 const DEFAULT_CONFIG = {
-  version: 3,
+  version: 4,
   auth: {
     passwordHash: null,
     salt: null,
     iterations: DEFAULT_ITERATIONS,
     createdAt: null,
   },
+  users: [],
   // App-level settings (extendable)
   settings: {
     thumbnails: {
@@ -25,6 +29,16 @@ const DEFAULT_CONFIG = {
     },
     security: {
       authEnabled: true,
+      authMode: DEFAULT_AUTH_MODE,
+      sessionSecret: null,
+      oidc: {
+        enabled: false,
+        issuer: null,
+        clientId: null,
+        clientSecret: null,
+        callbackUrl: null,
+        scopes: ['openid', 'profile', 'email'],
+      },
     },
     access: {
       // Array of rules { id, path, recursive, permissions: 'rw'|'ro'|'hidden' }
@@ -37,12 +51,104 @@ const DEFAULT_CONFIG = {
 let configCache = null;
 let initialized = false;
 
+const randomId = () => {
+  if (typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`;
+};
+
 const sanitizeAuth = (candidate = {}) => ({
   passwordHash: typeof candidate.passwordHash === 'string' ? candidate.passwordHash : null,
   salt: typeof candidate.salt === 'string' ? candidate.salt : null,
   iterations: Number.isFinite(candidate.iterations) ? candidate.iterations : DEFAULT_ITERATIONS,
   createdAt: typeof candidate.createdAt === 'string' ? candidate.createdAt : null,
 });
+
+const sanitizeUser = (candidate) => {
+  if (!candidate || typeof candidate !== 'object') {
+    return null;
+  }
+
+  const username = typeof candidate.username === 'string' ? candidate.username.trim() : '';
+  if (!username) {
+    return null;
+  }
+
+  const id = typeof candidate.id === 'string' && candidate.id.trim()
+    ? candidate.id.trim()
+    : randomId();
+
+  const provider = typeof candidate.provider === 'string' && ['local', 'oidc'].includes(candidate.provider)
+    ? candidate.provider
+    : 'local';
+
+  const iterations = Number.isFinite(candidate.iterations) ? candidate.iterations : DEFAULT_ITERATIONS;
+  const roles = Array.isArray(candidate.roles)
+    ? Array.from(new Set(candidate.roles.map((role) => (typeof role === 'string' ? role.trim() : '')).filter(Boolean)))
+    : [];
+
+  const sanitized = {
+    id,
+    username,
+    provider,
+    roles,
+    createdAt: typeof candidate.createdAt === 'string' ? candidate.createdAt : new Date().toISOString(),
+    updatedAt: typeof candidate.updatedAt === 'string' ? candidate.updatedAt : new Date().toISOString(),
+  };
+
+  if (provider === 'local') {
+    sanitized.passwordHash = typeof candidate.passwordHash === 'string' ? candidate.passwordHash : null;
+    sanitized.salt = typeof candidate.salt === 'string' ? candidate.salt : null;
+    sanitized.iterations = iterations;
+  } else {
+    sanitized.passwordHash = null;
+    sanitized.salt = null;
+    sanitized.iterations = DEFAULT_ITERATIONS;
+  }
+
+  if (provider === 'oidc') {
+    sanitized.oidcSub = typeof candidate.oidcSub === 'string' ? candidate.oidcSub : null;
+    sanitized.oidcIssuer = typeof candidate.oidcIssuer === 'string' ? candidate.oidcIssuer : null;
+    sanitized.displayName = typeof candidate.displayName === 'string' ? candidate.displayName : null;
+    sanitized.email = typeof candidate.email === 'string' ? candidate.email : null;
+  } else {
+    sanitized.oidcSub = null;
+    sanitized.oidcIssuer = null;
+    sanitized.displayName = typeof candidate.displayName === 'string' ? candidate.displayName : null;
+    sanitized.email = typeof candidate.email === 'string' ? candidate.email : null;
+  }
+
+  return sanitized;
+};
+
+const sanitizeUsers = (users = []) => {
+  if (!Array.isArray(users)) {
+    return [];
+  }
+
+  const seenUsernames = new Set();
+  const seenIds = new Set();
+
+  return users.map((candidate) => sanitizeUser(candidate))
+    .filter((user) => {
+      if (!user) {
+        return false;
+      }
+      if (seenIds.has(user.id) || seenUsernames.has(user.username)) {
+        return false;
+      }
+      if (user.provider === 'local' && (!user.passwordHash || !user.salt)) {
+        return false;
+      }
+      if (user.provider === 'oidc' && (!user.oidcSub || !user.oidcIssuer)) {
+        return false;
+      }
+      seenIds.add(user.id);
+      seenUsernames.add(user.username);
+      return true;
+    });
+};
 
 const sanitizeFavorite = (candidate) => {
   if (!candidate || typeof candidate !== 'object') {
@@ -134,6 +240,18 @@ const sanitizeConfig = (candidate = {}) => {
       },
       security: {
         authEnabled: typeof s.authEnabled === 'boolean' ? s.authEnabled : true,
+        authMode: SUPPORTED_AUTH_MODES.includes(s.authMode) ? s.authMode : DEFAULT_AUTH_MODE,
+        sessionSecret: typeof s.sessionSecret === 'string' ? s.sessionSecret : null,
+        oidc: {
+          enabled: typeof s?.oidc?.enabled === 'boolean' ? s.oidc.enabled : false,
+          issuer: typeof s?.oidc?.issuer === 'string' ? s.oidc.issuer : null,
+          clientId: typeof s?.oidc?.clientId === 'string' ? s.oidc.clientId : null,
+          clientSecret: typeof s?.oidc?.clientSecret === 'string' ? s.oidc.clientSecret : null,
+          callbackUrl: typeof s?.oidc?.callbackUrl === 'string' ? s.oidc.callbackUrl : null,
+          scopes: Array.isArray(s?.oidc?.scopes) && s.oidc.scopes.length
+            ? Array.from(new Set(s.oidc.scopes.filter((scope) => typeof scope === 'string' && scope.trim()).map((scope) => scope.trim())))
+            : ['openid', 'profile', 'email'],
+        },
       },
       access: {
         rules: sanitizedRules,
@@ -141,14 +259,15 @@ const sanitizeConfig = (candidate = {}) => {
     };
   };
 
-  const candidateVersion = Number.isFinite(candidate?.version) ? candidate.version : 3;
-  const version = candidateVersion >= 3 ? candidateVersion : 3;
+  const candidateVersion = Number.isFinite(candidate?.version) ? candidate.version : 4;
+  const version = candidateVersion >= 4 ? candidateVersion : 4;
 
   const settings = sanitizeSettings(candidate?.settings || {});
 
   return {
     version,
     auth: sanitizedAuth,
+    users: sanitizeUsers(candidate?.users),
     settings,
     favorites,
   };
@@ -157,6 +276,8 @@ const sanitizeConfig = (candidate = {}) => {
 const cloneConfig = (config) => ({
   version: config.version,
   auth: { ...config.auth },
+  users: config.users.map((user) => ({ ...user })),
+  settings: JSON.parse(JSON.stringify(config.settings || {})),
   favorites: config.favorites.map((favorite) => ({ ...favorite })),
 });
 
@@ -231,6 +352,29 @@ const setAuthConfig = async (authConfig) => {
     auth: nextAuth,
   }));
   return { ...updated.auth };
+};
+
+const getUsers = async () => {
+  const config = await getConfig();
+  return config.users.map((user) => ({ ...user }));
+};
+
+const setUsers = async (users) => {
+  const sanitizedUsers = sanitizeUsers(users);
+  const updated = await updateConfig((config) => ({
+    ...config,
+    users: sanitizedUsers,
+  }));
+  return updated.users.map((user) => ({ ...user }));
+};
+
+const updateUsers = async (updater) => {
+  await ensureInitialized();
+  const currentUsers = configCache.users.map((user) => ({ ...user }));
+  const nextUsers = typeof updater === 'function'
+    ? updater(currentUsers)
+    : (Array.isArray(updater) ? updater : []);
+  return setUsers(nextUsers);
 };
 
 // SETTINGS helpers
@@ -357,10 +501,15 @@ const removeFavorite = async (path) => {
 
 module.exports = {
   DEFAULT_ITERATIONS,
+  DEFAULT_AUTH_MODE,
+  SUPPORTED_AUTH_MODES,
   getConfig,
   updateConfig,
   getAuthConfig,
   setAuthConfig,
+  getUsers,
+  setUsers,
+  updateUsers,
   getSettings,
   setSettings,
   updateSettings,
