@@ -11,7 +11,7 @@ import NavButtons from '@/components/NavButtons.vue';
 import SearchBar from '@/components/SearchBar.vue';
 import MenuClipboard from '@/components/MenuClipboard.vue';
 import UploadProgress from '@/components/UploadProgress.vue';
-import SettingsBar from '@/components/SettingsBar.vue';
+import UserMenu from '@/components/UserMenu.vue';
 import MenuItemInfo from '@/components/MenuItemInfo.vue';
 import { RouterView, useRoute } from 'vue-router'
 import { useTitle } from '@vueuse/core'
@@ -45,11 +45,12 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
+    <aside class="w-[230px] flex flex-col bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
       <HeaderLogo />
       <CreateNew />
       <FavMenu />
       <VolMenu />
+      <UserMenu class="mt-auto"/>
     </aside>
 
     <main class="flex flex-col grow
@@ -68,8 +69,6 @@ useTitle(currentPathName)
         <MenuSortBy/>
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <ViewMode/>
-        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-        <SettingsBar/>
 
         <!-- <div 
         style="background:url('http://gravatar.com/userimage/106458114/6eb8be0fbf770f939299c3e5f67ff6da.jpeg?size=256'); background-size: contain"
