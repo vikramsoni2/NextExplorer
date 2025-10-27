@@ -35,25 +35,38 @@ npm start
 ```bash
 cd frontend
 npm install
-cp .env.example .env  # adjust VITE_API_URL if the backend runs on a different host/port
+cp .env.example .env  # when using the proxy flow, leave VITE_API_URL unset
 npm run dev
 ```
 
-- Dev server runs on `http://localhost:5173` with hot-module replacement.
+- Dev server runs on `http://localhost:3000` with hot-module replacement.
 - Helpful scripts:
   - `npm run build` – production bundle.
   - `npm run preview` – serve the built assets locally.
   - `npm run test:unit` – Vitest unit suite.
   - `npm run lint` – ESLint with Vue plugin; auto-fixes where possible.
 
-### Full-stack Docker (development targets)
-The default `docker-compose.yml` spins up both services with live mounts:
+### Single-port Dev via Vite proxy (recommended)
+Serve the SPA on port 3000 and proxy API calls to the backend on an internal port 3001.
+
+Local (no Docker):
 ```bash
-docker compose up --build
+# Backend on 3001
+cd backend && npm ci
+PORT=3001 VOLUME_ROOT=$PWD/../example-express-openid CACHE_DIR=$PWD/.cache npm run start
+
+# Frontend on 3000 (proxies /api and /static/thumbnails to 3001)
+cd ../frontend && npm ci
+VITE_BACKEND_ORIGIN=http://localhost:3001 npm run dev
+# Open http://localhost:3000
 ```
+
+Docker (two services, one exposed port):
+```bash
+docker compose -f docker-compose.dev.yml up --build
+```
+- Only `http://localhost:3000` is exposed; backend listens on 3001 internally.
 - Update the host volume paths under the `backend` service to match directories you want to expose.
-- The frontend is available at `http://localhost:5173`, the backend at `http://localhost:3000`.
-- Commented `node_modules` volumes are handy if you run into permission issues.
 
 ## Testing & Quality
 - Frontend unit tests: `cd frontend && npm run test:unit`.

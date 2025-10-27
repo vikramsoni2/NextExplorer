@@ -1,4 +1,5 @@
 import './assets/main.css'
+import tooltipDirective from '@/composables/tooltip.directive';
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -13,5 +14,7 @@ const app = createApp(App)
 app.use(pinia)
 installPreviewPlugins(pinia)
 app.use(router)
+
+app.directive('tooltip', tooltipDirective);
 
 app.mount('#app')

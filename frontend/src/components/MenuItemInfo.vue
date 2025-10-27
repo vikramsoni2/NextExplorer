@@ -6,6 +6,7 @@ import { useFileStore } from '@/stores/fileStore';
 import { useFavoritesStore } from '@/stores/favorites';
 import { normalizePath, downloadItems } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
+import { Rename20Regular } from '@vicons/fluent';
 
 const fileStore = useFileStore();
 const favoritesStore = useFavoritesStore();
@@ -215,7 +216,7 @@ const handleFavoriteAction = async () => {
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canRename }"
     >
-      <PencilSquareIcon class="w-6" />
+      <Rename20Regular class="w-6" v-tooltip="'Rename'" />
     </button>
     <button
       type="button"

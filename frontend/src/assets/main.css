@@ -1,1 +1,57 @@
 @import './base.css';
+
+
+/* The tooltip itself */
+.v-tooltip-popover {
+  padding: 0.4em 0.8em;
+  background: #222;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.9em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 1000;
+  pointer-events: none;
+  transition: opacity 0.15s;
+  opacity: 0.95;
+  position: fixed;
+  inset: auto;
+}
+
+@supports (anchor-name: --tooltip) and (position-anchor: --tooltip) and (top: anchor(bottom)) {
+  :root {
+    --tooltip-popover-gap: 0.5rem;
+  }
+
+  .v-tooltip-popover {
+    position-anchor: var(--tooltip-anchor);
+    inset: unset;
+    top: anchor(bottom);
+    left: anchor(center);
+    translate: -50% var(--tooltip-popover-gap);
+    position-try: --tooltip-bottom, --tooltip-top, --tooltip-inline-end, --tooltip-inline-start;
+  }
+
+  @position-try --tooltip-bottom {
+    top: anchor(bottom);
+    left: anchor(center);
+    translate: -50% var(--tooltip-popover-gap);
+  }
+
+  @position-try --tooltip-top {
+    top: anchor(top);
+    left: anchor(center);
+    translate: -50% calc(-100% - var(--tooltip-popover-gap));
+  }
+
+  @position-try --tooltip-inline-end {
+    top: anchor(center);
+    left: anchor(right);
+    translate: var(--tooltip-popover-gap) -50%;
+  }
+
+  @position-try --tooltip-inline-start {
+    top: anchor(center);
+    left: anchor(left);
+    translate: calc(-100% - var(--tooltip-popover-gap)) -50%;
+  }
+}
