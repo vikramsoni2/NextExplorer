@@ -14,7 +14,7 @@ import UploadProgress from '@/components/UploadProgress.vue';
 import UserMenu from '@/components/UserMenu.vue';
 import MenuItemInfo from '@/components/MenuItemInfo.vue';
 import { RouterView, useRoute } from 'vue-router'
-import { useTitle } from '@vueuse/core'
+import { useTitle, useStorage, useEventListener } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
@@ -22,6 +22,36 @@ import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 
 
 const route = useRoute()
+
+// Resizable aside state
+const asideWidth = useStorage('browser-aside-width', 230)
+const isDragging = ref(false)
+const minAsideWidth = 200
+const maxAsideWidth = 460
+let startX = 0
+let startWidth = 0
+
+function onPointerDown(e){
+  isDragging.value = true
+  startX = e.clientX
+  startWidth = asideWidth.value
+  // Prevent selecting text while dragging
+  document.body.classList.add('select-none')
+}
+
+useEventListener(window, 'pointermove', (e) => {
+  if(!isDragging.value) return
+  const delta = e.clientX - startX
+  const next = Math.min(maxAsideWidth, Math.max(minAsideWidth, startWidth + delta))
+  asideWidth.value = next
+  e.preventDefault()
+})
+
+useEventListener(window, 'pointerup', () => {
+  if(!isDragging.value) return
+  isDragging.value = false
+  document.body.classList.remove('select-none')
+})
 
 const currentPathName = computed(() => {
   if(route.params.path==''){
@@ -45,13 +75,26 @@ useTitle(currentPathName)
 
   <div class="relative flex w-full h-full">
 
-    <aside class="w-[230px] flex flex-col bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-4 px-4 shrink-0">
+    <aside
+      class="flex flex-col bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-4 px-4 shrink-0"
+      :style="{ width: asideWidth + 'px' }"
+    >
       <HeaderLogo />
       <CreateNew />
       <FavMenu />
       <VolMenu />
       <UserMenu class="mt-auto"/>
     </aside>
+
+    <!-- Resizer handle -->
+    <div
+      class="relative w-1 cursor-col-resize bg-transparent group select-none"
+      @pointerdown="onPointerDown"
+      aria-label="Resize sidebar"
+    >
+      <!-- Visual guide line -->
+      <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-neutral-200 dark:bg-neutral-700 group-hover:bg-neutral-500"></div>
+    </div>
 
     <main class="flex flex-col grow
     dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg">

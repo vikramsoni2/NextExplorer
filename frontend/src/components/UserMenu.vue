@@ -58,79 +58,55 @@ const handleLogout = async () => {
 
 <template>
   <div class="transition rounded-lg px-2 hover:bg-white dark:hover:bg-white/10 ">
-  <div class="flex flex-col gap-3 py-2">
-    <transition
-      enter-active-class="transition duration-200 ease-out"
-      leave-active-class="transition duration-150 ease-in"
-      enter-from-class="opacity-0 -translate-y-2"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-2"
-    >
-      <div
-        v-if="isExpanded"
-        class="rounded-xl text-sm text-neutral-800 dark:text-white"
-      >
-        <!-- <div class="mb-3 px-2 text-left">
-          <p class="text-base font-semibold text-neutral-900 dark:text-white">{{ displayName }}</p>
-          <p v-if="secondaryLabel" class="text-xs text-neutral-500 dark:text-white/60 truncate">{{ secondaryLabel }}</p>
-        </div> -->
 
-        <div class="space-y-1">
-          <button
-            class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-            type="button"
-            @click="handleThemeToggle"
-          >
-            <component :is="settings.isDark ? SunIcon : MoonIcon" class="h-5 w-5" />
-            <div class="flex min-w-0 flex-col">
-              <span class="text-sm font-semibold">{{ themeActionLabel }}</span>
-              <span class="text-xs text-neutral-400 dark:text-white/50">{{ themeStatusLabel }}</span>
-            </div>
-          </button>
+    <div class="flex flex-col py-2">
+      <div class="rounded-xl text-sm text-neutral-800 dark:text-white  overflow-hidden">
+        <transition enter-active-class="transition-all duration-500" leave-active-class="transition-all duration-500"
+          enter-from-class="-mb-[100%]" enter-to-class="mb-0" leave-from-class="mb-0" leave-to-class="-mb-[100%]">
+          <div class="space-y-1 pb-3" v-if="isExpanded">
+            <button
+              class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
+              type="button" @click="handleThemeToggle">
+              <component :is="settings.isDark ? SunIcon : MoonIcon" class="h-5 w-5" />
+              <div class="flex min-w-0 flex-col">
+                <span class="text-sm font-semibold">{{ themeActionLabel }}</span>
+                <span class="text-xs text-neutral-400 dark:text-white/50">{{ themeStatusLabel }}</span>
+              </div>
+            </button>
 
-          <button
-            class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-            type="button"
-            @click="handleSettings"
-          >
-            <Cog8ToothIcon class="h-5 w-5" />
-            <span>Settings</span>
-          </button>
+            <button
+              class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
+              type="button" @click="handleSettings">
+              <Cog8ToothIcon class="h-5 w-5" />
+              <span>Settings</span>
+            </button>
 
-          <button
-            class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
-            type="button"
-            @click="handleLogout"
-          >
-            <ArrowRightOnRectangleIcon class="h-5 w-5" />
-            <span>Sign out</span>
-          </button>
+            <button
+              class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
+              type="button" @click="handleLogout">
+              <ArrowRightOnRectangleIcon class="h-5 w-5" />
+              <span>Sign out</span>
+            </button>
+          </div>
+        </transition>
+      </div>
+
+      <div type="button" class="group flex w-full items-center gap-3 text-left transition" @click="toggleMenu"
+        :aria-expanded="isExpanded">
+        <span
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20">
+          <template v-if="avatarLetter">{{ avatarLetter }}</template>
+          <UserCircleIcon v-else class="h-6 w-6" />
+        </span>
+        <div class="flex min-w-0 flex-1 flex-col">
+          <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ displayName }}</span>
+          <span v-if="secondaryLabel" class="text-xs text-neutral-500 dark:text-white/60 truncate">{{ secondaryLabel
+            }}</span>
         </div>
+        <ChevronDownIcon
+          class="h-5 w-5 text-neutral-400 transition group-hover:text-neutral-700 dark:text-white/40 dark:group-hover:text-white/70"
+          :class="{ 'rotate-180': isExpanded }" />
       </div>
-    </transition>
-
-    <button
-      type="button"
-      class="group flex w-full items-center gap-3  text-left transition"
-      @click="toggleMenu"
-      :aria-expanded="isExpanded"
-    >
-      <span
-        class="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20"
-      >
-        <template v-if="avatarLetter">{{ avatarLetter }}</template>
-        <UserCircleIcon v-else class="h-6 w-6" />
-      </span>
-      <div class="flex min-w-0 flex-1 flex-col">
-        <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ displayName }}</span>
-        <span v-if="secondaryLabel" class="text-xs text-neutral-500 dark:text-white/60 truncate">{{ secondaryLabel }}</span>
-      </div>
-      <ChevronDownIcon
-        class="h-5 w-5 text-neutral-400 transition group-hover:text-neutral-700 dark:text-white/40 dark:group-hover:text-white/70"
-        :class="{ 'rotate-180': isExpanded }"
-      />
-    </button>
-  </div>
+    </div>
   </div>
 </template>

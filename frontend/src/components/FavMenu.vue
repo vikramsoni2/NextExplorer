@@ -97,7 +97,7 @@ const handleOpenFavorite = (favorite) => {
         </template>
         <div
           v-else
-          class=" my-2 rounded-lg border border-dashed border-neutral-200 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-neutral-400"
+          class=" my-2 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-neutral-400"
         >
           <div class="flex items-center gap-2 text-neutral-500 dark:text-neutral-300">
             <StarIconOutline class="h-4 w-4" />
