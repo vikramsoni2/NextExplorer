@@ -8,6 +8,7 @@ import {
   normalizePath,
   createFolder as createFolderApi,
   renameItem as renameItemApi,
+  saveFileContent as saveFileContentApi,
   fetchThumbnail as fetchThumbnailApi,
 } from '@/api';
 import { useSettingsStore } from '@/stores/settings';
@@ -123,6 +124,46 @@ export const useFileStore = defineStore('fileStore', () => {
     }
 
     return response;
+  };
+
+  const createFile = async (baseName) => {
+    const destination = normalizePath(currentPath.value || '');
+
+    // Determine a default base name and extension
+    const defaultName = (typeof baseName === 'string' && baseName.trim())
+      ? baseName.trim()
+      : 'Untitled.txt';
+
+    // Split name into stem + extension (preserve provided extension if present)
+    const lastDot = defaultName.lastIndexOf('.');
+    const stem = lastDot > 0 ? defaultName.slice(0, lastDot) : defaultName;
+    const ext = lastDot > 0 ? defaultName.slice(lastDot) : '';
+
+    // Ensure the name is unique in current listing
+    const existingNames = new Set((currentPathItems.value || []).map((it) => it?.name).filter(Boolean));
+    let candidate = `${stem}${ext}`;
+    let counter = 2;
+    while (existingNames.has(candidate)) {
+      candidate = `${stem} ${counter}${ext}`;
+      counter += 1;
+    }
+
+    const relativePath = destination ? `${destination}/${candidate}` : candidate;
+
+    // Create empty file
+    await saveFileContentApi(relativePath, '');
+
+    // Refresh and start rename for the created item
+    await fetchPathItems(destination);
+
+    const createdKey = `${destination}::${candidate}`;
+    const createdItem = findItemByKey(createdKey);
+    if (createdItem) {
+      selectedItems.value = [createdItem];
+      beginRename(createdItem, { isNew: true });
+    }
+
+    return { success: true, name: candidate };
   };
 
   const beginRename = (item, options = {}) => {
@@ -304,6 +345,7 @@ export const useFileStore = defineStore('fileStore', () => {
     del,
     resetClipboard,
     createFolder,
+    createFile,
     renameState,
     beginRename,
     setRenameDraft,

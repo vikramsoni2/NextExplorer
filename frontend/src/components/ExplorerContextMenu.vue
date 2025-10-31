@@ -162,6 +162,10 @@ const runPasteIntoCurrent = async () => {
   await fileStore.paste();
 };
 
+const runCreateFile = async () => {
+  await fileStore.createFile();
+};
+
 const runRename = () => {
   if (!canRename.value || !primaryItem.value) return;
   fileStore.beginRename(primaryItem.value);
@@ -196,6 +200,12 @@ const menuActions = computed(() => {
   const actions = [];
 
   if (contextKind.value === 'background') {
+    actions.push({
+      id: 'new-file',
+      label: 'New File',
+      disabled: false,
+      run: runCreateFile,
+    });
     actions.push({
       id: 'paste',
       label: 'Paste',
