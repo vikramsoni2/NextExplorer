@@ -209,7 +209,7 @@ const handleFavoriteAction = async () => {
     >
       <component :is="favoriteStarComponent" class="w-6" />
     </button>
-    <button
+    <!-- <button
       type="button"
       @click="handleRename"
       :disabled="!canRename"
@@ -220,7 +220,7 @@ const handleFavoriteAction = async () => {
       title="Rename"
     >
       <Rename20Regular class="w-6" />
-    </button>
+    </button> -->
     <button
       type="button"
       @click="handleDownload"
@@ -234,7 +234,7 @@ const handleFavoriteAction = async () => {
       <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
       <ArrowDownTrayIcon v-else class="w-6" />
     </button>
-    <button
+    <!-- <button
       type="button"
       @click="handleDelete"
       :disabled="!hasSelection"
@@ -245,9 +245,9 @@ const handleFavoriteAction = async () => {
       title="Delete"
     >
       <TrashIcon class="w-6" />
-    </button>
+    </button> -->
   </div>
-  <ModalDialog v-model="isDeleteConfirmOpen">
+  <!-- <ModalDialog v-model="isDeleteConfirmOpen">
     <template #title>{{ deleteDialogTitle }}</template>
     <p class="mb-6 text-base text-zinc-700 dark:text-zinc-200">
       {{ deleteDialogMessage }}
@@ -272,5 +272,5 @@ const handleFavoriteAction = async () => {
         <span v-else>Delete</span>
       </button>
     </div>
-  </ModalDialog>
+  </ModalDialog> -->
 </template>
