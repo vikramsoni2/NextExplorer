@@ -6,6 +6,7 @@ import FileObject from '@/components/FileObject.vue';
 import { useFileStore } from '@/stores/fileStore';
 import LoadingIcon from '@/icons/LoadingIcon.vue';
 import { useSelection } from '@/composables/itemSelection';
+import { useExplorerContextMenu } from '@/composables/contextMenu';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
@@ -13,6 +14,7 @@ const route = useRoute()
 const loading = ref(true)
 const selectedItems = ref([]);
 const { clearSelection } = useSelection();
+const contextMenu = useExplorerContextMenu();
 
 const loadFiles = async () => {
   loading.value = true
@@ -27,6 +29,10 @@ const loadFiles = async () => {
 }
 
 onMounted(loadFiles)
+
+const handleBackgroundContextMenu = (event) => {
+  contextMenu?.openBackgroundMenu(event);
+};
 
 // const toggleSelection = (item, event) => {
 //   if (event.ctrlKey || event.metaKey) {
@@ -60,11 +66,13 @@ onMounted(loadFiles)
 
 <template>
     
-    <div v-if="!loading"
+    <div
+    v-if="!loading"
     :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
     settings.view === 'tab'? 'grid grid-cols-[repeat(auto-fill,20rem)] gap-2':
     'flex flex-col gap-[1px]'"
-    @click.self="clearSelection()">
+    @click.self="clearSelection()"
+    @contextmenu.prevent.self="handleBackgroundContextMenu">
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
       :key="item.name" 

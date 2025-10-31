@@ -73,8 +73,10 @@ export const useFileStore = defineStore('fileStore', () => {
     cutItems.value = selectedItems.value.map((item) => ({ ...item }));
   };
 
-  const paste = async () => {
-    const destination = normalizePath(currentPath.value || '');
+  const paste = async (targetPath) => {
+    const hasTarget = typeof targetPath === 'string' && targetPath.trim().length > 0;
+    const destination = normalizePath(hasTarget ? targetPath : currentPath.value || '');
+    const refreshTarget = normalizePath(currentPath.value || '');
 
     if (copiedItems.value.length > 0) {
       const payload = serializeItems(copiedItems.value);
@@ -92,7 +94,7 @@ export const useFileStore = defineStore('fileStore', () => {
       cutItems.value = [];
     }
 
-    await fetchPathItems(destination);
+    await fetchPathItems(refreshTarget);
   };
 
   const del = async () => {

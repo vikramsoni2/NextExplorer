@@ -9,15 +9,14 @@ import ViewMode from '@/components/ViewMode.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import NavButtons from '@/components/NavButtons.vue';
 import SearchBar from '@/components/SearchBar.vue';
-import MenuClipboard from '@/components/MenuClipboard.vue';
 import UploadProgress from '@/components/UploadProgress.vue';
 import UserMenu from '@/components/UserMenu.vue';
-import MenuItemInfo from '@/components/MenuItemInfo.vue';
 import { RouterView, useRoute } from 'vue-router'
 import { useTitle, useStorage, useEventListener } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
+import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 // import TerminalPanel from '@/components/TerminalPanel.vue';
 
 
@@ -105,10 +104,6 @@ useTitle(currentPathName)
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
 
-        <MenuClipboard/>
-        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-        <MenuItemInfo/>
-        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <MenuSortBy/>
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <ViewMode/>
@@ -121,10 +116,12 @@ useTitle(currentPathName)
         </div> -->
       </div>
 
-      <div class="p-6 pt-0 overflow-y-auto grow">
-        <router-view :key="route.fullPath">
-        </router-view>
-      </div>
+      <ExplorerContextMenu>
+        <div class="p-6 pt-0 overflow-y-auto grow">
+          <router-view :key="route.fullPath">
+          </router-view>
+        </div>
+      </ExplorerContextMenu>
       <!-- <hr class="h-px border-0 bg-nextgray-400 dark:bg-neutral-700 mb-4" /> -->
       <!-- <div>
         <TerminalPanel/>
