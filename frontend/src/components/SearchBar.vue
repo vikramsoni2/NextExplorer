@@ -30,6 +30,7 @@ function toggleExpand() {
 
 function clearTerm() {
   term.value = '';
+  toggleExpand();
   nextTick(() => inputRef.value && inputRef.value.focus());
 }
 
@@ -49,22 +50,45 @@ watch(() => route.query.q, (v) => {
 </script>
 
 <template>
-  <div class="ml-3 flex items-center">
-    <button class="p-2 rounded-md hover:bg-neutral-200 dark:hover:bg-zinc-700" @click="toggleExpand" title="Search">
-      <MagnifyingGlassIcon class="h-5 w-5" />
+  <div class="flex items-center">
+    <button
+      class="p-[6px] pl-[7px] rounded-md hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="expanded ? 'hidden' : 'block'"
+      title="Open Search"
+      @click="toggleExpand"
+      >
+      <MagnifyingGlassIcon class="w-[1.36rem]" />
     </button>
-    <div v-show="expanded" class="relative">
+
+    <div
+      :class="[
+        'relative flex items-center overflow-hidden focus-within:border  bg-neutral-100 shadow-sm rounded-lg focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-400/40 dark:border-zinc-600 dark:bg-zinc-800 dark:focus-within:border-blue-400',
+
+        expanded ? 'w-64' : 'w-0'
+      ]"
+      @click.stop
+    >
+
+
+      <MagnifyingGlassIcon class="mx-2 w-4 shrink-0" />
       <input
         ref="inputRef"
         v-model="term"
+        v-show="expanded"
         type="text"
         placeholder="Search"
         @keydown.enter.prevent="submit"
         @keydown.esc.prevent="expanded = !!term"
-        class="ml-2 p-2 py-1 pl-3 pr-8 rounded-md dark:bg-zinc-700 outline-none border border-neutral-300 dark:border-zinc-600 w-64"
+        class="w-full bg-transparent py-1.5 pr-10 text-sm text-neutral-900 placeholder-neutral-500 outline-none dark:text-neutral-100 dark:placeholder-neutral-400
+        transition-all duration-200 ease-in-out "
       />
-      <button v-if="term" @click="clearTerm" class="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300" title="Clear">
-        <XMarkIcon class="h-4 w-4" />
+      <button
+        v-if="expanded"
+        @click="clearTerm"
+        class="mx-2 transition-colors duration-150 bg-zinc-400 dark:bg-zinc-600 text-white p-[2px] rounded-full focus:outline-none "
+        title="Clear"
+      >
+        <XMarkIcon class="h-3 w-3" />
       </button>
     </div>
   </div>

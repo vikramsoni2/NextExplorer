@@ -57,12 +57,19 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="transition rounded-lg px-2 hover:bg-white dark:hover:bg-white/10 ">
+  <div class="transition rounded-lg px-2 hover:bg-white dark:hover:bg-white/10 hover:shadow-md"
+  :class="{ 'bg-white dark:bg-white/10 shadow-md': isExpanded}">
 
     <div class="flex flex-col py-2">
       <div class="rounded-xl text-sm text-neutral-800 dark:text-white  overflow-hidden">
-        <transition enter-active-class="transition-all duration-500" leave-active-class="transition-all duration-500"
-          enter-from-class="-mb-[100%]" enter-to-class="mb-0" leave-from-class="mb-0" leave-to-class="-mb-[100%]">
+        <transition 
+          enter-active-class="transition-all duration-500" 
+          leave-active-class="transition-all duration-500"
+          enter-from-class="-mb-[100%]" 
+          enter-to-class="mb-0" 
+          leave-from-class="mb-0" 
+          leave-to-class="-mb-[100%]">
+          
           <div class="space-y-1 pb-3" v-if="isExpanded">
             <button
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
