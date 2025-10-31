@@ -112,6 +112,8 @@ useTitle(currentPathName)
         <MenuSortBy/>
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <ViewMode/>
+        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <SearchBar/>
 
         <!-- <div 
         style="background:url('http://gravatar.com/userimage/106458114/6eb8be0fbf770f939299c3e5f67ff6da.jpeg?size=256'); background-size: contain"
