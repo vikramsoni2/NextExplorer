@@ -9,6 +9,7 @@ import ViewMode from '@/components/ViewMode.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
 import NavButtons from '@/components/NavButtons.vue';
 import SearchBar from '@/components/SearchBar.vue';
+import MenuItemInfo from '@/components/MenuItemInfo.vue';
 import UploadProgress from '@/components/UploadProgress.vue';
 import UserMenu from '@/components/UserMenu.vue';
 import { RouterView, useRoute } from 'vue-router'
@@ -104,6 +105,8 @@ useTitle(currentPathName)
         <NavButtons />
         <BreadCrumb class="mr-auto "/>
 
+        <MenuItemInfo/>
+        <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <MenuSortBy/>
         <div class="h-8 w-[1px] mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <ViewMode/>

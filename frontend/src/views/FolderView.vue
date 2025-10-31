@@ -65,12 +65,12 @@ const handleBackgroundContextMenu = (event) => {
 </script>
 
 <template>
-    
     <div
     v-if="!loading"
-    :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
-    settings.view === 'tab'? 'grid grid-cols-[repeat(auto-fill,20rem)] gap-2':
-    'flex flex-col gap-[1px]'"
+    class="h-full"
+    :class="settings.view === 'grid' ? 'grid content-start items-start grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
+    settings.view === 'tab'? 'grid content-start items-start grid-cols-[repeat(auto-fill,20rem)] gap-2':
+    'flex flex-col gap-[2px]'"
     @click.self="clearSelection()"
     @contextmenu.prevent.self="handleBackgroundContextMenu">
       <FileObject 
