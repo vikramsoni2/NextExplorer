@@ -15,6 +15,17 @@ import { useSelection } from '@/composables/itemSelection';
 import { usePreviewManager } from '@/plugins/preview/manager';
 import { normalizePath } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
+// Icons
+import {
+  CreateNewFolderRound,
+  InsertDriveFileRound,
+  ContentCutRound,
+  ContentCopyRound,
+  ContentPasteRound,
+  DriveFileRenameOutlineRound,
+  InfoRound,
+  DeleteRound,
+} from '@vicons/material';
 
 const fileStore = useFileStore();
 const previewManager = usePreviewManager();
@@ -198,84 +209,65 @@ const runGetInfo = () => {
   previewManager.open(primaryItem.value);
 };
 
-const menuActions = computed(() => {
+// Build grouped, themed menu sections with icons + shortcuts
+const menuSections = computed(() => {
   if (!isOpen.value) return [];
 
-  const actions = [];
+  const mk = (id, label, icon, run, opts = {}) => ({
+    id,
+    label,
+    icon,
+    run,
+    disabled: Boolean(opts.disabled),
+    shortcut: opts.shortcut || '',
+    danger: Boolean(opts.danger),
+  });
 
   if (contextKind.value === 'background') {
-    actions.push({
-      id: 'new-folder',
-      label: 'New Folder',
-      disabled: false,
-      run: runCreateFolder,
-    });
-    actions.push({
-      id: 'new-file',
-      label: 'New File',
-      disabled: false,
-      run: runCreateFile,
-    });
-    actions.push({
-      id: 'paste',
-      label: 'Paste',
-      disabled: !fileStore.hasClipboardItems,
-      run: runPasteIntoCurrent,
-    });
-    actions.push({
-      id: 'get-info',
-      label: 'Get Info',
-      disabled: !primaryItem.value,
-      run: runGetInfo,
-    });
-    return actions;
+    return [
+      [
+        mk('new-folder', 'New Folder', CreateNewFolderRound, runCreateFolder),
+        mk('new-file', 'New File', InsertDriveFileRound, runCreateFile),
+      ],
+      [
+        mk('paste', 'Paste', ContentPasteRound, runPasteIntoCurrent, {
+          disabled: !fileStore.hasClipboardItems,
+          shortcut: '⌘V',
+        }),
+      ],
+      [
+        mk('get-info', 'Get Info', InfoRound, runGetInfo, {
+          disabled: !primaryItem.value,
+        }),
+      ],
+    ];
   }
 
-  actions.push({
-    id: 'cut',
-    label: 'Cut',
-    disabled: !fileStore.hasSelection,
-    run: runCut,
-  });
+  const sections = [];
+  sections.push([
+    mk('get-info', 'Get Info', InfoRound, runGetInfo, { disabled: !primaryItem.value }),
+  ]);
 
-  actions.push({
-    id: 'copy',
-    label: 'Copy',
-    disabled: !fileStore.hasSelection,
-    run: runCopy,
-  });
-
+  const clipboardSection = [
+    mk('cut', 'Cut', ContentCutRound, runCut, { disabled: !fileStore.hasSelection, shortcut: '⌘X' }),
+    mk('copy', 'Copy', ContentCopyRound, runCopy, { disabled: !fileStore.hasSelection, shortcut: '⌘C' }),
+  ];
   if (contextKind.value === 'directory') {
-    actions.push({
-      id: 'paste',
-      label: 'Paste',
-      disabled: !fileStore.hasClipboardItems,
-      run: runPasteIntoDirectory,
-    });
+    clipboardSection.push(
+      mk('paste', 'Paste', ContentPasteRound, runPasteIntoDirectory, { disabled: !fileStore.hasClipboardItems, shortcut: '⌘V' }),
+    );
   }
+  sections.push(clipboardSection);
 
-  actions.push({
-    id: 'rename',
-    label: 'Rename',
-    disabled: !canRename.value,
-    run: runRename,
-  });
+  sections.push([
+    mk('rename', 'Rename', DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
+  ]);
 
-  actions.push({
-    id: 'delete',
-    label: 'Delete',
-    disabled: !hasSelection.value,
-    run: requestDelete,
-  });
+  sections.push([
+    mk('delete', 'Delete', DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true }),
+  ]);
 
-  actions.push({
-    id: 'get-info',
-    label: 'Get Info',
-    disabled: !primaryItem.value,
-    run: runGetInfo,
-  });
-
-  return actions;
+  return sections;
 });
 
 const runAction = async (action) => {
@@ -348,26 +340,35 @@ provide(explorerContextMenuSymbol, {
       v-if="isOpen"
       ref="floatingRef"
       :style="floatingStyles"
-      class="min-w-[180px] rounded-md border border-neutral-200 bg-white py-1 text-sm text-neutral-800 shadow-xl dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
+      class="min-w-[220px] rounded-xl border border-white/10 bg-white/70 p-2 text-sm text-zinc-800 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-black/40 dark:text-zinc-200"
       @contextmenu.prevent
       @click.stop
     >
-      <button
-        v-for="action in menuActions"
-        :key="action.id"
-        type="button"
-        class="flex w-full items-center justify-between px-3 py-1.5 text-left transition hover:bg-neutral-100 focus:bg-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-400 dark:hover:bg-neutral-700 dark:focus:bg-neutral-700"
-        :disabled="action.disabled"
-        @click.stop="runAction(action)"
-      >
-        {{ action.label }}
-        <span
-          v-if="action.disabled"
-          class="sr-only"
+      <div v-for="(section, sIdx) in menuSections" :key="`section-${sIdx}`" class="flex flex-col gap-1">
+        <button
+          v-for="action in section"
+          :key="action.id"
+          type="button"
+          class="flex h-8 w-full items-center gap-3 rounded-md px-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50"
+          :class="[
+            action.danger
+              ? 'text-red-600 hover:bg-red-500/20 dark:text-red-500 dark:hover:bg-red-500/20'
+              : 'hover:bg-zinc-500/20 dark:hover:bg-zinc-400/20',
+          ]"
+          :disabled="action.disabled"
+          @click.stop="runAction(action)"
         >
-          Disabled
-        </span>
-      </button>
+          <component :is="action.icon" class="w-4 h-4 opacity-80" />
+          <p class="flex-1 font-medium">{{ action.label }}</p>
+          <span v-if="action.shortcut" class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{{ action.shortcut }}</span>
+          <span v-if="action.disabled" class="sr-only">Disabled</span>
+        </button>
+
+        <div
+          v-if="sIdx < menuSections.length - 1"
+          class="my-1 h-px bg-zinc-300/50 dark:bg-zinc-700/50"
+        />
+      </div>
     </div>
   </teleport>
 
