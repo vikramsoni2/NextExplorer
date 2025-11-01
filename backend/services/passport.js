@@ -272,16 +272,47 @@ const configureOidcStrategy = async () => {
 
   passport.use('oidc', new OpenIDConnectStrategy(
     strategyOptions,
-    // Signature per passport-openidconnect: (issuer, sub, profile, jwtClaims, accessToken, refreshToken, params, done)
-    async (issuer, sub, profile, jwtClaims, accessToken, refreshToken, params, done) => {
+    // Signature per passport-openidconnect@0.1.x for arity 8:
+    // (issuer, profile, context, idToken, accessToken, refreshToken, params, done)
+    async (issuer, profile, context, idToken, accessToken, refreshToken, params, done) => {
       try {
-        const claims = (jwtClaims && typeof jwtClaims === 'object') ? jwtClaims : ((profile && profile._json) || {});
-        const subject = trimToNull(sub)
-          || trimToNull(profile?.id)
-          || trimToNull(claims.sub)
-          || trimToNull(claims.user_id);
+        const decodeJwtClaims = (token) => {
+          if (!token || typeof token !== 'string') return null;
+          const parts = token.split('.');
+          if (parts.length < 2) return null;
+          try {
+            const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const pad = b64.length % 4; // base64url padding
+            const b64p = pad ? b64 + '='.repeat(4 - pad) : b64;
+            const json = Buffer.from(b64p, 'base64').toString('utf8');
+            return JSON.parse(json);
+          } catch (_) {
+            return null;
+          }
+        };
+
+        const claims = decodeJwtClaims(idToken) || {};
+
+        // Try hard to find a stable subject identifier across providers.
+        // Preference order:
+        // 1) `sub` param from strategy (from ID token)
+        // 2) Common fields on profile/claims (`sub`, `id`, `oid`, `user_id`, `uid`, `nameid`, `subject`)
+        const candidateKeys = ['sub', 'id', 'oid', 'user_id', 'uid', 'nameid', 'subject'];
+        let subject = trimToNull(profile?.id) || null;
+        if (!subject) {
+          for (const key of candidateKeys) {
+            const v = trimToNull(claims?.[key]) || trimToNull(profile?.[key]);
+            if (v) { subject = v; break; }
+          }
+        }
 
         if (!subject) {
+          const safeKeys = Object.keys(claims || {});
+          console.error('OIDC profile missing subject identifier', {
+            issuer,
+            profileId: trimToNull(profile?.id) || null,
+            claimKeys: safeKeys,
+          });
           throw new Error('OIDC profile did not include a subject identifier.');
         }
 
