@@ -68,7 +68,7 @@ async function runRipgrepSearch(baseAbsPath, relBasePath, term, limit) {
   ];
   const contentProc = spawn('rg', rgContentArgs, { cwd: baseAbsPath });
   const contentRes = await collectStdout(contentProc);
-  const contentFiles = new Set(
+  const fileSet = new Set(
     contentRes.out
       .split(/\r?\n/)
       .map((s) => s.trim())
@@ -76,33 +76,63 @@ async function runRipgrepSearch(baseAbsPath, relBasePath, term, limit) {
       .map((p) => (relBasePath ? path.posix.join(relBasePath, p.replace(/\\/g, '/')) : p.replace(/\\/g, '/')))
   );
 
-  // Filename matches via file listing + filter
+  // Filename matches and derive directory matches from file listing
   const rgListArgs = ['--files', '--hidden', '--no-messages', ...globArgs];
   const listProc = spawn('rg', rgListArgs, { cwd: baseAbsPath });
   const listRes = await collectStdout(listProc);
   const needle = term.toLowerCase();
+  const dirSet = new Set();
+
   for (const line of listRes.out.split(/\r?\n/)) {
     const rel = line.trim();
     if (!rel) continue;
-    const fullRel = relBasePath ? path.posix.join(relBasePath, rel.replace(/\\/g, '/')) : rel.replace(/\\/g, '/');
+    const normalizedRel = rel.replace(/\\/g, '/');
+    const fullRel = relBasePath ? path.posix.join(relBasePath, normalizedRel) : normalizedRel;
+
+    // Check filename
     const base = path.posix.basename(fullRel).toLowerCase();
     if (base.includes(needle)) {
-      contentFiles.add(fullRel);
-      if (contentFiles.size >= limit) break;
+      fileSet.add(fullRel);
+    }
+
+    // Derive and check directory names from the file path
+    const dirRel = path.posix.dirname(fullRel);
+    if (dirRel && dirRel !== '.') {
+      const parts = dirRel.split('/');
+      let acc = '';
+      for (const part of parts) {
+        if (!part) continue;
+        if (IGNORED_DIRS.has(part)) continue;
+        if (excludedFiles.includes(part)) continue;
+        acc = acc ? `${acc}/${part}` : part;
+        if (part.toLowerCase().includes(needle)) {
+          dirSet.add(acc);
+        }
+      }
+    }
+
+    if (fileSet.size + dirSet.size >= limit) {
+      // We've likely collected enough candidates; continue mapping & filtering later
+      // but we can stop early here to avoid excessive processing.
+      break;
     }
   }
 
-  return Array.from(contentFiles);
+  const results = [];
+  for (const rel of fileSet) results.push({ rel, kind: 'file' });
+  for (const rel of dirSet) results.push({ rel, kind: 'dir' });
+  return results;
 }
 
 async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
-  const results = new Set();
+  const fileResults = new Set();
+  const dirResults = new Set();
   const needle = term.toLowerCase();
 
   async function walk(dirAbs, dirRel) {
     const dirents = await fs.readdir(dirAbs, { withFileTypes: true });
     for (const d of dirents) {
-      if (results.size >= limit) break;
+      if (fileResults.size + dirResults.size >= limit) break;
       const name = d.name;
       if (IGNORED_DIRS.has(name)) continue;
       if (excludedFiles.includes(name)) continue;
@@ -111,12 +141,17 @@ async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
       const rel = dirRel ? path.posix.join(dirRel, name) : name;
 
       if (d.isDirectory()) {
+        // directory name match
+        if (name.toLowerCase().includes(needle)) {
+          dirResults.add(rel);
+          if (fileResults.size + dirResults.size >= limit) continue; // still walk to find deeper matches
+        }
         await walk(abs, rel);
       } else if (d.isFile()) {
         // filename match
         if (name.toLowerCase().includes(needle)) {
-          results.add(rel);
-          if (results.size >= limit) break;
+          fileResults.add(rel);
+          if (fileResults.size + dirResults.size >= limit) break;
           continue;
         }
         // content match (small files only)
@@ -125,8 +160,8 @@ async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
           if (st.size <= CONTENT_FALLBACK_MAX_SIZE) {
             const content = await fs.readFile(abs, 'utf8');
             if (content.toLowerCase().includes(needle)) {
-              results.add(rel);
-              if (results.size >= limit) break;
+              fileResults.add(rel);
+              if (fileResults.size + dirResults.size >= limit) break;
             }
           }
         } catch {
@@ -137,7 +172,10 @@ async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
   }
 
   await walk(baseAbsPath, relBasePath);
-  return Array.from(results);
+  const results = [];
+  for (const rel of fileResults) results.push({ rel, kind: 'file' });
+  for (const rel of dirResults) results.push({ rel, kind: 'dir' });
+  return results;
 }
 
 router.get('/search', async (req, res) => {
@@ -161,23 +199,25 @@ router.get('/search', async (req, res) => {
     const limit = toLimit(req.query.limit);
 
     const useRipgrep = await hasRipgrep();
-    let files = [];
+    let entries = [];
     if (useRipgrep) {
-      files = await runRipgrepSearch(baseAbs, relBase, q, limit);
+      entries = await runRipgrepSearch(baseAbs, relBase, q, limit);
     } else {
-      files = await fallbackSearch(baseAbs, relBase, q, limit);
+      entries = await fallbackSearch(baseAbs, relBase, q, limit);
     }
 
-    // Map/normalize and filter hidden and excluded
+    // Map/normalize and filter hidden/excluded; include kind
     const items = [];
-    for (const rel of files) {
+    for (const entry of entries) {
+      const rel = entry?.rel;
+      const kind = entry?.kind === 'dir' ? 'dir' : 'file';
       if (!rel) continue;
       const name = path.posix.basename(rel);
       if (excludedFiles.includes(name)) continue;
       const perm = await getPermissionForPath(rel);
       if (perm === 'hidden') continue;
       const parent = path.posix.dirname(rel);
-      items.push({ name, path: parent === '.' ? '' : parent });
+      items.push({ name, path: parent === '.' ? '' : parent, kind });
       if (items.length >= limit) break;
     }
 
@@ -189,4 +229,3 @@ router.get('/search', async (req, res) => {
 });
 
 module.exports = router;
-

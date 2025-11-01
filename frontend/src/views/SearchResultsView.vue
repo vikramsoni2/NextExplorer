@@ -2,6 +2,7 @@
 import { ref, onMounted, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { search as searchApi, normalizePath } from '@/api';
+import FileIcon from '@/icons/FileIcon.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -32,9 +33,36 @@ async function load() {
 onMounted(load);
 watch(() => [q.value, basePath.value], load);
 
-function openFolder(p) {
-  const normalized = normalizePath(p || '');
+function openResult(it) {
+  if (!it) return;
+  const kind = it.kind === 'dir' ? 'dir' : 'file';
+  // Open the matched folder itself for directories; open parent for files
+  const target = kind === 'dir'
+    ? [it.path, it.name].filter(Boolean).join('/')
+    : (it.path || '');
+  const normalized = normalizePath(target || '');
   router.push({ path: `/browse/${normalized}` });
+}
+
+function toIconItem(it) {
+  if (!it) return { name: '', path: '', kind: 'unknown' };
+  const isDir = it.kind === 'dir';
+  let ext = 'unknown';
+  if (!isDir) {
+    const name = String(it.name || '');
+    const idx = name.lastIndexOf('.');
+    if (idx > 0 && idx < name.length - 1) {
+      ext = name.slice(idx + 1).toLowerCase();
+      if (ext.length > 10) ext = 'unknown';
+    } else {
+      ext = 'unknown';
+    }
+  }
+  return {
+    name: it.name,
+    path: it.path,
+    kind: isDir ? 'directory' : ext,
+  };
 }
 </script>
 
@@ -51,16 +79,18 @@ function openFolder(p) {
 
     <div v-else class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800 rounded-md overflow-hidden">
       <div v-for="it in items" :key="it.path + '/' + it.name" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-800/50">
-        <div class="min-w-0">
-          <div class="font-medium truncate">{{ it.name }}</div>
-          <div class="text-xs text-neutral-500 font-mono truncate">/{{ it.path }}</div>
+        <div class="flex items-center gap-3 min-w-0">
+          <FileIcon :item="toIconItem(it)" class="w-12 h-12 shrink-0" />
+          <div class="min-w-0">
+            <div class="font-medium truncate">{{ it.name }}</div>
+            <div class="text-xs text-neutral-500 font-mono truncate">/{{ it.path }}</div>
+          </div>
         </div>
         <div class="shrink-0 ml-4">
-          <button class="px-3 py-1 text-sm rounded-md bg-neutral-200 hover:bg-neutral-300 dark:bg-zinc-700 dark:hover:bg-zinc-600" @click="openFolder(it.path)">Open folder</button>
+          <button class="px-3 py-1 text-sm rounded-md bg-neutral-200 hover:bg-neutral-300 dark:bg-zinc-700 dark:hover:bg-zinc-600" @click="openResult(it)">Open folder</button>
         </div>
       </div>
     </div>
   </div>
   
 </template>
-
