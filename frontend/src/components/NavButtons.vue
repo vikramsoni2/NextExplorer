@@ -8,17 +8,20 @@ const { goNext, goPrev, goUp } = useNavigation();
 <template>
     <button 
     @click="goPrev"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2">
+    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2"
+    title="Back">
       <ChevronLeft16Filled class="h-6"/>
     </button>
     <button 
     @click="goNext"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2">
+    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2"
+    title="Forward">
       <ChevronRight16Filled class="h-6"/>
     </button>
     <button 
     @click="goUp"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-6">
+    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-6"
+    title="Up one folder">
       <ArrowUp class="h-6"/>
     </button>
 </template>

@@ -22,7 +22,7 @@ RUN groupadd --system appuser && \
     useradd --system --gid appuser --shell /bin/bash --create-home appuser
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg gosu \
+  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep \
   && rm -rf /var/lib/apt/lists/*
 COPY --from=backend-deps /app ./
 COPY --from=frontend-builder /frontend/dist ./public

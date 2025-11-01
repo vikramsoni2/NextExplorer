@@ -95,9 +95,20 @@ const handleOpenFavorite = (favorite) => {
             <span class="truncate">{{ favorite.label }}</span>
           </button>
         </template>
-        <p v-else class="px-3 py-[6px] text-xs text-neutral-400 dark:text-neutral-500">
-          No favorites yet.
-        </p>
+        <div
+          v-else
+          class=" my-2 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-neutral-400"
+        >
+          <div class="flex items-center gap-2 text-neutral-500 dark:text-neutral-300">
+            <StarIconOutline class="h-4 w-4" />
+            <span class="text-sm font-medium text-neutral-600 dark:text-neutral-100">
+              No favorites yet
+            </span>
+          </div>
+          <p class="mt-2 leading-relaxed">
+            Select a directory and tap the star in the main toolbar to pin it here.
+          </p>
+        </div>
       </div>
     </transition>
   </div>

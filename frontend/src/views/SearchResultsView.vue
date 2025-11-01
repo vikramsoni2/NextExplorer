@@ -1,0 +1,66 @@
+<script setup>
+import { ref, onMounted, watch, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { search as searchApi, normalizePath } from '@/api';
+
+const route = useRoute();
+const router = useRouter();
+
+const items = ref([]);
+const loading = ref(false);
+const errorMsg = ref('');
+
+const q = computed(() => typeof route.query.q === 'string' ? route.query.q : '');
+const basePath = computed(() => normalizePath(typeof route.query.path === 'string' ? route.query.path : ''));
+
+async function load() {
+  const term = q.value.trim();
+  items.value = [];
+  errorMsg.value = '';
+  if (!term) return;
+  loading.value = true;
+  try {
+    const { items: list = [] } = await searchApi(basePath.value, term);
+    items.value = Array.isArray(list) ? list : [];
+  } catch (e) {
+    errorMsg.value = e?.message || 'Search failed';
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(load);
+watch(() => [q.value, basePath.value], load);
+
+function openFolder(p) {
+  const normalized = normalizePath(p || '');
+  router.push({ path: `/browse/${normalized}` });
+}
+</script>
+
+<template>
+  <div class="flex flex-col gap-3">
+    <div class="text-sm text-neutral-600 dark:text-neutral-300">
+      <span v-if="q">Results for “{{ q }}”</span>
+      <span v-if="basePath"> in <span class="font-mono">/{{ basePath }}</span></span>
+    </div>
+
+    <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">Searching…</div>
+    <div v-else-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</div>
+    <div v-else-if="items.length === 0" class="text-sm text-neutral-500 dark:text-neutral-400">No matches found.</div>
+
+    <div v-else class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800 rounded-md overflow-hidden">
+      <div v-for="it in items" :key="it.path + '/' + it.name" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-800/50">
+        <div class="min-w-0">
+          <div class="font-medium truncate">{{ it.name }}</div>
+          <div class="text-xs text-neutral-500 font-mono truncate">/{{ it.path }}</div>
+        </div>
+        <div class="shrink-0 ml-4">
+          <button class="px-3 py-1 text-sm rounded-md bg-neutral-200 hover:bg-neutral-300 dark:bg-zinc-700 dark:hover:bg-zinc-600" @click="openFolder(it.path)">Open folder</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</template>
+

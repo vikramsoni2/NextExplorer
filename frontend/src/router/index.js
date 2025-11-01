@@ -3,6 +3,7 @@ import FolderView from '@/views/FolderView.vue'
 import EditorView from '@/views/EditorView.vue'
 import BrowserLayput from '@/layouts/BrowserLayput.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
+import SearchResultsView from '@/views/SearchResultsView.vue'
 import SettingsLayout from '@/views/settings/SettingsLayout.vue'
 import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue'
 import SettingsSecurity from '@/views/settings/SettingsSecurity.vue'
@@ -57,6 +58,14 @@ const router = createRouter({
         },
       ],
 
+    },
+    {
+      path: '/search',
+      component: BrowserLayput,
+      meta: { requiresAuth: true },
+      children: [
+        { path: '', component: SearchResultsView },
+      ],
     },
     {
       path: '/editor',
