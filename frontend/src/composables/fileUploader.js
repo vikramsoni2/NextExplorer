@@ -49,6 +49,25 @@ export function useFileUploader() {
     { immediate: true },
   );
 
+  watch(
+    () => authStore.isAuthenticated,
+    async (isAuthenticated) => {
+      if (isAuthenticated && !authStore.token) {
+        try {
+          const token = await authStore.mintToken();
+          applyAuthHeaders(token);
+        } catch (error) {
+          console.warn('Failed to mint legacy upload token:', error);
+        }
+      }
+
+      if (!isAuthenticated) {
+        applyAuthHeaders(null);
+      }
+    },
+    { immediate: true },
+  );
+
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {
       uploadTo: normalizePath(fileStore.currentPath || ''),

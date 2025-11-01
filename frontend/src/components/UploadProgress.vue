@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { useToggle } from '@vueuse/core'
+import { ref, computed, watch } from 'vue'
+import { useToggle, useDraggable, useElementSize, useWindowSize } from '@vueuse/core'
 import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { useUppyStore } from '@/stores/uppyStore'
 import { formatBytes } from '@/utils'
@@ -8,6 +8,37 @@ import { formatBytes } from '@/utils'
 const uppyStore = useUppyStore()
 const [detailsOpen, toggleDetails] = useToggle(false)
 const isPaused = ref(false)
+
+const el = ref(null)
+const { width: viewportWidth, height: viewportHeight } = useWindowSize()
+const { width: panelWidth, height: panelHeight } = useElementSize(el)
+const edgeOffset = 16
+const { x, y, style } = useDraggable(el, {
+  initialValue: { x: 400, y: 400 },
+  preventDefault: true,
+})
+
+const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
+const keepInView = () => {
+  const viewW = Number.isFinite(viewportWidth.value) && viewportWidth.value > 0 ? viewportWidth.value : 1024
+  const viewH = Number.isFinite(viewportHeight.value) && viewportHeight.value > 0 ? viewportHeight.value : 768
+  const panelW = Number.isFinite(panelWidth.value) && panelWidth.value > 0 ? panelWidth.value : 360
+  const panelH = Number.isFinite(panelHeight.value) && panelHeight.value > 0 ? panelHeight.value : 200
+
+  const maxX = Math.max(edgeOffset, viewW - panelW - edgeOffset)
+  const maxY = Math.max(edgeOffset, viewH - panelH - edgeOffset)
+  const nextX = clamp(x.value, edgeOffset, maxX)
+  const nextY = clamp(y.value, edgeOffset, maxY)
+
+  if (nextX !== x.value) x.value = nextX
+  if (nextY !== y.value) y.value = nextY
+}
+
+watch([x, y, viewportWidth, viewportHeight, panelWidth, panelHeight], keepInView, {
+  immediate: true,
+})
+
+
 
 const filesById = computed(() => {
   const files = uppyStore.state.files ?? {}
@@ -103,10 +134,12 @@ function toggleDetailsKey(e) {
 
 <template>
   <div
+    ref="el"
     v-if="uploadInProgress"
-    class="fixed bottom-3 right-3 min-w-[360px] max-w-sm rounded-2xl border border-zinc-200/70 dark:border-zinc-700/40 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-md shadow-xl ring-1 ring-black/5"
+    class="fixed min-w-[360px] max-w-sm max-h-[400px] rounded-2xl border border-zinc-200/70 dark:border-zinc-700/40 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-md shadow-xl ring-1 ring-black/5"
     role="status"
     aria-live="polite"
+    :style="style"
   >
     <!-- Header -->
     <div class="p-5">
@@ -185,12 +218,12 @@ function toggleDetailsKey(e) {
     <!-- Details list -->
     <div
       v-if="detailsOpen"
-      class="max-h-64 overflow-y-auto border-t border-zinc-200/70 dark:border-zinc-700/50 divide-y divide-zinc-200/70 dark:divide-zinc-700/50"
+      class="details-panel border-t border-zinc-200/70 dark:border-zinc-700/50 divide-y divide-zinc-200/70 dark:divide-zinc-700/50"
     >
       <div
         v-for="file in filesWithProgress"
         :key="file.id"
-        class="px-5 py-3"
+        class="details-item px-5 py-3"
       >
         <div class="flex items-start gap-3">
           <!-- File badge -->
@@ -289,5 +322,15 @@ function toggleDetailsKey(e) {
 @keyframes winStripe {
   from { background-position: 0 0; }
   to   { background-position: 28px 0; }
+}
+
+.details-panel {
+  --upload-item-height: 4.5rem;
+  max-height: calc(var(--upload-item-height) * 3);
+  overflow-y: auto;
+}
+
+.details-item {
+  min-height: var(--upload-item-height);
 }
 </style>

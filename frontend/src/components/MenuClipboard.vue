@@ -43,6 +43,7 @@ const handlePaste = async () => {
         'opacity-50 cursor-not-allowed': !canCopyOrCut,
         'text-sky-500 dark:text-sky-300': isCutActive,
       }"
+      title="Cut"
     >
       <Cut20Filled class="w-6" />
     </button>
@@ -57,6 +58,7 @@ const handlePaste = async () => {
         'opacity-50 cursor-not-allowed': !canCopyOrCut,
         'text-sky-500 dark:text-sky-300': isCopyActive,
       }"
+      title="Copy"
     >
       <Copy20Regular class="w-6" />
     </button>
@@ -68,6 +70,7 @@ const handlePaste = async () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canPaste }"
+      title="Paste"
     >
       <ClipboardPaste20Regular class="w-6" />
     </button>

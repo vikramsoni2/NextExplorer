@@ -4,15 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@codemirror/language-data": "^6.3.2",
     "@codemirror/lang-javascript": "^6.2.2",
     "@codemirror/theme-one-dark": "^6.1.2",
+    "@floating-ui/vue": "^1.1.9",
     "@headlessui/vue": "^1.7.22",
     "@heroicons/vue": "^2.1.3",
     "@uppy/core": "^3.11.3",
@@ -34,6 +36,7 @@
     "marked": "^12.0.2",
     "nanoid": "^5.0.7",
     "pinia": "^2.1.7",
+    "tippy.js": "^6.3.7",
     "vue": "^3.4.21",
     "vue-codemirror": "^6.1.1",
     "vue-easy-lightbox": "^1.19.0",

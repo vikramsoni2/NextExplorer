@@ -68,8 +68,8 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Codemirror } from 'vue-codemirror';
-import { javascript } from '@codemirror/lang-javascript';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
 
 const route = useRoute();
@@ -102,18 +102,14 @@ const fileExtension = computed(() => {
   return segments.length > 1 ? segments.pop().toLowerCase() : '';
 });
 
-const editorExtensions = computed(() => {
-  const extensions = [oneDark];
-  if (['js', 'jsx', 'ts', 'tsx', 'json', 'mjs', 'cjs'].includes(fileExtension.value)) {
-    extensions.unshift(
-      javascript({
-        jsx: ['jsx', 'tsx'].includes(fileExtension.value),
-        typescript: ['ts', 'tsx'].includes(fileExtension.value),
-      }),
-    );
-  }
-  return extensions;
-});
+// Language compartment allows reconfiguring language without recreating the editor
+const language = new Compartment();
+
+// Base extensions: theme + an empty language compartment (configured dynamically)
+const editorExtensions = computed(() => [
+  language.of([]),
+  oneDark,
+]);
 
 const hasUnsavedChanges = computed(() => fileContent.value !== originalContent.value);
 const canSave = computed(() => hasUnsavedChanges.value && !isSaving.value && !isLoading.value && !loadError.value);
@@ -207,9 +203,69 @@ const handleKeydown = (event) => {
   }
 };
 
+// Dynamically load and apply a language based on the file path/extension
+const applyLanguageForPath = async () => {
+  // Only proceed when the editor view is ready
+  if (!view.value) return;
+
+  const currentPath = normalizedPath.value || '';
+  const base = currentPath.split('/').filter(Boolean).pop() || '';
+  const ext = fileExtension.value;
+
+  try {
+    // Lazy import the language registry; this code-splits languages and loads on demand
+    const { languages } = await import('@codemirror/language-data');
+
+    // Try to find a language by extension (normalize leading dots if present)
+    const matchesExt = (lang, e) => Array.isArray(lang.extensions)
+      && lang.extensions.some((x) => String(x).replace(/^\./, '').toLowerCase() === e);
+
+    // Try to find by common aliases or name as a fallback (e.g., dockerfile)
+    const matchesName = (lang, name) =>
+      (typeof lang.name === 'string' && lang.name.toLowerCase() === name)
+      || (Array.isArray(lang.alias) && lang.alias.some(a => String(a).toLowerCase() === name));
+
+    let desc = null;
+    if (ext) {
+      desc = languages.find((l) => matchesExt(l, ext));
+    }
+
+    if (!desc && base) {
+      const baseLower = base.toLowerCase();
+      desc = languages.find((l) => matchesName(l, baseLower));
+    }
+
+    // As a convenience, map a few framework single-file extensions to their closest core language
+    if (!desc && ['vue', 'svelte', 'astro'].includes(ext)) {
+      desc = languages.find((l) => matchesName(l, 'html'))
+        || languages.find((l) => matchesExt(l, 'html'));
+    }
+
+    // If we found a language description, load it and reconfigure
+    if (desc && typeof desc.load === 'function') {
+      const support = await desc.load();
+      view.value.dispatch({ effects: language.reconfigure(support) });
+      return;
+    }
+
+    // Fallback to no specific language (plain text)
+    view.value.dispatch({ effects: language.reconfigure([]) });
+  } catch (err) {
+    // If the language registry is unavailable or errors, fallback silently
+    console.warn('Language load failed; falling back to plain text.', err);
+    try {
+      view.value.dispatch({ effects: language.reconfigure([]) });
+    } catch (_) {
+      // ignore
+    }
+  }
+};
+
 watch(normalizedPath, () => {
   resetStatus();
   loadFile();
+  // Update language when path changes
+  applyLanguageForPath();
 }, { immediate: true });
 
 watch(fileContent, () => {
@@ -220,6 +276,13 @@ watch(fileContent, () => {
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
+  // Apply language when the editor view becomes ready
+  const stop = watch(view, (v) => {
+    if (v) {
+      applyLanguageForPath();
+      stop();
+    }
+  });
 });
 
 onBeforeUnmount(() => {

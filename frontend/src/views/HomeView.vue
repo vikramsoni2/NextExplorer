@@ -4,22 +4,32 @@ import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
 import { browse } from '@/api';
+import { useSelection } from '@/composables/itemSelection';
+import { useExplorerContextMenu } from '@/composables/contextMenu';
 
 const settings = useSettingsStore()
 const router = useRoute()
 const resources = ref(null)
+const { clearSelection } = useSelection();
+const contextMenu = useExplorerContextMenu();
 
 onMounted(async()=>{
   const path = router.path;
   resources.value = await browse(path);
 })
 
+const handleBackgroundContextMenu = (event) => {
+  contextMenu?.openBackgroundMenu(event);
+};
 
 </script>
 
 <template>
     
-    <div :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 'flex flex-col gap-2'">
+    <div
+    :class="settings.view === 'grid' ? 'grid grid-cols-[repeat(auto-fill,6rem)] gap-2' : 'flex flex-col gap-2'"
+    @click.self="clearSelection()"
+    @contextmenu.prevent.self="handleBackgroundContextMenu">
       <div v-for="item in resources" :key="item.name">
         <FileObject :item="item" :view="settings.view"/>
       </div>

@@ -90,3 +90,36 @@ The container persists user settings in `/cache` and never touches the contents 
 ## Need Something Else?
 - For local development, see [`README-development.md`](./README-development.md).
 - Issues or feature ideas? Open a ticket on the project tracker or start a discussion with the maintainers.
+
+## Running Behind a Reverse Proxy (e.g., Nginx Proxy Manager)
+
+When placing nextExplorer behind a reverse proxy and a custom domain, set a single environment variable and the app will derive everything it needs:
+
+- `PUBLIC_URL` – the fully-qualified public URL for your app (no trailing slash). Example: `https://files.example.com`
+
+What it controls:
+- CORS allowed origin defaults to the origin of `PUBLIC_URL` unless you explicitly set `CORS_ORIGINS`.
+- OIDC callback URL defaults to `PUBLIC_URL + /api/auth/oidc/callback` unless you explicitly set `OIDC_CALLBACK_URL`.
+- Express automatically enables `trust proxy` when `PUBLIC_URL` is provided (can be overridden with `TRUST_PROXY`).
+
+Compose example:
+
+```yaml
+services:
+  nextexplorer:
+    image: nxzai/explorer:latest
+    environment:
+      - NODE_ENV=production
+      - PUBLIC_URL=https://files.example.com
+      # Optional: override or add more CORS origins
+      # - CORS_ORIGINS=https://files.example.com,https://admin.example.com
+      # Optional: override OIDC callback if you need a non-default path
+      # - OIDC_CALLBACK_URL=https://files.example.com/custom/callback
+    ports:
+      - "3000:3000"  # or run without publishing and let the proxy connect the container network
+```
+
+Nginx Proxy Manager tips:
+- Point your domain to the container’s internal port 3000.
+- Enable Websockets and preserve `X-Forwarded-*` headers (enabled by default in NPM).
+- Terminate TLS at the proxy; nextExplorer will treat cookies as Secure in production.

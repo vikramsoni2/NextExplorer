@@ -3,6 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import HeaderLogo from '@/components/HeaderLogo.vue';
+import { apiBase } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 
 
@@ -12,11 +13,14 @@ const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
+const loginUsernameValue = ref('');
 const loginPasswordValue = ref('');
 const loginError = ref('');
 const isSubmittingLogin = ref(false);
 
 const statusError = computed(() => auth.lastError || '');
+const supportsLocal = computed(() => auth.strategies?.local !== false);
+const supportsOidc = computed(() => Boolean(auth.strategies?.oidc));
 const redirectTarget = computed(() => {
   const redirect = route.query?.redirect;
   if (typeof redirect === 'string' && redirect.trim()) {
@@ -73,6 +77,16 @@ const resetErrors = () => {
 const handleLoginSubmit = async () => {
   resetErrors();
 
+  if (!supportsLocal.value) {
+    loginError.value = 'Local sign-in is disabled.';
+    return;
+  }
+
+  if (!loginUsernameValue.value.trim()) {
+    loginError.value = 'Username is required.';
+    return;
+  }
+
   if (!loginPasswordValue.value) {
     loginError.value = 'Password is required.';
     return;
@@ -81,7 +95,11 @@ const handleLoginSubmit = async () => {
   isSubmittingLogin.value = true;
 
   try {
-    await auth.login(loginPasswordValue.value);
+    await auth.login({
+      username: loginUsernameValue.value.trim(),
+      password: loginPasswordValue.value,
+    });
+    loginUsernameValue.value = '';
     loginPasswordValue.value = '';
     redirectToDestination();
   } catch (error) {
@@ -89,6 +107,17 @@ const handleLoginSubmit = async () => {
   } finally {
     isSubmittingLogin.value = false;
   }
+};
+
+const handleOidcLogin = () => {
+  resetErrors();
+  const redirect = redirectTarget.value;
+  const base = apiBase || '';
+  const loginUrl = `${base}/api/auth/oidc/login`;
+  const finalUrl = redirect && typeof redirect === 'string'
+    ? `${loginUrl}?redirect=${encodeURIComponent(redirect)}`
+    : loginUrl;
+  window.location.href = finalUrl;
 };
 </script>
 
@@ -115,24 +144,41 @@ const handleLoginSubmit = async () => {
           <div>
             <h2 class="text-2xl font-semibold text-white">Unlock your explorer</h2>
             <p class="mt-2 text-sm text-white/60">
-              Enter your password to resume exploring your volumes and files.
+              Sign in with your username and password, or use your organization&apos;s single sign-on if available.
             </p>
           </div>
 
-          <form class="space-y-6" @submit.prevent="handleLoginSubmit">
-            <div>
-              <label for="login-password" class="block text-sm font-medium uppercase tracking-wide text-white/70">
-                Password
-              </label>
-              <input
-                id="login-password"
-                v-model="loginPasswordValue"
-                type="password"
-                autocomplete="current-password"
-                :class="inputBaseClasses"
-                placeholder="Enter your password"
-                :disabled="isSubmittingLogin"
-              />
+          <form v-if="supportsLocal" class="space-y-6" @submit.prevent="handleLoginSubmit">
+            <div class="space-y-4">
+              <div>
+                <label for="login-username" class="block text-sm font-medium uppercase tracking-wide text-white/70">
+                  Username
+                </label>
+                <input
+                  id="login-username"
+                  v-model="loginUsernameValue"
+                  type="text"
+                  autocomplete="username"
+                  :class="inputBaseClasses"
+                  placeholder="Enter your username"
+                  :disabled="isSubmittingLogin"
+                />
+              </div>
+
+              <div>
+                <label for="login-password" class="block text-sm font-medium uppercase tracking-wide text-white/70">
+                  Password
+                </label>
+                <input
+                  id="login-password"
+                  v-model="loginPasswordValue"
+                  type="password"
+                  autocomplete="current-password"
+                  :class="inputBaseClasses"
+                  placeholder="Enter your password"
+                  :disabled="isSubmittingLogin"
+                />
+              </div>
             </div>
 
             <p v-if="loginError" :class="helperTextClasses">{{ loginError }}</p>
@@ -143,6 +189,23 @@ const handleLoginSubmit = async () => {
               <span v-else>Sign In</span>
             </button>
           </form>
+
+          <div v-if="supportsLocal && supportsOidc" class="flex items-center gap-4">
+            <div class="h-px flex-1 bg-white/10"></div>
+            <span class="text-xs uppercase tracking-widest text-white/50">Or</span>
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <button
+            v-if="supportsOidc"
+            class="w-full rounded-lg border border-accent/40 bg-transparent px-4 py-2 font-semibold text-white transition hover:border-accent hover:bg-accent/10"
+            type="button"
+            @click="handleOidcLogin"
+          >
+            Continue with Single Sign-On
+          </button>
+
+          <p v-if="!supportsLocal && statusError" :class="helperTextClasses">{{ statusError }}</p>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useFileStore } from '@/stores/fileStore';
 import { useFavoritesStore } from '@/stores/favorites';
 import { normalizePath, downloadItems } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
+import { Rename20Regular } from '@vicons/fluent';
 
 const fileStore = useFileStore();
 const favoritesStore = useFavoritesStore();
@@ -167,6 +168,7 @@ const isFavoriteDirectory = computed(() => {
 });
 
 const favoriteStarComponent = computed(() => (isFavoriteDirectory.value ? StarIconSolid : StarIconOutline));
+const favoriteTooltip = computed(() => (isFavoriteDirectory.value ? 'Remove from Favorites' : 'Add to Favorites'));
 
 const isFavoriteActionDisabled = computed(() => !selectedDirectoryPath.value || isMutatingFavorite.value);
 
@@ -203,10 +205,11 @@ const handleFavoriteAction = async () => {
         'text-amber-500 dark:text-amber-400': isFavoriteDirectory,
         'opacity-50 cursor-not-allowed': isFavoriteActionDisabled,
       }"
+      :title="favoriteTooltip"
     >
       <component :is="favoriteStarComponent" class="w-6" />
     </button>
-    <button
+    <!-- <button
       type="button"
       @click="handleRename"
       :disabled="!canRename"
@@ -214,9 +217,10 @@ const handleFavoriteAction = async () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canRename }"
+      title="Rename"
     >
-      <PencilSquareIcon class="w-6" />
-    </button>
+      <Rename20Regular class="w-6" />
+    </button> -->
     <button
       type="button"
       @click="handleDownload"
@@ -225,11 +229,12 @@ const handleFavoriteAction = async () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !hasSelection || isPreparingDownload }"
+      :title="isPreparingDownload ? 'Preparing download...' : 'Download'"
     >
       <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
       <ArrowDownTrayIcon v-else class="w-6" />
     </button>
-    <button
+    <!-- <button
       type="button"
       @click="handleDelete"
       :disabled="!hasSelection"
@@ -237,11 +242,12 @@ const handleFavoriteAction = async () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !hasSelection }"
+      title="Delete"
     >
       <TrashIcon class="w-6" />
-    </button>
+    </button> -->
   </div>
-  <ModalDialog v-model="isDeleteConfirmOpen">
+  <!-- <ModalDialog v-model="isDeleteConfirmOpen">
     <template #title>{{ deleteDialogTitle }}</template>
     <p class="mb-6 text-base text-zinc-700 dark:text-zinc-200">
       {{ deleteDialogMessage }}
@@ -252,6 +258,7 @@ const handleFavoriteAction = async () => {
         class="px-4 py-2 text-sm font-medium rounded-md border border-zinc-300 text-zinc-700 transition-colors hover:bg-zinc-100 active:bg-zinc-200 disabled:opacity-60 disabled:cursor-not-allowed dark:border-zinc-600 dark:text-zinc-300 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
         @click="isDeleteConfirmOpen = false"
         :disabled="isDeleting"
+        
       >
         Cancel
       </button>
@@ -265,5 +272,5 @@ const handleFavoriteAction = async () => {
         <span v-else>Delete</span>
       </button>
     </div>
-  </ModalDialog>
+  </ModalDialog> -->
 </template>

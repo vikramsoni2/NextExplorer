@@ -6,6 +6,7 @@ import { formatBytes, formatDate } from '@/utils';
 import { useNavigation } from '@/composables/navigation';
 import { useSelection } from '@/composables/itemSelection';
 import { useFileStore } from '@/stores/fileStore';
+import { useExplorerContextMenu } from '@/composables/contextMenu';
 
 const props = defineProps(['item', 'view'])
 
@@ -13,6 +14,7 @@ const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
 const fileStore = useFileStore();
 const { renameState } = storeToRefs(fileStore);
+const contextMenu = useExplorerContextMenu();
 
 const renameInputRef = ref(null);
 const baseRenameInputClass = 'w-full rounded border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
@@ -45,6 +47,11 @@ const handleClick = (event) => {
 const handleDblClick = () => {
   if (isRenaming.value) return;
   openItem(props.item);
+};
+
+const handleContextMenu = (event) => {
+  if (isRenaming.value) return;
+  contextMenu?.openItemMenu(event, props.item);
 };
 
 const selectRenameText = (input) => {
@@ -125,6 +132,7 @@ const handleRenameBlur = async () => {
     v-if="view==='grid'"
     @click="handleClick"
     @dblclick="handleDblClick"
+    @contextmenu.prevent="handleContextMenu"
     class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"    
     :class="{ 'opacity-60': isCut }"
     > 
@@ -159,6 +167,7 @@ const handleRenameBlur = async () => {
     v-if="view==='tab'"
     @click="handleClick"
     @dblclick="handleDblClick"
+    @contextmenu.prevent="handleContextMenu"
     
     class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
     :class="{ 'opacity-60': isCut }">
@@ -198,6 +207,7 @@ const handleRenameBlur = async () => {
     v-if="view==='list'"
     @click="handleClick"
     @dblclick="handleDblClick"
+    @contextmenu.prevent="handleContextMenu"
     class="grid select-none items-center grid-cols-[30px_1fr_150px_200px] 
     cursor-pointer auto-cols-fr p-1 px-4 rounded-md
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50

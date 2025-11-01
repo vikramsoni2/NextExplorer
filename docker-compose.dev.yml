@@ -3,12 +3,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      - VOLUME_ROOT=/mnt
-      - CACHE_DIR=/cache
     volumes:
       - ./backend:/app
       - backend_node_modules:/app/node_modules
@@ -17,15 +11,29 @@ services:
       - /Users/vikram/Downloads:/mnt/Downloads
       - /Users/vikram/Downloads/cache:/cache
     # user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      - PORT=3001
+      - VOLUME_ROOT=/mnt
+      - CACHE_DIR=/cache
+      - PUBLIC_URL=http://localhost:3000
+      - OIDC_ENABLED=true
+      - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/
+      - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/
+      - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
+      - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
+      - OIDC_CLIENT_ID=6HBh3lMneUwWCAeutdEgwNZ6myXzFc93clojdfmQ
+      - OIDC_CLIENT_SECRET=w2ACQfUhhk2vZ14m2GVvYbWqkCQTiXyMsowpLQE2JtiPfaCTrBKhZHwZACgHOCWgSs9zhJW0j8y1TYCrLs0hsMmM0xdIz5tRmce6o4ymVOCQByPRIr9xMxtBt1Spg0I1
+      - OIDC_SCOPES=openid profile email
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "3000:3000"
     environment:
-      # Using Vite proxy; no VITE_API_URL needed
+      # Vite proxies API requests to the backend container
+      - VITE_BACKEND_ORIGIN=http://backend:3001
       # Often needed on macOS/Windows for file change detection:
       - CHOKIDAR_USEPOLLING=1
     depends_on:
