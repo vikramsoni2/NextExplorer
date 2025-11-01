@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { ChevronRight16Filled } from '@vicons/fluent';
 import { useRoute } from 'vue-router';
 import { useNavigation } from '@/composables/navigation';
+import { ellipses } from '@/utils/ellipses';
 
 const { openBreadcrumb } = useNavigation();
 const route = useRoute();
@@ -13,7 +14,7 @@ const paths = computed(() => {
     const start = Math.max(0, segments.length - 3);
     return segments.slice(start).map((segment, index) => {
       return {
-        name: segment,
+        name: ellipses(segment, 28),
         path: segments.slice(0, start + index + 1).join('/')
       };
     });
