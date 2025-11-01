@@ -1,13 +1,15 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useRouter, useRoute, RouterView } from 'vue-router';
 import { useAppSettings } from '@/stores/appSettings';
+import { useAuthStore } from '@/stores/auth';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import { XMarkIcon, Cog8ToothIcon } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const route = useRoute();
 const appSettings = useAppSettings();
+const auth = useAuthStore();
 
 onMounted(() => {
   if (!appSettings.loaded && !appSettings.loading) {
@@ -15,7 +17,9 @@ onMounted(() => {
   }
 });
 
-const categories = [
+const isAdmin = computed(() => Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin'));
+
+const normalCategories = [
   { key: 'files-thumbnails', name: 'Files & Thumbnails', icon: Cog8ToothIcon },
   { key: 'security', name: 'Security', icon: Cog8ToothIcon },
   { key: 'access-control', name: 'Access Control', icon: Cog8ToothIcon },
@@ -28,6 +32,14 @@ const categories = [
   { key: 'integrations', name: 'Integrations', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'advanced', name: 'Advanced', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'about', name: 'About', icon: Cog8ToothIcon },
+];
+
+// Dummy admin-only categories for now
+const adminCategories = [
+  { key: 'admin-overview', name: 'Admin Overview', icon: Cog8ToothIcon },
+  { key: 'admin-users', name: 'User Management', icon: Cog8ToothIcon, comingSoon: true },
+  { key: 'admin-mounts', name: 'Mounts & Shares', icon: Cog8ToothIcon, comingSoon: true },
+  { key: 'admin-audit', name: 'Audit & Events', icon: Cog8ToothIcon, comingSoon: true },
 ];
 
 const isActive = (key) => route.path.endsWith(`/settings/${key}`);
@@ -44,10 +56,10 @@ const closeSettings = () => {
     <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
       <HeaderLogo />
       <div class="mt-4">
-        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Settings</div>
-        <nav class="flex flex-col gap-1">
+        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Normal</div>
+        <nav class="flex flex-col gap-1 mb-4">
           <button
-            v-for="c in categories"
+            v-for="c in normalCategories"
             :key="c.key"
             class="flex items-center gap-2 rounded-md px-2 py-2 text-left hover:bg-neutral-200/60 dark:hover:bg-zinc-700"
             :class="isActive(c.key) ? 'bg-neutral-200/80 dark:bg-zinc-700' : ''"
@@ -55,9 +67,24 @@ const closeSettings = () => {
           >
             <component :is="c.icon" class="w-5" />
             <span class="text-sm">{{ c.name }}</span>
-            <!-- <span v-if="c.comingSoon" class="ml-auto text-[10px] rounded bg-white/20 px-2 py-0.5 text-white/80">Coming soon</span> -->
           </button>
         </nav>
+
+        <template v-if="isAdmin">
+          <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Admin</div>
+          <nav class="flex flex-col gap-1">
+            <button
+              v-for="c in adminCategories"
+              :key="c.key"
+              class="flex items-center gap-2 rounded-md px-2 py-2 text-left hover:bg-neutral-200/60 dark:hover:bg-zinc-700"
+              :class="isActive(c.key) ? 'bg-neutral-200/80 dark:bg-zinc-700' : ''"
+              @click="goCategory(c.key)"
+            >
+              <component :is="c.icon" class="w-5" />
+              <span class="text-sm">{{ c.name }}</span>
+            </button>
+          </nav>
+        </template>
       </div>
     </aside>
 

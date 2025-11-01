@@ -155,6 +155,8 @@ const discoverOidcEndpoints = async (oidcConfig) => {
   return endpoints;
 };
 
+const DEFAULT_ADMIN_GROUPS = ['next-admin'];
+
 const resolveSecurityConfig = async () => {
   const settings = await getSettings();
   const security = settings?.security || {};
@@ -179,6 +181,11 @@ const resolveSecurityConfig = async () => {
     }
     return DEFAULT_SCOPES;
   };
+  const mergeArray = (envArr, cfgArr, fallback = []) => {
+    if (Array.isArray(envArr) && envArr.length > 0) return envArr;
+    if (Array.isArray(cfgArr) && cfgArr.length > 0) return cfgArr;
+    return fallback;
+  };
 
   const oidc = {
     enabled: oidcEnabled,
@@ -190,6 +197,7 @@ const resolveSecurityConfig = async () => {
     clientSecret: preferEnv(envOidc.clientSecret, configOidc.clientSecret),
     callbackUrl: preferEnv(envOidc.callbackUrl, configOidc.callbackUrl),
     scopes: mergeScopes(envOidc.scopes, configOidc.scopes),
+    adminGroups: mergeArray(envOidc.adminGroups, configOidc.adminGroups, DEFAULT_ADMIN_GROUPS),
   };
 
   return {
@@ -262,12 +270,14 @@ const configureOidcStrategy = async () => {
 
   passport.use('oidc', new OpenIDConnectStrategy(
     strategyOptions,
-    async (issuer, profile, done) => {
+    // Signature per passport-openidconnect: (issuer, sub, profile, jwtClaims, accessToken, refreshToken, params, done)
+    async (issuer, sub, profile, jwtClaims, accessToken, refreshToken, params, done) => {
       try {
-        const profileJson = (profile && profile._json) || {};
-        const subject = trimToNull(profile?.id)
-          || trimToNull(profileJson.sub)
-          || trimToNull(profileJson.user_id);
+        const claims = (jwtClaims && typeof jwtClaims === 'object') ? jwtClaims : ((profile && profile._json) || {});
+        const subject = trimToNull(sub)
+          || trimToNull(profile?.id)
+          || trimToNull(claims.sub)
+          || trimToNull(claims.user_id);
 
         if (!subject) {
           throw new Error('OIDC profile did not include a subject identifier.');
@@ -278,17 +288,62 @@ const configureOidcStrategy = async () => {
           : null;
         const email = trimToNull(emailEntry?.value)
           || trimToNull(profile?.email)
-          || trimToNull(profileJson.email);
+          || trimToNull(claims.email);
 
         const username = trimToNull(profile?.username)
-          || trimToNull(profileJson.preferred_username)
+          || trimToNull(claims.preferred_username)
           || email
           || subject;
 
         const displayName = trimToNull(profile?.displayName)
-          || trimToNull(profileJson.name)
+          || trimToNull(claims.name)
           || username
           || null;
+
+        // Derive roles from IdP claims (groups/roles/entitlements, plus common provider formats)
+        const collectedGroups = (() => {
+          const acc = [];
+          const addAll = (arr) => {
+            if (Array.isArray(arr)) {
+              arr.forEach((g) => {
+                if (typeof g === 'string' && g.trim()) acc.push(g.trim());
+              });
+            }
+          };
+          const addFromObject = (obj) => {
+            if (obj && typeof obj === 'object' && Array.isArray(obj.roles)) {
+              obj.roles.forEach((r) => { if (typeof r === 'string' && r.trim()) acc.push(r.trim()); });
+            }
+          };
+          // Common claims
+          addAll(claims.groups);
+          addAll(claims.entitlements);
+          addAll(claims.roles);
+          // Keycloak-style
+          addFromObject(claims.realm_access);
+          if (claims.resource_access && typeof claims.resource_access === 'object') {
+            Object.values(claims.resource_access).forEach(addFromObject);
+          }
+          // If groups provided as a space/comma-separated string
+          if (typeof claims.groups === 'string') {
+            claims.groups.split(/[\s,]+/).forEach((g) => { if (g && g.trim()) acc.push(g.trim()); });
+          }
+          return acc;
+        })();
+
+        const normalizedSet = new Set(collectedGroups.map((g) => g.toLowerCase()));
+        const configuredAdminGroups = Array.isArray(oidc.adminGroups)
+          ? oidc.adminGroups.map((g) => (typeof g === 'string' ? g.toLowerCase().trim() : '')).filter(Boolean)
+          : DEFAULT_ADMIN_GROUPS.map((g) => g.toLowerCase());
+        const matchesConfiguredGroup = configuredAdminGroups.some((g) => normalizedSet.has(g));
+        const isSuperUser = claims.is_superuser === true || claims.superuser === true || claims.admin === true;
+        const hasAdminIndicator = isSuperUser
+          || matchesConfiguredGroup
+          || normalizedSet.has('admin')
+          || normalizedSet.has('admins')
+          || normalizedSet.has('administrator')
+          || normalizedSet.has('next-admin'); // project default
+        const derivedRoles = hasAdminIndicator ? ['admin'] : ['user'];
 
         const user = await createOidcUser({
           issuer,
@@ -296,13 +351,21 @@ const configureOidcStrategy = async () => {
           username,
           displayName,
           email,
+          roles: derivedRoles,
         });
 
-        await updateUser(user.id, {
+        // Update basic profile details and roles (keep admin if already present)
+        await updateUser(user.id, (u) => ({
           displayName: displayName || user.displayName || null,
           email: email || user.email || null,
           lastLoginAt: new Date().toISOString(),
-        });
+          roles: (() => {
+            const current = Array.isArray(u?.roles) ? u.roles : [];
+            const hasAdmin = current.includes('admin');
+            if (hasAdmin) return current; // preserve existing admin
+            return derivedRoles;
+          })(),
+        }));
 
         const persisted = await findById(user.id);
         return done(null, sanitizeUserForClient(persisted));

@@ -31,6 +31,11 @@ const router = createRouter({
         { path: 'files-thumbnails', component: SettingsFilesThumbnails },
         { path: 'security', component: SettingsSecurity },
         { path: 'access-control', component: SettingsAccessControl },
+        // Admin-only placeholder routes
+        { path: 'admin-overview', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+        { path: 'admin-users', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+        { path: 'admin-mounts', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+        { path: 'admin-audit', component: SettingsComingSoon, meta: { requiresAdmin: true } },
         // Scaffolded routes
         { path: 'general', component: SettingsComingSoon },
         { path: 'appearance', component: SettingsComingSoon },
@@ -145,6 +150,16 @@ router.beforeEach(async (to) => {
   if (to.name === 'auth-login' && auth.isAuthenticated) {
     const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     return { path: redirect };
+  }
+
+  // Enforce admin-only routes if flagged
+  const requiresAdmin = Boolean(to.meta && to.meta.requiresAdmin);
+  if (requiresAdmin) {
+    const isAdmin = Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin');
+    if (!isAdmin) {
+      // send to default settings landing
+      return { path: '/settings/files-thumbnails' };
+    }
   }
 
   return true;

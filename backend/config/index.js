@@ -128,6 +128,7 @@ const normalizedAuthMode = (() => {
 
 
 const rawEnvScopes = process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null;
+const rawAdminGroups = process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null;
 
 const envOidcConfig = {
   enabled: normalizeBoolean(process.env.OIDC_ENABLED) ?? null,
@@ -142,6 +143,8 @@ const envOidcConfig = {
     || process.env.OIDC_REDIRECT_URI
     || (publicUrl ? `${publicUrl}/api/auth/oidc/callback` : null),
   scopes: parseScopes(rawEnvScopes) || null,
+  // Admin groups used to elevate user to app 'admin' role
+  adminGroups: parseScopes(rawAdminGroups) || null,
 };
 
 const envAuthConfig = {
