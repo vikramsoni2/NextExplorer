@@ -257,6 +257,11 @@ const sanitizeConfig = (candidate = {}) => {
           scopes: Array.isArray(s?.oidc?.scopes) && s.oidc.scopes.length
             ? Array.from(new Set(s.oidc.scopes.filter((scope) => typeof scope === 'string' && scope.trim()).map((scope) => scope.trim())))
             : ['openid', 'profile', 'email'],
+          adminGroups: Array.isArray(s?.oidc?.adminGroups) && s.oidc.adminGroups.length
+            ? Array.from(new Set(s.oidc.adminGroups
+                .map((g) => (typeof g === 'string' ? g.trim() : ''))
+                .filter(Boolean)))
+            : [],
         },
       },
       access: {
