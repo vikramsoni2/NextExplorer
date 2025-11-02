@@ -2,29 +2,14 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import {
-  setAuthToken,
-  clearAuthToken,
   fetchAuthStatus,
   setupAccount as setupAccountApi,
   login as loginApi,
   logout as logoutApi,
   fetchCurrentUser,
-  issueAuthToken,
 } from '@/api';
 
-const STORAGE_KEY = 'next-explorer-auth-token';
-
-const loadStoredToken = () => {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored || null;
-};
-
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref(loadStoredToken());
   const requiresSetup = ref(false);
   const authEnabled = ref(true);
   const authMode = ref('local');
@@ -38,31 +23,12 @@ export const useAuthStore = defineStore('auth', () => {
   const lastError = ref(null);
   let initPromise = null;
 
-  if (token.value) {
-    setAuthToken(token.value);
-  }
-
   const isAuthenticated = computed(() => {
     if (!authEnabled.value) {
       return true;
     }
-    return Boolean(currentUser.value) || Boolean(token.value);
+    return Boolean(currentUser.value);
   });
-
-  const persistToken = (newToken) => {
-    token.value = newToken || null;
-    if (token.value) {
-      setAuthToken(token.value);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(STORAGE_KEY, token.value);
-      }
-    } else {
-      clearAuthToken();
-      if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(STORAGE_KEY);
-      }
-    }
-  };
 
   const initialize = async () => {
     if (initPromise) {
@@ -81,9 +47,7 @@ export const useAuthStore = defineStore('auth', () => {
         strategies.value = status?.strategies || { local: true, oidc: false };
         currentUser.value = status?.user || null;
 
-        if (!requiresSetup.value && token.value && !status.authenticated) {
-          persistToken(null);
-        }
+        // Cookies hold session; no token adjustments needed
       } catch (error) {
         lastError.value = error instanceof Error ? error.message : 'Failed to load authentication status.';
       } finally {
@@ -99,7 +63,6 @@ export const useAuthStore = defineStore('auth', () => {
   const setupAccount = async ({ username, password }) => {
     lastError.value = null;
     const response = await setupAccountApi({ username, password });
-    persistToken(response?.token || null);
     requiresSetup.value = false;
     hasStatus.value = true;
     currentUser.value = response?.user || null;
@@ -108,19 +71,13 @@ export const useAuthStore = defineStore('auth', () => {
   const login = async ({ username, password }) => {
     lastError.value = null;
     const response = await loginApi({ username, password });
-    persistToken(response?.token || null);
     hasStatus.value = true;
     currentUser.value = response?.user || null;
   };
 
   const logout = async () => {
     lastError.value = null;
-    try {
-      await logoutApi();
-    } catch (error) {
-      // Ignore logout errors so we can still clear the session client-side.
-    }
-    persistToken(null);
+    try { await logoutApi(); } catch (_) {}
     hasStatus.value = true;
     currentUser.value = null;
   };
@@ -140,14 +97,7 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  const mintToken = async () => {
-    const response = await issueAuthToken();
-    persistToken(response?.token || null);
-    return response?.token || null;
-  };
-
   return {
-    token,
     requiresSetup,
     isLoading,
     hasStatus,
@@ -164,6 +114,5 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     clearError,
     refreshCurrentUser,
-    mintToken,
   };
 });

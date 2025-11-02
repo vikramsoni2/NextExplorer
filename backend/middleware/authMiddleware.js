@@ -1,4 +1,5 @@
 const { getSettings } = require('../services/appConfigService');
+const { getRequestUser } = require('../services/users');
 
 const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
@@ -29,9 +30,14 @@ const authMiddleware = async (req, res, next) => {
     return;
   }
 
-  // EOC-only: require OIDC session
+  // Accept either EOC session or local session
   const isEocAuthenticated = Boolean(req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated());
-  if (isEocAuthenticated) {
+  const hasLocalSession = Boolean(req.session && req.session.localUserId);
+  if (isEocAuthenticated || hasLocalSession) {
+    try {
+      const user = await getRequestUser(req);
+      if (user) req.user = user;
+    } catch (_) { /* ignore */ }
     next();
     return;
   }

@@ -54,7 +54,7 @@ onClickOutside(menuPopup, () => {
         @click="option.activate"
         class="p-[6px] rounded-md hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
         :class="{ 'bg-[rgb(239,239,240)] dark:bg-zinc-700': settings.view === option.key }"
-        v-tooltip="option.label"
+        :title="option.label"
       >
         <component :is="option.icon" class="w-6" />
       </button>

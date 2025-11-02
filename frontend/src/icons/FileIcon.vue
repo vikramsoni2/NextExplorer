@@ -1,7 +1,7 @@
 <script setup>
 import { computed, watch } from 'vue';
 
-import { apiBase, appendAuthQuery } from '@/api';
+import { apiBase } from '@/api';
 import { useAppSettings } from '@/stores/appSettings';
 import { useFileStore } from '@/stores/fileStore';
 import { isPreviewableImage, isPreviewableVideo } from '@/config/media';
@@ -49,7 +49,7 @@ const thumbnailUrl = computed(() => {
     return thumbnailPath;
   }
 
-  return appendAuthQuery(`${apiBase}${thumbnailPath}`);
+  return `${apiBase}${thumbnailPath}`;
 });
 
 const ext = computed(() => (props.item?.kind || '').toLowerCase());

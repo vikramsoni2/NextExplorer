@@ -22,22 +22,23 @@ const isAdmin = computed(() => Array.isArray(auth.currentUser?.roles) && auth.cu
 const normalCategories = [
   { key: 'files-thumbnails', name: 'Files & Thumbnails', icon: Cog8ToothIcon },
   { key: 'security', name: 'Security', icon: Cog8ToothIcon },
+  { key: 'account-password', name: 'Change Password', icon: Cog8ToothIcon },
   { key: 'access-control', name: 'Access Control', icon: Cog8ToothIcon },
   // Coming soon
   { key: 'general', name: 'General', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'appearance', name: 'Appearance', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'uploads-downloads', name: 'Uploads & Downloads', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'performance', name: 'Performance', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'logging', name: 'Logging', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'integrations', name: 'Integrations', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'advanced', name: 'Advanced', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'uploads-downloads', name: 'Uploads & Downloads', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'performance', name: 'Performance', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'logging', name: 'Logging', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'integrations', name: 'Integrations', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'advanced', name: 'Advanced', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'about', name: 'About', icon: Cog8ToothIcon },
 ];
 
 // Dummy admin-only categories for now
 const adminCategories = [
   { key: 'admin-overview', name: 'Admin Overview', icon: Cog8ToothIcon },
-  { key: 'admin-users', name: 'User Management', icon: Cog8ToothIcon, comingSoon: true },
+  { key: 'admin-users', name: 'User Management', icon: Cog8ToothIcon },
   { key: 'admin-mounts', name: 'Mounts & Shares', icon: Cog8ToothIcon, comingSoon: true },
   { key: 'admin-audit', name: 'Audit & Events', icon: Cog8ToothIcon, comingSoon: true },
 ];
