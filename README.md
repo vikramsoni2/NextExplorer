@@ -19,7 +19,7 @@ A modern, self-hosted file explorer with secure access control, polished UX, and
 
 
 ## Feature Highlights
-- Protect shared workspaces with a launch-time password gate.
+- Secure access with local users and optional OIDC single sign‑on.
 - Browse, preview, upload, move, and delete files across multiple mounted volumes.
 - Switch between light and dark layouts, plus grid or detail views for folders.
 - Generate and cache thumbnails for images and videos to keep navigation fast.
@@ -62,9 +62,18 @@ services:
       - "3000:3000"  # host:container
     environment:
       - NODE_ENV=production
+      - PUBLIC_URL=http://localhost:3000
+      - SESSION_SECRET=please-change-me
       # Optional: match the container user/group to your host IDs
       # - PUID=1000
       # - PGID=1000
+      # Optional OIDC (see section below)
+      # - OIDC_ENABLED=true
+      # - OIDC_ISSUER=https://auth.example.com/application/o/next/
+      # - OIDC_CLIENT_ID=nextexplorer
+      # - OIDC_CLIENT_SECRET=your-client-secret
+      # - OIDC_SCOPES=openid profile email groups
+      # - OIDC_ADMIN_GROUPS=next-admin admins
     volumes:
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
@@ -89,9 +98,13 @@ The API and UI are both served on `http://localhost:3000`.
 
 ### 6. First-run setup
 1. Open the app in your browser.
-2. Set a password when prompted; this gate protects all future sessions.
+2. Create the first local admin account on the Setup screen.
 3. Browse the Volumes panel to verify each mount shows up as expected.
 4. Start uploading or editing files—thumbnails will populate the cache automatically.
+
+Sign‑in options:
+- Local users: the username/password you created on first run.
+- OIDC SSO (if enabled): click “Continue with Single Sign‑On”.
 
 ### 7. Updating
 To pull the latest release:
@@ -115,7 +128,7 @@ When placing nextExplorer behind a reverse proxy and a custom domain, set a sing
 
 What it controls:
 - CORS allowed origin defaults to the origin of `PUBLIC_URL` unless you explicitly set `CORS_ORIGINS`.
-- OIDC callback URL defaults to `PUBLIC_URL + /api/auth/oidc/callback` unless you explicitly set `OIDC_CALLBACK_URL`.
+- OIDC callback URL defaults to `PUBLIC_URL + /callback` unless you explicitly set `OIDC_CALLBACK_URL`.
 - Express configures a safe `trust proxy` default when `PUBLIC_URL` is provided (can be overridden with `TRUST_PROXY`).
 
 Compose example:
@@ -151,20 +164,27 @@ Nginx Proxy Manager tips:
 
 ## OIDC (OpenID Connect) Authentication
 
-nextExplorer supports OIDC providers such as Authentik, Keycloak, Google, and others via a generic, provider‑agnostic setup.
+nextExplorer supports OIDC providers such as Keycloak, Authentik, Authelia, Google, and others via a provider‑agnostic setup powered by Express OpenID Connect (EOC).
 
 ### Environment variables
 - `OIDC_ENABLED`: `true|false` to enable OIDC.
 - `OIDC_ISSUER`: Provider issuer URL (used for discovery). Example: `https://id.example.com/application/o/your-app/`.
 - `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL` (optional): Manually override endpoints. If omitted, discovery is used from `OIDC_ISSUER`.
 - `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`: Credentials for your app.
-- `OIDC_CALLBACK_URL` (optional): Callback URL. If not set, derived from `PUBLIC_URL` as `${PUBLIC_URL}/api/auth/oidc/callback`.
+- `OIDC_CALLBACK_URL` (optional): Callback URL. If not set, derived from `PUBLIC_URL` as `${PUBLIC_URL}/callback`.
 - `OIDC_SCOPES` (optional): Space/comma separated scopes. Default: `openid profile email`. Add `groups` if your provider exposes it.
 - `OIDC_ADMIN_GROUPS` (recommended): Space/comma separated group names that should map to the app’s `admin` role, e.g. `next-admin admins`.
+- `SESSION_SECRET` (required when OIDC or local sessions are used): strong random string enabling secure sessions.
 
 Notes:
 - Discovery: If `OIDC_AUTHORIZATION_URL`/`OIDC_TOKEN_URL`/`OIDC_USERINFO_URL` are not supplied, the app fetches them from `OIDC_ISSUER/.well-known/openid-configuration`.
 - Callback: If you run behind a reverse proxy, set `PUBLIC_URL` so the default callback is correct.
+
+Endpoints when OIDC is enabled (via EOC):
+- `GET /login` – start login; optionally `?returnTo=/path` to redirect after auth
+- `GET /callback` – OIDC callback (configure this in your provider)
+- `GET /logout` – end session; IdP logout is optional
+- Convenience: `GET /api/auth/oidc/login?redirect=/path` triggers the same login flow
 
 ### Admin role mapping
 - Provider‑agnostic: The app only looks at standard OIDC claims for group‑like values: `groups`, `roles`, `entitlements` (arrays or space/comma strings).
@@ -180,6 +200,7 @@ services:
     image: nxzai/explorer:latest
     environment:
       - PUBLIC_URL=https://files.example.com
+      - SESSION_SECRET=please-change-me
       - OIDC_ENABLED=true
       - OIDC_ISSUER=https://auth.example.com/application/o/next/
       # Optional manual overrides (otherwise discovery is used)
@@ -195,3 +216,11 @@ services:
 Provider tips:
 - Authentik/Keycloak: Usually expose `groups`; include `groups` in scopes.
 - Google: Group claims typically require additional configuration (Cloud Identity / Admin SDK). Without groups, users will be `user` role by default.
+
+## Configuration (Quick Reference)
+- `PUBLIC_URL`: external site URL; derives CORS and default OIDC callback.
+- `SESSION_SECRET`: required for sessions (local auth and OIDC).
+- `VOLUME_ROOT`: root for mounted content inside container (default `/mnt`).
+- `CACHE_DIR`: settings and thumbnails (default `/cache`).
+- `TRUST_PROXY`: `false`, a hop count, or list like `loopback,uniquelocal` (defaults safely when `PUBLIC_URL` is set).
+- `CORS_ORIGINS`: comma list of allowed origins (defaults to `PUBLIC_URL` origin; otherwise allows all for dev).
