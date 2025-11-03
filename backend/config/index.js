@@ -1,4 +1,5 @@
 const path = require('path');
+const crypto = require('crypto');
 
 
 const parseScopes = (raw) =>
@@ -145,7 +146,7 @@ const envOidcConfig = {
 };
 
 const envAuthConfig = {
-  sessionSecret: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || null,
+  sessionSecret: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   authMode: normalizedAuthMode,
   oidc: envOidcConfig,
 };
