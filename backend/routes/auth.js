@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth: envAuthConfig } = require('../config/index');
+const { auth: envAuthConfig, public: publicConfig } = require('../config/index');
 const {
   countLocalUsers,
   createLocal,
@@ -127,10 +127,13 @@ router.post('/logout', (req, res) => {
   }
   // Clear the EOC appSession cookie (local OIDC session) without redirecting
   try {
+    const cookieSecure = (() => {
+      try { return new URL(publicConfig?.url || '').protocol === 'https:'; } catch (_) { return false; }
+    })();
     res.clearCookie('appSession', {
       path: '/',
       sameSite: 'Lax',
-      secure: process.env.NODE_ENV === 'production',
+      secure: cookieSecure,
       httpOnly: true,
     });
   } catch (_) { /* ignore */ }
