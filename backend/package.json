@@ -20,6 +20,7 @@
         "express-rate-limit": "^7.2.0",
         "express-session": "^1.17.3",
         "fluent-ffmpeg": "^2.1.2",
+        "jose": "^5.10.0",
         "multer": "^1.4.5-lts.1",
         "sharp": "^0.34.4",
         "ws": "^8.17.0"

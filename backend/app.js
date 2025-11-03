@@ -108,37 +108,40 @@ const bootstrap = async () => {
         // Sync OIDC users into the database on login
         afterCallback: async (req, res, session) => {
           try {
+            // Standard approach: decode session.id_token via jose
+            const { decodeJwt } = await import('jose');
+            const tokenClaims = session?.id_token ? decodeJwt(session.id_token) : (req?.oidc?.idTokenClaims || {});
             const userClaims = (session && session.user) || {};
-            const tokenClaims = req?.oidc?.idTokenClaims || {};
-            const sub = userClaims.sub || tokenClaims.sub || null;
+            const sub = tokenClaims.sub || userClaims.sub || null;
             const tokenIss = tokenClaims.iss || null;
             if (debugOidc) {
               console.info('OIDC afterCallback', {
                 envIssuer: oidc.issuer,
                 tokenIssuer: tokenIss,
                 sub,
-                hasIdToken: Boolean(req?.oidc?.idToken),
+                hasIdTokenSession: Boolean(session?.id_token),
+                hasIdTokenReq: Boolean(req?.oidc?.idToken),
                 hasUser: Boolean(session?.user),
               });
             }
             if (!sub) return session;
-            const email = userClaims.email || tokenClaims.email || null;
-            const preferredUsername = userClaims.preferred_username
-              || userClaims.username
-              || tokenClaims.preferred_username
+            const email = tokenClaims.email || userClaims.email || null;
+            const preferredUsername = tokenClaims.preferred_username
+              || userClaims.preferred_username
               || tokenClaims.username
+              || userClaims.username
               || email
               || sub;
-            const displayName = userClaims.name || tokenClaims.name || preferredUsername || null;
+            const displayName = tokenClaims.name || userClaims.name || preferredUsername || null;
 
             // Determine admin role based on configured OIDC admin groups
             const groups = [].concat(
-              Array.isArray(userClaims.groups) ? userClaims.groups : [],
-              Array.isArray(userClaims.roles) ? userClaims.roles : [],
-              Array.isArray(userClaims.entitlements) ? userClaims.entitlements : [],
               Array.isArray(tokenClaims.groups) ? tokenClaims.groups : [],
               Array.isArray(tokenClaims.roles) ? tokenClaims.roles : [],
               Array.isArray(tokenClaims.entitlements) ? tokenClaims.entitlements : [],
+              Array.isArray(userClaims.groups) ? userClaims.groups : [],
+              Array.isArray(userClaims.roles) ? userClaims.roles : [],
+              Array.isArray(userClaims.entitlements) ? userClaims.entitlements : [],
             ).filter((g) => typeof g === 'string' && g.trim()).map((g) => g.trim().toLowerCase());
             const cfgAdmin = Array.isArray(envAuthConfig?.oidc?.adminGroups)
               ? envAuthConfig.oidc.adminGroups.map((g) => (typeof g === 'string' ? g.trim().toLowerCase() : '')).filter(Boolean)

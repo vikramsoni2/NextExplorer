@@ -28,7 +28,7 @@ services:
       - OIDC_ISSUER=http://192.168.1.2:8087/realms/next
       - OIDC_CLIENT_ID=next-app
       - OIDC_CLIENT_SECRET=PpIuYcL8NIshpjDWl3w2H6bwDIhyTjJ4
-      - OIDC_SCOPES=openid profile email groups
+      - OIDC_SCOPES=openid profile email
       - OIDC_ADMIN_GROUPS=next-admin admins
       - DEBUG_OIDC=1
 
