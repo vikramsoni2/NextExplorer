@@ -10,6 +10,7 @@ nav:
   - 'Admin Guide': 'admin-guide.md'
   - 'Settings': 'settings.md'
   - 'Authentication (OIDC)': 'oidc.md'
+  - 'Authelia (OIDC)': 'oidc-authelia.md'
   - 'Reverse Proxy': 'reverse-proxy.md'
   - 'Configuration': 'configuration.md'
   - 'Deployment': 'deployment.md'
