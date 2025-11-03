@@ -304,6 +304,29 @@ async function updateUserRoles(userId, roles) {
   });
 }
 
+// Admin - create local user
+async function createUser({ username, password, roles = [] }) {
+  return requestJson('/api/users', {
+    method: 'POST',
+    body: JSON.stringify({ username, password, roles: Array.isArray(roles) ? roles : [] }),
+  });
+}
+
+// Admin - set password for a user (local provider only)
+async function adminSetUserPassword(userId, newPassword) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}/password`, {
+    method: 'POST',
+    body: JSON.stringify({ newPassword }),
+  });
+}
+
+// Admin - delete a user (local provider only)
+async function deleteUser(userId) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+  });
+}
+
 // Auth - change password (local users)
 async function changePassword({ currentPassword, newPassword }) {
   return requestJson('/api/auth/password', {
@@ -315,5 +338,8 @@ async function changePassword({ currentPassword, newPassword }) {
 export {
   fetchUsers,
   updateUserRoles,
+  createUser,
+  adminSetUserPassword,
+  deleteUser,
   changePassword,
 };

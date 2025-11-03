@@ -18,29 +18,26 @@ onMounted(() => {
 });
 
 const isAdmin = computed(() => Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin'));
+const isLocalUser = computed(() => auth.currentUser?.provider === 'local');
 
-const normalCategories = [
-  { key: 'files-thumbnails', name: 'Files & Thumbnails', icon: Cog8ToothIcon },
-  { key: 'security', name: 'Security', icon: Cog8ToothIcon },
-  { key: 'account-password', name: 'Change Password', icon: Cog8ToothIcon },
-  { key: 'access-control', name: 'Access Control', icon: Cog8ToothIcon },
-  // Coming soon
-  { key: 'general', name: 'General', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'appearance', name: 'Appearance', icon: Cog8ToothIcon, comingSoon: true },
-  // { key: 'uploads-downloads', name: 'Uploads & Downloads', icon: Cog8ToothIcon, comingSoon: true },
-  // { key: 'performance', name: 'Performance', icon: Cog8ToothIcon, comingSoon: true },
-  // { key: 'logging', name: 'Logging', icon: Cog8ToothIcon, comingSoon: true },
-  // { key: 'integrations', name: 'Integrations', icon: Cog8ToothIcon, comingSoon: true },
-  // { key: 'advanced', name: 'Advanced', icon: Cog8ToothIcon, comingSoon: true },
+// User-facing settings
+const userCategories = [
+  { key: 'account-password', name: 'Change Password', icon: Cog8ToothIcon, requiresLocal: true },
   { key: 'about', name: 'About', icon: Cog8ToothIcon },
+  // Coming soon (user scope)
+  // { key: 'general', name: 'General', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'appearance', name: 'Appearance', icon: Cog8ToothIcon, comingSoon: true },
 ];
 
-// Dummy admin-only categories for now
+// Admin-only settings
 const adminCategories = [
-  { key: 'admin-overview', name: 'Admin Overview', icon: Cog8ToothIcon },
+  { key: 'files-thumbnails', name: 'Files & Thumbnails', icon: Cog8ToothIcon },
+  { key: 'security', name: 'Security', icon: Cog8ToothIcon },
+  { key: 'access-control', name: 'Access Control', icon: Cog8ToothIcon },
   { key: 'admin-users', name: 'User Management', icon: Cog8ToothIcon },
-  { key: 'admin-mounts', name: 'Mounts & Shares', icon: Cog8ToothIcon, comingSoon: true },
-  { key: 'admin-audit', name: 'Audit & Events', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'admin-overview', name: 'Admin Overview', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'admin-mounts', name: 'Mounts & Shares', icon: Cog8ToothIcon, comingSoon: true },
+  // { key: 'admin-audit', name: 'Audit & Events', icon: Cog8ToothIcon, comingSoon: true },
 ];
 
 const isActive = (key) => route.path.endsWith(`/settings/${key}`);
@@ -57,10 +54,10 @@ const closeSettings = () => {
     <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
       <HeaderLogo />
       <div class="mt-4">
-        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Normal</div>
+        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">User</div>
         <nav class="flex flex-col gap-1 mb-4">
           <button
-            v-for="c in normalCategories"
+            v-for="c in userCategories.filter(c => !c.requiresLocal || isLocalUser)"
             :key="c.key"
             class="flex items-center gap-2 rounded-md px-2 py-2 text-left hover:bg-neutral-200/60 dark:hover:bg-zinc-700"
             :class="isActive(c.key) ? 'bg-neutral-200/80 dark:bg-zinc-700' : ''"

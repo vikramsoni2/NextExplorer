@@ -29,11 +29,11 @@ const router = createRouter({
       component: SettingsLayout,
       meta: { requiresAuth: true },
       children: [
-        { path: '', redirect: '/settings/files-thumbnails' },
-        { path: 'files-thumbnails', component: SettingsFilesThumbnails },
-        { path: 'security', component: SettingsSecurity },
+        { path: '', redirect: '/settings/about' },
+        { path: 'files-thumbnails', component: SettingsFilesThumbnails, meta: { requiresAdmin: true } },
+        { path: 'security', component: SettingsSecurity, meta: { requiresAdmin: true } },
         { path: 'account-password', component: SettingsPassword },
-        { path: 'access-control', component: SettingsAccessControl },
+        { path: 'access-control', component: SettingsAccessControl, meta: { requiresAdmin: true } },
         // Admin-only placeholder routes
         { path: 'admin-overview', component: SettingsComingSoon, meta: { requiresAdmin: true } },
         { path: 'admin-users', component: AdminUsers, meta: { requiresAdmin: true } },
@@ -160,8 +160,8 @@ router.beforeEach(async (to) => {
   if (requiresAdmin) {
     const isAdmin = Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin');
     if (!isAdmin) {
-      // send to default settings landing
-      return { path: '/settings/files-thumbnails' };
+      // send to a non-admin settings landing
+      return { path: '/settings/about' };
     }
   }
 

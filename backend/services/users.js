@@ -53,6 +53,20 @@ const countLocalUsers = async () => {
   return Number(row?.c || 0);
 };
 
+// Count users that currently have the admin role
+const countAdmins = async () => {
+  const db = await getDb();
+  const rows = db.prepare('SELECT roles FROM users').all();
+  let count = 0;
+  for (const r of rows) {
+    try {
+      const roles = JSON.parse(r.roles || '[]');
+      if (Array.isArray(roles) && roles.includes('admin')) count++;
+    } catch (_) { /* ignore */ }
+  }
+  return count;
+};
+
 const getById = async (id) => {
   const db = await getDb();
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
@@ -163,6 +177,30 @@ const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => 
   return true;
 };
 
+// Admin path: set a local user's password without current password
+const setLocalPasswordAdmin = async ({ userId, newPassword }) => {
+  const db = await getDb();
+  const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  if (!row) {
+    const e = new Error('User not found.');
+    e.status = 404;
+    throw e;
+  }
+  if (row.provider !== 'local') {
+    const e = new Error('Password reset is only allowed for local users.');
+    e.status = 400;
+    throw e;
+  }
+  if (typeof newPassword !== 'string' || newPassword.length < 6) {
+    const e = new Error('Password must be at least 6 characters long.');
+    e.status = 400;
+    throw e;
+  }
+  const hash = bcrypt.hashSync(newPassword, 12);
+  db.prepare('UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?').run(hash, nowIso(), userId);
+  return true;
+};
+
 // Map provider claims/groups to an app roles array
 const deriveRolesFromClaims = (claims = {}, adminGroups = []) => {
   try {
@@ -260,8 +298,38 @@ const updateUserRoles = async ({ userId, roles }) => {
   return toClientUser(row);
 };
 
+const deleteUser = async ({ userId }) => {
+  const db = await getDb();
+  const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  if (!row) {
+    return false;
+  }
+  // Only allow removing local users through this path
+  if (row.provider !== 'local') {
+    const e = new Error('Only local users can be removed.');
+    e.status = 400;
+    throw e;
+  }
+  // Prevent removing the last admin
+  try {
+    const roles = JSON.parse(row.roles || '[]');
+    if (Array.isArray(roles) && roles.includes('admin')) {
+      const admins = await countAdmins();
+      if (admins <= 1) {
+        const e = new Error('Cannot remove the last admin.');
+        e.status = 400;
+        throw e;
+      }
+    }
+  } catch (_) { /* ignore parse */ }
+
+  db.prepare('DELETE FROM users WHERE id = ?').run(userId);
+  return true;
+};
+
 module.exports = {
   countLocalUsers,
+  countAdmins,
   getById,
   getByUsername,
   getByOidc,
@@ -270,8 +338,10 @@ module.exports = {
   createOrUpdateOidcUser,
   attemptLocalLogin,
   changeLocalPassword,
+  setLocalPasswordAdmin,
   getRequestUser,
   listUsers,
   updateUserRoles,
   deriveRolesFromClaims,
+  deleteUser,
 };
