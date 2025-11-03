@@ -68,6 +68,10 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_BRANCH=${{ github.ref_name }}
+            REPO_URL=https://github.com/${{ github.repository }}
           push: ${{ github.event_name == 'release' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}

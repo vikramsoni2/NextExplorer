@@ -16,15 +16,25 @@ services:
       - VOLUME_ROOT=/mnt
       - CACHE_DIR=/cache
       - PUBLIC_URL=http://localhost:3000
+      - SESSION_SECRET=dev-change-me
       - OIDC_ENABLED=true
       - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/
-      - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/
-      - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
-      - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
       - OIDC_CLIENT_ID=6HBh3lMneUwWCAeutdEgwNZ6myXzFc93clojdfmQ
       - OIDC_CLIENT_SECRET=w2ACQfUhhk2vZ14m2GVvYbWqkCQTiXyMsowpLQE2JtiPfaCTrBKhZHwZACgHOCWgSs9zhJW0j8y1TYCrLs0hsMmM0xdIz5tRmce6o4ymVOCQByPRIr9xMxtBt1Spg0I1
-      - OIDC_SCOPES=openid profile email
+      - OIDC_SCOPES=openid profile email groups
+      - OIDC_ADMIN_GROUPS=next-admin admins
 
+      # - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
+      # - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
+      # - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/
+      - DEBUG_OIDC=1
+
+      # - OIDC_ISSUER=http://192.168.1.2:8087/realms/next
+      # - OIDC_CLIENT_ID=next-app
+      # - OIDC_CLIENT_SECRET=PpIuYcL8NIshpjDWl3w2H6bwDIhyTjJ4
+      # - OIDC_SCOPES=openid profile email
+      # - OIDC_ADMIN_GROUPS=next-admin admins
+      # - DEBUG_OIDC=1
   frontend:
     build:
       context: ./frontend

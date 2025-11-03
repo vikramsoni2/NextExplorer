@@ -7,6 +7,7 @@ const volumeRoutes = require('./volumes');
 const favoritesRoutes = require('./favorites');
 const settingsRoutes = require('./settings');
 const searchRoutes = require('./search');
+const usersRoutes = require('./users');
 
 const registerRoutes = (app) => {
   app.use('/api', uploadRoutes);
@@ -18,6 +19,7 @@ const registerRoutes = (app) => {
   app.use('/api', settingsRoutes);
   app.use('/api', thumbnailRoutes);
   app.use('/api', searchRoutes);
+  app.use('/api', usersRoutes);
 };
 
 module.exports = registerRoutes;

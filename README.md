@@ -29,11 +29,11 @@ A modern, self-hosted file explorer with secure access control, polished UX, and
 ## Screenshots
 | | |
 | --- | --- |
-| ![Password creation screen showing Explorer branding and secure access badge](./screenshots/1.png) | ![Unlock modal prompting for the workspace password](./screenshots/2.png) |
+| ![Password creation screen showing Explorer branding and secure access badge](./docs/source/images/1.png) | ![Unlock modal prompting for the workspace password](./docs/source/images/2.png) |
 | Lock the workspace with a master password before anyone can browse. | Re-enter the password to unlock trusted sessions. |
-| ![Dark theme grid view of folders and mixed media files](./screenshots/3.png) | ![Light theme view of a project directory with files and folders](./screenshots/4.png) |
+| ![Dark theme grid view of folders and mixed media files](./docs/source/images/3.png) | ![Light theme view of a project directory with files and folders](./docs/source/images/4.png) |
 | Grid view keeps media heavy folders easy to scan. | Light theme works well for bright shared spaces. |
-| ![Dark list view showing metadata like size and modified time](./screenshots/5.png) | ![Upload manager tracking progress for multiple files](./screenshots/6.png) |
+| ![Dark list view showing metadata like size and modified time](./docs/source/images/5.png) | ![Upload manager tracking progress for multiple files](./docs/source/images/6.png) |
 | Detail view surfaces metadata like file size and timestamps. | Track multi-file uploads with per-item progress feedback. |
 
 ## Self-Host with Docker Compose
@@ -116,7 +116,7 @@ When placing nextExplorer behind a reverse proxy and a custom domain, set a sing
 What it controls:
 - CORS allowed origin defaults to the origin of `PUBLIC_URL` unless you explicitly set `CORS_ORIGINS`.
 - OIDC callback URL defaults to `PUBLIC_URL + /api/auth/oidc/callback` unless you explicitly set `OIDC_CALLBACK_URL`.
-- Express automatically enables `trust proxy` when `PUBLIC_URL` is provided (can be overridden with `TRUST_PROXY`).
+- Express configures a safe `trust proxy` default when `PUBLIC_URL` is provided (can be overridden with `TRUST_PROXY`).
 
 Compose example:
 
@@ -139,3 +139,59 @@ Nginx Proxy Manager tips:
 - Point your domain to the container’s internal port 3000.
 - Enable Websockets and preserve `X-Forwarded-*` headers (enabled by default in NPM).
 - Terminate TLS at the proxy; nextExplorer will treat cookies as Secure in production.
+
+### Trust Proxy settings
+
+- Default: When `PUBLIC_URL` is set and `TRUST_PROXY` is not, the app sets `trust proxy` to `loopback,uniquelocal`. This trusts only local/private reverse proxies (Docker/Traefik/Nginx on RFC1918/loopback ranges) and avoids the security risk of trusting arbitrary clients.
+- Override: Set `TRUST_PROXY` explicitly for your topology. Supported values:
+  - `false` – disable trusting proxies (Express default).
+  - A number (e.g. `1`, `2`) – trust that many hops in `X-Forwarded-For`.
+  - A string list – e.g. `loopback,uniquelocal` or CIDRs/IPs like `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`.
+- Note: `TRUST_PROXY=true` is not accepted as-is; it is mapped to `loopback,uniquelocal` to prevent IP spoofing and satisfy `express-rate-limit` safety checks.
+
+## OIDC (OpenID Connect) Authentication
+
+nextExplorer supports OIDC providers such as Authentik, Keycloak, Google, and others via a generic, provider‑agnostic setup.
+
+### Environment variables
+- `OIDC_ENABLED`: `true|false` to enable OIDC.
+- `OIDC_ISSUER`: Provider issuer URL (used for discovery). Example: `https://id.example.com/application/o/your-app/`.
+- `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL` (optional): Manually override endpoints. If omitted, discovery is used from `OIDC_ISSUER`.
+- `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`: Credentials for your app.
+- `OIDC_CALLBACK_URL` (optional): Callback URL. If not set, derived from `PUBLIC_URL` as `${PUBLIC_URL}/api/auth/oidc/callback`.
+- `OIDC_SCOPES` (optional): Space/comma separated scopes. Default: `openid profile email`. Add `groups` if your provider exposes it.
+- `OIDC_ADMIN_GROUPS` (recommended): Space/comma separated group names that should map to the app’s `admin` role, e.g. `next-admin admins`.
+
+Notes:
+- Discovery: If `OIDC_AUTHORIZATION_URL`/`OIDC_TOKEN_URL`/`OIDC_USERINFO_URL` are not supplied, the app fetches them from `OIDC_ISSUER/.well-known/openid-configuration`.
+- Callback: If you run behind a reverse proxy, set `PUBLIC_URL` so the default callback is correct.
+
+### Admin role mapping
+- Provider‑agnostic: The app only looks at standard OIDC claims for group‑like values: `groups`, `roles`, `entitlements` (arrays or space/comma strings).
+- Config‑driven: A user becomes `admin` only if they belong to any group listed in `OIDC_ADMIN_GROUPS` (case‑insensitive). Otherwise the user gets role `user`.
+- No implicit defaults: There are no built‑in admin group names. If `OIDC_ADMIN_GROUPS` is empty/unset, no OIDC user is auto‑elevated.
+- Safety: If an existing user already has the `admin` role, the app preserves it on subsequent logins to avoid accidental demotion.
+
+Example compose snippet:
+
+```yaml
+services:
+  nextexplorer:
+    image: nxzai/explorer:latest
+    environment:
+      - PUBLIC_URL=https://files.example.com
+      - OIDC_ENABLED=true
+      - OIDC_ISSUER=https://auth.example.com/application/o/next/
+      # Optional manual overrides (otherwise discovery is used)
+      # - OIDC_AUTHORIZATION_URL=...
+      # - OIDC_TOKEN_URL=...
+      # - OIDC_USERINFO_URL=...
+      - OIDC_CLIENT_ID=your-client-id
+      - OIDC_CLIENT_SECRET=your-client-secret
+      - OIDC_SCOPES=openid profile email groups
+      - OIDC_ADMIN_GROUPS=next-admin admins
+```
+
+Provider tips:
+- Authentik/Keycloak: Usually expose `groups`; include `groups` in scopes.
+- Google: Group claims typically require additional configuration (Cloud Identity / Admin SDK). Without groups, users will be `user` role by default.

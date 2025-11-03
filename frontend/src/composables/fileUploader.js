@@ -27,46 +27,11 @@ export function useFileUploader() {
     formData: true,
     fieldName: 'filedata',
     bundle: false,
-    allowedMetaFields: null
+    allowedMetaFields: null,
+    withCredentials: true,
   });
 
-  const applyAuthHeaders = (token) => {
-    const plugin = uppy.getPlugin('XHRUpload');
-    if (!plugin) {
-      return;
-    }
-
-    plugin.setOptions({
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-  };
-
-  watch(
-    () => authStore.token,
-    (token) => {
-      applyAuthHeaders(token);
-    },
-    { immediate: true },
-  );
-
-  watch(
-    () => authStore.isAuthenticated,
-    async (isAuthenticated) => {
-      if (isAuthenticated && !authStore.token) {
-        try {
-          const token = await authStore.mintToken();
-          applyAuthHeaders(token);
-        } catch (error) {
-          console.warn('Failed to mint legacy upload token:', error);
-        }
-      }
-
-      if (!isAuthenticated) {
-        applyAuthHeaders(null);
-      }
-    },
-    { immediate: true },
-  );
+  // Cookies carry auth; no token headers
 
   uppy.on('file-added', (file) => {
     uppy.setFileMeta(file.id, {

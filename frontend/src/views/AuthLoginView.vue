@@ -111,11 +111,12 @@ const handleLoginSubmit = async () => {
 
 const handleOidcLogin = () => {
   resetErrors();
-  const redirect = redirectTarget.value;
+  const returnTo = redirectTarget.value;
   const base = apiBase || '';
-  const loginUrl = `${base}/api/auth/oidc/login`;
-  const finalUrl = redirect && typeof redirect === 'string'
-    ? `${loginUrl}?redirect=${encodeURIComponent(redirect)}`
+  // Prefer EOC's native /login route; Vite proxies /login to backend in dev.
+  const loginUrl = `${base}/login`;
+  const finalUrl = returnTo && typeof returnTo === 'string'
+    ? `${loginUrl}?returnTo=${encodeURIComponent(returnTo)}`
     : loginUrl;
   window.location.href = finalUrl;
 };

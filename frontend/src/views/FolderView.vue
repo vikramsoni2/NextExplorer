@@ -67,12 +67,28 @@ const handleBackgroundContextMenu = (event) => {
 <template>
     <div
     v-if="!loading"
-    class="h-full"
+    class="min-h-full"
     :class="settings.view === 'grid' ? 'grid content-start items-start grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
     settings.view === 'tab'? 'grid content-start items-start grid-cols-[repeat(auto-fill,20rem)] gap-2':
     'flex flex-col gap-[2px]'"
     @click.self="clearSelection()"
     @contextmenu.prevent.self="handleBackgroundContextMenu">
+      <!-- Detail view header -->
+      <div
+        v-if="settings.view === 'list'"
+        class="grid items-center grid-cols-[30px_1fr_150px_200px_200px] 
+        px-4 py-2 text-xs 
+        text-neutral-600 dark:text-neutral-300 
+        uppercase tracking-wide select-none sticky top-0 z-10 
+        bg-white dark:bg-zinc-800 
+        backdrop-blur"
+      >
+        <div></div>
+        <div>Name</div>
+        <div>Size</div>
+        <div>Kind</div>
+        <div>Date Modified</div>
+      </div>
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
       :key="item.name" 

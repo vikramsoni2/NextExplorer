@@ -1,18 +1,6 @@
 const DEFAULT_API_BASE = '/';
 const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
-let authToken = null;
-
-const setAuthToken = (token) => {
-  authToken = token || null;
-};
-
-const getAuthToken = () => authToken;
-
-const clearAuthToken = () => {
-  authToken = null;
-};
-
 const encodePath = (relativePath = '') => {
   if (!relativePath) return '';
   return relativePath
@@ -33,25 +21,7 @@ const normalizePath = (relativePath = '') => {
 
 const buildUrl = (endpoint) => `${apiBase}${endpoint}`;
 
-const applyAuthHeader = (headers = {}) => {
-  if (!authToken) {
-    return headers;
-  }
-
-  return {
-    ...headers,
-    Authorization: `Bearer ${authToken}`,
-  };
-};
-
-const appendAuthQuery = (url) => {
-  if (!authToken) {
-    return url;
-  }
-
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}token=${encodeURIComponent(authToken)}`;
-};
+// All requests rely on cookie-based session (credentials: 'include')
 
 const requestJson = async (endpoint, options = {}) => {
   const method = (options.method || 'GET').toUpperCase();
@@ -63,13 +33,11 @@ const requestJson = async (endpoint, options = {}) => {
     headers['Content-Type'] = headers['Content-Type'] || 'application/json';
   }
 
-  const finalHeaders = applyAuthHeader(headers);
-
   const response = await fetch(buildUrl(endpoint), {
     credentials: options.credentials || 'include',
     ...options,
     method,
-    headers: finalHeaders,
+    headers,
   });
 
   if (!response.ok) {
@@ -212,9 +180,7 @@ const downloadItems = async (paths, basePath = '') => {
 
   const response = await fetch(buildUrl('/api/download'), {
     method: 'POST',
-    headers: applyAuthHeader({
-      'Content-Type': 'application/json',
-    }),
+    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
     body: JSON.stringify({
       items: normalizedList,
@@ -256,7 +222,7 @@ const getPreviewUrl = (relativePath) => {
 
   const params = new URLSearchParams({ path: normalizedPath });
   const url = buildUrl(`/api/preview?${params.toString()}`);
-  return appendAuthQuery(url);
+  return url;
 };
 
 const fetchAuthStatus = () => requestJson('/api/auth/status', { method: 'GET' });
@@ -273,9 +239,7 @@ const login = ({ username, password }) => requestJson('/api/auth/login', {
 
 const fetchCurrentUser = () => requestJson('/api/auth/me', { method: 'GET' });
 
-const issueAuthToken = () => requestJson('/api/auth/token', {
-  method: 'POST',
-});
+// Token minting removed: cookie-based session only
 
 const logout = () => requestJson('/api/auth/logout', {
   method: 'POST',
@@ -283,9 +247,6 @@ const logout = () => requestJson('/api/auth/logout', {
 
 export {
   apiBase,
-  setAuthToken,
-  getAuthToken,
-  clearAuthToken,
   browse,
   getVolumes,
   copyItems,
@@ -303,7 +264,6 @@ export {
   getPreviewUrl,
   normalizePath,
   encodePath,
-  appendAuthQuery,
   fetchAuthStatus,
   search,
   // settings
@@ -330,5 +290,56 @@ export {
   login,
   logout,
   fetchCurrentUser,
-  issueAuthToken,
+};
+
+// Admin Users API
+async function fetchUsers() {
+  return requestJson('/api/users', { method: 'GET' });
+}
+
+async function updateUserRoles(userId, roles) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ roles: Array.isArray(roles) ? roles : [] }),
+  });
+}
+
+// Admin - create local user
+async function createUser({ username, password, roles = [] }) {
+  return requestJson('/api/users', {
+    method: 'POST',
+    body: JSON.stringify({ username, password, roles: Array.isArray(roles) ? roles : [] }),
+  });
+}
+
+// Admin - set password for a user (local provider only)
+async function adminSetUserPassword(userId, newPassword) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}/password`, {
+    method: 'POST',
+    body: JSON.stringify({ newPassword }),
+  });
+}
+
+// Admin - delete a user (local provider only)
+async function deleteUser(userId) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}`, {
+    method: 'DELETE',
+  });
+}
+
+// Auth - change password (local users)
+async function changePassword({ currentPassword, newPassword }) {
+  return requestJson('/api/auth/password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+}
+
+export {
+  fetchUsers,
+  updateUserRoles,
+  createUser,
+  adminSetUserPassword,
+  deleteUser,
+  changePassword,
 };

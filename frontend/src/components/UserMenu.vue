@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
+import { apiBase } from '@/api';
 import {
   ArrowRightOnRectangleIcon,
   ChevronDownIcon,
@@ -50,8 +51,25 @@ const handleThemeToggle = () => {
 };
 
 const handleLogout = async () => {
-  await auth.logout();
+  // Capture whether the session is OIDC-backed before clearing state
+  const wasOidcUser = auth.currentUser?.provider === 'oidc';
+
+  // Always clear local session on the backend
+  try { await auth.logout(); } catch (_) {}
+
   isExpanded.value = false;
+
+  // If the current user was an OIDC user (or OIDC is enabled),
+  // bounce through the provider-aware /logout endpoint to clear IdP session.
+  const isOidcUser = wasOidcUser || auth.strategies?.oidc === true;
+  if (isOidcUser) {
+    const base = apiBase || '';
+    const returnTo = '/auth/login';
+    const logoutUrl = `${base}/logout?returnTo=${encodeURIComponent(returnTo)}`;
+    window.location.href = logoutUrl;
+    return;
+  }
+
   router.push({ name: 'auth-login' });
 };
 </script>

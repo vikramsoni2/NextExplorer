@@ -15,6 +15,9 @@ export default defineConfig({
   ],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.VITE_APP_VERSION || process.env.npm_package_version || '1.0.5'),
+    __GIT_COMMIT__: JSON.stringify(process.env.VITE_GIT_COMMIT || ''),
+    __GIT_BRANCH__: JSON.stringify(process.env.VITE_GIT_BRANCH || ''),
+    __REPO_URL__: JSON.stringify(process.env.VITE_REPO_URL || ''),
   },
   resolve: {
     alias: {
@@ -28,6 +31,10 @@ export default defineConfig({
     proxy: {
       '/api': { target: backendOrigin, changeOrigin: true, ws: true, secure: false },
       '/static/thumbnails': { target: backendOrigin, changeOrigin: true, secure: false },
+      // Proxy EOC routes to backend so /login, /callback, /logout work on the public origin
+      '/login': { target: backendOrigin, changeOrigin: true, secure: false },
+      '/callback': { target: backendOrigin, changeOrigin: true, secure: false },
+      '/logout': { target: backendOrigin, changeOrigin: true, secure: false },
     }
   }
  

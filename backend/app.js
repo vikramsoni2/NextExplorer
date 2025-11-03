@@ -2,48 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const crypto = require('crypto');
+const { auth: eocAuth } = require('express-openid-connect');
 const session = require('express-session');
 
-const { port, directories, corsOptions, public: publicConfig } = require('./config/index');
+const { port, directories, corsOptions, public: publicConfig, auth: envAuthConfig } = require('./config/index');
 const { ensureDir } = require('./utils/fsUtils');
 const registerRoutes = require('./routes');
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middleware/authMiddleware');
-const { initializeAuth } = require('./services/authService');
-const {
-  passport: passportInstance,
-  initializePassport,
-  resolveSecurityConfig,
-} = require('./services/passport');
+const { createOrUpdateOidcUser, deriveRolesFromClaims } = require('./services/users');
 
 const app = express();
 let server = null;
 
-// Trust reverse proxy when a PUBLIC_URL is provided or TRUST_PROXY is explicitly set
-function normalizeEnvVar(value) {
-  if (typeof value !== 'string') return '';
-  return value.trim();
-}
-
+// Trust proxy configuration (validated via Zod)
 try {
-  const trustProxyEnv = normalizeEnvVar(process.env.TRUST_PROXY);
-  if (trustProxyEnv) {
-    // Map common values to proper trust proxy settings
-    const normalized = trustProxyEnv.toLowerCase();
-    if (['1', 'true', 'yes', 'on'].includes(normalized)) {
-      app.set('trust proxy', true);
-    } else if (['0', 'false', 'no', 'off'].includes(normalized)) {
-      app.set('trust proxy', false);
-    } else if (!Number.isNaN(Number(trustProxyEnv))) {
-      app.set('trust proxy', Number(trustProxyEnv));
-    } else {
-      // Accept Express trust proxy presets or CIDR/source strings
-      app.set('trust proxy', trustProxyEnv);
-    }
-  } else if (publicConfig && publicConfig.url) {
-    // If PUBLIC_URL is set, assume we are behind a proxy
-    app.set('trust proxy', true);
+  const { getTrustProxySetting } = require('./config/trustProxy');
+  const tp = getTrustProxySetting();
+  if (tp.set) {
+    app.set('trust proxy', tp.value);
+  }
+  if (tp.message) {
+    console.log(tp.message);
   }
 } catch (e) {
   console.warn('Failed to configure trust proxy:', e?.message || e);
@@ -52,10 +32,8 @@ try {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  console.log(`Incoming request: ${req.method} ${req.url}`);
-  next();
-});
+// Keep request logging minimal; avoid noisy per-request logs in production
+// (If needed, plug a logger like morgan at the app level.)
 
 const bootstrap = async () => {
   try {
@@ -70,50 +48,109 @@ const bootstrap = async () => {
     console.warn(`Unable to prepare thumbnail directory at ${directories.thumbnails}:`, error.message);
   }
 
+  // Express OpenID Connect (provider-agnostic: Keycloak, Authentik, Authelia)
   try {
-    await initializeAuth();
-  } catch (error) {
-    console.error('Failed to initialize authentication services:', error);
+    const oidc = (envAuthConfig && envAuthConfig.oidc) || {};
+    const scopes = Array.isArray(oidc.scopes) && oidc.scopes.length ? oidc.scopes : ['openid', 'profile', 'email'];
+    const scopeParam = Array.from(new Set(['openid', ...scopes])).join(' ');
+
+    // Determine baseURL from callbackUrl or PUBLIC_URL
+    let baseURL = null;
+    try {
+      if (oidc.callbackUrl && /^https?:\/\//i.test(oidc.callbackUrl)) {
+        const u = new URL(oidc.callbackUrl);
+        baseURL = u.origin;
+      } else if (publicConfig?.url) {
+        const u = new URL(publicConfig.url);
+        baseURL = u.origin;
+      }
+    } catch (_) {
+      baseURL = null;
+    }
+
+    const sessionSecret = (envAuthConfig && envAuthConfig.sessionSecret)
+      || process.env.SESSION_SECRET
+      || null;
+
+    // Always enable Express session for local auth if a secret is provided
+    if (sessionSecret) {
+      app.use(session({
+        secret: sessionSecret,
+        resave: false,
+        saveUninitialized: false,
+        cookie: {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        },
+      }));
+    }
+
+    const eocEnabled = Boolean(oidc.enabled && oidc.issuer && oidc.clientId && sessionSecret && baseURL);
+
+    if (eocEnabled) {
+      app.use(eocAuth({
+        authRequired: false,
+        auth0Logout: false,
+        idpLogout: false,
+        issuerBaseURL: oidc.issuer,
+        baseURL,
+        clientID: oidc.clientId,
+        clientSecret: oidc.clientSecret || undefined,
+        secret: sessionSecret,
+        authorizationParams: {
+          response_type: 'code',
+          scope: scopeParam,
+        },
+        // Sync OIDC users into the database on login by decoding the ID token claims
+        afterCallback: async (req, res, session) => {
+          try {
+            let claims = {};
+            try {
+              const { decodeJwt } = await import('jose');
+              claims = session?.id_token ? decodeJwt(session.id_token) : {};
+            } catch (_) { claims = {}; }
+
+            const sub = claims && claims.sub ? claims.sub : null;
+            if (!sub) return session;
+
+            const email = claims.email || null;
+            const preferredUsername = claims.preferred_username || claims.username || email || sub;
+            const displayName = claims.name || preferredUsername || null;
+            const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
+
+            const persistIssuer = oidc.issuer;
+            await createOrUpdateOidcUser({
+              issuer: persistIssuer,
+              sub,
+              username: preferredUsername,
+              displayName,
+              email,
+              roles,
+            });
+          } catch (e) {
+            console.warn('afterCallback user sync failed:', e?.message || e);
+          }
+          return session;
+        },
+        // Align cookie behavior with typical SPA usage
+        session: {
+          rolling: true,
+          cookie: {
+            sameSite: 'Lax',
+            secure: process.env.NODE_ENV === 'production',
+            httpOnly: true,
+          },
+        },
+      }));
+
+      console.log('Express OpenID Connect is configured.');
+    } else {
+      console.log('Express OpenID Connect not configured (missing issuer/client/baseURL/secret or disabled).');
+    }
+  } catch (e) {
+    console.warn('Failed to configure Express OpenID Connect:', e?.message || e);
   }
-
-  try {
-    await initializePassport();
-  } catch (error) {
-    console.error('Failed to configure Passport strategies:', error);
-  }
-
-  let securityConfig = null;
-  try {
-    securityConfig = await resolveSecurityConfig();
-  } catch (error) {
-    console.warn('Unable to resolve security configuration from settings:', error.message);
-  }
-
-  const sessionSecret = (securityConfig && securityConfig.sessionSecret)
-    || process.env.SESSION_SECRET
-    || crypto.randomBytes(32).toString('hex');
-
-  if (!sessionSecret) {
-    console.warn('SESSION_SECRET could not be determined; falling back to an ephemeral secret. Sessions will reset on restart.');
-  } else if (!process.env.SESSION_SECRET && !(securityConfig && securityConfig.sessionSecret)) {
-    console.warn('SESSION_SECRET is not configured; using an ephemeral secret. Sessions will reset on restart.');
-  }
-
-  const cookieOptions = {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-  };
-
-  app.use(session({
-    secret: sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    cookie: cookieOptions,
-  }));
-
-  app.use(passportInstance.initialize());
-  app.use(passportInstance.session());
 
   app.use('/api/auth', authRoutes);
   app.use(authMiddleware);

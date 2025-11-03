@@ -3,6 +3,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import FileIcon from '@/icons/FileIcon.vue';
 import { formatBytes, formatDate } from '@/utils';
+import { getKindLabel } from '@/utils/fileKinds';
 import { useNavigation } from '@/composables/navigation';
 import { useSelection } from '@/composables/itemSelection';
 import { useFileStore } from '@/stores/fileStore';
@@ -123,6 +124,8 @@ const handleRenameBlur = async () => {
   await commitRename();
 };
 
+// Kind label logic moved to '@/utils/fileKinds'
+
 </script>
 
 <template>
@@ -208,7 +211,7 @@ const handleRenameBlur = async () => {
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent="handleContextMenu"
-    class="grid select-none items-center grid-cols-[30px_1fr_150px_200px] 
+    class="grid select-none items-center grid-cols-[30px_1fr_150px_200px_200px] 
     cursor-pointer auto-cols-fr p-1 px-4 rounded-md
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
     "
@@ -241,6 +244,9 @@ const handleRenameBlur = async () => {
         </div>
         <div class="text-sm">
             {{ item.kind==="directory"? "&mdash;" : formatBytes(item.size) }}
+        </div>
+        <div class="text-sm">
+            {{ getKindLabel(item) }}
         </div>
         <div class="text-sm">
             {{ formatDate(item.dateModified) }}

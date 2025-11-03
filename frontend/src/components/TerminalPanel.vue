@@ -18,7 +18,7 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 
-import { apiBase, appendAuthQuery } from '@/api';
+import { apiBase } from '@/api';
 
 // import { useSettingsStore } from '@/stores/settings';
 
@@ -50,7 +50,7 @@ const toWebSocketScheme = (url) => {
 const buildTerminalUrl = () => {
   const base = `${apiBase}/terminal`;
   const withScheme = toWebSocketScheme(base);
-  return appendAuthQuery(withScheme);
+  return withScheme;
 };
 
 const connectToBackend = () => {
@@ -117,4 +117,3 @@ useDraggable(dragline, {
 }
 
 </style>
-

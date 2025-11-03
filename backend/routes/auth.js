@@ -1,242 +1,161 @@
 const express = require('express');
+const { auth: envAuthConfig } = require('../config/index');
+const {
+  countLocalUsers,
+  createLocal,
+  attemptLocalLogin,
+  changeLocalPassword,
+  getRequestUser,
+} = require('../services/users');
+const rateLimit = require('express-rate-limit');
 
-const {
-  createInitialUser,
-  createSessionToken,
-  invalidateSessionToken,
-  isSessionTokenValid,
-  getUserIdForToken,
-  getStatus,
-  sanitizeUserForClient,
-} = require('../services/authService');
-const { extractToken } = require('../utils/auth');
-const {
-  passport: passportInstance,
-  resolveSecurityConfig,
-} = require('../services/passport');
-const { findById } = require('../services/userStore');
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const setupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const passwordLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const router = express.Router();
 
 const respondWithUser = async (req, res) => {
-  const token = extractToken(req);
-  let user = null;
-
-  if (req.user) {
-    user = req.user;
-  } else if (token && isSessionTokenValid(token)) {
-    const userId = getUserIdForToken(token);
-    if (userId) {
-      const storedUser = await findById(userId);
-      if (storedUser) {
-        user = sanitizeUserForClient(storedUser);
-      }
-    }
-  }
-
-  res.json({
-    user,
-  });
+  const user = await getRequestUser(req);
+  res.json({ user });
 };
 
 router.get('/status', async (req, res) => {
-  const token = extractToken(req);
-  const status = await getStatus();
-  const security = await resolveSecurityConfig();
-  const authenticatedViaSession = typeof req.isAuthenticated === 'function' && req.isAuthenticated();
-  const authenticatedViaToken = Boolean(token && isSessionTokenValid(token));
-
-  let user = null;
-  if (authenticatedViaSession && req.user) {
-    user = req.user;
-  } else if (authenticatedViaToken) {
-    const userId = getUserIdForToken(token);
-    if (userId) {
-      const storedUser = await findById(userId);
-      if (storedUser) {
-        user = sanitizeUserForClient(storedUser);
-      }
-    }
-  }
-
+  const oidcEnv = (envAuthConfig && envAuthConfig.oidc) || {};
+  const requiresSetup = (await countLocalUsers()) === 0;
+  const isEoc = Boolean(req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated());
+  const hasLocal = Boolean(req.session && req.session.localUserId);
+  const user = await getRequestUser(req);
   res.json({
-    ...status,
-    authEnabled: security.authEnabled !== false,
-    authMode: security.authMode,
-    authenticated: authenticatedViaSession || authenticatedViaToken,
-    user,
+    requiresSetup,
+    strategies: { local: true, oidc: Boolean(oidcEnv.enabled) },
+    authEnabled: true,
+    authMode: 'both',
+    authenticated: Boolean(isEoc || hasLocal),
+    user: user || null,
     oidc: {
-      enabled: security.oidc?.enabled || false,
-      issuer: security.oidc?.issuer || null,
-      scopes: security.oidc?.scopes || [],
+      enabled: Boolean(oidcEnv.enabled),
+      issuer: oidcEnv.issuer || null,
+      scopes: oidcEnv.scopes || [],
     },
   });
 });
 
-router.post('/setup', async (req, res, next) => {
+// Initial admin setup
+router.post('/setup', setupLimiter, async (req, res, next) => {
+  try {
+    if ((await countLocalUsers()) > 0) {
+      res.status(400).json({ error: 'Already configured.' });
+      return;
+    }
+    const { username, password } = req.body || {};
+    const user = await createLocal({ username, password, roles: ['admin'] });
+    if (req.session) req.session.localUserId = user.id;
+    res.status(201).json({ user });
+  } catch (e) {
+    next(e);
+  }
+});
+
+// Local login
+router.post('/login', loginLimiter, async (req, res, next) => {
   try {
     const { username, password } = req.body || {};
-    const user = await createInitialUser({ username, password });
-
-    req.login(user, (loginError) => {
-      if (loginError) {
-        next(loginError);
+    let user = null;
+    try {
+      user = await attemptLocalLogin({ username, password });
+    } catch (e) {
+      if (e?.status === 423) {
+        res.status(423).json({ error: e.message, until: e.until });
         return;
       }
-
-      const token = createSessionToken(user.id);
-      res.status(201).json({ user, token });
-    });
-  } catch (error) {
-    if (error?.code === 'ALREADY_CONFIGURED') {
-      res.status(400).json({ error: error.message });
-      return;
+      throw e;
     }
-    next(error);
-  }
-});
-
-router.post('/login', (req, res, next) => {
-  passportInstance.authenticate('local', (authError, user, info) => {
-    if (authError) {
-      next(authError);
-      return;
-    }
-
     if (!user) {
-      res.status(401).json({ error: info?.message || 'Invalid credentials.' });
+      res.status(401).json({ error: 'Invalid credentials.' });
       return;
     }
-
-    req.login(user, (loginError) => {
-      if (loginError) {
-        next(loginError);
-        return;
-      }
-
-      const token = createSessionToken(user.id);
-      res.json({
-        user,
-        token,
-      });
-    });
-  })(req, res, next);
+    if (req.session) req.session.localUserId = user.id;
+    res.json({ user });
+  } catch (e) {
+    next(e);
+  }
 });
 
-router.post('/logout', (req, res, next) => {
-  const token = extractToken(req);
-
-  if (token) {
-    invalidateSessionToken(token);
-  }
-
-  const finalize = () => {
+// Change password (local users only)
+router.post('/password', passwordLimiter, async (req, res, next) => {
+  try {
+    const me = await getRequestUser(req);
+    if (!me) {
+      res.status(401).json({ error: 'Authentication required.' });
+      return;
+    }
+    if (me.provider !== 'local') {
+      res.status(400).json({ error: 'Password change is only allowed for local users.' });
+      return;
+    }
+    const { currentPassword, newPassword } = req.body || {};
+    await changeLocalPassword({ userId: me.id, currentPassword, newPassword });
     res.status(204).end();
-  };
-
-  if (typeof req.logout === 'function') {
-    req.logout((logoutError) => {
-      if (logoutError) {
-        next(logoutError);
-        return;
-      }
-      if (req.session) {
-        req.session.destroy(() => finalize());
-      } else {
-        finalize();
-      }
-    });
-    return;
+  } catch (e) {
+    const status = typeof e?.status === 'number' ? e.status : 400;
+    res.status(status).json({ error: e?.message || 'Failed to change password.' });
   }
+});
 
-  finalize();
+router.post('/logout', (req, res) => {
+  // Clear local app session if present (local auth)
+  if (req.session) {
+    try { req.session.destroy(() => {}); } catch (_) { /* ignore */ }
+  }
+  // Clear the EOC appSession cookie (local OIDC session) without redirecting
+  try {
+    res.clearCookie('appSession', {
+      path: '/',
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+    });
+  } catch (_) { /* ignore */ }
+  // For IdP/federated logout, the UI navigates to GET /logout separately.
+  res.status(204).end();
 });
 
 router.get('/me', async (req, res) => {
   await respondWithUser(req, res);
 });
 
-router.post('/token', async (req, res) => {
-  let userId = null;
-
-  if (typeof req.isAuthenticated === 'function' && req.isAuthenticated() && req.user?.id) {
-    userId = req.user.id;
-  } else {
-    const token = extractToken(req);
-    if (token && isSessionTokenValid(token)) {
-      userId = getUserIdForToken(token);
-    }
-  }
-
-  if (!userId) {
-    res.status(401).json({ error: 'Authentication required.' });
-    return;
-  }
-
-  const token = createSessionToken(userId);
-  res.json({ token });
-});
-
-const getOidcStrategy = () => {
-  try {
-    return passportInstance._strategy('oidc');
-  } catch (error) {
-    return null;
-  }
-};
+router.post('/token', (req, res) => res.status(400).json({ error: 'Token minting is disabled.' }));
 
 router.get('/oidc/login', async (req, res, next) => {
-  const strategy = getOidcStrategy();
-  if (!strategy) {
-    res.status(404).json({ error: 'OIDC is not configured.' });
-    return;
-  }
-
-  const redirect = typeof req.query?.redirect === 'string' ? req.query.redirect : null;
-  if (redirect && req.session) {
-    req.session.returnTo = redirect;
-  }
-
-  passportInstance.authenticate('oidc')(req, res, next);
-});
-
-router.get('/oidc/callback', (req, res, next) => {
-  const strategy = getOidcStrategy();
-  if (!strategy) {
-    res.status(404).json({ error: 'OIDC is not configured.' });
-    return;
-  }
-
-  passportInstance.authenticate('oidc', (authError, user) => {
-    if (authError) {
-      next(authError);
+  try {
+    if (res.oidc && typeof res.oidc.login === 'function') {
+      const redirect = typeof req.query?.redirect === 'string' ? req.query.redirect : '/';
+      await res.oidc.login({ returnTo: redirect });
       return;
     }
-
-    if (!user) {
-      res.redirect('/auth/login?error=oidc_failed');
-      return;
-    }
-
-    req.login(user, (loginError) => {
-      if (loginError) {
-        next(loginError);
-        return;
-      }
-
-      let redirectTarget = '/';
-      if (req.session?.returnTo) {
-        redirectTarget = req.session.returnTo;
-        delete req.session.returnTo;
-      }
-      const isAbsolute = /^https?:\/\//i.test(redirectTarget);
-      if (isAbsolute) {
-        res.redirect(redirectTarget);
-        return;
-      }
-      res.redirect(redirectTarget || '/');
-    });
-  })(req, res, next);
+  } catch (e) {
+    // ignore
+  }
+  res.status(404).json({ error: 'OIDC is not configured.' });
 });
+
 
 module.exports = router;

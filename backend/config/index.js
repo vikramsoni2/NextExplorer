@@ -119,15 +119,13 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
+// Legacy support retained; minimal OIDC integration defaults to 'oidc'
 const supportedAuthModes = new Set(['local', 'oidc', 'both']);
-const normalizedAuthMode = (() => {
-  const raw = process.env.AUTH_MODE || process.env.NEXT_EXPLORER_AUTH_MODE || '';
-  const candidate = raw.trim().toLowerCase();
-  return supportedAuthModes.has(candidate) ? candidate : null;
-})();
+const normalizedAuthMode = 'oidc';
 
 
 const rawEnvScopes = process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null;
+const rawAdminGroups = process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null;
 
 const envOidcConfig = {
   enabled: normalizeBoolean(process.env.OIDC_ENABLED) ?? null,
@@ -140,8 +138,10 @@ const envOidcConfig = {
   // If not explicitly set, derive callback from PUBLIC_URL
   callbackUrl: process.env.OIDC_CALLBACK_URL
     || process.env.OIDC_REDIRECT_URI
-    || (publicUrl ? `${publicUrl}/api/auth/oidc/callback` : null),
+    || (publicUrl ? `${publicUrl}/callback` : null),
   scopes: parseScopes(rawEnvScopes) || null,
+  // Admin groups used to elevate user to app 'admin' role
+  adminGroups: parseScopes(rawAdminGroups) || null,
 };
 
 const envAuthConfig = {
