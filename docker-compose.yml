@@ -6,8 +6,9 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./data:/mnt/data
-      - ./cache:/cache
+      - /Users/vikram/projects:/mnt/Projects
+      - /Users/vikram/Downloads:/mnt/Downloads
+      - /Users/vikram/Downloads/cache:/cache
     environment:
       - NODE_ENV=development
       # Match these to your host user/group IDs (check with `id -u` / `id -g`)
