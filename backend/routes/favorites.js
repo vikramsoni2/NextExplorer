@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { getFavorites, addFavorite, removeFavorite } = require('../services/appConfigService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get('/favorites', async (req, res) => {
     const favorites = await getFavorites();
     res.json(favorites);
   } catch (error) {
-    console.error('Failed to load favorites:', error);
+    logger.error({ err: error }, 'Failed to load favorites');
     res.status(500).json({ error: 'Failed to load favorites.' });
   }
 });
@@ -23,7 +24,7 @@ router.post('/favorites', async (req, res) => {
     const status = typeof error?.status === 'number' ? error.status : 500;
     const message = error?.message || 'Failed to update favorites.';
     if (status >= 500) {
-      console.error('Failed to add favorite:', error);
+      logger.error({ err: error }, 'Failed to add favorite');
     }
     res.status(status).json({ error: message });
   }
@@ -38,7 +39,7 @@ router.delete('/favorites', async (req, res) => {
     const status = typeof error?.status === 'number' ? error.status : 500;
     const message = error?.message || 'Failed to update favorites.';
     if (status >= 500) {
-      console.error('Failed to remove favorite:', error);
+      logger.error({ err: error }, 'Failed to remove favorite');
     }
     res.status(status).json({ error: message });
   }

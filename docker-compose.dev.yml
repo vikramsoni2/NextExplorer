@@ -14,6 +14,7 @@ services:
     environment:
       - PORT=3001
       - VOLUME_ROOT=/mnt
+      - LOG_LEVEL=debug
       - CACHE_DIR=/cache
       - PUBLIC_URL=http://localhost:3000
       - SESSION_SECRET=dev-change-me

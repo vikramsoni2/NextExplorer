@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const { directories, files } = require('../config/index');
 const { ensureDir } = require('../utils/fsUtils');
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const logger = require('../utils/logger');
 
 const CONFIG_ENCODING = 'utf8';
 const DEFAULT_ITERATIONS = 210000;
@@ -311,7 +312,7 @@ const readConfig = async () => {
     if (error.code === 'ENOENT') {
       return sanitizeConfig();
     }
-    console.warn('Failed to read app config; defaulting to empty config.', error);
+    logger.warn({ err: error }, 'Failed to read app config; defaulting to empty config');
     return sanitizeConfig();
   }
 };

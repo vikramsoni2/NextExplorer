@@ -63,6 +63,7 @@ services:
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
+      - LOG_LEVEL=info  # set to debug for verbose logs
       # Optional: override the auto-generated session secret
       # - SESSION_SECRET=please-change-me
       # Optional: match the container user/group to your host IDs
@@ -116,6 +117,11 @@ docker compose up -d
 ```
 
 The container persists user settings in `/cache` and never touches the contents of your mounted volumes unless you explicitly upload, move, or delete items through the UI.
+
+## Logging & Debug Mode
+- The backend now uses a structured logger; by default it runs at `LOG_LEVEL=info`.
+- Set `LOG_LEVEL=debug` (or legacy `DEBUG=true`) in Docker Compose or your process manager to enable verbose diagnostics plus HTTP request logging. Use `docker logs nextexplorer` (or your log stack) to inspect output when users report issues.
+- Switch back to `LOG_LEVEL=info` once you have gathered enough data; verbose mode is intentionally noisy.
 
 ## Need Something Else?
 - For local development, see [`README-development.md`](./README-development.md).

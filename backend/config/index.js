@@ -1,20 +1,12 @@
 const path = require('path');
-
+const logger = require('../utils/logger');
+const { normalizeBoolean } = require('../utils/env');
+const loggingConfig = require('./logging');
 
 const parseScopes = (raw) =>
   typeof raw === 'string'
     ? raw.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
     : null;
-
-const normalizeBoolean = (value) => {
-  if (typeof value !== 'string') return null;
-  const normalized = value.trim().toLowerCase();
-  if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
-  if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
-  return null;
-};
-
-
 
 const port = Number(process.env.PORT) || 3000;
 const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
@@ -68,7 +60,10 @@ try {
     publicOrigin = origin;
   }
 } catch (err) {
-  console.warn(`Invalid PUBLIC_URL provided: ${rawPublicUrl} (${err.message})`);
+  logger.warn(
+    { publicUrl: rawPublicUrl, error: err.message },
+    'Invalid PUBLIC_URL provided'
+  );
 }
 
 const rawAllowedOrigins = process.env.CORS_ORIGIN || process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS || '';
@@ -179,4 +174,9 @@ module.exports = {
     quality: 70
   },
   auth: envAuthConfig,
+  logging: {
+    level: loggingConfig.level,
+    isDebug: loggingConfig.isDebug,
+    enableHttpLogging: loggingConfig.enableHttpLogging,
+  },
 };

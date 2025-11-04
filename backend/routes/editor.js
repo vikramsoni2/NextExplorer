@@ -4,6 +4,7 @@ const fs = require('fs/promises');
 
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.post('/editor', async (req, res) => {
     const data = await fs.readFile(absolutePath, { encoding: 'utf-8' });
     res.send({ content: data });
   } catch (error) {
-    console.error('Error reading the file:', error);
+    logger.error({ err: error }, 'Error reading the file');
     res.status(500).json({ error: 'Failed to read file.' });
   }
 });
@@ -43,7 +44,7 @@ router.put('/editor', async (req, res) => {
     await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
     res.send({ success: true });
   } catch (error) {
-    console.error('Error writing to the file:', error);
+    logger.error({ err: error }, 'Error writing to the file');
     res.status(500).json({ error: 'Failed to update file.' });
   }
 });

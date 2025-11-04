@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs/promises');
 
 const { directories, excludedFiles } = require('../config/index');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get('/volumes', async (req, res) => {
 
     res.json(volumeData);
   } catch (error) {
-    console.error('Failed to fetch volumes:', error);
+    logger.error({ err: error }, 'Failed to fetch volumes');
     res.status(500).json({ error: 'An error occurred while fetching the volumes.' });
   }
 });

@@ -29,6 +29,7 @@ npm start
   - `PORT` (default `3000`)
   - `VOLUME_ROOT` (default `/mnt`)
   - `CACHE_DIR` (default `/cache`, thumbnails in `${CACHE_DIR}/thumbnails`)
+  - `LOG_LEVEL` (default `info`; set to `debug` for verbose logs). Setting `DEBUG=true` implicitly selects `LOG_LEVEL=debug`.
   - OIDC (provider-agnostic) via Express OpenID Connect (EOC):
     - `PUBLIC_URL` – required for correct callback/base URL when using EOC
     - `OIDC_ENABLED` – `true` to enable OIDC

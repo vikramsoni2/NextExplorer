@@ -10,6 +10,7 @@ const {
   queueThumbnailGeneration,
 } = require('../services/thumbnailService');
 const { getSettings } = require('../services/appConfigService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 const { getPermissionForPath } = require('../services/accessControlService');
@@ -68,7 +69,7 @@ router.get('/browse/*', async (req, res) => {
             queueThumbnailGeneration(filePath);
           }
         } catch (error) {
-          console.log(`Failed to schedule thumbnail for ${filePath}: Continuing`, error);
+          logger.warn({ filePath, err: error }, 'Failed to schedule thumbnail');
         }
       }
 
@@ -78,7 +79,7 @@ router.get('/browse/*', async (req, res) => {
     const fileData = (await Promise.all(fileDataPromises)).filter(Boolean);
     res.json(fileData);
   } catch (error) {
-    console.error('Failed to read directory:', error);
+    logger.error({ err: error }, 'Failed to read directory');
     res.status(500).json({ error: 'An error occurred while reading the directory.' });
   }
 });

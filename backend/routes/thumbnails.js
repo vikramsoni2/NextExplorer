@@ -5,6 +5,7 @@ const path = require('path');
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
 const { extensions } = require('../config/index');
 const { getThumbnail } = require('../services/thumbnailService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 const { getSettings } = require('../services/appConfigService');
@@ -53,7 +54,7 @@ router.get('/thumbnails/*', async (req, res) => {
       return res.status(404).json({ error: 'File not found.' });
     }
 
-    console.error('Failed to resolve thumbnail', error);
+    logger.error({ err: error }, 'Failed to resolve thumbnail');
     res.status(500).json({ error: 'Failed to generate thumbnail.' });
   }
 });

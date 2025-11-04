@@ -15,6 +15,7 @@ const {
 const { pathExists } = require('../utils/fsUtils');
 const { extensions, mimeTypes } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -80,7 +81,7 @@ router.post('/files/folder', async (req, res) => {
     const item = await buildItemMetadata(folderAbsolute, parentRelative, finalName);
     res.status(201).json({ success: true, item });
   } catch (error) {
-    console.error('Create folder failed:', error);
+    logger.error({ err: error }, 'Create folder failed');
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -133,7 +134,7 @@ router.post('/files/rename', async (req, res) => {
     const item = await buildItemMetadata(targetAbsolute, parentRelative, validatedNewName);
     res.json({ success: true, item });
   } catch (error) {
-    console.error('Rename operation failed:', error);
+    logger.error({ err: error }, 'Rename operation failed');
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -155,7 +156,7 @@ router.post('/files/copy', async (req, res) => {
     const result = await transferItems(items, destination, 'copy');
     res.json({ success: true, ...result });
   } catch (error) {
-    console.error('Copy operation failed:', error);
+    logger.error({ err: error }, 'Copy operation failed');
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -172,7 +173,7 @@ router.post('/files/move', async (req, res) => {
     const result = await transferItems(items, destination, 'move');
     res.json({ success: true, ...result });
   } catch (error) {
-    console.error('Move operation failed:', error);
+    logger.error({ err: error }, 'Move operation failed');
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -187,7 +188,7 @@ router.delete('/files', async (req, res) => {
     const results = await deleteItems(items);
     res.json({ success: true, items: results });
   } catch (error) {
-    console.error('Delete operation failed:', error);
+    logger.error({ err: error }, 'Delete operation failed');
     res.status(400).json({ success: false, error: error.message });
   }
 });
@@ -293,7 +294,7 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
     })();
     res.download(absolutePath, filename, (err) => {
       if (err) {
-        console.error('Download failed:', err);
+        logger.error({ err }, 'Download failed');
         if (!res.headersSent) {
           res.status(500).send('Failed to download file.');
         }
@@ -329,7 +330,7 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
 
   const archive = archiver('zip', { zlib: { level: 9 } });
   archive.on('error', (archiveError) => {
-    console.error('Archive creation failed:', archiveError);
+    logger.error({ err: archiveError }, 'Archive creation failed');
     if (!res.headersSent) {
       res.status(500).json({ error: 'Failed to create archive.' });
     } else {
@@ -361,7 +362,7 @@ router.post('/download', async (req, res) => {
     const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
     await handleDownloadRequest(paths, res, basePath);
   } catch (error) {
-    console.error('Download request failed:', error);
+    logger.error({ err: error }, 'Download request failed');
     if (!res.headersSent) {
       res.status(400).json({ error: error.message });
     }
@@ -395,7 +396,7 @@ router.get('/preview', async (req, res) => {
     const streamFile = (options = undefined) => {
       const stream = options ? fss.createReadStream(absolutePath, options) : fss.createReadStream(absolutePath);
       stream.on('error', (streamError) => {
-        console.error('Preview stream failed:', streamError);
+        logger.error({ err: streamError }, 'Preview stream failed');
         if (!res.headersSent) {
           res.status(500).end();
         } else {
@@ -452,7 +453,7 @@ router.get('/preview', async (req, res) => {
     });
     streamFile();
   } catch (error) {
-    console.error('Preview request failed:', error);
+    logger.error({ err: error }, 'Preview request failed');
     if (!res.headersSent) {
       res.status(400).json({ error: error.message });
     } else {

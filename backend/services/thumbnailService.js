@@ -9,6 +9,7 @@ const fsPromises = fs.promises;
 const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions } = require('../config/index');
 const { getSettings } = require('./appConfigService');
+const logger = require('../utils/logger');
 
 const getThumbOptions = async () => {
   const settings = await getSettings();
@@ -58,14 +59,14 @@ const configureFfmpegBinaries = () => {
   if (ffmpegPath) {
     ffmpeg.setFfmpegPath(ffmpegPath);
   } else {
-    console.warn('FFmpeg binary not found. Video thumbnails will be skipped.');
+    logger.warn('FFmpeg binary not found. Video thumbnails will be skipped.');
   }
 
   const ffprobePath = resolveExecutable(EXECUTABLE_CANDIDATES.ffprobe);
   if (ffprobePath) {
     ffmpeg.setFfprobePath(ffprobePath);
   } else {
-    console.warn('ffprobe binary not found. Video thumbnails will be skipped.');
+    logger.warn('ffprobe binary not found. Video thumbnails will be skipped.');
   }
 
   canProcessVideoThumbnails = Boolean(ffmpegPath && ffprobePath);
@@ -125,7 +126,7 @@ const probeDuration = (filePath) =>
 
 const makeVideoThumb = async (srcPath, destPath) => {
   if (!canProcessVideoThumbnails) {
-    console.warn(`Skipping video thumbnail (no ffmpeg/ffprobe): ${srcPath}`);
+    logger.warn({ srcPath }, 'Skipping video thumbnail (no ffmpeg/ffprobe)');
     return;
   }
 
@@ -256,7 +257,7 @@ const queueThumbnailGeneration = (filePath) => {
   }
 
   getThumbnail(filePath).catch((error) => {
-    console.warn(`Queued thumbnail generation failed for ${filePath}: ${error.message}`);
+    logger.warn({ filePath, err: error }, 'Queued thumbnail generation failed');
   });
 };
 

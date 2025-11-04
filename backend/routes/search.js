@@ -7,6 +7,7 @@ const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils
 const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -223,7 +224,7 @@ router.get('/search', async (req, res) => {
 
     res.json({ items });
   } catch (error) {
-    console.error('Search failed:', error);
+    logger.error({ err: error }, 'Search failed');
     res.status(500).json({ error: 'Search failed.' });
   }
 });

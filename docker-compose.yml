@@ -5,6 +5,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+    environment:
+      - LOG_LEVEL=debug
+      # Uncomment to enable verbose diagnostics
+      # - LOG_LEVEL=debug
     volumes:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads

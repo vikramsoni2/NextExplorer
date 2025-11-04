@@ -5,6 +5,7 @@ const fs = require('fs/promises');
 const { createUploadMiddleware } = require('../services/uploadService');
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const { directories } = require('../config/index');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 const upload = createUploadMiddleware();
@@ -15,21 +16,7 @@ router.post('/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asyn
       return res.status(400).json({ error: 'No files were provided.' });
     }
 
-    console.log(req.files)
-    /*
-    prints like
-    [
-      {
-        fieldname: 'filedata',
-        originalname: 'OnyX.dmg',
-        encoding: '7bit',
-        mimetype: 'application/x-diskcopy',
-        path: '/mnt/Projects/OnyX.dmg',
-        size: 7062382
-      }
-    ]
-    */
-
+    logger.debug({ files: req.files }, 'Upload request received');
 
     const fileData = [];
 
@@ -51,7 +38,7 @@ router.post('/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asyn
 
     res.json(fileData);
   } catch (error) {
-    console.error('Upload failed:', error);
+    logger.error({ err: error }, 'Upload failed');
     res.status(500).send('Server error');
   }
 });

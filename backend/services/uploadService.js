@@ -7,6 +7,7 @@ const { ensureDir, pathExists } = require('../utils/fsUtils');
 const { normalizeRelativePath, resolveVolumePath, findAvailableName } = require('../utils/pathUtils');
 const { readMetaField } = require('../utils/requestUtils');
 const { getPermissionForPath } = require('./accessControlService');
+const logger = require('../utils/logger');
 
 const resolveUploadPaths = (req, file) => {
   const relativePathMeta = readMetaField(req, 'relativePath');
@@ -64,7 +65,10 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
             await fs.rm(temporaryPath, { force: true });
           }
         } catch (cleanupErr) {
-          console.error('Failed to remove temporary upload file:', cleanupErr);
+          logger.error(
+            { temporaryPath, err: cleanupErr },
+            'Failed to remove temporary upload file'
+          );
         }
       };
 

@@ -1,6 +1,7 @@
 const express = require('express');
 
 const { getSettings, setSettings } = require('../services/appConfigService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ router.get('/settings', async (req, res) => {
     const settings = await getSettings();
     res.json(settings);
   } catch (error) {
-    console.error('Failed to load settings:', error);
+    logger.error({ err: error }, 'Failed to load settings');
     res.status(500).json({ error: 'Failed to load settings.' });
   }
 });
@@ -63,7 +64,7 @@ router.patch('/settings', async (req, res) => {
     const updated = await setSettings(nextPartial);
     res.json(updated);
   } catch (error) {
-    console.error('Failed to update settings:', error);
+    logger.error({ err: error }, 'Failed to update settings');
     res.status(400).json({ error: 'Failed to update settings.' });
   }
 });
