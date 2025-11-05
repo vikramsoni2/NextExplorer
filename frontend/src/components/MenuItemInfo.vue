@@ -3,20 +3,22 @@ import { computed, onMounted, ref } from 'vue';
 import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon, PencilSquareIcon, StarIcon as StarIconOutline } from '@heroicons/vue/24/outline';
 import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid';
 import { useFileStore } from '@/stores/fileStore';
+import { useFileActions } from '@/composables/fileActions';
 import { useFavoritesStore } from '@/stores/favorites';
 import { normalizePath, downloadItems } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { Rename20Regular } from '@vicons/fluent';
 
 const fileStore = useFileStore();
+const actions = useFileActions();
 const favoritesStore = useFavoritesStore();
 
-const selectedItems = computed(() => fileStore.selectedItems);
-const selectedItem = computed(() => selectedItems.value[0] ?? null);
-const hasSelection = computed(() => selectedItems.value.length > 0);
-const isSingleItemSelected = computed(() => selectedItems.value.length === 1);
-const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'directory');
-const canRename = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind !== 'volume');
+const selectedItems = actions.selectedItems;
+const selectedItem = actions.primaryItem;
+const hasSelection = actions.hasSelection;
+const isSingleItemSelected = actions.isSingleItemSelected;
+const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItem.value?.kind !== 'directory');
+const canRename = actions.canRename;
 const isSingleDirectorySelected = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind === 'directory');
 const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
 const isPreparingDownload = ref(false);
@@ -128,7 +130,7 @@ const confirmDelete = async () => {
 
   isDeleting.value = true;
   try {
-    await fileStore.del();
+    await actions.deleteNow();
     isDeleteConfirmOpen.value = false;
   } catch (error) {
     console.error('Delete operation failed', error);

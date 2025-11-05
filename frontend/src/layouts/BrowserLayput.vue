@@ -26,6 +26,7 @@ import { useFileUploader } from '@/composables/fileUploader';
 import { useUppyStore } from '@/stores/uppyStore';
 import { useFileStore } from '@/stores/fileStore';
 import DropTarget from '@uppy/drop-target';
+import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
 
 
 const route = useRoute()
@@ -101,6 +102,8 @@ onBeforeUnmount(() => {
   }
 });
 
+// Global clipboard keyboard shortcuts for the browser layout
+useClipboardShortcuts();
 
 
 
