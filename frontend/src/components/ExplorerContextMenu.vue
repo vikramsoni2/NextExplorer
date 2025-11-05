@@ -13,6 +13,7 @@ import { explorerContextMenuSymbol } from '@/composables/contextMenu';
 import { useFileStore } from '@/stores/fileStore';
 import { useSelection } from '@/composables/itemSelection';
 import { usePreviewManager } from '@/plugins/preview/manager';
+import { useInfoPanelStore } from '@/stores/infoPanel';
 import { normalizePath } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
 // Icons
@@ -29,6 +30,7 @@ import {
 
 const fileStore = useFileStore();
 const previewManager = usePreviewManager();
+const infoPanel = useInfoPanelStore();
 const { clearSelection } = useSelection();
 
 const isOpen = ref(false);
@@ -206,7 +208,8 @@ const confirmDelete = async () => {
 
 const runGetInfo = () => {
   if (!primaryItem.value) return;
-  previewManager.open(primaryItem.value);
+  // Open right-side info panel with selected item
+  infoPanel.open(primaryItem.value);
 };
 
 // Build grouped, themed menu sections with icons + shortcuts

@@ -8,6 +8,7 @@ const favoritesRoutes = require('./favorites');
 const settingsRoutes = require('./settings');
 const searchRoutes = require('./search');
 const usersRoutes = require('./users');
+const metadataRoutes = require('./metadata');
 
 const registerRoutes = (app) => {
   app.use('/api', uploadRoutes);
@@ -20,6 +21,7 @@ const registerRoutes = (app) => {
   app.use('/api', thumbnailRoutes);
   app.use('/api', searchRoutes);
   app.use('/api', usersRoutes);
+  app.use('/api', metadataRoutes);
 };
 
 module.exports = registerRoutes;

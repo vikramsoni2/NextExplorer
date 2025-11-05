@@ -21,6 +21,7 @@ import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 // import TerminalPanel from '@/components/TerminalPanel.vue';
 import { useSettingsStore } from '@/stores/settings';
 import PhotoSizeControl from '@/components/PhotoSizeControl.vue';
+import InfoPanel from '@/components/InfoPanel.vue';
 
 
 const route = useRoute()
@@ -151,6 +152,7 @@ useTitle(currentPathName)
   <label for="sidebar-toggle" class="fixed inset-0 bg-black/20 z-30 hidden lg:hidden peer-checked:block"></label>
   <UploadProgress/>
   <PreviewHost/>
+  <InfoPanel/>
   </div>
 
 </template>

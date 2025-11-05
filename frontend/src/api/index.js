@@ -167,6 +167,15 @@ async function fetchThumbnail(relativePath) {
   return requestJson(`/api/thumbnails/${encodedPath}`, { method: 'GET' });
 }
 
+async function fetchMetadata(relativePath) {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    throw new Error('A file path is required to fetch metadata.');
+  }
+  const encodedPath = encodePath(normalizedPath);
+  return requestJson(`/api/metadata/${encodedPath}`, { method: 'GET' });
+}
+
 const downloadItems = async (paths, basePath = '') => {
   const normalizedList = (Array.isArray(paths) ? paths : [paths])
     .map((item) => normalizePath(item))
@@ -257,6 +266,7 @@ export {
   fetchFileContent,
   saveFileContent,
   fetchThumbnail,
+  fetchMetadata,
   fetchFavorites,
   addFavorite,
   removeFavorite,
