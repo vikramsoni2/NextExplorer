@@ -266,6 +266,7 @@ const getRequestUser = async (req) => {
       const preferredUsername = claims.preferred_username || claims.username || email || claims.sub;
       const displayName = claims.name || preferredUsername || null;
       const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
+
       return {
         id: `oidc:${claims.sub}`,
         provider: 'oidc',

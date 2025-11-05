@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const { auth: eocAuth } = require('express-openid-connect');
 const session = require('express-session');
 const pinoHttp = require('pino-http');
+const MemoryStore = require('memorystore')(eocAuth)
 
 const {
   port,
@@ -154,6 +155,7 @@ const bootstrap = async () => {
     logger.debug({ eocCookieSecure }, 'OIDC session cookie security');
 
     if (eocEnabled) {
+
       app.use(eocAuth({
         authRequired: false,
         auth0Logout: false,
@@ -167,6 +169,19 @@ const bootstrap = async () => {
           response_type: 'code',
           scope: scopeParam,
         },
+        // Align cookie behavior with typical SPA usage
+        session: {
+          store: new MemoryStore({
+            checkPeriod: 24 * 60 * 1000,
+          }),
+          rolling: true,
+          cookie: {
+            sameSite: 'Lax',
+            secure: eocCookieSecure,
+            httpOnly: true,
+          },
+        },
+        
         // Sync OIDC users into the database on login using the UserInfo endpoint
         // See auth0/express-openid-connect#197: req.oidc.fetchUserInfo() is not
         // available here because the session is not hydrated yet. 
@@ -242,18 +257,9 @@ const bootstrap = async () => {
           } catch (e) {
             logger.warn({ err: e }, 'afterCallback user sync failed');
           }
-          logger.debug('afterCallback: complete');
-          return session;
-        },
-        // Align cookie behavior with typical SPA usage
-        session: {
-          rolling: true,
-          cookie: {
-            sameSite: 'Lax',
-            secure: eocCookieSecure,
-            httpOnly: true,
+            logger.debug('afterCallback: complete');
+            return session;
           },
-        },
       }));
 
       logger.info('Express OpenID Connect is configured');

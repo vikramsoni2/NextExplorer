@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 // import { useDropZone } from '@vueuse/core'
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import FavMenu from '@/components/FavMenu.vue';
@@ -22,6 +22,10 @@ import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 import { useSettingsStore } from '@/stores/settings';
 import PhotoSizeControl from '@/components/PhotoSizeControl.vue';
 import InfoPanel from '@/components/InfoPanel.vue';
+import { useFileUploader } from '@/composables/fileUploader';
+import { useUppyStore } from '@/stores/uppyStore';
+import { useFileStore } from '@/stores/fileStore';
+import DropTarget from '@uppy/drop-target';
 
 
 const route = useRoute()
@@ -71,6 +75,33 @@ const currentPathName = computed(() => {
 useTitle(currentPathName)
 
 
+// Ensure Uppy is initialized app-wide and bound to current path
+useFileUploader();
+const uppyStore = useUppyStore();
+const fileStore = useFileStore();
+const dropTargetRef = ref(null);
+
+onMounted(() => {
+  const el = dropTargetRef.value;
+  const uppy = uppyStore.uppy;
+  if (el && uppy) {
+    try {
+      uppy.use(DropTarget, { target: el });
+    } catch (_) {
+      // ignore if plugin already mounted or target missing
+    }
+  }
+});
+
+onBeforeUnmount(() => {
+  const uppy = uppyStore.uppy;
+  if (uppy) {
+    const plugin = uppy.getPlugin && uppy.getPlugin('DropTarget');
+    if (plugin) uppy.removePlugin(plugin);
+  }
+});
+
+
 
 
 </script>
@@ -104,8 +135,10 @@ useTitle(currentPathName)
       <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-neutral-200 dark:bg-neutral-700 group-hover:bg-neutral-500"></div>
     </div>
 
-    <main class="flex flex-col grow
-    dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg">
+    <main
+      ref="dropTargetRef"
+      class="upload-drop-target flex flex-col grow relative dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg"
+    >
       
 
        <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
@@ -140,6 +173,8 @@ useTitle(currentPathName)
           </router-view>
         </div>
       </ExplorerContextMenu>
+
+      <!-- Drop target gets visual state via CSS class from @uppy/drop-target -->
       
       
       <!-- <hr class="h-px border-0 bg-nextgray-400 dark:bg-neutral-700 mb-4" /> -->
@@ -156,3 +191,11 @@ useTitle(currentPathName)
   </div>
 
 </template>
+
+<style scoped>
+/* Minimal visual hint when dragging over the main area */
+.upload-drop-target.uppy-is-drag-over {
+  outline: 2px dashed rgba(59, 130, 246, 0.6); /* tailwind blue-500 */
+  outline-offset: -2px;
+}
+</style>

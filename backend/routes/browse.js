@@ -38,7 +38,17 @@ router.get('/browse/*', async (req, res) => {
 
     const fileDataPromises = filteredFiles.map(async (file) => {
       const filePath = path.join(directoryPath, file);
-      const stats = await fs.stat(filePath);
+      let stats;
+      try {
+        stats = await fs.stat(filePath);
+      } catch (err) {
+        // Gracefully skip entries we cannot stat due to permissions or races
+        if (['EPERM', 'EACCES', 'ENOENT'].includes(err?.code)) {
+          logger.warn({ filePath, err }, 'Skipping unreadable entry');
+          return null;
+        }
+        throw err;
+      }
 
       let extension = stats.isDirectory() ? 'directory' : path.extname(file).slice(1).toLowerCase();
       if (extension.length > 10) {

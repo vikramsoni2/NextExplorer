@@ -1,48 +1,60 @@
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount } from "vue";
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
 import {useFileStore} from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
 import { useAuthStore } from '@/stores/auth';
+import { isDisallowedUpload } from '@/utils/uploads';
 
 export function useFileUploader() {
 
-  const disallowedFiles = ['.DS_Store', 'thumbs.db'];
+  // Filtering is centralized in utils/uploads
   const uppyStore = useUppyStore();
   const fileStore = useFileStore();
   const authStore = useAuthStore();
   const inputRef = ref(null);
   const files = ref([]);
 
-  const uppy = new Uppy({
-    debug: true,
-    autoProceed: true,
-    store: uppyStore,
-  });
-
-
-  uppy.use(XHRUpload, {
-    endpoint: `${apiBase}/api/upload`,
-    formData: true,
-    fieldName: 'filedata',
-    bundle: false,
-    allowedMetaFields: null,
-    withCredentials: true,
-  });
-
-  // Cookies carry auth; no token headers
-
-  uppy.on('file-added', (file) => {
-    uppy.setFileMeta(file.id, {
-      uploadTo: normalizePath(fileStore.currentPath || ''),
+  // Ensure a single Uppy instance app-wide
+  let uppy = uppyStore.uppy;
+  const createdHere = ref(false);
+  if (!uppy) {
+    uppy = new Uppy({
+      debug: true,
+      autoProceed: true,
+      store: uppyStore,
     });
-  });
 
-  uppy.on('upload-success', () => {
-    console.log("upload-success")
-    fileStore.fetchPathItems(fileStore.currentPath)
-  });
+    uppy.use(XHRUpload, {
+      endpoint: `${apiBase}/api/upload`,
+      formData: true,
+      fieldName: 'filedata',
+      bundle: false,
+      allowedMetaFields: null,
+      withCredentials: true,
+    });
+
+    // Cookies carry auth; no token headers
+
+    uppy.on('file-added', (file) => {
+      if (isDisallowedUpload(file?.name)) {
+        uppy.removeFile?.(file.id);
+        return;
+      }
+      uppy.setFileMeta(file.id, {
+        uploadTo: normalizePath(fileStore.currentPath || ''),
+      });
+    });
+
+    uppy.on('upload-success', () => {
+      fileStore.fetchPathItems(fileStore.currentPath)
+        .catch(() => {});
+    });
+
+    uppyStore.uppy = uppy;
+    createdHere.value = true;
+  }
 
 
   function uppyFile(file) {
@@ -83,7 +95,7 @@ export function useFileUploader() {
 
       inputRef.value.onchange = (e) => {
         const selectedFiles = Array.from(e.target.files || []).filter(
-          (file) => !disallowedFiles.includes(file.name)
+          (file) => !isDisallowedUpload(file.name)
         );
 
         files.value = selectedFiles.map((file) => uppyFile(file));
@@ -139,10 +151,14 @@ export function useFileUploader() {
 
   onBeforeUnmount(() => {
     inputRef.value?.remove();
-    uppy.close();
+    // Only close the singleton if we created it here
+    if (createdHere.value) {
+      uppy.close?.();
+      if (uppyStore.uppy === uppy) {
+        uppyStore.uppy = null;
+      }
+    }
   });
-
-  uppyStore.uppy = uppy;
 
   return {
     files,
