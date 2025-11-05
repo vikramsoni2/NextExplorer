@@ -5,10 +5,17 @@ const loggingConfig = require('./logging');
 const crypto = require('crypto');
 
 
-const parseScopes = (raw) =>
-  typeof raw === 'string'
-    ? raw.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
-    : null;
+const parseScopes = (raw) => {
+  if (typeof raw !== 'string') return null;
+
+  const source = raw.trim();
+  const parts = source.includes(',')
+    ? source.split(',')
+    : source.split(/\s+/);
+
+  return parts.map(s => s.trim()).filter(Boolean);
+};
+
 
 const port = Number(process.env.PORT) || 3000;
 const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
