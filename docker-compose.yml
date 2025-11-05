@@ -5,12 +5,26 @@ services:
       dockerfile: Dockerfile
     ports:
       - 3000:3000
-    environment:
-      - LOG_LEVEL=debug
-      # Uncomment to enable verbose diagnostics
-      # - LOG_LEVEL=debug
     volumes:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads
-      - /Users/vikram/Downloads/cache:/cache     
+      - /Users/vikram/Downloads/cache:/cache
+    environment:
+      - LOG_LEVEL=debug
+      - DEBUG=openid-client*
+      # Uncomment to enable verbose diagnostics
+      # - LOG_LEVEL=debug
+      # Match these to your host user/group IDs (check with `id -u` / `id -g`)
+      - PUID=1000
+      - PGID=1000 
+      # Centralized public URL (frontend + backend behind proxy)
+      - PUBLIC_URL=https://files.vsoni.com
+      # OIDC configuration (fill with your identity provider details)
+      - OIDC_ENABLED=true
+      - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/
+      - OIDC_CLIENT_ID=6HBh3lMneUwWCAeutdEgwNZ6myXzFc93clojdfmQ
+      - OIDC_CLIENT_SECRET=w2ACQfUhhk2vZ14m2GVvYbWqkCQTiXyMsowpLQE2JtiPfaCTrBKhZHwZACgHOCWgSs9zhJW0j8y1TYCrLs0hsMmM0xdIz5tRmce6o4ymVOCQByPRIr9xMxtBt1Spg0I1
+      - OIDC_SCOPES=openid profile email groups
+      - OIDC_ADMIN_GROUPS=next-admin admins
+     
     restart: unless-stopped

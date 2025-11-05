@@ -28,6 +28,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port,
     strictPort: true,
+    allowedHosts: ['files.vsoni.com'],
     proxy: {
       '/api': { target: backendOrigin, changeOrigin: true, ws: true, secure: false },
       '/static/thumbnails': { target: backendOrigin, changeOrigin: true, secure: false },
