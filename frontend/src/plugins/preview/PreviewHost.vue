@@ -14,8 +14,8 @@
         class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/70"
         @click.self="handleClose"
       >
-        <div class="flex h-screen w-screen flex-col overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-zinc-900">
-          <header class="flex items-center gap-4 border-b border-neutral-200 px-6 py-4 dark:border-neutral-700">
+        <div class="relative flex h-screen w-screen flex-col overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-zinc-900">
+          <header v-if="!isMinimal" class="flex items-center gap-4 border-b border-neutral-200 px-6 py-4 dark:border-neutral-700">
             <div class="min-w-0">
               <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ plugin?.label || 'Preview' }}</p>
               <h2 class="truncate text-lg font-semibold text-neutral-900 dark:text-white">{{ context.item?.name || '—' }}</h2>
@@ -45,6 +45,15 @@
           </header>
 
           <main class="flex-1 overflow-hidden bg-neutral-50 dark:bg-zinc-950/40">
+            <!-- Minimal floating close button -->
+            <button
+              v-if="isMinimal"
+              type="button"
+              class="absolute right-12 top-0 z-[2100] rounded-md bg-black/50 p-1 text-white shadow transition hover:bg-black/70"
+              @click="handleClose"
+            >
+              <XMarkIcon class="h-5 w-5" />
+            </button>
             <component
               :is="resolvedComponent"
               v-if="resolvedComponent"
@@ -75,8 +84,10 @@ const isOpen = computed(() => manager.isOpen);
 const context = computed(() => manager.currentContext);
 const plugin = computed(() => manager.currentPlugin);
 const isStandalone = computed(() => Boolean(plugin.value?.standalone));
+const isMinimal = computed(() => Boolean(plugin.value?.minimalHeader));
 const availableActions = computed(() => {
   if (!plugin.value || !context.value || isStandalone.value) return [];
+  if (isMinimal.value) return [];
   const actions = plugin.value.actions?.(context.value);
   return Array.isArray(actions) ? actions : [];
 });

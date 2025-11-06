@@ -203,6 +203,11 @@ const menuSections = computed(() => {
   if (contextKind.value === 'background') {
     return [
       [
+        mk('get-info', 'Get Info', InfoRound, runGetInfo, {
+          disabled: !primaryItem.value,
+        }),
+      ],
+      [
         mk('new-folder', 'New Folder', CreateNewFolderRound, runCreateFolder),
         mk('new-file', 'New File', InsertDriveFileRound, runCreateFile),
       ],
@@ -210,11 +215,6 @@ const menuSections = computed(() => {
         mk('paste', 'Paste', ContentPasteRound, runPasteIntoCurrent, {
           disabled: !actions.canPaste.value,
           shortcut: `${modKeyLabel}V`,
-        }),
-      ],
-      [
-        mk('get-info', 'Get Info', InfoRound, runGetInfo, {
-          disabled: !primaryItem.value,
         }),
       ],
     ];

@@ -353,3 +353,26 @@ export {
   deleteUser,
   changePassword,
 };
+
+// ONLYOFFICE
+async function fetchOnlyOfficeConfig(path, mode = 'edit') {
+  const normalizedPath = normalizePath(path || '');
+  if (!normalizedPath) throw new Error('Path is required.');
+  return requestJson('/api/onlyoffice/config', {
+    method: 'POST',
+    body: JSON.stringify({ path: normalizedPath, mode }),
+  });
+}
+
+export {
+  fetchOnlyOfficeConfig,
+};
+
+// Features
+async function fetchFeatures() {
+  return requestJson('/api/features', { method: 'GET' });
+}
+
+export {
+  fetchFeatures,
+};

@@ -188,4 +188,14 @@ module.exports = {
     isDebug: loggingConfig.isDebug,
     enableHttpLogging: loggingConfig.enableHttpLogging,
   },
+  onlyoffice: {
+    // Public URL to ONLYOFFICE Document Server, e.g. https://office.example.com
+    serverUrl: typeof process.env.ONLYOFFICE_URL === 'string' && process.env.ONLYOFFICE_URL.trim()
+      ? process.env.ONLYOFFICE_URL.trim().replace(/\/$/, '')
+      : null,
+    // Secret used to sign short-lived tokens for file fetch + callback endpoints
+    secret: process.env.ONLYOFFICE_SECRET || process.env.AUTH_SESSION_SECRET || envAuthConfig.sessionSecret,
+    // Optional: force save mode (uses status 6)
+    forceSave: normalizeBoolean(process.env.ONLYOFFICE_FORCE_SAVE) ?? false,
+  },
 };
