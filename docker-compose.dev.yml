@@ -26,8 +26,8 @@ services:
       - OIDC_SCOPES=openid,profile,email,groups
       - OIDC_ADMIN_GROUPS=next-admin,admins
 
-      - ONLYOFFICE_URL=https://office.vsoni.com
-      - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
+      # - ONLYOFFICE_URL=https://office.vsoni.com
+      # - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
       # - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
       # - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
       # - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/

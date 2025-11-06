@@ -367,3 +367,12 @@ async function fetchOnlyOfficeConfig(path, mode = 'edit') {
 export {
   fetchOnlyOfficeConfig,
 };
+
+// Features
+async function fetchFeatures() {
+  return requestJson('/api/features', { method: 'GET' });
+}
+
+export {
+  fetchFeatures,
+};

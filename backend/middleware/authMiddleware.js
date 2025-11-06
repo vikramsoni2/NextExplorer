@@ -26,8 +26,16 @@ const authMiddleware = async (req, res, next) => {
   }
 
   // Allow ONLYOFFICE server callbacks and file fetches (token-guarded in route)
-  const isOnlyofficeGuest = requestPath.startsWith('/api/onlyoffice/file')
-    || requestPath.startsWith('/api/onlyoffice/callback');
+  // Only when ONLYOFFICE integration is enabled
+  let isOnlyofficeGuest = false;
+  try {
+    const { onlyoffice } = require('../config/index');
+    if (onlyoffice && onlyoffice.serverUrl) {
+      isOnlyofficeGuest = requestPath.startsWith('/api/onlyoffice/file')
+        || requestPath.startsWith('/api/onlyoffice/callback');
+    }
+  } catch (_) { /* ignore */ }
+  
   if (isOnlyofficeGuest) {
     next();
     return;
