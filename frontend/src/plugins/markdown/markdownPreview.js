@@ -15,7 +15,6 @@ export const markdownPreviewPlugin = () => ({
       {
         id: 'edit',
         label: 'Open in Editor',
-        variant: 'primary',
         run: () => {
           if (path) {
             ctx.api.openEditor(path);
