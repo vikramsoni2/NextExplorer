@@ -25,6 +25,13 @@ const authMiddleware = async (req, res, next) => {
     return;
   }
 
+  // Allow public feature flags endpoint (contains no sensitive data) 
+  // its needed for plugin registrations
+  if (requestPath === '/api/features' || requestPath.startsWith('/api/features')) {
+    next();
+    return;
+  }
+
   // Allow ONLYOFFICE server callbacks and file fetches (token-guarded in route)
   // Only when ONLYOFFICE integration is enabled
   let isOnlyofficeGuest = false;
