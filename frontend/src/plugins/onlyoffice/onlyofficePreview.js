@@ -1,10 +1,10 @@
-const SUPPORTED = new Set([
-  'docx', 'doc', 'odt', 'rtf',
+const DEFAULT_EXTS = [
+  'docx', 'doc', 'odt', 'rtf', 'txt',
   'xlsx', 'xls', 'ods', 'csv',
   'pptx', 'ppt', 'odp',
-]);
+];
 
-export const onlyofficePreviewPlugin = () => ({
+export const onlyofficePreviewPlugin = (extensions) => ({
   id: 'onlyoffice-editor',
   label: 'ONLYOFFICE',
   priority: 50,
@@ -12,7 +12,8 @@ export const onlyofficePreviewPlugin = () => ({
   minimalHeader: true,
   match: (ctx) => {
     const ext = String(ctx.extension || '').toLowerCase();
-    return SUPPORTED.has(ext);
+    const list = Array.isArray(extensions) && extensions.length > 0 ? extensions : DEFAULT_EXTS;
+    return list.includes(ext);
   },
   component: () => import('./OnlyOfficePreview.vue'),
   actions: (ctx) => [

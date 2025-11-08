@@ -197,5 +197,11 @@ module.exports = {
     secret: process.env.ONLYOFFICE_SECRET || process.env.AUTH_SESSION_SECRET || envAuthConfig.sessionSecret,
     // Optional: force save mode (uses status 6)
     forceSave: normalizeBoolean(process.env.ONLYOFFICE_FORCE_SAVE) ?? false,
+    // Optional: comma-separated list of extensions to enable OnlyOffice preview for
+    // e.g. "doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf"
+    extensions: (process.env.ONLYOFFICE_FILE_EXTENSIONS || '')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
   },
 };

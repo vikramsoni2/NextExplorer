@@ -9,6 +9,7 @@ router.get('/features', async (_req, res) => {
     const payload = {
       onlyoffice: {
         enabled: Boolean(onlyoffice && onlyoffice.serverUrl),
+        extensions: Array.isArray(onlyoffice?.extensions) ? onlyoffice.extensions : [],
       },
     };
     res.json(payload);
@@ -18,4 +19,3 @@ router.get('/features', async (_req, res) => {
 });
 
 module.exports = router;
-

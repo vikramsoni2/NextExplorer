@@ -26,19 +26,18 @@ services:
       - OIDC_SCOPES=openid,profile,email,groups
       - OIDC_ADMIN_GROUPS=next-admin,admins
 
-      # - ONLYOFFICE_URL=https://office.vsoni.com
-      # - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
+      - ONLYOFFICE_URL=https://office.vsoni.com
+      - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
+      
       # - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
       # - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
       # - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/
-     
-
       # - OIDC_ISSUER=http://192.168.1.2:8087/realms/next
       # - OIDC_CLIENT_ID=next-app
       # - OIDC_CLIENT_SECRET=PpIuYcL8NIshpjDWl3w2H6bwDIhyTjJ4
       # - OIDC_SCOPES=openid profile email
       # - OIDC_ADMIN_GROUPS=next-admin admins
-      # - DEBUG_OIDC=1
+      
   frontend:
     build:
       context: ./frontend

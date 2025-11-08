@@ -26,7 +26,10 @@ export const installPreviewPlugins = (pinia, additional = []) => {
     .then(() => fetchFeatures())
     .then((features) => {
       if (features && features.onlyoffice && features.onlyoffice.enabled) {
-        manager.register(onlyofficePreviewPlugin());
+        const exts = Array.isArray(features.onlyoffice.extensions)
+          ? features.onlyoffice.extensions.map((s) => String(s).toLowerCase())
+          : [];
+        manager.register(onlyofficePreviewPlugin(exts));
       }
     })
     .catch(() => { /* silently ignore */ });

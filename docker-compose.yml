@@ -26,5 +26,8 @@ services:
       - OIDC_CLIENT_SECRET=w2ACQfUhhk2vZ14m2GVvYbWqkCQTiXyMsowpLQE2JtiPfaCTrBKhZHwZACgHOCWgSs9zhJW0j8y1TYCrLs0hsMmM0xdIz5tRmce6o4ymVOCQByPRIr9xMxtBt1Spg0I1
       - OIDC_SCOPES=openid profile email groups
       - OIDC_ADMIN_GROUPS=next-admin admins
-     
+
+      - ONLYOFFICE_URL=https://office.vsoni.com
+      - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
+      - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
     restart: unless-stopped
