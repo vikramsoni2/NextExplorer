@@ -3,28 +3,16 @@
 A modern, self-hosted file explorer with secure access control, polished UX, and a Docker-friendly deployment story.
 
 
-## Release 
-
-- added OIDC support for multi-user
-- added user menu in the sidebar
-- added tooltips to icons
-- added public url for proxies, preparation for file sharing
-- sidebar now resizable
-- search in the current directory for files and content inside files as well using ripgrep
-- added right-click context menu for file actions
-- new file creation option in context menu
-- responsive sidebar, breadcrumb and view mode options
-- syntax highlighting for editor
-- new folder option added to context menu as well
-
-
 ## Feature Highlights
-- Secure access with local users and optional OIDC single sign‑on.
-- Browse, preview, upload, move, and delete files across multiple mounted volumes.
-- Switch between light and dark layouts, plus grid or detail views for folders.
-- Generate and cache thumbnails for images and videos to keep navigation fast.
-- Edit text-based files inline with a built-in, syntax-aware code editor.
-- Preview Images and Videos using in-built viewer
+- Secure authentication with local users and optional OIDC SSO (multi‑user).
+- Mount multiple host folders as top‑level volumes; browse, upload, move, rename, and delete.
+- Fast media browsing with cached thumbnails and a built‑in image/video viewer.
+- Inline text editing with syntax highlighting.
+- Optional OnlyOffice integration for in‑browser editing of office docs (DOCX, XLSX, PPTX, ODF) with save‑back.
+- Flexible UI: light/dark themes, grid/list views, resizable sidebar, breadcrumbs, and helpful tooltips.
+- Powerful search in the current folder (file names and file contents via ripgrep).
+- Right‑click context menu and drag‑and‑drop for quick file operations.
+- Reverse‑proxy friendly with `PUBLIC_URL` and secure defaults.
 
 ## Screenshots
 | | |
@@ -36,199 +24,186 @@ A modern, self-hosted file explorer with secure access control, polished UX, and
 | ![Dark list view showing metadata like size and modified time](./docs/source/images/5.png) | ![Upload manager tracking progress for multiple files](./docs/source/images/6.png) |
 | Detail view surfaces metadata like file size and timestamps. | Track multi-file uploads with per-item progress feedback. |
 
-## Self-Host with Docker Compose
+## Project Overview and Features
 
-### 1. Prerequisites
-- Docker Engine 24+ and Docker Compose v2.
-- Host directories that you want to expose to the explorer.
-- A writable cache directory for generated thumbnails (recommended: SSD-backed storage).
+nextExplorer is a modern, self-hosted file explorer focused on secure access control and a polished user experience. It provides a web interface to browse and manage files on your own storage with a Docker‑friendly deployment.
 
-### 2. Prepare host folders
-Create or pick folders you plan to mount, for example:
-- `/srv/nextexplorer/cache` for cached thumbnails and settings.
-- `/srv/data/Projects` and `/srv/data/Downloads` for content you want to browse.
-Ensure the Docker user has read/write permissions to each directory.
+- Secure authentication: local users by default; optional Single Sign‑On via OpenID Connect (OIDC). The first user created is an admin. When OIDC is enabled, users can sign in with SSO.
+- Multiple volumes: mount multiple host directories as top‑level volumes; browse, upload, preview, move, and delete across all volumes from one UI.
+- Intuitive UI: responsive layout, resizable sidebar, breadcrumbs, grid or list folder views, and light/dark themes.
+- Thumbnail caching: images and videos get cached thumbnails for fast navigation of media‑heavy folders.
+- File previews and editing: preview images/videos in‑app; double‑click text files to edit with an integrated, syntax‑highlighted editor.
 
-### 3. Compose file
-Create `docker-compose.yml` alongside your other infrastructure files:
+## Usage Instructions
+
+First‑Time Setup
+1. Create Admin Account: After first launch, open the app in your browser and set up the first local admin username/password on the Setup screen.
+2. Verify Volumes: Open the Volumes panel and ensure each mounted host directory under `/mnt` appears as a top‑level volume.
+3. Start Exploring: Browse directories, upload files, create folders/files, and edit text files; image/video thumbnails are generated and cached automatically.
+
+Sign‑In Options
+- Local users: log in with the admin account you created (and any additional local users you add).
+- OIDC SSO (optional): when configured, a “Continue with Single Sign‑On” option appears on the sign‑in screen.
+
+Using the Application
+- Sidebar and volumes: each host folder mounted under `/mnt` is a top‑level volume in the sidebar.
+- File operations: right‑click any file/folder for actions (rename, delete, move, download, etc.). Drag and drop between folders is supported.
+- Create: use the “New” menu to create files or folders directly from the browser.
+- Upload: upload via the upload button or drag‑and‑drop; multiple uploads show per‑file progress.
+- Search: find items by file name or by text inside files using the integrated ripgrep search within the current directory.
+- Views and themes: toggle grid/list views and switch light/dark themes.
+- Previews and editing: click images/videos to preview; click text/code files to open the inline editor with syntax highlighting and save back to disk.
+
+## Deployment Guide
+
+### Prerequisites
+- Docker Engine 24+ and Docker Compose v2 installed on the host.
+- One or more host directories to serve (these will be mounted into the container).
+- A host directory for caching thumbnails and app settings (preferably SSD‑backed).
+- Ensure the user that runs the container has read/write access to all of the above.
+
+### Prepare host folders
+Example layout:
+- `/srv/nextexplorer/cache` – cache and settings storage
+- `/srv/data/Projects` – example data volume
+- `/srv/data/Media` – another data volume
+
+### Docker Compose
+Create a `docker-compose.yml` in your deployment directory:
 
 ```yaml
 services:
   nextexplorer:
-    image: nxzai/explorer:latest
+    image: nxzai/explorer:latest # Official nextExplorer image
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"  # host:container
+      - "3000:3000"   # expose container port 3000 on the host
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
-      - LOG_LEVEL=info  # set to debug for verbose logs
-      # Optional: override the auto-generated session secret
-      # - SESSION_SECRET=please-change-me
-      # Optional: match the container user/group to your host IDs
-      # - PUID=1000
-      # - PGID=1000
-      # Optional OIDC (see section below)
+      - LOG_LEVEL=info          # use "debug" for verbose logging
+      # - SESSION_SECRET=please-change-me       # optional static session secret
+      # - PUID=1000                              # optional host user UID
+      # - PGID=1000                              # optional host group GID
+      # OIDC (optional): enable SSO, see OIDC section below
       # - OIDC_ENABLED=true
-      # - OIDC_ISSUER=https://auth.example.com/application/o/next/
+      # - OIDC_ISSUER=https://auth.example.com/realms/your-realm/
       # - OIDC_CLIENT_ID=nextexplorer
       # - OIDC_CLIENT_SECRET=your-client-secret
       # - OIDC_SCOPES=openid profile email groups
       # - OIDC_ADMIN_GROUPS=next-admin admins
+      # OnlyOffice (optional): in‑browser editing for office docs
+      # - ONLYOFFICE_URL=https://office.example.com
+      # - ONLYOFFICE_SECRET=your-jwt-secret
+      # - ONLYOFFICE_LANG=en
+      # - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
     volumes:
-      - /srv/nextexplorer/cache:/cache
-      - /srv/data/Projects:/mnt/Projects
-      - /srv/data/Downloads:/mnt/Downloads
+      - /srv/nextexplorer/cache:/cache   # cache & settings
+      - /srv/data/Projects:/mnt/Projects # mount "Projects" volume
+      - /srv/data/Media:/mnt/Media       # mount "Media" volume
 ```
 
-Every folder you mount under `/mnt` becomes a top-level volume inside the app. Add as many as you need by repeating the `/path/on/host:/mnt/Label` pattern.
+Notes
+- Port 3000 in the container is published to port 3000 on the host; adjust as needed.
+- Environment variables configure nextExplorer (see Configuration below).
+- Every subfolder under `/mnt` becomes a top‑level volume in the UI; add more by repeating `host_path:/mnt/Label` entries.
 
-### 4. Launch
-Run the stack from the directory containing your Compose file:
+### Launch the container
 
 ```bash
 docker compose up -d
 ```
 
-The API and UI are both served on `http://localhost:3000`.
+The UI and API are available at `http://localhost:3000` (or your mapped host port).
 
-### 5. Map container user IDs (recommended)
-1. On the host, run `id -u` and `id -g` to capture your user and group IDs.
-2. Set the `PUID` and `PGID` environment variables in your Compose file so the container runs as your user.
-3. Restart the stack; any files created through nextExplorer will now be owned by your user on the host.
+### Optional: user/group mapping
+To avoid permission issues on host volumes, run the app with your host user/group:
+1. On the host, capture IDs: `id -u` and `id -g`.
+2. Set `PUID` and `PGID` to those values in Compose.
+3. Recreate/restart the container. Files created via nextExplorer will now have your host UID/GID.
 
-### 6. First-run setup
-1. Open the app in your browser.
-2. Create the first local admin account on the Setup screen.
-3. Browse the Volumes panel to verify each mount shows up as expected.
-4. Start uploading or editing files—thumbnails will populate the cache automatically.
-
-Sign‑in options:
-- Local users: the username/password you created on first run.
-- OIDC SSO (if enabled): click “Continue with Single Sign‑On”.
-
-### 7. Updating
-To pull the latest release:
+### Updating
 
 ```bash
 docker compose pull
 docker compose up -d
 ```
 
-The container persists user settings in `/cache` and never touches the contents of your mounted volumes unless you explicitly upload, move, or delete items through the UI.
+User data and settings live in the mounted volumes (especially `/cache`) and persist across updates. The app never modifies the contents of your mounted data volumes unless you perform file operations in the UI.
+
+## Configuration and Environment Variables
+
+Core
+- `PUBLIC_URL` – the fully qualified base URL where users access the app (e.g., `https://files.example.com`). Used to derive safe defaults for CORS, OIDC callback, and Express proxy trust.
+- `NODE_ENV` – typically `production` for deployments.
+- `PORT` – internal listen port (default `3000`). Usually leave as is and publish a different host port if needed.
+- `SESSION_SECRET` – optional secret for session encryption. If omitted, a secure random secret is generated at startup. Set to a fixed value for stable sessions across restarts or replicas.
+
+Storage and Volumes
+- `VOLUME_ROOT` – container path for mounted volumes (default `/mnt`).
+- `CACHE_DIR` – container path for cache and app data (default `/cache`). Map this to persistent, preferably fast storage.
+- `PUID`, `PGID` – optional user and group IDs to run the app as, matching your host user/group to preserve file ownership.
+
+Security and Networking
+- `LOG_LEVEL` – `info` by default; set `debug` for verbose troubleshooting. Legacy `DEBUG=true` is also supported but prefer `LOG_LEVEL`.
+- `CORS_ORIGINS` – optional comma‑separated allowed origins for cross‑site requests. When `PUBLIC_URL` is set, defaults to that origin; in development, all origins are allowed if unset.
+- `TRUST_PROXY` – proxy trust configuration. When `PUBLIC_URL` is set and `TRUST_PROXY` is not, a safe default of `loopback,uniquelocal` is used. Override with a hop count or explicit CIDR list only if you understand your proxy chain.
+
+Reverse Proxies
+- If running behind Nginx/Traefik/a load balancer with TLS termination, set `PUBLIC_URL` to the external `https` URL. Cookies receive `Secure`, redirects and CORS are correct, and Express proxy trust is configured safely. Preserve `X‑Forwarded-*` headers in your proxy.
+
+## Single Sign‑On (OIDC)
+
+Enable OIDC to allow SSO with providers like Keycloak, Authentik, Authelia, Google, Azure AD.
+
+Environment
+- `OIDC_ENABLED` – `true` to enable OIDC.
+- `OIDC_ISSUER` – issuer URL of your provider (used for discovery).
+- `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` – client credentials for nextExplorer.
+- `OIDC_SCOPES` – default `openid profile email`; include `groups` if you want group‑based admin mapping.
+- `OIDC_ADMIN_GROUPS` – space or comma‑separated group names that grant admin role.
+- Optional overrides: `OIDC_CALLBACK_URL`, `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL` (usually unnecessary when discovery works).
+
+Provider Setup
+- Register a confidential client/app with Authorization Code flow.
+- Redirect URI: `${PUBLIC_URL}/callback` (default). If you override `OIDC_CALLBACK_URL`, use that value.
+- Include scopes: `openid profile email` and `groups` if applicable. Enable refresh tokens for persistent logins if desired.
+
+How it works
+- Login: UI triggers `GET /login`, which redirects to the provider. On success, the provider returns to `/callback` and the user is logged in.
+- Logout: `GET /logout` ends the local session; IdP logout is optional.
+- Admin mapping: group/role claims (`groups`, `roles`, `entitlements`) are inspected; if any match `OIDC_ADMIN_GROUPS` (case‑insensitive) the user is granted admin. Otherwise they are a regular user. Local admin users always retain admin access. Local and OIDC identities with the same email/username are merged on first login to avoid duplicates.
+
+## ONLYOFFICE Integration (Document Editing)
+
+Integrate an ONLYOFFICE Document Server to edit office documents in the browser (DOCX, XLSX, PPTX, ODF, etc.).
+
+Environment
+- `ONLYOFFICE_URL` – base URL of your Document Server (reachable from nextExplorer and able to reach nextExplorer’s `PUBLIC_URL`).
+- `ONLYOFFICE_SECRET` – JWT secret shared with the Document Server (match `services.CoAuthoring.secret`); omit if JWT is disabled on the server.
+- `ONLYOFFICE_LANG` – optional editor UI language (default `en`).
+- `ONLYOFFICE_FORCE_SAVE` – optional `true|false` to force save on edits (default `false`).
+- `ONLYOFFICE_FILE_EXTENSIONS` – optional comma list of extensions to open in OnlyOffice; nextExplorer has a sensible built‑in default.
+
+Notes
+- On open, nextExplorer builds a signed config for the Document Server and embeds the OnlyOffice editor in the UI. Supported backend routes include:
+  - `POST /api/onlyoffice/config` – generate editor config for a file
+  - `GET /api/onlyoffice/file` – token‑guarded file fetch for the Document Server
+  - `POST /api/onlyoffice/callback` – save callback from the Document Server
+- “Document security token is not correctly configured” usually indicates a secret mismatch. Ensure `ONLYOFFICE_SECRET` matches the Document Server’s JWT secret or disable JWT there.
 
 ## Logging & Debug Mode
-- The backend now uses a structured logger; by default it runs at `LOG_LEVEL=info`.
-- Set `LOG_LEVEL=debug` (or legacy `DEBUG=true`) in Docker Compose or your process manager to enable verbose diagnostics plus HTTP request logging. Use `docker logs nextexplorer` (or your log stack) to inspect output when users report issues.
-- Switch back to `LOG_LEVEL=info` once you have gathered enough data; verbose mode is intentionally noisy.
+- Default log level is `info`. Set `LOG_LEVEL=debug` for verbose diagnostics (HTTP request details, etc.).
+- Inspect logs via `docker logs nextexplorer` (or your logging stack). Revert to `info` after debugging.
+
+## Contributing
+
+Pull requests are welcome. For development setup and guidelines, see `README-development.md`.
+- Discuss major changes via an issue before opening a large PR.
+- Add tests where practical and verify changes locally.
+- When reporting issues, include logs, repro steps, and screenshots where relevant.
 
 ## Need Something Else?
-- For local development, see [`README-development.md`](./README-development.md).
-- Issues or feature ideas? Open a ticket on the project tracker or start a discussion with the maintainers.
-
-## Running Behind a Reverse Proxy (e.g., Nginx Proxy Manager)
-
-When placing nextExplorer behind a reverse proxy and a custom domain, set a single environment variable and the app will derive everything it needs:
-
-- `PUBLIC_URL` – the fully-qualified public URL for your app (no trailing slash). Example: `https://files.example.com`
-
-What it controls:
-- CORS allowed origin defaults to the origin of `PUBLIC_URL` unless you explicitly set `CORS_ORIGINS`.
-- OIDC callback URL defaults to `PUBLIC_URL + /callback` unless you explicitly set `OIDC_CALLBACK_URL`.
-- Express configures a safe `trust proxy` default when `PUBLIC_URL` is provided (can be overridden with `TRUST_PROXY`).
-
-Compose example:
-
-```yaml
-services:
-  nextexplorer:
-    image: nxzai/explorer:latest
-    environment:
-      - NODE_ENV=production
-      - PUBLIC_URL=https://files.example.com
-      # Optional: override or add more CORS origins
-      # - CORS_ORIGINS=https://files.example.com,https://admin.example.com
-      # Optional: override OIDC callback if you need a non-default path
-      # - OIDC_CALLBACK_URL=https://files.example.com/custom/callback
-    ports:
-      - "3000:3000"  # or run without publishing and let the proxy connect the container network
-```
-
-Nginx Proxy Manager tips:
-- Point your domain to the container’s internal port 3000.
-- Enable Websockets and preserve `X-Forwarded-*` headers (enabled by default in NPM).
-- Terminate TLS at the proxy; nextExplorer will treat cookies as Secure in production.
-
-### Trust Proxy settings
-
-- Default: When `PUBLIC_URL` is set and `TRUST_PROXY` is not, the app sets `trust proxy` to `loopback,uniquelocal`. This trusts only local/private reverse proxies (Docker/Traefik/Nginx on RFC1918/loopback ranges) and avoids the security risk of trusting arbitrary clients.
-- Override: Set `TRUST_PROXY` explicitly for your topology. Supported values:
-  - `false` – disable trusting proxies (Express default).
-  - A number (e.g. `1`, `2`) – trust that many hops in `X-Forwarded-For`.
-  - A string list – e.g. `loopback,uniquelocal` or CIDRs/IPs like `10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`.
-- Note: `TRUST_PROXY=true` is not accepted as-is; it is mapped to `loopback,uniquelocal` to prevent IP spoofing and satisfy `express-rate-limit` safety checks.
-
-## OIDC (OpenID Connect) Authentication
-
-nextExplorer supports OIDC providers such as Keycloak, Authentik, Authelia, Google, and others via a provider‑agnostic setup powered by Express OpenID Connect (EOC).
-
-### Environment variables
-- `OIDC_ENABLED`: `true|false` to enable OIDC.
-- `OIDC_ISSUER`: Provider issuer URL (used for discovery). Example: `https://id.example.com/application/o/your-app/`.
-- `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL` (optional): Manually override endpoints. If omitted, discovery is used from `OIDC_ISSUER`.
-- `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET`: Credentials for your app.
-- `OIDC_CALLBACK_URL` (optional): Callback URL. If not set, derived from `PUBLIC_URL` as `${PUBLIC_URL}/callback`.
-- `OIDC_SCOPES` (optional): Space/comma separated scopes. Default: `openid profile email`. Add `groups` if your provider exposes it.
-- `OIDC_ADMIN_GROUPS` (recommended): Space/comma separated group names that should map to the app’s `admin` role, e.g. `next-admin admins`.
-- `SESSION_SECRET` (optional): If not provided, the app generates a strong random secret at startup. Set this explicitly to keep sessions stable across restarts or to share the same secret across multiple replicas.
-
-Notes:
-- Discovery: If `OIDC_AUTHORIZATION_URL`/`OIDC_TOKEN_URL`/`OIDC_USERINFO_URL` are not supplied, the app fetches them from `OIDC_ISSUER/.well-known/openid-configuration`.
-- Callback: If you run behind a reverse proxy, set `PUBLIC_URL` so the default callback is correct.
-
-Endpoints when OIDC is enabled (via EOC):
-- `GET /login` – start login; optionally `?returnTo=/path` to redirect after auth
-- `GET /callback` – OIDC callback (configure this in your provider)
-- `GET /logout` – end session; IdP logout is optional
-- Convenience: `GET /api/auth/oidc/login?redirect=/path` triggers the same login flow
-
-### Admin role mapping
-- Provider‑agnostic: The app only looks at standard OIDC claims for group‑like values: `groups`, `roles`, `entitlements` (arrays or space/comma strings).
-- Config‑driven: A user becomes `admin` only if they belong to any group listed in `OIDC_ADMIN_GROUPS` (case‑insensitive). Otherwise the user gets role `user`.
-- No implicit defaults: There are no built‑in admin group names. If `OIDC_ADMIN_GROUPS` is empty/unset, no OIDC user is auto‑elevated.
-- Safety: If an existing user already has the `admin` role, the app preserves it on subsequent logins to avoid accidental demotion.
-
-Example compose snippet:
-
-```yaml
-services:
-  nextexplorer:
-    image: nxzai/explorer:latest
-    environment:
-      - PUBLIC_URL=https://files.example.com
-      # Optional: override the auto-generated session secret
-      # - SESSION_SECRET=please-change-me
-      - OIDC_ENABLED=true
-      - OIDC_ISSUER=https://auth.example.com/application/o/next/
-      # Optional manual overrides (otherwise discovery is used)
-      # - OIDC_AUTHORIZATION_URL=...
-      # - OIDC_TOKEN_URL=...
-      # - OIDC_USERINFO_URL=...
-      - OIDC_CLIENT_ID=your-client-id
-      - OIDC_CLIENT_SECRET=your-client-secret
-      - OIDC_SCOPES=openid profile email groups
-      - OIDC_ADMIN_GROUPS=next-admin admins
-```
-
-Provider tips:
-- Authentik/Keycloak: Usually expose `groups`; include `groups` in scopes.
-- Google: Group claims typically require additional configuration (Cloud Identity / Admin SDK). Without groups, users will be `user` role by default.
-
-## Configuration (Quick Reference)
-- `PUBLIC_URL`: external site URL; derives CORS and default OIDC callback.
-- `SESSION_SECRET`: optional (auto-generated at startup if omitted; set to keep stable across restarts or standardize across replicas).
-- `VOLUME_ROOT`: root for mounted content inside container (default `/mnt`).
-- `CACHE_DIR`: settings and thumbnails (default `/cache`).
-- `TRUST_PROXY`: `false`, a hop count, or list like `loopback,uniquelocal` (defaults safely when `PUBLIC_URL` is set).
-- `CORS_ORIGINS`: comma list of allowed origins (defaults to `PUBLIC_URL` origin; otherwise allows all for dev).
+- For local development, see `README-development.md`.
+- Have a feature idea or found a bug? Open an issue.
