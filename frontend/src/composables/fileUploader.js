@@ -6,6 +6,7 @@ import {useFileStore} from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import { isDisallowedUpload } from '@/utils/uploads';
+import DropTarget from '@uppy/drop-target';
 
 export function useFileUploader() {
 
@@ -19,13 +20,14 @@ export function useFileUploader() {
   // Ensure a single Uppy instance app-wide
   let uppy = uppyStore.uppy;
   const createdHere = ref(false);
+  
   if (!uppy) {
     uppy = new Uppy({
       debug: true,
       autoProceed: true,
       store: uppyStore,
     });
-
+    
     uppy.use(XHRUpload, {
       endpoint: `${apiBase}/api/upload`,
       formData: true,
@@ -36,14 +38,28 @@ export function useFileUploader() {
     });
 
     // Cookies carry auth; no token headers
-
     uppy.on('file-added', (file) => {
       if (isDisallowedUpload(file?.name)) {
         uppy.removeFile?.(file.id);
         return;
       }
+
+      // Ensure server always receives a usable relativePath, even for drag-and-drop
+      const inferredRelativePath =
+        file?.meta?.relativePath ||
+        file?.data?.webkitRelativePath ||
+        file?.name ||
+        (file?.data && file?.data.name) ||
+        '';
+
+      // Some rare DnD sources may miss name; prefer data.name if present
+      if (!file?.name && file?.data?.name && typeof uppy.setFileName === 'function') {
+        try { uppy.setFileName(file.id, file.data.name); } catch (_) { /* noop */ }
+      }
+
       uppy.setFileMeta(file.id, {
         uploadTo: normalizePath(fileStore.currentPath || ''),
+        relativePath: inferredRelativePath,
       });
     });
 
@@ -62,12 +78,8 @@ export function useFileUploader() {
       name: file.name,
       type: file.type,
       data: file,
-      meta: {
-        relativePath: file.webkitRelativePath || file.name,
-      }
     }
   }
-
 
   function setDialogAttributes(options) {
     inputRef.value.accept = options.accept;
@@ -184,3 +196,30 @@ export function useFileUploader() {
 
 
   // console.log(options)
+
+// Attach/detach Uppy DropTarget plugin to a given element ref
+export function useUppyDropTarget(targetRef) {
+  const uppyStore = useUppyStore();
+
+  onMounted(() => {
+    const el = targetRef && 'value' in targetRef ? targetRef.value : null;
+    const uppy = uppyStore.uppy;
+    if (el && uppy) {
+      try {
+        const existing = uppy.getPlugin && uppy.getPlugin('DropTarget');
+        if (existing) uppy.removePlugin(existing);
+        uppy.use(DropTarget, { target: el });
+      } catch (_) {
+        // ignore if plugin cannot be mounted
+      }
+    }
+  });
+
+  onBeforeUnmount(() => {
+    const uppy = uppyStore.uppy;
+    if (uppy) {
+      const plugin = uppy.getPlugin && uppy.getPlugin('DropTarget');
+      if (plugin) uppy.removePlugin(plugin);
+    }
+  });
+}

@@ -22,10 +22,9 @@ import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 import { useSettingsStore } from '@/stores/settings';
 import PhotoSizeControl from '@/components/PhotoSizeControl.vue';
 import InfoPanel from '@/components/InfoPanel.vue';
-import { useFileUploader } from '@/composables/fileUploader';
+import { useFileUploader, useUppyDropTarget } from '@/composables/fileUploader';
 import { useUppyStore } from '@/stores/uppyStore';
 import { useFileStore } from '@/stores/fileStore';
-import DropTarget from '@uppy/drop-target';
 import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
 
 
@@ -81,26 +80,7 @@ useFileUploader();
 const uppyStore = useUppyStore();
 const fileStore = useFileStore();
 const dropTargetRef = ref(null);
-
-onMounted(() => {
-  const el = dropTargetRef.value;
-  const uppy = uppyStore.uppy;
-  if (el && uppy) {
-    try {
-      uppy.use(DropTarget, { target: el });
-    } catch (_) {
-      // ignore if plugin already mounted or target missing
-    }
-  }
-});
-
-onBeforeUnmount(() => {
-  const uppy = uppyStore.uppy;
-  if (uppy) {
-    const plugin = uppy.getPlugin && uppy.getPlugin('DropTarget');
-    if (plugin) uppy.removePlugin(plugin);
-  }
-});
+useUppyDropTarget(dropTargetRef);
 
 // Global clipboard keyboard shortcuts for the browser layout
 useClipboardShortcuts();
