@@ -1,31 +1,40 @@
 <template>
   <teleport to="body">
+    <!-- Standalone plugins render directly -->
     <component
-      v-if="isStandalone && resolvedComponent && context"
-      :is="resolvedComponent"
-      :context="context"
-      :item="context.item"
-      :api="context.api"
-      :preview-url="context.previewUrl"
+      v-if="isStandalone && component"
+      :is="component"
+      v-bind="activeItem"
     />
+
+    <!-- Regular plugins render in modal -->
     <transition v-else name="preview-fade">
       <div
-        v-if="isOpen && context"
+        v-if="isOpen"
         class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/70"
         @click.self="handleClose"
+        @keydown.esc="handleClose"
       >
         <div class="relative flex h-screen w-screen flex-col overflow-hidden rounded-lg bg-white shadow-2xl dark:bg-zinc-900">
+          
+          <!-- Header (unless minimal) -->
           <header
             v-if="!isMinimal"
             class="flex items-center gap-3 border-b border-neutral-200 bg-white px-4 py-2 shadow-sm dark:border-neutral-700 dark:bg-zinc-800"
           >
             <div class="min-w-0">
-              <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ plugin?.label || 'Preview' }}</p>
-              <h2 class="truncate text-base font-semibold text-neutral-900 dark:text-white">{{ context.item?.name || '—' }}</h2>
+              <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+                {{ activePlugin?.label || 'Preview' }}
+              </p>
+              <h2 class="truncate text-base font-semibold text-neutral-900 dark:text-white">
+                {{ activeItem?.item?.name || '—' }}
+              </h2>
             </div>
+
+            <!-- Actions -->
             <div class="ml-auto flex items-center gap-2">
               <button
-                v-for="action in availableActions"
+                v-for="action in actions"
                 :key="action.id"
                 type="button"
                 class="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm font-medium transition"
@@ -42,6 +51,7 @@
                 />
                 <span>{{ action.label }}</span>
               </button>
+
               <button
                 type="button"
                 class="rounded-md p-2 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
@@ -52,6 +62,7 @@
             </div>
           </header>
 
+          <!-- Content -->
           <main class="flex-1 overflow-hidden bg-neutral-50 dark:bg-zinc-950/40">
             <!-- Minimal floating close button -->
             <button
@@ -62,13 +73,11 @@
             >
               <XMarkIcon class="h-5 w-5" />
             </button>
+
             <component
-              :is="resolvedComponent"
-              v-if="resolvedComponent"
-              :context="context"
-              :item="context.item"
-              :api="context.api"
-              :preview-url="context.previewUrl"
+              v-if="component"
+              :is="component"
+              v-bind="activeItem"
               class="h-full"
             />
             <div v-else class="flex h-full items-center justify-center text-sm text-neutral-500 dark:text-neutral-400">
@@ -82,88 +91,70 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue';
+import { computed, shallowRef, watch } from 'vue';
+import { storeToRefs } from 'pinia';
 import { XMarkIcon, ArrowDownTrayIcon, PencilSquareIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline';
 import { usePreviewManager } from '@/plugins/preview/manager';
 
 const manager = usePreviewManager();
+const { isOpen, activeItem, activePlugin } = storeToRefs(manager);
 
-const isOpen = computed(() => manager.isOpen);
-const context = computed(() => manager.currentContext);
-const plugin = computed(() => manager.currentPlugin);
-const isStandalone = computed(() => Boolean(plugin.value?.standalone));
-const isMinimal = computed(() => Boolean(plugin.value?.minimalHeader));
-const availableActions = computed(() => {
-  if (!plugin.value || !context.value || isStandalone.value) return [];
-  if (isMinimal.value) return [];
-  const actions = plugin.value.actions?.(context.value);
-  return Array.isArray(actions) ? actions : [];
+// Derived state
+const isStandalone = computed(() => activePlugin.value?.standalone ?? false);
+const isMinimal = computed(() => activePlugin.value?.minimalHeader ?? false);
+
+const actions = computed(() => {
+  if (!activePlugin.value || !activeItem.value || isStandalone.value || isMinimal.value) {
+    return [];
+  }
+  
+  const pluginActions = activePlugin.value.actions?.(activeItem.value);
+  return Array.isArray(pluginActions) ? pluginActions : [];
 });
 
-const resolvedComponent = shallowRef(null);
+// Component loading
+const component = shallowRef(null);
 
-const loadComponent = async (nextPlugin) => {
-  resolvedComponent.value = null;
-  if (!nextPlugin) return;
+watch(activePlugin, async (plugin) => {
+  component.value = null;
+  if (!plugin) return;
+
   try {
-    const componentFactory = nextPlugin.component;
-    const result = typeof componentFactory === 'function' ? await componentFactory() : componentFactory;
-    if (!result) return;
-    resolvedComponent.value = result.default || result;
+    const factory = plugin.component;
+    const result = typeof factory === 'function' ? await factory() : factory;
+    component.value = result?.default || result;
   } catch (error) {
-    console.error(`Failed to load preview component for ${nextPlugin.id}`, error);
+    console.error(`Failed to load plugin ${plugin.id}:`, error);
   }
-};
-
-watch(plugin, (nextPlugin) => {
-  loadComponent(nextPlugin);
 }, { immediate: true });
 
+// Handlers
 const handleClose = () => {
-  if (isStandalone.value) {
-    return;
+  if (!isStandalone.value) {
+    manager.close();
   }
-  manager.close();
 };
 
 const runAction = (action) => {
-  if (!action || !context.value) return;
+  if (!action?.run || !activeItem.value) return;
+  
   try {
-    action.run?.(context.value);
+    action.run(activeItem.value);
   } catch (error) {
-    console.error(`Preview action failed: ${action.id}`, error);
+    console.error(`Action ${action.id} failed:`, error);
   }
 };
 
-// Map common action IDs to icons for a more expressive toolbar
+// Action icons
 const getActionIcon = (id) => {
-  switch (id) {
-    case 'download':
-      return ArrowDownTrayIcon;
-    case 'edit':
-    case 'open-editor':
-      return PencilSquareIcon;
-    case 'open':
-      return ArrowTopRightOnSquareIcon;
-    default:
-      return null;
-  }
+  const icons = {
+    download: ArrowDownTrayIcon,
+    edit: PencilSquareIcon,
+    'open-editor': PencilSquareIcon,
+    open: ArrowTopRightOnSquareIcon,
+  };
+  return icons[id];
 };
-
-const handleKeydown = (event) => {
-  if (event.key === 'Escape' && manager.isOpen) {
-    event.preventDefault();
-    handleClose();
-  }
-};
-
-onMounted(() => {
-  window.addEventListener('keydown', handleKeydown);
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeydown);
-});
 </script>
 
 <style scoped>

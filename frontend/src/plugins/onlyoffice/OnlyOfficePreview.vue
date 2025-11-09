@@ -25,10 +25,11 @@ import { DocumentEditor } from '@onlyoffice/document-editor-vue';
 import { fetchOnlyOfficeConfig } from '@/api';
 
 const props = defineProps({
-  context: { type: Object, required: true },
+  item: { type: Object, required: true },
+  extension: { type: String, required: true },
+  filePath: { type: String, required: true },
+  previewUrl: { type: String, required: true },
   api: { type: Object, required: true },
-  previewUrl: { type: String, default: null },
-  item: { type: Object, default: null },
 });
 
 const serverUrl = ref(null);
@@ -45,7 +46,7 @@ const load = async () => {
   serverUrl.value = null;
   config.value = null;
   try {
-    const path = props.context?.filePath;
+    const path = props.filePath;
     if (!path) throw new Error('Missing file path.');
     const { documentServerUrl, config: cfg } = await fetchOnlyOfficeConfig(path, 'edit');
     serverUrl.value = documentServerUrl;
@@ -57,7 +58,7 @@ const load = async () => {
 };
 
 onMounted(load);
-watch(() => props.context?.filePath, () => load());
+watch(() => props.filePath, () => load());
 </script>
 
 <style scoped>

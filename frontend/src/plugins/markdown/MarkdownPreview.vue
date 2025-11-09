@@ -1,7 +1,8 @@
+<!-- MarkdownPreview.vue -->
 <template>
   <div class="flex h-full flex-col overflow-y-auto">
     <div
-      v-if="isLoading"
+      v-if="loading"
       class="flex flex-1 items-center justify-center text-sm text-neutral-500 dark:text-neutral-400"
     >
       Loading markdown…
@@ -15,65 +16,47 @@
     <article
       v-else
       class="prose prose-slate dark:prose-invert mx-auto w-full max-w-3xl flex-1 px-6 py-8"
-      v-html="renderedHtml"
+      v-html="html"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import DOMPurify from 'dompurify';
 
 const props = defineProps({
-  context: {
-    type: Object,
-    required: true,
-  },
+  item: { type: Object, required: true },
+  extension: { type: String, required: true },
+  filePath: { type: String, required: true },
+  previewUrl: { type: String, required: true },
+  api: { type: Object, required: true },
 });
 
-const isLoading = ref(false);
-const renderedHtml = ref('');
+const loading = ref(false);
+const html = ref('');
 const error = ref('');
 
-let markedRenderer;
-const ensureMarked = async () => {
-  if (markedRenderer) return markedRenderer;
-  const module = await import('marked');
-  markedRenderer = module.marked || module.default || module;
-  return markedRenderer;
-};
-
-const loadContent = async () => {
-  const filePath = props.context?.filePath;
-  if (!filePath) {
-    renderedHtml.value = '';
-    return;
-  }
-
-  isLoading.value = true;
+onMounted(async () => {
+  loading.value = true;
   error.value = '';
-
+  
   try {
-    const response = await props.context.api.fetchFileContent(filePath);
-    const source = typeof response?.content === 'string' ? response.content : '';
-    const marked = await ensureMarked();
-    const rawHtml = marked.parse(source);
-    renderedHtml.value = DOMPurify.sanitize(rawHtml);
+    // Lazy load marked
+    const { marked } = await import('marked');
+    
+    // Fetch content
+    const response = await props.api.fetchContent();
+    const content = response?.content || '';
+    
+    // Parse and sanitize
+    const rawHtml = marked.parse(content);
+    html.value = DOMPurify.sanitize(rawHtml);
   } catch (err) {
-    console.error('Failed to load markdown preview', err);
+    console.error('Markdown preview failed:', err);
     error.value = err?.message || 'Unable to render markdown preview.';
-    renderedHtml.value = '';
   } finally {
-    isLoading.value = false;
+    loading.value = false;
   }
-};
-
-watch(
-  () => props.context?.filePath,
-  () => {
-    loadContent();
-  },
-  { immediate: true },
-);
-
+});
 </script>

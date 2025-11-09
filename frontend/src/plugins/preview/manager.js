@@ -1,196 +1,172 @@
 import { defineStore } from 'pinia';
-import { computed, ref, shallowRef } from 'vue';
-import { fetchFileContent, getPreviewUrl, normalizePath, downloadItems } from '@/api';
+import { ref, computed } from 'vue';
+import { getPreviewUrl, normalizePath, downloadItems, fetchFileContent } from '@/api';
 import router from '@/router';
-import '@/plugins/preview/types';
 
-const resolveExtension = (item) => {
-  if (!item) return '';
-  if (item.kind && item.kind !== 'directory') {
-    return String(item.kind).toLowerCase();
-  }
-  if (typeof item.name === 'string' && item.name.includes('.')) {
-    return item.name.split('.').pop().toLowerCase();
-  }
-  return '';
-};
-
-const toFullPath = (item) => {
-  if (!item || !item.name) return '';
-  const parent = normalizePath(item.path || '');
-  const target = parent ? `${parent}/${item.name}` : item.name;
-  return normalizePath(target);
-};
-
-const buildDownload = async (path, fallbackName) => {
-  const response = await downloadItems([path]);
-  const blob = await response.blob();
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fallbackName || path.split('/').pop() || 'download';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-};
-
+/**
+ * Simplified preview manager with clearer responsibilities
+ */
 export const usePreviewManager = defineStore('preview-manager', () => {
-  const registered = ref([]);
-  const current = shallowRef(null);
+  // State
+  const plugins = ref([]);
+  const activeItem = ref(null);
+  const activePlugin = ref(null);
 
-  const isOpen = computed(() => Boolean(current.value));
-  const currentPlugin = computed(() => current.value?.plugin ?? null);
-  const currentContext = computed(() => current.value?.context ?? null);
+  // Computed
+  const isOpen = computed(() => !!activeItem.value);
 
-  const managerApi = {};
-
-  const buildContext = (item, plugin) => {
-    const snapshot = item ? { ...item } : null;
-    const extension = resolveExtension(snapshot);
-    const filePath = toFullPath(snapshot);
-    const previewUrl = filePath ? getPreviewUrl(filePath) : null;
-
-    const api = {
-      getPreviewUrl: (targetPath = filePath) => {
-        if (!targetPath) return null;
-        return getPreviewUrl(normalizePath(targetPath));
-      },
-      fetchFileContent: (targetPath = filePath) => {
-        if (!targetPath) {
-          return Promise.reject(new Error('Path is required to fetch content.'));
-        }
-        return fetchFileContent(normalizePath(targetPath));
-      },
-      openEditor: (targetPath = filePath) => {
-        if (!targetPath) return;
-        const normalized = normalizePath(targetPath);
-        if (!normalized) return;
-        router.push({ path: `/editor/${normalized}` });
-      },
-      closePreview: () => {
-        managerApi.close();
-      },
-      download: (targetPath = filePath) => {
-        if (!targetPath) return;
-        const normalized = normalizePath(targetPath);
-        if (!normalized) return;
-        buildDownload(normalized, snapshot?.name).catch((error) => {
-          console.error('Download failed', error);
-        });
-      },
-    };
-
-    return {
-      item: snapshot,
-      extension,
-      previewUrl,
-      filePath,
-      manager: managerApi,
-      api,
-      plugin,
-    };
+  // Helper: Get file extension
+  const getExtension = (item) => {
+    if (!item) return '';
+    const kind = String(item.kind || '').toLowerCase();
+    if (kind && kind !== 'directory') return kind;
+    
+    const name = String(item.name || '');
+    const lastDot = name.lastIndexOf('.');
+    return lastDot > 0 ? name.slice(lastDot + 1).toLowerCase() : '';
   };
 
-  const sortByPriority = (plugins) => {
-    return [...plugins].sort((a, b) => {
-      const priorityA = typeof a.priority === 'number' ? a.priority : 0;
-      const priorityB = typeof b.priority === 'number' ? b.priority : 0;
-      if (priorityA === priorityB) {
-        return a.id.localeCompare(b.id);
-      }
-      return priorityB - priorityA;
+  // Helper: Build full path
+  const getFullPath = (item) => {
+    if (!item?.name) return '';
+    const parent = normalizePath(item.path || '');
+    return normalizePath(parent ? `${parent}/${item.name}` : item.name);
+  };
+
+  // Core API - simple and direct
+  const createApi = (item) => ({
+    // Direct file operations
+    getPreviewUrl: () => getPreviewUrl(getFullPath(item)),
+    fetchContent: () => fetchFileContent(getFullPath(item)),
+    
+    // Navigation
+    openEditor: () => {
+      const path = getFullPath(item);
+      if (path) router.push({ path: `/editor/${path}` });
+    },
+    
+    // Download
+    download: async () => {
+      const path = getFullPath(item);
+      if (!path) return;
+      
+      const response = await downloadItems([path]);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = item.name || 'download';
+      link.click();
+      
+      URL.revokeObjectURL(url);
+    },
+    
+    // Close
+    close: () => close(),
+  });
+
+  // Plugin Management
+  const register = (plugin) => {
+    if (!plugin?.id) return;
+    
+    // Remove existing plugin with same id
+    plugins.value = plugins.value.filter(p => p.id !== plugin.id);
+    
+    // Add and sort by priority (descending)
+    plugins.value.push(plugin);
+    plugins.value.sort((a, b) => {
+      const priorityA = a.priority ?? 0;
+      const priorityB = b.priority ?? 0;
+      return priorityB - priorityA || a.id.localeCompare(b.id);
     });
   };
 
-  const register = (plugin) => {
-    if (!plugin || !plugin.id) return;
-    const existingIndex = registered.value.findIndex((entry) => entry.id === plugin.id);
-    const next = [...registered.value];
-    if (existingIndex >= 0) {
-      next.splice(existingIndex, 1, plugin);
-    } else {
-      next.push(plugin);
-    }
-    registered.value = sortByPriority(next);
-  };
-
   const unregister = (pluginId) => {
-    if (!pluginId) return;
-    registered.value = registered.value.filter((plugin) => plugin.id !== pluginId);
+    plugins.value = plugins.value.filter(p => p.id !== pluginId);
   };
 
+  // Find matching plugin
   const findPlugin = (item) => {
     if (!item) return null;
-    for (const plugin of registered.value) {
+    
+    const extension = getExtension(item);
+    const fullPath = getFullPath(item);
+    const previewUrl = getPreviewUrl(fullPath);
+    const api = createApi(item);
+
+    // Simple context object
+    const context = {
+      item: { ...item },
+      extension,
+      filePath: fullPath,
+      previewUrl,
+      api,
+    };
+
+    // Find first matching plugin
+    for (const plugin of plugins.value) {
       try {
-        const context = buildContext(item, plugin);
         if (plugin.match?.(context)) {
           return { plugin, context };
         }
       } catch (error) {
-        console.error(`Preview plugin match failed for ${plugin.id}`, error);
+        console.error(`Plugin ${plugin.id} match error:`, error);
       }
     }
+
     return null;
   };
 
+  // Open preview
   const open = (item) => {
-    const resolution = findPlugin(item);
-    if (!resolution) {
-      return false;
+    const match = findPlugin(item);
+    if (!match) return false;
+
+    const { plugin, context } = match;
+
+    // Call lifecycle hook
+    try {
+      plugin.onOpen?.(context);
+    } catch (error) {
+      console.error(`Plugin ${plugin.id} onOpen error:`, error);
     }
 
-    const { plugin, context } = resolution;
-
-    if (plugin.onOpen) {
-      try {
-        plugin.onOpen(context);
-      } catch (error) {
-        console.error(`Preview plugin onOpen failed for ${plugin.id}`, error);
-      }
-    }
-
-    current.value = {
-      plugin,
-      context,
-    };
+    // Update state
+    activeItem.value = context;
+    activePlugin.value = plugin;
 
     return true;
   };
 
+  // Close preview
   const close = () => {
-    if (!current.value) return;
-    const { plugin, context } = current.value;
-    if (plugin?.onClose) {
-      try {
-        plugin.onClose(context);
-      } catch (error) {
-        console.error(`Preview plugin onClose failed for ${plugin.id}`, error);
-      }
+    if (!activePlugin.value || !activeItem.value) return;
+
+    // Call lifecycle hook
+    try {
+      activePlugin.value.onClose?.(activeItem.value);
+    } catch (error) {
+      console.error(`Plugin ${activePlugin.value.id} onClose error:`, error);
     }
-    current.value = null;
+
+    // Clear state
+    activeItem.value = null;
+    activePlugin.value = null;
   };
 
-  Object.assign(managerApi, {
-    register,
-    unregister,
-    open,
-    close,
-    getCurrent: () => currentContext.value,
-    getPlugins: () => [...registered.value],
-  });
-
   return {
-    plugins: registered,
-    current,
-    currentPlugin,
-    currentContext,
+    // State
+    plugins,
     isOpen,
+    activeItem,
+    activePlugin,
+    
+    // Actions
     register,
     unregister,
-    findPlugin,
     open,
     close,
+    findPlugin,
   };
 });

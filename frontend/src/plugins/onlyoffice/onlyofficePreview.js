@@ -1,7 +1,7 @@
 const DEFAULT_EXTS = [
   'docx', 'doc', 'odt', 'rtf',
   'xlsx', 'xls', 'ods', 'csv',
-  'pptx', 'ppt', 'odp', 'pdf'
+  'pptx', 'ppt', 'odp'
 ];
 
 export const onlyofficePreviewPlugin = (extensions) => ({
@@ -10,17 +10,28 @@ export const onlyofficePreviewPlugin = (extensions) => ({
   priority: 50,
   // Render with minimal chrome in the overlay host
   minimalHeader: true,
-  match: (ctx) => {
-    const ext = String(ctx.extension || '').toLowerCase();
+
+  match: (context) => {
+    const ext = String(context.extension || '').toLowerCase();
     const list = Array.isArray(extensions) && extensions.length > 0 ? extensions : DEFAULT_EXTS;
+    
+    console.log('ONLYOFFICE checking extension:', ext, list);
     return list.includes(ext);
   },
+
   component: () => import('./OnlyOfficePreview.vue'),
-  actions: (ctx) => [
+
+
+  actions: (context) => [
     {
       id: 'download',
       label: 'Download',
-      run: () => ctx.api.download(ctx.filePath),
+      run: () => context.api.download(),
     },
   ],
 });
+
+
+
+
+
