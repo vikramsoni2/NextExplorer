@@ -78,7 +78,7 @@ const handleBackgroundContextMenu = (event) => {
       <!-- Detail view header -->
       <div
         v-if="settings.view === 'list'"
-        class="grid items-center grid-cols-[30px_1fr_150px_200px_200px] 
+        class="grid items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
         px-4 py-2 text-xs 
         text-neutral-600 dark:text-neutral-300 
         uppercase tracking-wide select-none sticky top-0 z-10 

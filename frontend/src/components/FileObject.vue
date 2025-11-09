@@ -10,6 +10,7 @@ import { useFileStore } from '@/stores/fileStore';
 import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { useSettingsStore } from '@/stores/settings';
+import { ellipses } from '@/utils/ellipses';
 
 const props = defineProps(['item', 'view'])
 const settings = useSettingsStore();
@@ -181,7 +182,7 @@ const isPhotoItem = computed(() => {
             />
           </template>
           <template v-else>
-            {{ item.name }}
+            {{ ellipses(item.name, maxl=15) }}
           </template>
         </div>
     </div>
@@ -219,7 +220,7 @@ const isPhotoItem = computed(() => {
                 />
               </template>
               <template v-else>
-                {{ item.name }}
+                {{ ellipses(item.name, maxl=50) }}
               </template>
             </div>
             <p class="text-xs text-stone-400">
@@ -233,7 +234,7 @@ const isPhotoItem = computed(() => {
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent="handleContextMenu"
-    class="grid select-none items-center grid-cols-[30px_1fr_150px_200px_200px] 
+    class="grid select-none items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
     cursor-pointer auto-cols-fr p-1 px-4 rounded-md
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
     "
@@ -261,7 +262,7 @@ const isPhotoItem = computed(() => {
             />
           </template>
           <template v-else>
-            {{ item.name }}
+            {{ ellipses(item.name, maxl=40) }}
           </template>
         </div>
         <div class="text-sm">
