@@ -1,21 +1,15 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getPreviewUrl, normalizePath, downloadItems, fetchFileContent } from '@/api';
+import { useFileStore } from '@/stores/fileStore';
 import router from '@/router';
 
-/**
- * Simplified preview manager with clearer responsibilities
- */
 export const usePreviewManager = defineStore('preview-manager', () => {
-  // State
   const plugins = ref([]);
   const activeItem = ref(null);
   const activePlugin = ref(null);
-
-  // Computed
   const isOpen = computed(() => !!activeItem.value);
 
-  // Helper: Get file extension
   const getExtension = (item) => {
     if (!item) return '';
     const kind = String(item.kind || '').toLowerCase();
@@ -33,19 +27,22 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     return normalizePath(parent ? `${parent}/${item.name}` : item.name);
   };
 
-  // Core API - simple and direct
+  // Get siblings from the same directory
+  const getSiblings = (target) => {
+    const fileStore = useFileStore();
+    const base = target || {};
+    const items = fileStore.getCurrentPathItems || [];
+    return items
+  };
+
   const createApi = (item) => ({
-    // Direct file operations
-    getPreviewUrl: () => getPreviewUrl(getFullPath(item)),
+    getPreviewUrl: (targetItem) => getPreviewUrl(getFullPath(targetItem || item)),
     fetchContent: () => fetchFileContent(getFullPath(item)),
-    
-    // Navigation
+    getSiblings: (target) => getSiblings(target || item),
     openEditor: () => {
       const path = getFullPath(item);
       if (path) router.push({ path: `/editor/${path}` });
     },
-    
-    // Download
     download: async () => {
       const path = getFullPath(item);
       if (!path) return;
@@ -61,8 +58,6 @@ export const usePreviewManager = defineStore('preview-manager', () => {
       
       URL.revokeObjectURL(url);
     },
-    
-    // Close
     close: () => close(),
   });
 
@@ -95,7 +90,6 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     const previewUrl = getPreviewUrl(fullPath);
     const api = createApi(item);
 
-    // Simple context object
     const context = {
       item: { ...item },
       extension,
@@ -118,39 +112,33 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     return null;
   };
 
-  // Open preview
   const open = (item) => {
     const match = findPlugin(item);
     if (!match) return false;
 
     const { plugin, context } = match;
 
-    // Call lifecycle hook
     try {
       plugin.onOpen?.(context);
     } catch (error) {
       console.error(`Plugin ${plugin.id} onOpen error:`, error);
     }
 
-    // Update state
     activeItem.value = context;
     activePlugin.value = plugin;
 
     return true;
   };
 
-  // Close preview
   const close = () => {
     if (!activePlugin.value || !activeItem.value) return;
 
-    // Call lifecycle hook
     try {
       activePlugin.value.onClose?.(activeItem.value);
     } catch (error) {
       console.error(`Plugin ${activePlugin.value.id} onClose error:`, error);
     }
 
-    // Clear state
     activeItem.value = null;
     activePlugin.value = null;
   };
