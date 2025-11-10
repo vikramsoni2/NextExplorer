@@ -2,7 +2,8 @@
   <VueEasyLightbox
     :visible="visible"
     :imgs="images"
-    :index="0"
+    :index="currentIndex"
+    :loop="true"
     @hide="handleClose"
   />
 </template>
@@ -10,8 +11,8 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
 import VueEasyLightbox from 'vue-easy-lightbox';
+import { isPreviewableImage } from '@/config/media';
 
-// Props - matches context structure
 const props = defineProps({
   item: { type: Object, required: true },
   extension: { type: String, required: true },
@@ -22,19 +23,35 @@ const props = defineProps({
 
 const visible = ref(false);
 
-// Simple image array for lightbox
-const images = computed(() => {
-  return props.previewUrl ? [props.previewUrl] : [];
+const galleryItems = computed(() => {
+  const siblings = props.api.getSiblings(props.item) || [];
+  const all = [...siblings];
+  return all.filter((it) => {
+    if (!it || it.kind === 'directory') return false;
+    const kind = String(it.kind || '').toLowerCase();
+    if (kind) return isPreviewableImage(kind);
+    const name = String(it.name || '');
+    const dot = name.lastIndexOf('.');
+    const ext = dot > 0 ? name.slice(dot + 1).toLowerCase() : '';
+    return isPreviewableImage(ext);
+  });
 });
 
-// Open lightbox on mount
+const images = computed(() =>
+  galleryItems.value
+    .map((it) => ({ src: props.api.getPreviewUrl(it), title: it.name }))
+    .filter((x) => x.src)
+);
+
+const currentIndex = computed(() => {
+  const idx = images.value.findIndex((img) => img.title === props.item.name);
+  return idx >= 0 ? idx : 0;
+});
+
 onMounted(() => {
-  if (images.value.length > 0) {
-    visible.value = true;
-  }
+  visible.value = true;
 });
 
-// Close handler
 const handleClose = () => {
   visible.value = false;
   props.api.close();
