@@ -111,7 +111,7 @@ const migrate = (db) => {
 
       for (const user of existingUsers) {
         // Generate email if missing (for old local users without email)
-        const email = user.email || `${user.username || user.id}@local.invalid`;
+        const email = user.email || `${user.username || user.id}@example.local`;
         const emailVerified = user.email ? 1 : 0;
 
         // Insert user identity
