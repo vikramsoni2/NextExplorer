@@ -60,17 +60,17 @@ export const useAuthStore = defineStore('auth', () => {
     return initPromise;
   };
 
-  const setupAccount = async ({ username, password }) => {
+  const setupAccount = async ({ email, username, password }) => {
     lastError.value = null;
-    const response = await setupAccountApi({ username, password });
+    const response = await setupAccountApi({ email, username, password });
     requiresSetup.value = false;
     hasStatus.value = true;
     currentUser.value = response?.user || null;
   };
 
-  const login = async ({ username, password }) => {
+  const login = async ({ email, password }) => {
     lastError.value = null;
-    const response = await loginApi({ username, password });
+    const response = await loginApi({ email, password });
     hasStatus.value = true;
     currentUser.value = response?.user || null;
   };

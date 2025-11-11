@@ -13,10 +13,10 @@ export async function updateUserRoles(userId, roles) {
   });
 }
 
-export async function createUser({ username, password, roles = [] }) {
+export async function createUser({ email, username, password, displayName, roles = [] }) {
   return requestJson('/api/users', {
     method: 'POST',
-    body: JSON.stringify({ username, password, roles: Array.isArray(roles) ? roles : [] }),
+    body: JSON.stringify({ email, username, password, displayName, roles: Array.isArray(roles) ? roles : [] }),
   });
 }
 

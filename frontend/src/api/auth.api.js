@@ -4,16 +4,16 @@ import { requestJson } from './http';
 
 const fetchAuthStatus = () => requestJson('/api/auth/status', { method: 'GET' });
 
-const setupAccount = ({ username, password }) => requestJson('/api/auth/setup', {
+const setupAccount = ({ email, username, password }) => requestJson('/api/auth/setup', {
   method: 'POST',
-  body: JSON.stringify({ username, password }),
+  body: JSON.stringify({ email, username, password }),
 });
 
 const fetchCurrentUser = () => requestJson('/api/auth/me', { method: 'GET' });
 
-const login = ({ username, password }) => requestJson('/api/auth/login', {
+const login = ({ email, password }) => requestJson('/api/auth/login', {
   method: 'POST',
-  body: JSON.stringify({ username, password }),
+  body: JSON.stringify({ email, password }),
 });
 
 const logout = () => requestJson('/api/auth/logout', {

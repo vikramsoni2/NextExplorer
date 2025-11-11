@@ -20,7 +20,7 @@ const { ensureDir } = require('./utils/fsUtils');
 const registerRoutes = require('./routes');
 const authRoutes = require('./routes/auth');
 const authMiddleware = require('./middleware/authMiddleware');
-const { createOrUpdateOidcUser, deriveRolesFromClaims } = require('./services/users');
+const { getOrCreateOidcUser, deriveRolesFromClaims } = require('./services/users');
 const { fetchUserInfoClaims } = require('./services/oidcService');
 const logger = require('./utils/logger');
 
@@ -238,19 +238,21 @@ const bootstrap = async () => {
             }
 
             const email = claims.email || null;
+            const emailVerified = claims.email_verified || false;
             const preferredUsername = claims.preferred_username || claims.username || email || sub;
             const displayName = claims.name || preferredUsername || null;
             const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
 
-            logger.debug({ sub, preferredUsername, displayName, email, roles }, 'afterCallback: derived user info');
+            logger.debug({ sub, preferredUsername, displayName, email, emailVerified, roles }, 'afterCallback: derived user info');
 
-            logger.debug({ sub, hasEmail: Boolean(email) }, 'afterCallback: persisting OIDC user');
-            await createOrUpdateOidcUser({
+            logger.debug({ sub, hasEmail: Boolean(email), emailVerified }, 'afterCallback: persisting OIDC user');
+            await getOrCreateOidcUser({
               issuer: persistIssuer,
               sub,
               username: preferredUsername,
               displayName,
               email,
+              emailVerified,
               roles,
             });
             logger.debug('afterCallback: user persisted/synced');

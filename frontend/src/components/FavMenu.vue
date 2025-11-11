@@ -1,14 +1,17 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import * as OutlineIcons from '@heroicons/vue/24/outline';
 import * as SolidIcons from '@heroicons/vue/24/solid';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useNavigation } from '@/composables/navigation';
+import { normalizePath } from '@/api';
 
 const { ChevronDownIcon, StarIcon: StarIconOutline } = OutlineIcons;
 
 const open = ref(true);
 const favoritesStore = useFavoritesStore();
+const route = useRoute();
 const { openBreadcrumb } = useNavigation();
 
 onMounted(() => {
@@ -49,6 +52,22 @@ const favorites = computed(() => favoritesStore.favorites.map((favorite) => ({
   iconComponent: resolveIconComponent(favorite.icon),
 })));
 
+const currentPath = computed(() => {
+  const rawPath = route.params?.path;
+  if (Array.isArray(rawPath)) {
+    return normalizePath(rawPath.join('/'));
+  }
+  if (typeof rawPath === 'string') {
+    return normalizePath(rawPath);
+  }
+  return '';
+});
+
+const isActiveFav = (favoritePath = '') => {
+  const normalizedFavorite = normalizePath(favoritePath || '');
+  return normalizedFavorite === currentPath.value;
+};
+
 const handleOpenFavorite = (favorite) => {
   if (!favorite?.path) {
     return;
@@ -59,7 +78,7 @@ const handleOpenFavorite = (favorite) => {
 
 <template>
   <h4
-    class="group flex items-center justify-between py-[6px] text-sm text-neutral-400 dark:text-neutral-500 font-medium"
+    class="group flex items-center justify-between py-2 pt-6 text-sm text-neutral-400 dark:text-neutral-500 font-medium"
   >
     Quick access
     <button
@@ -88,8 +107,13 @@ const handleOpenFavorite = (favorite) => {
             v-for="favorite in favorites"
             :key="favorite.path"
             type="button"
-            class="flex w-full items-center gap-3 px-3 py-[6px] rounded-lg hover:bg-nextgray-300 dark:hover:bg-zinc-700"
             @click="handleOpenFavorite(favorite)"
+            :class="[
+                        'cursor-pointer flex w-full items-center gap-3 my-3 rounded-lg transition-colors duration-200 text-sm',
+                        isActiveFav(favorite.path)
+                            ? 'text-neutral-900 dark:text-white'
+                            : 'text-neutral-500 dark:text-neutral-300/80'
+                    ]"
           >
             <component :is="favorite.iconComponent" class="h-5" />
             <span class="truncate">{{ favorite.label }}</span>
