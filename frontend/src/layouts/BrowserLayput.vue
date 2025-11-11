@@ -96,7 +96,7 @@ useClipboardShortcuts();
     <input id="sidebar-toggle" type="checkbox" class="peer hidden" />
 
     <aside
-      class="flex flex-col bg-nextgray-100 dark:bg-zinc-800 lg:dark:bg-opacity-70 p-4 px-4 shrink-0
+      class="flex flex-col bg-nextgray-100 dark:bg-zinc-800 lg:dark:bg-opacity-70 p-4 px-8 shrink-0
       fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-40
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
@@ -105,7 +105,7 @@ useClipboardShortcuts();
       <CreateNew />
       <FavMenu />
       <VolMenu />
-      <UserMenu class="mt-auto"/>
+      <UserMenu class="mt-auto -mx-4"/>
     </aside>
 
     <!-- Resizer handle -->
@@ -168,7 +168,7 @@ useClipboardShortcuts();
   
   <!-- Backdrop to close sidebar on small screens -->
   <label for="sidebar-toggle" class="fixed inset-0 bg-black/20 z-30 hidden lg:hidden peer-checked:block"></label>
-  <UploadProgress/>
+  <UploadProgress class="z-550"/>
   <PreviewHost/>
   <InfoPanel/>
   </div>

@@ -11,7 +11,8 @@ const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const setupUsernameValue = ref('admin');
+const setupEmailValue = ref('');
+const setupUsernameValue = ref('');
 const setupPasswordValue = ref('');
 const setupConfirmValue = ref('');
 const setupError = ref('');
@@ -63,8 +64,8 @@ const resetErrors = () => {
 const handleSetupSubmit = async () => {
   resetErrors();
 
-  if (!setupUsernameValue.value.trim()) {
-    setupError.value = 'Username is required.';
+  if (!setupEmailValue.value.trim()) {
+    setupError.value = 'Email is required.';
     return;
   }
 
@@ -82,15 +83,17 @@ const handleSetupSubmit = async () => {
 
   try {
     await auth.setupAccount({
-      username: setupUsernameValue.value.trim(),
+      email: setupEmailValue.value.trim(),
+      username: setupUsernameValue.value.trim() || setupEmailValue.value.trim().split('@')[0],
       password: setupPasswordValue.value,
     });
+    setupEmailValue.value = '';
     setupUsernameValue.value = '';
     setupPasswordValue.value = '';
     setupConfirmValue.value = '';
     redirectToDestination();
   } catch (error) {
-    setupError.value = error instanceof Error ? error.message : 'Failed to create password.';
+    setupError.value = error instanceof Error ? error.message : 'Failed to create account.';
   } finally {
     isSubmittingSetup.value = false;
   }
@@ -120,15 +123,30 @@ const handleSetupSubmit = async () => {
           <div>
             <h2 class="text-2xl font-semibold text-white">Create your explorer account</h2>
             <p class="mt-2 text-sm text-white/60">
-              Choose a username and a secure password to unlock your explorer. You’ll use these credentials every time you launch the app.
+              Provide your email and a secure password to unlock your explorer. You'll use these credentials every time you launch the app.
             </p>
           </div>
 
           <form class="space-y-6" @submit.prevent="handleSetupSubmit">
             <div class="space-y-4">
               <div>
+                <label for="setup-email" class="block text-sm font-medium uppercase tracking-wide text-white/70">
+                  Email
+                </label>
+                <input
+                  id="setup-email"
+                  v-model="setupEmailValue"
+                  type="email"
+                  autocomplete="email"
+                  :class="inputBaseClasses"
+                  placeholder="your@email.com"
+                  :disabled="isSubmittingSetup"
+                />
+              </div>
+
+              <div>
                 <label for="setup-username" class="block text-sm font-medium uppercase tracking-wide text-white/70">
-                  Username
+                  Username (optional)
                 </label>
                 <input
                   id="setup-username"
@@ -136,7 +154,7 @@ const handleSetupSubmit = async () => {
                   type="text"
                   autocomplete="username"
                   :class="inputBaseClasses"
-                  placeholder="Choose a username (e.g. admin)"
+                  placeholder="Choose a username (defaults to email prefix)"
                   :disabled="isSubmittingSetup"
                 />
               </div>

@@ -10,6 +10,7 @@ const errorMsg = ref('');
 
 // Create user form state
 const showCreate = ref(false);
+const newEmail = ref('');
 const newUsername = ref('');
 const newPassword = ref('');
 const newIsAdmin = ref(false);
@@ -40,17 +41,27 @@ const grantAdmin = async (u) => {
 };
 
 const handleCreate = async () => {
-  if (!newUsername.value.trim() || newPassword.value.length < 6) {
-    alert('Username is required and password must be at least 6 characters.');
+  if (!newEmail.value.trim()) {
+    alert('Email is required.');
+    return;
+  }
+  if (newPassword.value.length < 6) {
+    alert('Password must be at least 6 characters.');
     return;
   }
   creating.value = true;
   try {
-    const res = await createUser({ username: newUsername.value.trim(), password: newPassword.value, roles: newIsAdmin.value ? ['admin'] : [] });
+    const res = await createUser({
+      email: newEmail.value.trim(),
+      username: newUsername.value.trim() || newEmail.value.trim().split('@')[0],
+      password: newPassword.value,
+      roles: newIsAdmin.value ? ['admin'] : []
+    });
     if (res?.user) {
       users.value = users.value.concat([res.user]);
     }
     // reset form
+    newEmail.value = '';
     newUsername.value = '';
     newPassword.value = '';
     newIsAdmin.value = false;
@@ -109,14 +120,18 @@ onMounted(() => { loadUsers(); });
     <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
 
     <section v-if="showCreate" class="rounded-lg border border-white/10 bg-white/5 p-4 dark:bg-zinc-900/50">
-      <h3 class="mb-2 text-base font-semibold">Create Local User</h3>
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <h3 class="mb-2 text-base font-semibold">Create User</h3>
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <div>
-          <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Username</label>
-          <input v-model.trim="newUsername" placeholder="e.g. jdoe" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
+          <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Email *</label>
+          <input v-model.trim="newEmail" type="email" placeholder="user@example.com" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
         </div>
         <div>
-          <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Password</label>
+          <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Username</label>
+          <input v-model.trim="newUsername" placeholder="Optional" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Password *</label>
           <input v-model="newPassword" type="password" placeholder="••••••" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
         </div>
         <div class="flex items-end">
@@ -137,20 +152,18 @@ onMounted(() => { loadUsers(); });
       <table class="w-full text-left text-sm">
         <thead class="bg-white/5">
           <tr>
-            <th class="px-3 py-2">Username</th>
-            <th class="px-3 py-2">Provider</th>
-            <th class="px-3 py-2">Display Name</th>
             <th class="px-3 py-2">Email</th>
+            <th class="px-3 py-2">Username</th>
+            <th class="px-3 py-2">Display Name</th>
             <th class="px-3 py-2">Roles</th>
             <th class="px-3 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="u in users" :key="u.id" class="border-t border-white/5">
-            <td class="px-3 py-2">{{ u.username }}</td>
-            <td class="px-3 py-2">{{ u.provider }}</td>
+            <td class="px-3 py-2">{{ u.email }}</td>
+            <td class="px-3 py-2">{{ u.username || '—' }}</td>
             <td class="px-3 py-2">{{ u.displayName || '—' }}</td>
-            <td class="px-3 py-2">{{ u.email || '—' }}</td>
             <td class="px-3 py-2">{{ (u.roles || []).join(', ') || '—' }}</td>
             <td class="px-3 py-2 space-x-2">
               <button
@@ -162,15 +175,14 @@ onMounted(() => { loadUsers(); });
               </button>
 
               <button
-                v-if="u.provider === 'local'"
                 class="rounded px-3 py-1 text-sm border border-white/20 hover:bg-white/10"
                 @click="handleResetPassword(u)"
               >
-                Reset password
+                Set/Reset password
               </button>
 
               <button
-                v-if="u.provider === 'local' && u.id !== auth.currentUser?.id"
+                v-if="u.id !== auth.currentUser?.id"
                 class="rounded px-3 py-1 text-sm border border-red-400 text-red-300 hover:bg-red-500/10"
                 @click="handleDeleteUser(u)"
               >

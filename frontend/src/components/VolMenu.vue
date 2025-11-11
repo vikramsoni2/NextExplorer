@@ -1,10 +1,12 @@
 <script setup>
 import {ServerIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import {getVolumes} from '@/api'
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import {useNavigation} from '@/composables/navigation';
 
 const {openItem} = useNavigation()
+const route = useRoute()
 
 const volumes = ref([])
 
@@ -17,12 +19,35 @@ onMounted(async () => {
 })
 
 const open = ref(true);
+const currentPath = computed(() => {
+    const path = route.params.path;
+    if (Array.isArray(path)) {
+        return path.join('/');
+    }
+    return typeof path === 'string' ? path : '';
+});
+
+const activeVolumeName = computed(() => {
+    const path = currentPath.value.trim();
+    if (!path) {
+        return '';
+    }
+    const segments = path.split('/').filter(Boolean);
+    return segments[0] || '';
+});
+
+const isActiveVolume = (volumeName = '') => {
+    if (typeof volumeName !== 'string') {
+        return false;
+    }
+    return volumeName === activeVolumeName.value;
+};
 
 </script>
 
 <template>
     <h4 
-    class="group flex items-center justify-between py-[6px] text-sm 
+    class="group flex items-center justify-between pb-2 pt-6 text-sm 
     text-neutral-400 dark:text-neutral-500 font-medium">
         Volumes
         <button 
@@ -44,15 +69,19 @@ const open = ref(true);
             leave-to-class="-mt-[100%]"
         >
             <div v-if="open" class="overflow-hidden">
-            <button 
-                v-for="volume in volumes" :key="volume.name"
-                @click="openItem(volume)"
-                class="cursor-pointer flex w-full items-center gap-3 px-3 py-[6px] 
-                hover:bg-nextgray-300 
-                rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600">
-                    <ServerIcon class="h-5"/> {{volume.name}}
-            </button>
-        </div>
-    </transition>
+                <button 
+                    v-for="volume in volumes" :key="volume.name"
+                    @click="openItem(volume)"
+                    :class="[
+                        'cursor-pointer flex w-full items-center gap-3 my-3 rounded-lg transition-colors duration-200 text-sm',
+                        isActiveVolume(volume.name)
+                            ? 'dark:text-white'
+                            : 'dark:text-neutral-300/80'
+                    ]"
+                >
+                    <ServerIcon class="h-[1.38rem]"/> {{volume.name}}
+                </button>
+            </div>
+        </transition>
     </div>
 </template>

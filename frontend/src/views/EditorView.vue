@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full w-full flex-col bg-white dark:bg-zinc-900">
     <header
-      class="flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white px-6 py-4 shadow-sm
+      class="flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white px-6 py-2 shadow-sm
              dark:border-neutral-700 dark:bg-zinc-800"
     >
       <div class="min-w-0">
@@ -68,9 +68,10 @@
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Codemirror } from 'vue-codemirror';
-import { oneDark } from '@codemirror/theme-one-dark';
 import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
+import { githubDark } from '@fsegurai/codemirror-theme-github-dark'
+
 
 const route = useRoute();
 const router = useRouter();
@@ -108,7 +109,7 @@ const language = new Compartment();
 // Base extensions: theme + an empty language compartment (configured dynamically)
 const editorExtensions = computed(() => [
   language.of([]),
-  oneDark,
+  githubDark,
 ]);
 
 const hasUnsavedChanges = computed(() => fileContent.value !== originalContent.value);

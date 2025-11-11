@@ -1,5 +1,5 @@
 const express = require('express');
-const { listUsers, updateUserRoles, createLocal, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
+const { listUsers, updateUserRoles, createLocalUser, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
 
 const router = express.Router();
 
@@ -46,12 +46,18 @@ router.patch('/users/:id', ensureAdmin, async (req, res, next) => {
   }
 });
 
-// POST /api/users - create a new local user (admin only)
+// POST /api/users - create a new user (admin only)
 router.post('/users', ensureAdmin, async (req, res, next) => {
   try {
-    const { username, password, roles } = req.body || {};
+    const { email, username, password, displayName, roles } = req.body || {};
     const r = Array.isArray(roles) ? roles : [];
-    const user = await createLocal({ username, password, roles: r });
+    const user = await createLocalUser({
+      email,
+      username: username || email?.split('@')[0],
+      displayName: displayName || username || email?.split('@')[0],
+      password,
+      roles: r
+    });
     res.status(201).json({ user });
   } catch (e) {
     const status = typeof e?.status === 'number' ? e.status : 400;
@@ -72,7 +78,7 @@ router.post('/users/:id/password', ensureAdmin, async (req, res, next) => {
   }
 });
 
-// DELETE /api/users/:id - remove a local user (admin only)
+// DELETE /api/users/:id - remove a user (admin only)
 router.delete('/users/:id', ensureAdmin, async (req, res, next) => {
   try {
     const { id } = req.params || {};

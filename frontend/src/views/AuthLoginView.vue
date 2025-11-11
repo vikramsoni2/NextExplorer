@@ -13,7 +13,7 @@ const auth = useAuthStore();
 const router = useRouter();
 const route = useRoute();
 
-const loginUsernameValue = ref('');
+const loginEmailValue = ref('');
 const loginPasswordValue = ref('');
 const loginError = ref('');
 const isSubmittingLogin = ref(false);
@@ -82,8 +82,8 @@ const handleLoginSubmit = async () => {
     return;
   }
 
-  if (!loginUsernameValue.value.trim()) {
-    loginError.value = 'Username is required.';
+  if (!loginEmailValue.value.trim()) {
+    loginError.value = 'Email is required.';
     return;
   }
 
@@ -96,10 +96,10 @@ const handleLoginSubmit = async () => {
 
   try {
     await auth.login({
-      username: loginUsernameValue.value.trim(),
+      email: loginEmailValue.value.trim(),
       password: loginPasswordValue.value,
     });
-    loginUsernameValue.value = '';
+    loginEmailValue.value = '';
     loginPasswordValue.value = '';
     redirectToDestination();
   } catch (error) {
@@ -145,23 +145,23 @@ const handleOidcLogin = () => {
           <div>
             <h2 class="text-2xl font-semibold text-white">Unlock your explorer</h2>
             <p class="mt-2 text-sm text-white/60">
-              Sign in with your username and password, or use your organization&apos;s single sign-on if available.
+              Sign in with your email and password, or use your organization&apos;s single sign-on if available.
             </p>
           </div>
 
           <form v-if="supportsLocal" class="space-y-6" @submit.prevent="handleLoginSubmit">
             <div class="space-y-4">
               <div>
-                <label for="login-username" class="block text-sm font-medium uppercase tracking-wide text-white/70">
-                  Username
+                <label for="login-email" class="block text-sm font-medium uppercase tracking-wide text-white/70">
+                  Email
                 </label>
                 <input
-                  id="login-username"
-                  v-model="loginUsernameValue"
-                  type="text"
-                  autocomplete="username"
+                  id="login-email"
+                  v-model="loginEmailValue"
+                  type="email"
+                  autocomplete="email"
                   :class="inputBaseClasses"
-                  placeholder="Enter your username"
+                  placeholder="Enter your email"
                   :disabled="isSubmittingLogin"
                 />
               </div>
