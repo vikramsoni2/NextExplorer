@@ -1,6 +1,6 @@
 const path = require('path');
 const logger = require('../utils/logger');
-const { normalizeBoolean } = require('../utils/env');
+const { normalizeBoolean, parseByteSize } = require('../utils/env');
 const loggingConfig = require('./logging');
 const crypto = require('crypto');
 
@@ -161,6 +161,21 @@ module.exports = {
     volumeWithSep,
     cache: cacheDir,
     thumbnails: thumbnailDir,
+  },
+  search: {
+    // Enable deep (content) search. When false, only file/dir names are matched.
+    deep: (normalizeBoolean(process.env.DEEP_SEARCH) ?? true),
+    // Optional: limit max file size considered for content search.
+    // Example values: "5M", "512K", or raw bytes like "1048576".
+    maxFileSize: (typeof process.env.SEARCH_MAX_FILESIZE === 'string' && process.env.SEARCH_MAX_FILESIZE.trim())
+      ? process.env.SEARCH_MAX_FILESIZE.trim()
+      : null,
+    // Numeric bytes used by fallback content scanning. Defaults to 5 MiB when unset/invalid.
+    maxFileSizeBytes: (() => {
+      const parsed = parseByteSize(process.env.SEARCH_MAX_FILESIZE);
+      if (Number.isFinite(parsed) && parsed > 0) return parsed;
+      return 5 * 1024 * 1024;
+    })(),
   },
   files: {
     passwordConfig: passwordConfigFile,

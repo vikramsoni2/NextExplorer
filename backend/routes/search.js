@@ -5,7 +5,7 @@ const { spawn } = require('child_process');
 
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
-const { excludedFiles } = require('../config/index');
+const { excludedFiles, search: searchConfig } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
 const logger = require('../utils/logger');
 
@@ -14,7 +14,9 @@ const router = express.Router();
 const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'build']);
 const DEFAULT_LIMIT = 500;
 const MAX_LIMIT = 5000;
-const CONTENT_FALLBACK_MAX_SIZE = 5 * 1024 * 1024; // 5MB
+const CONTENT_FALLBACK_MAX_SIZE = (Number.isFinite(searchConfig?.maxFileSizeBytes) && searchConfig.maxFileSizeBytes > 0)
+  ? searchConfig.maxFileSizeBytes
+  : 5 * 1024 * 1024; // default 5MB
 
 function toLimit(value, def = DEFAULT_LIMIT) {
   const n = Number(value);
@@ -59,23 +61,26 @@ function collectStdout(child) {
   });
 }
 
-async function runRipgrepSearch(baseAbsPath, relBasePath, term, limit) {
+async function runRipgrepSearch(baseAbsPath, relBasePath, term, limit, deep = true) {
   const globArgs = ['-g', '!.git', '-g', '!node_modules', '-g', '!dist', '-g', '!build'];
-
-  // Content matches (-l prints matching files only)
-  const rgContentArgs = [
-    '-l', '--hidden', '--no-messages', '--smart-case', '-F', term, '.',
-    ...globArgs,
-  ];
-  const contentProc = spawn('rg', rgContentArgs, { cwd: baseAbsPath });
-  const contentRes = await collectStdout(contentProc);
-  const fileSet = new Set(
-    contentRes.out
-      .split(/\r?\n/)
-      .map((s) => s.trim())
-      .filter(Boolean)
-      .map((p) => (relBasePath ? path.posix.join(relBasePath, p.replace(/\\/g, '/')) : p.replace(/\\/g, '/')))
-  );
+  const fileSet = new Set();
+  if (deep) {
+    // Content matches (-l prints matching files only)
+    const rgContentArgs = [
+      '-l', '--hidden', '--no-messages', '--smart-case', 
+      '--max-filesize', searchConfig?.maxFileSize || CONTENT_FALLBACK_MAX_SIZE.toString(),
+      '-F', term, '.',
+      ...globArgs,
+    ];
+    const contentProc = spawn('rg', rgContentArgs, { cwd: baseAbsPath });
+    const contentRes = await collectStdout(contentProc);
+    for (const s of contentRes.out.split(/\r?\n/)) {
+      const p = s.trim();
+      if (!p) continue;
+      const normalized = p.replace(/\\/g, '/');
+      fileSet.add(relBasePath ? path.posix.join(relBasePath, normalized) : normalized);
+    }
+  }
 
   // Filename matches and derive directory matches from file listing
   const rgListArgs = ['--files', '--hidden', '--no-messages', ...globArgs];
@@ -125,7 +130,7 @@ async function runRipgrepSearch(baseAbsPath, relBasePath, term, limit) {
   return results;
 }
 
-async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
+async function fallbackSearch(baseAbsPath, relBasePath, term, limit, deep = true) {
   const fileResults = new Set();
   const dirResults = new Set();
   const needle = term.toLowerCase();
@@ -155,18 +160,20 @@ async function fallbackSearch(baseAbsPath, relBasePath, term, limit) {
           if (fileResults.size + dirResults.size >= limit) break;
           continue;
         }
-        // content match (small files only)
-        try {
-          const st = await fs.stat(abs);
-          if (st.size <= CONTENT_FALLBACK_MAX_SIZE) {
-            const content = await fs.readFile(abs, 'utf8');
-            if (content.toLowerCase().includes(needle)) {
-              fileResults.add(rel);
-              if (fileResults.size + dirResults.size >= limit) break;
+        if (deep) {
+          // content match (small files only)
+          try {
+            const st = await fs.stat(abs);
+            if (st.size <= CONTENT_FALLBACK_MAX_SIZE) {
+              const content = await fs.readFile(abs, 'utf8');
+              if (content.toLowerCase().includes(needle)) {
+                fileResults.add(rel);
+                if (fileResults.size + dirResults.size >= limit) break;
+              }
             }
+          } catch {
+            // ignore read/encoding errors
           }
-        } catch {
-          // ignore read/encoding errors
         }
       }
     }
@@ -200,12 +207,10 @@ router.get('/search', async (req, res) => {
     const limit = toLimit(req.query.limit);
 
     const useRipgrep = await hasRipgrep();
+    const deepEnabled = searchConfig?.deep !== false; // default to true
     let entries = [];
-    if (useRipgrep) {
-      entries = await runRipgrepSearch(baseAbs, relBase, q, limit);
-    } else {
-      entries = await fallbackSearch(baseAbs, relBase, q, limit);
-    }
+    if (useRipgrep) entries = await runRipgrepSearch(baseAbs, relBase, q, limit, deepEnabled);
+    else entries = await fallbackSearch(baseAbs, relBase, q, limit, deepEnabled);
 
     // Map/normalize and filter hidden/excluded; include kind
     const items = [];
