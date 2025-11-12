@@ -95,7 +95,7 @@ useClipboardShortcuts();
       :style="{ width: asideWidth + 'px' }"
     >
       <HeaderLogo appname="Explorer"/>
-      <CreateNew />
+      <CreateNew class="mt-6"/>
       <FavMenu />
       <VolMenu />
       <UserMenu class="mt-auto -mx-4"/>

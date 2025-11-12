@@ -179,7 +179,7 @@ const handleOidcLogin = () => {
         <!-- subtle accent glow for depth -->
         <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl"></div>
         <div class="flex items-center justify-between">
-          <h1 class="mb-0 h-9 text-2xl font-bold tracking-tight text-white">
+          <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">
             <HeaderLogo appname="NextExplorer"/>
           </h1>
           <span class="inline-flex h-9 items-center rounded-full bg-white/5 px-3 text-xs font-semibold uppercase tracking-widest text-white/70">
@@ -215,7 +215,9 @@ const handleOidcLogin = () => {
       <section class="flex items-center justify-center px-6 py-10">
         <div class="w-full max-w-md">
           <div class="mb-8 flex items-center justify-between md:hidden">
-            <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">NextExplorer</h1>
+            
+            <HeaderLogo appname="NextExplorer"/>
+            
             <span class="inline-flex h-9 items-center rounded-full bg-white/5 px-3 text-xs font-semibold uppercase tracking-widest text-white/70">
               v{{ version }}
             </span>
@@ -251,22 +253,7 @@ const handleOidcLogin = () => {
           </div>
 
           <!-- SSO first, minimal outlined button -->
-          <div v-if="supportsOidc" class="mb-6">
-            <button
-              class="flex w-full items-center justify-center gap-2 h-12 px-4 rounded-lg ring-1 ring-inset ring-white/10 bg-neutral-700/40 text-white text-sm font-medium hover:bg-white/10"
-              type="button"
-              @click="handleOidcLogin"
-            >
-              <KeyIcon class="h-5 w-5" />
-              <span class="truncate">Continue with Single Sign-On</span>
-            </button>
-          </div>
-
-          <div v-if="supportsLocal && supportsOidc" class="my-4 flex items-center gap-4">
-            <div class="h-px w-full bg-white/10"></div>
-            <span class="text-xs text-white/50">OR</span>
-            <div class="h-px w-full bg-white/10"></div>
-          </div>
+          
 
           <!-- Email/password form -->
           <form v-if="supportsLocal" class="space-y-5" @submit.prevent="handleLoginSubmit">
@@ -313,6 +300,23 @@ const handleOidcLogin = () => {
               <span v-else class="inline-flex gap-2 items-center"> <LockClosedIcon class="w-5 h-5"/> Log In</span>
             </button>
           </form>
+           <div v-if="supportsLocal && supportsOidc" class="my-4 flex items-center gap-4">
+            <div class="h-px w-full bg-white/10"></div>
+            <span class="text-xs text-white/50">OR</span>
+            <div class="h-px w-full bg-white/10"></div>
+          </div>
+          <div v-if="supportsOidc" class="mb-6">
+            <button
+              class="flex w-full items-center justify-center gap-2 h-12 px-4 rounded-lg ring-1 ring-inset ring-white/10 bg-neutral-700/40 text-white text-sm font-medium hover:bg-white/10"
+              type="button"
+              @click="handleOidcLogin"
+            >
+              <KeyIcon class="h-5 w-5" />
+              <span class="truncate">Continue with Single Sign-On</span>
+            </button>
+          </div>
+
+         
 
           <p v-if="!supportsLocal && statusError" class="mt-4" :class="helperTextClasses">{{ statusError }}</p>
         </div>

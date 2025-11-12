@@ -118,7 +118,7 @@ const handleSetupSubmit = async () => {
         <!-- subtle accent glow for depth -->
         <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl"></div>
         <div class="flex items-center justify-between">
-          <h1 class="mb-0 h-9 text-2xl font-bold tracking-tight text-white">
+          <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">
             <HeaderLogo appname="NextExplorer"/>
           </h1>
           <span class="inline-flex h-9 items-center rounded-full bg-white/5 px-3 text-xs font-semibold uppercase tracking-widest text-white/70">
