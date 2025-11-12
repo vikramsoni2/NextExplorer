@@ -63,16 +63,10 @@ useEventListener(window, 'pointerup', () => {
 })
 
 const currentPathName = computed(() => {
-  if(route.params.path==''){
-    return 'Volumes';
-  }
-  if (typeof route.params.path === 'string') {
-    const segments = route.params.path.split("/");
-    return segments.pop(); 
-  }
-  
-})
-
+const p = route.params.path;
+const s = Array.isArray(p) ? p.join('/') : (p || '');
+return s.split('/').filter(Boolean).pop() || 'Volumes';
+});
 useTitle(currentPathName)
 
 
@@ -85,8 +79,6 @@ useUppyDropTarget(dropTargetRef);
 
 // Global clipboard keyboard shortcuts for the browser layout
 useClipboardShortcuts();
-
-
 
 </script>
 
@@ -125,7 +117,7 @@ useClipboardShortcuts();
     >
       
 
-       <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+       <div class="flex z-10 items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
         <!-- Hamburger (small screens) -->
         <label for="sidebar-toggle" class="lg:hidden -ml-2 mr-3 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">

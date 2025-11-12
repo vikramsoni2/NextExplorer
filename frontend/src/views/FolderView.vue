@@ -91,7 +91,7 @@ const handleBackgroundContextMenu = (event) => {
         class="grid items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
         px-4 py-2 text-xs 
         text-neutral-600 dark:text-neutral-300 
-        uppercase tracking-wide select-none sticky top-0 z-10 
+        uppercase tracking-wide select-none sticky top-0 
         bg-white dark:bg-zinc-800 
         backdrop-blur"
       >
