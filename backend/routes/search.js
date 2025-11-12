@@ -20,6 +20,9 @@ const CONTENT_FALLBACK_MAX_SIZE = searchConfig?.maxFileSizeBytes > 0
   ? searchConfig.maxFileSizeBytes 
   : 5 * 1024 * 1024;
 
+// Cache ripgrep availability (Optimization #4)
+let ripgrepAvailable = null;
+
 // Utilities
 const toLimit = (value, def = DEFAULT_LIMIT) => {
   const n = Number(value);
@@ -34,11 +37,18 @@ const isDirectory = async (p) => {
   }
 };
 
-const hasRipgrep = () => new Promise((resolve) => {
-  const child = spawn('rg', ['--version']);
-  child.on('error', () => resolve(false));
-  child.on('exit', (code) => resolve(code === 0));
-});
+// Cached ripgrep check (Optimization #4)
+const hasRipgrep = async () => {
+  if (ripgrepAvailable !== null) return ripgrepAvailable;
+  
+  ripgrepAvailable = await new Promise((resolve) => {
+    const child = spawn('rg', ['--version']);
+    child.on('error', () => resolve(false));
+    child.on('exit', (code) => resolve(code === 0));
+  });
+  
+  return ripgrepAvailable;
+};
 
 // Search implementations
 const buildRipgrepArgs = () => ['-g', '!.git', '-g', '!node_modules', '-g', '!dist', '-g', '!build'];
@@ -91,14 +101,18 @@ const formatResult = (rel, kind, line, lineNumber) => {
   return item;
 };
 
-// OPTIMIZED: Stream results as they come in
-async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = true) {
-  const globArgs = buildRipgrepArgs();
-  const needle = term.toLowerCase();
-  const seenPaths = new Set();
-  const dirSet = new Set();
+// Helper to safely parse JSON lines (Optimization #2)
+const parseJsonLine = (line) => {
+  try {
+    return JSON.parse(line);
+  } catch {
+    return null;
+  }
+};
 
-  // Phase 1 & 2: Stream file list and yield directory/filename matches immediately
+// Optimized: Stream file list results (Optimization #1 & #3)
+async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet) {
+  const globArgs = buildRipgrepArgs();
   const fileListProcess = spawn('rg', 
     ['--files', '--hidden', '--no-messages', ...globArgs], 
     { cwd: baseAbsPath }
@@ -109,7 +123,6 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = tr
     crlfDelay: Infinity
   });
 
-  // Process lines as they arrive
   for await (const line of rl) {
     const trimmed = line.trim();
     if (!trimmed) continue;
@@ -136,51 +149,88 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = tr
       }
     }
   }
+}
 
-  // Phase 3: Stream content matches
-  if (!deep) return;
-
+// Optimized: Stream content matches with JSON output (Optimization #1 & #2)
+async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) {
+  const globArgs = buildRipgrepArgs();
+  
   const contentArgs = [
-    '-n', '-H', '--no-heading', '--hidden', '--no-messages', 
+    '--json', // Use JSON output for faster parsing (Optimization #2)
+    '-n', '-H', '--hidden', '--no-messages', 
     '--smart-case', '-F', term, '.', '-m', '1', ...globArgs
   ];
+  
   if (searchConfig?.maxFileSize) {
     contentArgs.unshift('--max-filesize', searchConfig.maxFileSize);
   }
 
   const contentProcess = spawn('rg', contentArgs, { cwd: baseAbsPath });
-  const contentRl = readline.createInterface({
+  const rl = readline.createInterface({
     input: contentProcess.stdout,
     crlfDelay: Infinity
   });
 
-  for await (const line of contentRl) {
-    const text = line.trim();
-    if (!text) continue;
-    
-    const [filePath, lineNum, ...rest] = text.split(':');
-    if (!lineNum || !rest.length) continue;
-    
-    const ln = Number(lineNum);
-    if (!Number.isFinite(ln)) continue;
-    
+  for await (const line of rl) {
+    const data = parseJsonLine(line);
+    if (!data || data.type !== 'match') continue;
+
+    const filePath = data.data?.path?.text;
+    if (!filePath) continue;
+
+    const lineNum = data.data?.line_number;
+    const lineText = data.data?.lines?.text;
+
     const rel = normalizePath(filePath, relBasePath);
     if (seenPaths.has(rel)) continue;
     
     seenPaths.add(rel);
     if (await shouldIncludeResult(rel)) {
-      yield formatResult(rel, 'file', rest.join(':'), ln);
+      yield formatResult(rel, 'file', lineText, lineNum);
     }
   }
 }
 
+// Optimized ripgrep with parallel execution (Optimization #1, #2, #3)
+async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = true) {
+  const needle = term.toLowerCase();
+  const seenPaths = new Set();
+  const dirSet = new Set();
+
+  if (!deep) {
+    // If no deep search, only run file list matches
+    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
+    return;
+  }
+
+  // Optimization #3: Run both searches in parallel
+  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
+  const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths);
+
+  // Yield from file list first (directories and filename matches)
+  for await (const result of fileListGen) {
+    yield result;
+  }
+
+  // Then yield content matches
+  for await (const result of contentGen) {
+    yield result;
+  }
+}
+
+// Optimized fallback with streaming (Optimization #1)
 async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = true) {
   const seenPaths = new Set();
   const needle = term.toLowerCase();
 
   // Yield results immediately as we find them
   const walk = async function* (dirAbs, dirRel) {
-    const dirents = await fs.readdir(dirAbs, { withFileTypes: true });
+    let dirents;
+    try {
+      dirents = await fs.readdir(dirAbs, { withFileTypes: true });
+    } catch {
+      return; // Skip directories we can't read
+    }
     
     for (const d of dirents) {
       if (shouldIgnore(d.name)) continue;
