@@ -101,7 +101,7 @@ useClipboardShortcuts();
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
     >
-      <HeaderLogo />
+      <HeaderLogo appname="Explorer"/>
       <CreateNew />
       <FavMenu />
       <VolMenu />

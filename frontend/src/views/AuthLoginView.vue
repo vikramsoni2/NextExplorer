@@ -180,7 +180,7 @@ const handleOidcLogin = () => {
         <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-accent/10 blur-3xl"></div>
         <div class="flex items-center justify-between">
           <h1 class="mb-0 h-9 text-2xl font-bold tracking-tight text-white">
-            <HeaderLogo />
+            <HeaderLogo appname="NextExplorer"/>
           </h1>
           <span class="inline-flex h-9 items-center rounded-full bg-white/5 px-3 text-xs font-semibold uppercase tracking-widest text-white/70">
             v{{ version }}
@@ -294,14 +294,14 @@ const handleOidcLogin = () => {
                 placeholder="••••••••"
                 :disabled="isSubmittingLogin"
               />
-              <div class="mt-2 text-right">
-                <button
+              <div class="mt-2 mb-4 text-right">
+                <!-- <button
                   type="button"
                   class="text-xs font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
                   @click="showResetInfo = true"
                 >
                   Forgot password?
-                </button>
+                </button> -->
               </div>
             </label>
 
@@ -320,12 +320,12 @@ const handleOidcLogin = () => {
     </div>
 
     <!-- Reset password info modal -->
-    <ModalDialog v-model="showResetInfo">
+    <!-- <ModalDialog v-model="showResetInfo">
       <template #title>Reset password</template>
       <p class="text-white/80">
         Password reset is managed by your administrator or identity provider. If you use Single Sign-On, use your
         organization’s reset flow. Otherwise, contact your administrator to reset your password.
       </p>
-    </ModalDialog>
+    </ModalDialog> -->
   </div>
 </template>
