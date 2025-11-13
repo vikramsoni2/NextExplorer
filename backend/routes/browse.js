@@ -9,7 +9,7 @@ const {
   getThumbnailPathIfExists,
   queueThumbnailGeneration,
 } = require('../services/thumbnailService');
-const { getSettings } = require('../services/appConfigService');
+const { getSettings } = require('../services/settingsService');
 const logger = require('../utils/logger');
 
 const router = express.Router();

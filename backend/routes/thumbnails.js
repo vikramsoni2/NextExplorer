@@ -8,7 +8,7 @@ const { getThumbnail } = require('../services/thumbnailService');
 const logger = require('../utils/logger');
 
 const router = express.Router();
-const { getSettings } = require('../services/appConfigService');
+const { getSettings } = require('../services/settingsService');
 
 const isPreviewable = (extension = '') => {
   if (!extension) {

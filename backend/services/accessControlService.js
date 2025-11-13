@@ -1,5 +1,5 @@
 const { normalizeRelativePath } = require('../utils/pathUtils');
-const { getSettings, updateSettings } = require('./appConfigService');
+const { getSettings, setSettings } = require('../services/settingsService');
 
 // Determine permission for a given relative path: 'rw' | 'ro' | 'hidden'
 const getPermissionForPath = async (relativePath) => {
@@ -32,13 +32,11 @@ const getRules = async () => {
 };
 
 const setRules = async (rules) => {
-  const next = await updateSettings((current) => ({
-    ...current,
+  const next = await setSettings({
     access: {
-      ...(current.access || {}),
       rules: Array.isArray(rules) ? rules : [],
     },
-  }));
+  });
   return next.access.rules;
 };
 
@@ -47,4 +45,3 @@ module.exports = {
   getRules,
   setRules,
 };
-

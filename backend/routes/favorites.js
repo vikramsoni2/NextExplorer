@@ -1,6 +1,5 @@
 const express = require('express');
-
-const { getFavorites, addFavorite, removeFavorite } = require('../services/appConfigService');
+const { getFavorites, addFavorite, removeFavorite } = require('../services/favoritesService');
 const logger = require('../utils/logger');
 
 const router = express.Router();

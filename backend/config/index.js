@@ -1,252 +1,143 @@
 const path = require('path');
-const logger = require('../utils/logger');
-const { normalizeBoolean, parseByteSize } = require('../utils/env');
-const loggingConfig = require('./logging');
 const crypto = require('crypto');
+const env = require('./env');
+const constants = require('./constants');
+const loggingConfig = require('./logging');
+const { parseByteSize } = require('../utils/env');
 
-
+// Helper: Parse comma/space-separated scopes
 const parseScopes = (raw) => {
-  if (typeof raw !== 'string') return null;
-
-  const source = raw.trim();
-  const parts = source.includes(',')
-    ? source.split(',')
-    : source.split(/\s+/);
-
+  if (!raw) return null;
+  const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/);
   return parts.map(s => s.trim()).filter(Boolean);
 };
 
+// --- Paths ---
+const volumeDir = path.resolve(env.VOLUME_ROOT);
+const configDir = path.resolve(env.CONFIG_DIR);
+const cacheDir = path.resolve(env.CACHE_DIR);
 
-const port = Number(process.env.PORT) || 3000;
-const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
-const volumeWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
-const configDir = path.resolve(process.env.CONFIG_DIR || '/config');
-const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
-const thumbnailDir = path.join(cacheDir, 'thumbnails');
-const passwordConfigFile = path.join(configDir, 'app-config.json');
-const extensionsDir = path.join(configDir, 'extensions');
-
-const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
-const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
-const documentExtensions = ['pdf'];
-const excludedFiles = ['thumbs.db', '.DS_Store'];
-
-const mimeTypes = {
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  gif: 'image/gif',
-  webp: 'image/webp',
-  bmp: 'image/bmp',
-  svg: 'image/svg+xml',
-  ico: 'image/x-icon',
-  tif: 'image/tiff',
-  tiff: 'image/tiff',
-  avif: 'image/avif',
-  heic: 'image/heic',
-  mp4: 'video/mp4',
-  mov: 'video/quicktime',
-  mkv: 'video/x-matroska',
-  webm: 'video/webm',
-  m4v: 'video/x-m4v',
-  avi: 'video/x-msvideo',
-  wmv: 'video/x-ms-wmv',
-  flv: 'video/x-flv',
-  mpg: 'video/mpeg',
-  mpeg: 'video/mpeg',
-  pdf: 'application/pdf',
+const directories = {
+  volume: volumeDir,
+  volumeWithSep: volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`,
+  config: configDir,
+  cache: cacheDir,
+  thumbnails: path.join(cacheDir, 'thumbnails'),
+  extensions: path.join(configDir, 'extensions'),
 };
 
-const previewableExtensions = new Set([...imageExtensions, ...videoExtensions, ...documentExtensions]);
-
-// Centralized public URL (for reverse proxy setups / custom domains)
-// Example: PUBLIC_URL=https://files.example.com
-const rawPublicUrl = typeof process.env.PUBLIC_URL === 'string' ? process.env.PUBLIC_URL.trim() : '';
+// --- Public URL ---
 let publicUrl = null;
 let publicOrigin = null;
-try {
-  if (rawPublicUrl) {
-    const { href, origin } = new URL(rawPublicUrl);
-    publicUrl = href.replace(/\/$/, '');
-    publicOrigin = origin;
+if (env.PUBLIC_URL) {
+  try {
+    const url = new URL(env.PUBLIC_URL);
+    publicUrl = url.href.replace(/\/$/, '');
+    publicOrigin = url.origin;
+  } catch (err) {
+    console.warn(`[Config] Invalid PUBLIC_URL: ${env.PUBLIC_URL}`);
   }
-} catch (err) {
-  logger.warn(
-    { publicUrl: rawPublicUrl, error: err.message },
-    'Invalid PUBLIC_URL provided'
-  );
 }
 
-const rawAllowedOrigins = process.env.CORS_ORIGIN || process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS || '';
-const hasExplicitCors = rawAllowedOrigins.trim() !== '';
-
-let allowAllOrigins = false;
-let allowedOriginList = [];
-
-if (hasExplicitCors) {
-  if (rawAllowedOrigins.trim() === '*') {
-    allowAllOrigins = true;
-    allowedOriginList = [];
-  } else {
-    allowAllOrigins = false;
-    allowedOriginList = rawAllowedOrigins
-      .split(',')
-      .map((origin) => origin.trim())
-      .filter(Boolean);
+// --- CORS ---
+const buildCorsConfig = () => {
+  if (env.CORS_ORIGINS) {
+    if (env.CORS_ORIGINS === '*') return { allowAll: true, origins: [] };
+    return { allowAll: false, origins: env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean) };
   }
-} else if (publicOrigin) {
-  // Default to the PUBLIC_URL origin when CORS origins are not explicitly set
-  allowAllOrigins = false;
-  allowedOriginList = [publicOrigin];
-} else {
-  // Backwards-compatibility: if nothing configured at all, allow all
-  allowAllOrigins = true;
-  allowedOriginList = [];
-}
+  if (publicOrigin) return { allowAll: false, origins: [publicOrigin] };
+  return { allowAll: true, origins: [] }; // Backwards compatibility
+};
 
+const corsConfig = buildCorsConfig();
 const corsOptions = {
   origin: (origin, callback) => {
-    if (allowAllOrigins) {
+    if (corsConfig.allowAll || !origin || corsConfig.origins.includes(origin)) {
       callback(null, true);
-      return;
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-    if (allowedOriginList.includes(origin)) {
-      callback(null, true);
-      return;
-    }
-    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 };
 
-// Legacy support retained; minimal OIDC integration defaults to 'oidc'
-const supportedAuthModes = new Set(['local', 'oidc', 'both']);
-const normalizedAuthMode = 'oidc';
+// --- Auth ---
+const auth = {
+  enabled: env.AUTH_ENABLED !== false,
+  sessionSecret: env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+  authMode: 'oidc',
+  oidc: {
+    enabled: env.OIDC_ENABLED ?? null,
+    issuer: env.OIDC_ISSUER,
+    authorizationURL: env.OIDC_AUTHORIZATION_URL,
+    tokenURL: env.OIDC_TOKEN_URL,
+    userInfoURL: env.OIDC_USERINFO_URL,
+    clientId: env.OIDC_CLIENT_ID,
+    clientSecret: env.OIDC_CLIENT_SECRET,
+    callbackUrl: env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
+    scopes: parseScopes(env.OIDC_SCOPES) || null,
+    adminGroups: parseScopes(env.OIDC_ADMIN_GROUPS) || null,
+  },
+};
 
-// New: central auth.enabled flag
-const authEnabled = (() => {
-  const value = normalizeBoolean(process.env.AUTH_ENABLED);
-  // Default: enabled, unless explicitly set to false
-  if (value === false) return false;
-  return true;
+// --- Search ---
+const searchMaxFileSizeBytes = (() => {
+  const parsed = parseByteSize(env.SEARCH_MAX_FILESIZE);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 5 * 1024 * 1024;
 })();
 
-const rawEnvScopes = process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null;
-const rawAdminGroups = process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null;
-
-const envOidcConfig = {
-  enabled: normalizeBoolean(process.env.OIDC_ENABLED) ?? null,
-  issuer: process.env.OIDC_ISSUER || process.env.OIDC_ISSUER_URL || null,
-  authorizationURL: process.env.OIDC_AUTHORIZATION_URL || null,
-  tokenURL: process.env.OIDC_TOKEN_URL || null,
-  userInfoURL: process.env.OIDC_USERINFO_URL || null,
-  clientId: process.env.OIDC_CLIENT_ID || null,
-  clientSecret: process.env.OIDC_CLIENT_SECRET || null,
-  // If not explicitly set, derive callback from PUBLIC_URL
-  callbackUrl: process.env.OIDC_CALLBACK_URL
-    || process.env.OIDC_REDIRECT_URI
-    || (publicUrl ? `${publicUrl}/callback` : null),
-  scopes: parseScopes(rawEnvScopes) || null,
-  // Admin groups used to elevate user to app 'admin' role
-  adminGroups: parseScopes(rawAdminGroups) || null,
+// --- OnlyOffice ---
+const onlyoffice = {
+  serverUrl: env.ONLYOFFICE_URL?.replace(/\/$/, '') || null,
+  secret: env.ONLYOFFICE_SECRET || env.SESSION_SECRET || auth.sessionSecret,
+  lang: env.ONLYOFFICE_LANG,
+  forceSave: env.ONLYOFFICE_FORCE_SAVE,
+  extensions: env.ONLYOFFICE_FILE_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 };
 
-const envAuthConfig = {
-  enabled: authEnabled,
-  sessionSecret: process.env.SESSION_SECRET 
-                || process.env.AUTH_SESSION_SECRET 
-                || crypto.randomBytes(32).toString('hex'),
-  authMode: normalizedAuthMode,
-  oidc: envOidcConfig,
-};
-
+// --- Main Export ---
 module.exports = {
-  port,
-  directories: {
-    volume: volumeDir,
-    volumeWithSep,
-    config: configDir,
-    cache: cacheDir,
-    thumbnails: thumbnailDir,
-    extensions: extensionsDir,
-  },
-  search: {
-    // Enable deep (content) search. When false, only file/dir names are matched.
-    deep: (normalizeBoolean(process.env.SEARCH_DEEP) ?? true),
-    // Allow using ripgrep if available (set to false to force fallback search)
-    ripgrep: (() => {
-      const a = normalizeBoolean(process.env.SEARCH_RIPGREP);
-      if (a !== null) return a;
-      return true;
-    })(),
-    // Optional: limit max file size considered for content search.
-    // Example values: "5M", "512K", or raw bytes like "1048576".
-    maxFileSize: (typeof process.env.SEARCH_MAX_FILESIZE === 'string' && process.env.SEARCH_MAX_FILESIZE.trim())
-      ? process.env.SEARCH_MAX_FILESIZE.trim()
-      : null,
-    // Numeric bytes used by fallback content scanning. Defaults to 5 MiB when unset/invalid.
-    maxFileSizeBytes: (() => {
-      const parsed = parseByteSize(process.env.SEARCH_MAX_FILESIZE);
-      if (Number.isFinite(parsed) && parsed > 0) return parsed;
-      return 5 * 1024 * 1024;
-    })(),
-  },
+  port: env.PORT,
+  directories,
+  
   files: {
-    passwordConfig: passwordConfigFile,
+    passwordConfig: path.join(configDir, 'app-config.json'),
   },
+  
+  public: { url: publicUrl, origin: publicOrigin },
+  
   extensions: {
-    images: imageExtensions,
-    videos: videoExtensions,
-    documents: documentExtensions,
-    previewable: previewableExtensions,
+    images: constants.IMAGE_EXTENSIONS,
+    videos: constants.VIDEO_EXTENSIONS,
+    documents: constants.DOCUMENT_EXTENSIONS,
+    previewable: constants.PREVIEWABLE_EXTENSIONS,
   },
-  excludedFiles,
-  mimeTypes,
+  
+  excludedFiles: constants.EXCLUDED_FILES,
+  mimeTypes: constants.MIME_TYPES,
   corsOptions,
-  public: {
-    url: publicUrl,
-    origin: publicOrigin,
+  
+  auth,
+  
+  search: {
+    deep: env.SEARCH_DEEP ?? true,
+    ripgrep: env.SEARCH_RIPGREP ?? true,
+    maxFileSize: env.SEARCH_MAX_FILESIZE,
+    maxFileSizeBytes: searchMaxFileSizeBytes,
   },
-  thumbnails: {
-    size: 200,
-    quality: 70
+  
+  thumbnails: { size: 200, quality: 70 },
+  onlyoffice,
+  
+  features: {
+    volumeUsage: env.SHOW_VOLUME_USAGE,
   },
-  auth: envAuthConfig,
+  
   logging: {
     level: loggingConfig.level,
     isDebug: loggingConfig.isDebug,
     enableHttpLogging: loggingConfig.enableHttpLogging,
   },
-  onlyoffice: {
-    // Public URL to ONLYOFFICE Document Server, e.g. https://office.example.com
-    serverUrl: typeof process.env.ONLYOFFICE_URL === 'string' && process.env.ONLYOFFICE_URL.trim()
-      ? process.env.ONLYOFFICE_URL.trim().replace(/\/$/, '')
-      : null,
-    // Secret used to sign short-lived tokens for file fetch + callback endpoints
-    secret: process.env.ONLYOFFICE_SECRET || process.env.AUTH_SESSION_SECRET || envAuthConfig.sessionSecret,
-    // Editor language (e.g. 'en', 'fr')
-    lang: (typeof process.env.ONLYOFFICE_LANG === 'string' && process.env.ONLYOFFICE_LANG.trim())
-      ? process.env.ONLYOFFICE_LANG.trim()
-      : 'en',
-    // Optional: force save mode (uses status 6)
-    forceSave: normalizeBoolean(process.env.ONLYOFFICE_FORCE_SAVE) ?? false,
-    // Optional: comma-separated list of extensions to enable OnlyOffice preview for
-    // e.g. "doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf"
-    extensions: (process.env.ONLYOFFICE_FILE_EXTENSIONS || '')
-      .split(',')
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean),
-  },
-  // Feature flags derived from environment variables
-  features: {
-    // Toggle volume usage UI and calculations in the frontend
-    // Default is off when unset or invalid
-    volumeUsage: (normalizeBoolean(process.env.SHOW_VOLUME_USAGE) ?? false),
-  }
 };
