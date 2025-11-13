@@ -2,8 +2,10 @@
 import { ref } from 'vue';
 import { changePassword } from '@/api';
 import { useAuthStore } from '@/stores/auth';
+import { useI18n } from 'vue-i18n';
 
 const auth = useAuthStore();
+const { t } = useI18n();
 const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
@@ -21,18 +23,18 @@ const submit = async () => {
   successMsg.value = '';
   errorMsg.value = '';
   if (!canSubmit()) {
-    errorMsg.value = 'Please fill all fields; new password must be at least 6 characters and match confirmation.';
+    errorMsg.value = t('settings.password.validation');
     return;
   }
   busy.value = true;
   try {
     await changePassword({ currentPassword: currentPassword.value, newPassword: newPassword.value });
-    successMsg.value = 'Password updated successfully.';
+    successMsg.value = t('settings.password.updated');
     currentPassword.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
   } catch (e) {
-    errorMsg.value = e?.message || 'Failed to change password';
+    errorMsg.value = e?.message || t('settings.password.failed');
   } finally {
     busy.value = false;
   }
@@ -41,26 +43,26 @@ const submit = async () => {
 
 <template>
   <div class="space-y-4">
-    <h2 class="text-lg font-semibold">Change Password</h2>
+    <h2 class="text-lg font-semibold">{{ t('settings.password.title') }}</h2>
     <p v-if="auth.currentUser?.provider !== 'local'" class="text-sm opacity-75">
-      Password can only be changed for local users. Your account is managed by your identity provider.
+      {{ t('settings.password.notLocalUser') }}
     </p>
     <form v-else class="space-y-3 max-w-md" @submit.prevent="submit">
       <div>
-        <label class="block text-sm mb-1">Current password</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.current') }}</label>
         <input v-model="currentPassword" type="password" class="w-full rounded border border-white/10 bg-transparent px-3 py-2" autocomplete="current-password" />
       </div>
       <div>
-        <label class="block text-sm mb-1">New password</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.new') }}</label>
         <input v-model="newPassword" type="password" class="w-full rounded border border-white/10 bg-transparent px-3 py-2" autocomplete="new-password" />
       </div>
       <div>
-        <label class="block text-sm mb-1">Confirm new password</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.confirm') }}</label>
         <input v-model="confirmPassword" type="password" class="w-full rounded border border-white/10 bg-transparent px-3 py-2" autocomplete="new-password" />
       </div>
       <div class="flex gap-3 items-center">
         <button type="submit" class="rounded bg-accent text-black px-4 py-2 disabled:opacity-50" :disabled="busy || !canSubmit()">
-          {{ busy ? 'Updating…' : 'Update Password' }}
+          {{ busy ? t('settings.password.updating') : t('settings.password.update') }}
         </button>
         <span v-if="successMsg" class="text-green-500 text-sm">{{ successMsg }}</span>
         <span v-else-if="errorMsg" class="text-red-500 text-sm">{{ errorMsg }}</span>
@@ -68,4 +70,3 @@ const submit = async () => {
     </form>
   </div>
 </template>
-

@@ -1,3 +1,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Themed, thin scrollbars (global) */
+@layer base {
+  /* Default (light) theme variables */
+  :root {
+    --scrollbar-track: #EAEAEA; /* nextgray-200 */
+    --scrollbar-thumb: #b7b4b4; /* nextgray-400 */
+    --scrollbar-thumb-hover: #BDBDBD;
+  }
+
+  /* Dark theme overrides (Tailwind uses .dark on html) */
+  .dark {
+    --scrollbar-track: #1B1F26; /* nextslate-900 */
+    --scrollbar-thumb: #3d3d3f; /* nextgray-700 */
+    --scrollbar-thumb-hover: #3a3a3d;
+  }
+
+  /* Firefox */
+  html {
+    scrollbar-width: auto;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  /* WebKit (Chrome, Edge, Safari) */
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 2px solid var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+}

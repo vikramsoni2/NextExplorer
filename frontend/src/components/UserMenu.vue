@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
@@ -15,10 +16,11 @@ import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline';
 const settings = useSettingsStore();
 const auth = useAuthStore();
 const router = useRouter();
+const { t } = useI18n();
 
 const isExpanded = ref(false);
 
-const displayName = computed(() => auth.currentUser?.displayName || auth.currentUser?.username || 'Account');
+const displayName = computed(() => auth.currentUser?.displayName || auth.currentUser?.username || t('user.account'));
 const secondaryLabel = computed(() => {
   if (auth.currentUser?.email) {
     return auth.currentUser.email;
@@ -34,8 +36,8 @@ const avatarLetter = computed(() => {
   return source ? source.trim().charAt(0).toUpperCase() : '';
 });
 
-const themeActionLabel = computed(() => (settings.isDark ? 'Use light theme' : 'Use dark theme'));
-const themeStatusLabel = computed(() => (settings.isDark ? 'Dark theme' : 'Light theme'));
+const themeActionLabel = computed(() => (settings.isDark ? t('user.useLightTheme') : t('user.useDarkTheme')));
+const themeStatusLabel = computed(() => (settings.isDark ? t('user.darkTheme') : t('user.lightTheme')));
 
 const toggleMenu = () => {
   isExpanded.value = !isExpanded.value;
@@ -103,14 +105,14 @@ const handleLogout = async () => {
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
               type="button" @click="handleSettings">
               <Cog8ToothIcon class="h-5 w-5" />
-              <span>Settings</span>
+              <span>{{ $t('user.settings') }}</span>
             </button>
 
             <button
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
               type="button" @click="handleLogout">
               <ArrowRightOnRectangleIcon class="h-5 w-5" />
-              <span>Sign out</span>
+              <span>{{ $t('user.signOut') }}</span>
             </button>
           </div>
         </transition>

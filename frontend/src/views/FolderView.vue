@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
@@ -16,11 +16,21 @@ const selectedItems = ref([]);
 const { clearSelection } = useSelection();
 const contextMenu = useExplorerContextMenu();
 
+const applySelectionFromQuery = () => {
+  const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
+  if (!selectName) return;
+  const match = fileStore.getCurrentPathItems.find((it) => it?.name === selectName);
+  if (match) {
+    fileStore.selectedItems = [match];
+  }
+};
+
 const loadFiles = async () => {
   loading.value = true
   const path = route.params.path || ''
   try {
     await fileStore.fetchPathItems(path)
+    applySelectionFromQuery();
   } catch (error) {
     console.error('Failed to load directory contents', error)
   } finally {
@@ -81,15 +91,15 @@ const handleBackgroundContextMenu = (event) => {
         class="grid items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
         px-4 py-2 text-xs 
         text-neutral-600 dark:text-neutral-300 
-        uppercase tracking-wide select-none sticky top-0 z-10 
+        uppercase tracking-wide select-none sticky top-0 
         bg-white dark:bg-zinc-800 
         backdrop-blur"
       >
         <div></div>
-        <div>Name</div>
-        <div>Size</div>
-        <div>Kind</div>
-        <div>Date Modified</div>
+        <div>{{ $t('folder.name') }}</div>
+        <div>{{ $t('folder.size') }}</div>
+        <div>{{ $t('folder.kind') }}</div>
+        <div>{{ $t('folder.dateModified') }}</div>
       </div>
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
@@ -101,7 +111,7 @@ const handleBackgroundContextMenu = (event) => {
 
     <div v-else class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
       <div class="flex  items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
-        <LoadingIcon/> Loading
+        <LoadingIcon/> {{ $t('folder.loading') }}
       </div>
     </div>
 

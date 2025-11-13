@@ -5,7 +5,7 @@
     "main": "app.js",
     "scripts": {
         "test": "node --test",
-        "start": "nodemon app.js"
+        "start": "node --watch app.js"
     },
     "author": "Vikram Soni",
     "license": "ISC",
@@ -32,7 +32,6 @@
         "ws": "^8.17.0"
     },
     "devDependencies": {
-        "nodemon": "^2.0.15",
         "supertest": "^7.1.4"
     }
 }

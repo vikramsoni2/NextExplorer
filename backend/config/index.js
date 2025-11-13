@@ -1,6 +1,6 @@
 const path = require('path');
 const logger = require('../utils/logger');
-const { normalizeBoolean } = require('../utils/env');
+const { normalizeBoolean, parseByteSize } = require('../utils/env');
 const loggingConfig = require('./logging');
 const crypto = require('crypto');
 
@@ -162,6 +162,27 @@ module.exports = {
     cache: cacheDir,
     thumbnails: thumbnailDir,
   },
+  search: {
+    // Enable deep (content) search. When false, only file/dir names are matched.
+    deep: (normalizeBoolean(process.env.SEARCH_DEEP) ?? true),
+    // Allow using ripgrep if available (set to false to force fallback search)
+    ripgrep: (() => {
+      const a = normalizeBoolean(process.env.SEARCH_RIPGREP);
+      if (a !== null) return a;
+      return true;
+    })(),
+    // Optional: limit max file size considered for content search.
+    // Example values: "5M", "512K", or raw bytes like "1048576".
+    maxFileSize: (typeof process.env.SEARCH_MAX_FILESIZE === 'string' && process.env.SEARCH_MAX_FILESIZE.trim())
+      ? process.env.SEARCH_MAX_FILESIZE.trim()
+      : null,
+    // Numeric bytes used by fallback content scanning. Defaults to 5 MiB when unset/invalid.
+    maxFileSizeBytes: (() => {
+      const parsed = parseByteSize(process.env.SEARCH_MAX_FILESIZE);
+      if (Number.isFinite(parsed) && parsed > 0) return parsed;
+      return 5 * 1024 * 1024;
+    })(),
+  },
   files: {
     passwordConfig: passwordConfigFile,
   },
@@ -207,5 +228,11 @@ module.exports = {
       .split(',')
       .map((s) => s.trim().toLowerCase())
       .filter(Boolean),
+  },
+  // Feature flags derived from environment variables
+  features: {
+    // Toggle volume usage UI and calculations in the frontend
+    // Default is off when unset or invalid
+    volumeUsage: (normalizeBoolean(process.env.SHOW_VOLUME_USAGE) ?? false),
   },
 };

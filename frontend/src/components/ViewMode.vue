@@ -1,6 +1,7 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { onClickOutside } from '@vueuse/core';
 import { useSettingsStore } from '@/stores/settings'
 import { AlignSpaceAroundVertical20Regular } from '@vicons/fluent';
@@ -12,6 +13,7 @@ import {
 import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/20/solid';
 
 const settings = useSettingsStore()
+const { t } = useI18n();
 
 const menuOpen = ref(false)
 const menuPopup = ref(null)
@@ -19,25 +21,25 @@ const menuPopup = ref(null)
 const viewOptions = [
   {
     key: 'list',
-    label: 'List view',
+    get label() { return t('view.list'); },
     icon: ListBulletIcon,
     activate: () => settings.listView()
   },
   {
     key: 'tab',
-    label: 'Column view',
+    get label() { return t('view.column'); },
     icon: AlignSpaceAroundVertical20Regular,
     activate: () => settings.tabView()
   },
   {
     key: 'grid',
-    label: 'Grid view',
+    get label() { return t('view.grid'); },
     icon: Squares2X2Icon,
     activate: () => settings.gridView()
   },
   {
     key: 'photos',
-    label: 'Photos view',
+    get label() { return t('view.photos'); },
     icon: PhotoIcon,
     activate: () => settings.photosView()
   }

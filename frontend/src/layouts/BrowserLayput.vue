@@ -26,6 +26,7 @@ import { useFileUploader, useUppyDropTarget } from '@/composables/fileUploader';
 import { useUppyStore } from '@/stores/uppyStore';
 import { useFileStore } from '@/stores/fileStore';
 import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
+import SpotlightSearch from '@/components/SpotlightSearch.vue';
 
 
 const route = useRoute()
@@ -62,16 +63,10 @@ useEventListener(window, 'pointerup', () => {
 })
 
 const currentPathName = computed(() => {
-  if(route.params.path==''){
-    return 'Volumes';
-  }
-  if (typeof route.params.path === 'string') {
-    const segments = route.params.path.split("/");
-    return segments.pop(); 
-  }
-  
-})
-
+const p = route.params.path;
+const s = Array.isArray(p) ? p.join('/') : (p || '');
+return s.split('/').filter(Boolean).pop() || 'Volumes';
+});
 useTitle(currentPathName)
 
 
@@ -84,8 +79,6 @@ useUppyDropTarget(dropTargetRef);
 
 // Global clipboard keyboard shortcuts for the browser layout
 useClipboardShortcuts();
-
-
 
 </script>
 
@@ -101,8 +94,8 @@ useClipboardShortcuts();
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
     >
-      <HeaderLogo />
-      <CreateNew />
+      <HeaderLogo appname="Explorer"/>
+      <CreateNew class="mt-6"/>
       <FavMenu />
       <VolMenu />
       <UserMenu class="mt-auto -mx-4"/>
@@ -112,7 +105,7 @@ useClipboardShortcuts();
     <div
       class="relative w-1 cursor-col-resize bg-transparent group select-none hidden lg:block"
       @pointerdown="onPointerDown"
-      aria-label="Resize sidebar"
+      :aria-label="$t('browser.resizeSidebar')"
     >
       <!-- Visual guide line -->
       <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-neutral-200 dark:bg-neutral-700 group-hover:bg-neutral-500"></div>
@@ -124,7 +117,7 @@ useClipboardShortcuts();
     >
       
 
-       <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+       <div class="flex z-10 items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
         <!-- Hamburger (small screens) -->
         <label for="sidebar-toggle" class="lg:hidden -ml-2 mr-3 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">
@@ -150,6 +143,7 @@ useClipboardShortcuts();
         </div> -->
       </div>
 
+
       <ExplorerContextMenu>
         <div class="p-6 pt-0 overflow-y-auto grow">
           <router-view :key="route.fullPath">
@@ -171,6 +165,7 @@ useClipboardShortcuts();
   <UploadProgress class="z-550"/>
   <PreviewHost/>
   <InfoPanel/>
+  <SpotlightSearch/>
   </div>
 
 </template>

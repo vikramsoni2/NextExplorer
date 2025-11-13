@@ -1,17 +1,14 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
-import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon, PencilSquareIcon, StarIcon as StarIconOutline } from '@heroicons/vue/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid';
+import { computed, ref } from 'vue';
+import { ArrowDownTrayIcon, TrashIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
 import { useFileStore } from '@/stores/fileStore';
 import { useFileActions } from '@/composables/fileActions';
-import { useFavoritesStore } from '@/stores/favorites';
 import { normalizePath, downloadItems } from '@/api';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { Rename20Regular } from '@vicons/fluent';
 
 const fileStore = useFileStore();
 const actions = useFileActions();
-const favoritesStore = useFavoritesStore();
 
 const selectedItems = actions.selectedItems;
 const selectedItem = actions.primaryItem;
@@ -19,10 +16,8 @@ const hasSelection = actions.hasSelection;
 const isSingleItemSelected = actions.isSingleItemSelected;
 const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItem.value?.kind !== 'directory');
 const canRename = actions.canRename;
-const isSingleDirectorySelected = computed(() => isSingleItemSelected.value && selectedItems.value[0]?.kind === 'directory');
 const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
 const isPreparingDownload = ref(false);
-const isMutatingFavorite = ref(false);
 const isDeleteConfirmOpen = ref(false);
 const isDeleting = ref(false);
 
@@ -46,10 +41,6 @@ const deleteDialogMessage = computed(() => {
     return `Are you sure you want to delete these ${count} items? This action cannot be undone.`;
   }
   return 'No items selected.';
-});
-
-onMounted(() => {
-  favoritesStore.ensureLoaded();
 });
 
 const getResolvedPaths = () => selectedItems.value
@@ -145,72 +136,10 @@ const handleRename = () => {
   if (!target) return;
   fileStore.beginRename(target);
 };
-
-const selectedDirectoryPath = computed(() => {
-  if (!isSingleDirectorySelected.value) {
-    return null;
-  }
-
-  const target = selectedItem.value;
-  if (!target) {
-    return null;
-  }
-
-  const parent = normalizePath(target.path || '');
-  const combined = parent ? `${parent}/${target.name}` : target.name;
-  return normalizePath(combined);
-});
-
-const isFavoriteDirectory = computed(() => {
-  const path = selectedDirectoryPath.value;
-  if (!path) {
-    return false;
-  }
-  return favoritesStore.isFavorite(path);
-});
-
-const favoriteStarComponent = computed(() => (isFavoriteDirectory.value ? StarIconSolid : StarIconOutline));
-const favoriteTooltip = computed(() => (isFavoriteDirectory.value ? 'Remove from Favorites' : 'Add to Favorites'));
-
-const isFavoriteActionDisabled = computed(() => !selectedDirectoryPath.value || isMutatingFavorite.value);
-
-const handleFavoriteAction = async () => {
-  const path = selectedDirectoryPath.value;
-  if (!path || isMutatingFavorite.value) {
-    return;
-  }
-
-  isMutatingFavorite.value = true;
-  try {
-    if (isFavoriteDirectory.value) {
-      await favoritesStore.removeFavorite(path);
-    } else {
-      await favoritesStore.addFavorite({ path, icon: 'solid:StarIcon' });
-    }
-  } catch (error) {
-    console.error('Failed to update favorite', error);
-  } finally {
-    isMutatingFavorite.value = false;
-  }
-};
 </script>
 
 <template>
   <div class="flex gap-1 items-center">
-    <button
-      v-if="isSingleDirectorySelected"
-      type="button"
-      @click="handleFavoriteAction"
-      :disabled="isFavoriteActionDisabled"
-      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-      :class="{
-        'text-amber-500 dark:text-amber-400': isFavoriteDirectory,
-        'opacity-50 cursor-not-allowed': isFavoriteActionDisabled,
-      }"
-      :title="favoriteTooltip"
-    >
-      <component :is="favoriteStarComponent" class="w-6" />
-    </button>
     <!-- <button
       type="button"
       @click="handleRename"
@@ -231,7 +160,7 @@ const handleFavoriteAction = async () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-default pointer-events-none': !hasSelection || isPreparingDownload }"
-      :title="isPreparingDownload ? 'Preparing download...' : 'Download'"
+      :title="isPreparingDownload ? $t('download.preparing') : $t('download.download')"
     >
       <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
       <ArrowDownTrayIcon v-else class="w-6" />

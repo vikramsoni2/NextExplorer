@@ -1,0 +1,311 @@
+{
+  "common": {
+    "or": "OR",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "loading": "Loading",
+    "save": "Save",
+    "discard": "Discard",
+    "remove": "Remove",
+    "create": "Create",
+    "dismiss": "Dismiss",
+    "disabled": "Disabled"
+  },
+  "i18n": { 
+    "language": "Language", 
+    "english": "English", 
+    "spanish": "Spanish",
+    "french": "French",
+    "german": "German",
+    "chinese": "Chinese" 
+  },
+  "search": {
+    "search": "Search",
+    "openShortcutTitle": "Open Search (⌘/Ctrl + K)",
+    "resultsFor": "Results for “{q}”",
+    "in": "in",
+    "searching": "Searching…",
+    "noMatches": "No matches found.",
+    "failed": "Search failed",
+    "openFolder": "Open folder",
+    "line": "line"
+  },
+  "user": {
+    "account": "Account",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "useLightTheme": "Use light theme",
+    "useDarkTheme": "Use dark theme",
+    "lightTheme": "Light theme",
+    "darkTheme": "Dark theme"
+  },
+  "create": {
+    "createNew": "Create New",
+    "newFolder": "New Folder",
+    "fileUpload": "File Upload",
+    "folderUpload": "Folder Upload"
+  },
+  "context": {
+    "getInfo": "Get Info",
+    "addToFavorites": "Add to Favorites",
+    "removeFromFavorites": "Remove from Favorites",
+    "newFolder": "New Folder",
+    "newFile": "New File",
+    "paste": "Paste",
+    "cut": "Cut",
+    "copy": "Copy",
+    "rename": "Rename",
+    "delete": "Delete",
+    "deleteTitle": {
+      "single": "Delete \"{name}\"?",
+      "multiple": "Delete {count} items?",
+      "generic": "Delete items"
+    },
+    "deleteMessage": {
+      "single": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+      "multiple": "Are you sure you want to delete these {count} items? This action cannot be undone.",
+      "generic": "No items selected."
+    }
+  },
+  "folder": {
+    "name": "Name",
+    "size": "Size",
+    "kind": "Kind",
+    "dateModified": "Date Modified",
+    "loading": "Loading"
+  },
+  "volumes": {
+    "quickAccess": "Quick access",
+    "quickAccessEmpty": "Pin folders as favorites to access them quickly here.",
+    "title": "Volumes",
+    "loading": "Loading volumes…"
+  },
+  "browser": {
+    "resizeSidebar": "Resize sidebar"
+  },
+  "nav": {
+    "back": "Back",
+    "forward": "Forward",
+    "upOneFolder": "Up one folder"
+  },
+  "view": {
+    "list": "List view",
+    "column": "Column view",
+    "grid": "Grid view",
+    "photos": "Photos view"
+  },
+  "photos": {
+    "menuTitle": "Photo size",
+    "menuAria": "Open photo size controls",
+    "thumbnailSize": "Thumbnail size"
+  },
+  "favorites": {
+    "title": "Favorites",
+    "emptyTitle": "No favorites yet",
+    "emptyDescription": "Select a directory and tap the star in the main toolbar to pin it here."
+  },
+  "spotlight": {
+    "placeholder": "Search files and folders…",
+    "close": "Close",
+    "hintWithin": "Type to search within"
+  },
+  "download": {
+    "download": "Download",
+    "preparing": "Preparing download..."
+  },
+  "upload": {
+    "toggleDetailsShow": "Show details",
+    "toggleDetailsHide": "Hide details",
+    "pauseUploads": "Pause uploads",
+    "resumeUploads": "Resume uploads",
+    "cancelAll": "Cancel all",
+    "uploads": "Uploading {count} {items}",
+    "item": "item",
+    "items": "items",
+    "to": "to",
+    "done": "Done",
+    "remaining": "remaining",
+    "completePercent": "{percent}% complete"
+  },
+  "info": {
+    "aria": "Info panel",
+    "details": "Details",
+    "fileName": "File Name",
+    "type": "Type",
+    "size": "Size",
+    "modified": "Modified",
+    "location": "Location",
+    "folder": "Folder",
+    "folderSize": "Size: {size}",
+    "items": "Items: {files} files, {folders} folders",
+    "image": "Image",
+    "video": "Video",
+    "dimensions": "Dimensions: {w} × {h}",
+    "dateTaken": "Date Taken: {date}",
+    "camera": "Camera: {makeModel}",
+    "lens": "Lens: {lens}",
+    "duration": "Duration: {seconds}s",
+    "loading": "Loading metadata…",
+    "failed": "Failed to load metadata"
+  },
+  "auth": {
+    "preparing": "Preparing your explorer…",
+    "marketing": {
+      "headline": "The future of file management is here",
+      "subtitle": "Securely access, organize and collaborate on all your files from anywhere",
+      "bullets": {
+        "keyboard": "Keyboard-first navigation and blazing search.",
+        "access": "Granular access controls with audit-friendly actions.",
+        "sso": "Seamless Single Sign-On with your IdP."
+      }
+    },
+    "login": {
+      "welcome": "Welcome back",
+      "subtitle": "Log in to access NextExplorer.",
+      "submit": "Log In"
+    },
+    "setup": {
+      "headline": "Let’s get set up",
+      "subtitle": "Create your administrator account to secure and manage your files.",
+      "formTitle": "Create your account",
+      "formSubtitle": "Provide an email and secure password to finish setup.",
+      "submit": "Finish Setup",
+      "bullets": {
+        "encryption": "Strong encryption and audit-friendly actions.",
+        "permissions": "Granular permissions and user management.",
+        "sso": "Seamless Single Sign-On support."
+      }
+    },
+    "email": "Email address",
+    "emailPlaceholder": "name@company.com",
+    "usernameOptional": "Username (optional)",
+    "usernamePlaceholder": "Defaults to email prefix",
+    "password": "Password",
+    "passwordPlaceholder": "Choose a strong password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-type your password",
+    "verifying": "Verifying…",
+    "creating": "Creating…",
+    "sso": {
+      "continue": "Continue with Single Sign-On"
+    },
+    "errors": {
+      "localSignInDisabled": "Local sign-in is disabled.",
+      "emailRequired": "Email is required.",
+      "passwordRequired": "Password is required.",
+      "passwordLength": "Password must be at least 6 characters long.",
+      "passwordMismatch": "Passwords do not match.",
+      "signInFailed": "Failed to sign in.",
+      "createAccountFailed": "Failed to create account."
+    }
+  },
+  "breadcrumb": {
+    "volumes": "Volumes"
+  },
+  "sort": {
+    "title": "Sort options",
+    "nameAToZ": "Name A to Z",
+    "nameZToA": "Name Z to A",
+    "smallToLarge": "Small to large",
+    "largeToSmall": "Large to small",
+    "oldToNew": "Old to new",
+    "newToOld": "New to old"
+  }
+  ,
+  "settings": {
+    "user": "User",
+    "admin": "Admin",
+    "title": "Settings",
+    "close": "Close settings",
+    "categories": {
+      "account-password": "Change Password",
+      "about": "About",
+      "files-thumbnails": "Files & Thumbnails",
+      "security": "Security",
+      "access-control": "Access Control",
+      "admin-users": "User Management"
+    },
+    "about": {
+      "title": "About",
+      "subtitle": "View build information for this application.",
+      "appVersion": "App version",
+      "appVersionHelp": "The build version currently running.",
+      "gitCommit": "Git commit",
+      "gitCommitHelp": "Source revision embedded at build time.",
+      "branch": "Branch",
+      "branchHelp": "Git branch at build time.",
+      "unknown": "unknown"
+    },
+    "common": { "unsavedChanges": "You have unsaved changes" },
+    "thumbs": {
+      "title": "Thumbnails",
+      "subtitle": "Customize preview thumbnails for images and videos.",
+      "enable": "Enable thumbnails",
+      "enableHelp": "Turn off to speed up browsing without generating previews.",
+      "quality": "Thumbnail quality",
+      "qualityHelp": "Controls output quality (1–100). Default is 70.",
+      "maxDim": "Max dimension",
+      "maxDimHelp": "Longest side in pixels. Default is 200."
+    },
+    "security": {
+      "title": "Authentication",
+      "subtitle": "Control access to the app.",
+      "enable": "Enable authentication",
+      "enableHelp": "When off, anyone can access your files.",
+      "confirmDisable": "Disabling authentication will make your files publicly accessible. Continue?"
+    },
+    "access": {
+      "title": "Folder Rules",
+      "subtitle": "Set per-folder permissions: read-write, read-only, or hidden.",
+      "addRule": "Add rule",
+      "path": "Path",
+      "recursive": "Recursive",
+      "permissions": "Permissions",
+      "pathPlaceholder": "e.g. Pictures/Holidays",
+      "readWrite": "Read & Write",
+      "readOnly": "Read Only",
+      "hidden": "Hidden"
+    },
+    "comingSoon": { "title": "Coming soon", "subtitle": "This settings section is being built. Stay tuned!" },
+    "password": {
+      "title": "Change Password",
+      "notLocalUser": "Password can only be changed for local users. Your account is managed by your identity provider.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "update": "Update Password",
+      "updating": "Updating…",
+      "updated": "Password updated successfully.",
+      "failed": "Failed to change password",
+      "validation": "Please fill all fields; new password must be at least 6 characters and match confirmation."
+    },
+    "users": {
+      "title": "User Management",
+      "failedLoad": "Failed to load users",
+      "failedUpdateRoles": "Failed to update roles",
+      "failedCreate": "Failed to create user",
+      "passwordMin": "Password must be at least 6 characters.",
+      "passwordUpdated": "Password updated",
+      "failedReset": "Failed to reset password",
+      "cannotDeleteSelf": "You cannot delete your own account.",
+      "confirmRemove": "Remove user {user}? This cannot be undone.",
+      "failedRemove": "Failed to remove user",
+      "createUser": "Create User",
+      "email": "Email",
+      "emailPlaceholder": "user@example.com",
+      "username": "Username",
+      "usernameOptional": "Optional",
+      "password": "Password",
+      "grantAdmin": "Grant admin",
+      "creating": "Creating…",
+      "displayName": "Display Name",
+      "roles": "Roles",
+      "actions": "Actions",
+      "makeAdmin": "Make admin",
+      "resetPassword": "Set/Reset password",
+      "removeUser": "Remove user",
+      "promptNewPassword": "Enter a new password for {user} (min 6 chars):"
+    }
+  }
+}

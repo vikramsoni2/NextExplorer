@@ -4,11 +4,13 @@ import { useRouter, useRoute, RouterView } from 'vue-router';
 import { useAppSettings } from '@/stores/appSettings';
 import { useAuthStore } from '@/stores/auth';
 import HeaderLogo from '@/components/HeaderLogo.vue';
+import { useI18n } from 'vue-i18n';
 import { XMarkIcon, Cog8ToothIcon } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
 const route = useRoute();
 const appSettings = useAppSettings();
+const { t } = useI18n();
 const auth = useAuthStore();
 
 onMounted(() => {
@@ -54,7 +56,7 @@ const closeSettings = () => {
     <aside class="w-[230px] bg-nextgray-100 dark:bg-zinc-800 dark:bg-opacity-70 p-6 px-5 shrink-0">
       <HeaderLogo />
       <div class="mt-4">
-        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">User</div>
+        <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{{ t('settings.user') }}</div>
         <nav class="flex flex-col gap-1 mb-4">
           <button
             v-for="c in userCategories.filter(c => !c.requiresLocal || isLocalUser)"
@@ -64,12 +66,12 @@ const closeSettings = () => {
             @click="goCategory(c.key)"
           >
             <component :is="c.icon" class="w-5" />
-            <span class="text-sm">{{ c.name }}</span>
+            <span class="text-sm">{{ t('settings.categories.' + c.key) }}</span>
           </button>
         </nav>
 
         <template v-if="isAdmin">
-          <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">Admin</div>
+          <div class="mb-2 text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400">{{ t('settings.admin') }}</div>
           <nav class="flex flex-col gap-1">
             <button
               v-for="c in adminCategories"
@@ -79,7 +81,7 @@ const closeSettings = () => {
               @click="goCategory(c.key)"
             >
               <component :is="c.icon" class="w-5" />
-              <span class="text-sm">{{ c.name }}</span>
+              <span class="text-sm">{{ t('settings.categories.' + c.key) }}</span>
             </button>
           </nav>
         </template>
@@ -90,11 +92,11 @@ const closeSettings = () => {
       <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
         <div class="flex items-center gap-3 mr-auto">
           <Cog8ToothIcon class="w-6" />
-          <h1 class="text-lg font-semibold">Settings</h1>
+          <h1 class="text-lg font-semibold">{{ t('settings.title') }}</h1>
         </div>
 
         <button
-          title="Close settings"
+          :title="t('settings.close')"
           class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
           @click="closeSettings"
         >

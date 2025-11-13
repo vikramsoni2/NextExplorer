@@ -12,11 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: 3.x
-      - name: Install dependencies
-        run: pip install -r docs/requirements.txt
-      - name: Deploy
-        run: cd docs && mkdocs gh-deploy --force
+          node-version: 20
+      - name: Install dependencies (docs)
+        run: |
+          cd docs
+          npm ci || npm install
+      - name: Build VitePress site
+        run: |
+          cd docs
+          npm run docs:build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist

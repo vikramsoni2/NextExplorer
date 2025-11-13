@@ -9,6 +9,7 @@ import {
   watch,
 } from 'vue';
 import { offset, flip, shift, useFloating } from '@floating-ui/vue';
+import { useI18n } from 'vue-i18n';
 import { explorerContextMenuSymbol } from '@/composables/contextMenu';
 import { useFileStore } from '@/stores/fileStore';
 import { useSelection } from '@/composables/itemSelection';
@@ -19,6 +20,9 @@ import { normalizePath } from '@/api';
 import { modKeyLabel, deleteKeyLabel } from '@/utils/keyboard';
 import { useDeleteConfirm } from '@/composables/useDeleteConfirm';
 import ModalDialog from '@/components/ModalDialog.vue';
+import { useFavoritesStore } from '@/stores/favorites';
+import { StarIcon as StarOutline } from '@heroicons/vue/24/outline';
+import { StarIcon as StarSolid } from '@heroicons/vue/24/solid';
 // Icons
 import {
   CreateNewFolderRound,
@@ -35,11 +39,13 @@ const fileStore = useFileStore();
 const previewManager = usePreviewManager();
 const infoPanel = useInfoPanelStore();
 const { clearSelection } = useSelection();
+const favoritesStore = useFavoritesStore();
 
 const isOpen = ref(false);
 const pointer = ref({ x: 0, y: 0 });
 const contextKind = ref('background'); // background | file | directory
 const targetItem = ref(null);
+const isMutatingFavorite = ref(false);
 
 const referenceRef = ref(null);
 const floatingRef = ref(null);
@@ -63,6 +69,7 @@ const referenceStyles = computed(() => ({
 }));
 
 const actions = useFileActions();
+const { t } = useI18n();
 const selectedItems = actions.selectedItems;
 const hasSelection = actions.hasSelection;
 const primaryItem = actions.primaryItem;
@@ -72,23 +79,23 @@ const canRename = actions.canRename;
 const deleteDialogTitle = computed(() => {
   const count = selectedItems.value.length;
   if (count === 1 && primaryItem.value) {
-    return `Delete "${primaryItem.value.name}"?`;
+    return t('context.deleteTitle.single', { name: primaryItem.value.name });
   }
   if (count > 1) {
-    return `Delete ${count} items?`;
+    return t('context.deleteTitle.multiple', { count });
   }
-  return 'Delete items';
+  return t('context.deleteTitle.generic');
 });
 
 const deleteDialogMessage = computed(() => {
   const count = selectedItems.value.length;
   if (count === 1 && primaryItem.value) {
-    return `Are you sure you want to delete "${primaryItem.value.name}"? This action cannot be undone.`;
+    return t('context.deleteMessage.single', { name: primaryItem.value.name });
   }
   if (count > 1) {
-    return `Are you sure you want to delete these ${count} items? This action cannot be undone.`;
+    return t('context.deleteMessage.multiple', { count });
   }
-  return 'No items selected.';
+  return t('context.deleteMessage.generic');
 });
 
 const {
@@ -186,6 +193,57 @@ const runGetInfo = () => {
   infoPanel.open(primaryItem.value);
 };
 
+// Favorites support
+const selectedDirectoryPath = computed(() => {
+  if (contextKind.value !== 'directory') return null;
+  const item = targetItem.value;
+  if (!item || item.kind !== 'directory') return null;
+  return normalizePath(actions.resolveItemPath(item));
+});
+
+const isFavoriteDirectory = computed(() => {
+  const path = selectedDirectoryPath.value;
+  if (!path) return false;
+  return favoritesStore.isFavorite(path);
+});
+
+const currentDirectoryPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
+const isFavoriteCurrentDirectory = computed(() => {
+  const path = currentDirectoryPath.value;
+  if (!path) return false;
+  return favoritesStore.isFavorite(path);
+});
+
+const runToggleFavoriteForDirectory = async () => {
+  const path = selectedDirectoryPath.value;
+  if (!path || isMutatingFavorite.value) return;
+  isMutatingFavorite.value = true;
+  try {
+    if (isFavoriteDirectory.value) {
+      await favoritesStore.removeFavorite(path);
+    } else {
+      await favoritesStore.addFavorite({ path, icon: 'solid:StarIcon' });
+    }
+  } finally {
+    isMutatingFavorite.value = false;
+  }
+};
+
+const runToggleFavoriteForCurrent = async () => {
+  const path = currentDirectoryPath.value;
+  if (!path || isMutatingFavorite.value) return;
+  isMutatingFavorite.value = true;
+  try {
+    if (isFavoriteCurrentDirectory.value) {
+      await favoritesStore.removeFavorite(path);
+    } else {
+      await favoritesStore.addFavorite({ path, icon: 'solid:StarIcon' });
+    }
+  } finally {
+    isMutatingFavorite.value = false;
+  }
+};
+
 // Build grouped, themed menu sections with icons + shortcuts
 const menuSections = computed(() => {
   if (!isOpen.value) return [];
@@ -203,16 +261,25 @@ const menuSections = computed(() => {
   if (contextKind.value === 'background') {
     return [
       [
-        mk('get-info', 'Get Info', InfoRound, runGetInfo, {
+        mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, {
           disabled: !primaryItem.value,
         }),
       ],
       [
-        mk('new-folder', 'New Folder', CreateNewFolderRound, runCreateFolder),
-        mk('new-file', 'New File', InsertDriveFileRound, runCreateFile),
+        mk(
+          'fav-current',
+          isFavoriteCurrentDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
+          isFavoriteCurrentDirectory.value ? StarSolid : StarOutline,
+          runToggleFavoriteForCurrent,
+          { disabled: !currentDirectoryPath.value || isMutatingFavorite.value },
+        ),
       ],
       [
-        mk('paste', 'Paste', ContentPasteRound, runPasteIntoCurrent, {
+        mk('new-folder', t('context.newFolder'), CreateNewFolderRound, runCreateFolder),
+        mk('new-file', t('context.newFile'), InsertDriveFileRound, runCreateFile),
+      ],
+      [
+        mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoCurrent, {
           disabled: !actions.canPaste.value,
           shortcut: `${modKeyLabel}V`,
         }),
@@ -222,26 +289,38 @@ const menuSections = computed(() => {
 
   const sections = [];
   sections.push([
-    mk('get-info', 'Get Info', InfoRound, runGetInfo, { disabled: !primaryItem.value }),
+    mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, { disabled: !primaryItem.value }),
   ]);
 
   const clipboardSection = [
-    mk('cut', 'Cut', ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
-    mk('copy', 'Copy', ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
+    mk('cut', t('context.cut'), ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
+    mk('copy', t('context.copy'), ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
   ];
   if (contextKind.value === 'directory') {
     clipboardSection.push(
-      mk('paste', 'Paste', ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
+      mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
     );
   }
   sections.push(clipboardSection);
 
   sections.push([
-    mk('rename', 'Rename', DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
+    mk('rename', t('context.rename'), DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
   ]);
 
+  if (contextKind.value === 'directory') {
+    sections.push([
+      mk(
+        'fav',
+        isFavoriteDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
+        isFavoriteDirectory.value ? StarSolid : StarOutline,
+        runToggleFavoriteForDirectory,
+        { disabled: !selectedDirectoryPath.value || isMutatingFavorite.value },
+      ),
+    ]);
+  }
+
   sections.push([
-  mk('delete', 'Delete', DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
+  mk('delete', t('context.delete'), DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
   ]);
 
   return sections;
@@ -338,7 +417,7 @@ provide(explorerContextMenuSymbol, {
           <component :is="action.icon" class="w-4 h-4 opacity-80" />
           <p class="flex-1 font-medium">{{ action.label }}</p>
           <span v-if="action.shortcut" class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{{ action.shortcut }}</span>
-          <span v-if="action.disabled" class="sr-only">Disabled</span>
+          <span v-if="action.disabled" class="sr-only">{{ $t('common.disabled') }}</span>
         </button>
 
         <div
@@ -361,7 +440,7 @@ provide(explorerContextMenuSymbol, {
         @click="isDeleteConfirmOpen = false"
         :disabled="isDeleting"
       >
-        Cancel
+        {{ $t('common.cancel') }}
       </button>
       <button
         type="button"
@@ -369,8 +448,8 @@ provide(explorerContextMenuSymbol, {
         @click="confirmDelete"
         :disabled="isDeleting"
       >
-        <span v-if="isDeleting">Deleting...</span>
-        <span v-else>Delete</span>
+        <span v-if="isDeleting">{{ $t('common.deleting') }}</span>
+        <span v-else>{{ $t('common.delete') }}</span>
       </button>
     </div>
   </ModalDialog>

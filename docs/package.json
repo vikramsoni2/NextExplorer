@@ -1,0 +1,16 @@
+{
+  "name": "nextExplorer-docs",
+  "private": true,
+  "version": "0.0.0",
+  "description": "VitePress docs for nextExplorer",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview --host"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}
+

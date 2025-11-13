@@ -59,7 +59,7 @@ const createFolder = async () => {
     bg-white hover:bg-opacity-80 active:bg-opacity-60 
     dark:bg-zinc-600 dark:hover:bg-opacity-90 dark:active:bg-opacity-80 ">
       <PlusIcon class="w-6 h-6"/>
-      Create New
+      {{ $t('create.createNew') }}
     </button>
 
     <div 
@@ -71,15 +71,15 @@ const createFolder = async () => {
       <button
       @click="createFolder"
       :disabled="isCreating"
-      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg disabled:opacity-60 disabled:cursor-not-allowed"> <CreateNewFolderRound class="w-5 text-yellow-400"/> New Folder</button>
+      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg disabled:opacity-60 disabled:cursor-not-allowed"> <CreateNewFolderRound class="w-5 text-yellow-400"/> {{ $t('create.newFolder') }}</button>
       <button 
       @click="uploadFiles"
       class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white">
-        <UploadFileRound class="w-5"/>File Upload</button>
+        <UploadFileRound class="w-5"/>{{ $t('create.fileUpload') }}</button>
       <button 
       @click="uploadFolder"
       class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white rounded-b-lg">
-        <DriveFolderUploadRound class="w-5"/>Folder Upload
+        <DriveFolderUploadRound class="w-5"/>{{ $t('create.folderUpload') }}
       </button>
     </div>
     

@@ -2,9 +2,11 @@
 import { reactive, computed, watch } from 'vue';
 import { useAppSettings } from '@/stores/appSettings';
 import { useAuthStore } from '@/stores/auth';
+import { useI18n } from 'vue-i18n';
 
 const appSettings = useAppSettings();
 const auth = useAuthStore();
+const { t } = useI18n();
 
 const local = reactive({ authEnabled: true });
 const original = computed(() => appSettings.state.security);
@@ -19,7 +21,7 @@ watch(
 const reset = () => { local.authEnabled = original.value.authEnabled; };
 const save = async () => {
   if (!local.authEnabled) {
-    const ok = window.confirm('Disabling authentication will make your files publicly accessible. Continue?');
+    const ok = window.confirm(t('settings.security.confirmDisable'));
     if (!ok) return;
   }
   await appSettings.save({ security: { authEnabled: local.authEnabled } });
@@ -31,21 +33,21 @@ const save = async () => {
 <template>
   <div class="space-y-6">
     <div v-if="dirty" class="sticky top-0 z-10 flex items-center justify-between rounded-md border border-yellow-400/30 bg-yellow-100/40 p-3 text-yellow-900 dark:border-yellow-400/20 dark:bg-yellow-500/10 dark:text-yellow-200">
-      <div class="text-sm">You have unsaved changes</div>
+      <div class="text-sm">{{ t('settings.common.unsavedChanges') }}</div>
       <div class="flex gap-2">
-        <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">Save</button>
-        <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">Discard</button>
+        <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">{{ t('common.save') }}</button>
+        <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">{{ t('common.discard') }}</button>
       </div>
     </div>
 
     <section class="rounded-lg border border-white/10 bg-white/5 p-4 dark:bg-zinc-900/50">
-      <h2 class="mb-2 text-base font-semibold">Authentication</h2>
-      <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">Control access to the app.</p>
+      <h2 class="mb-2 text-base font-semibold">{{ t('settings.security.title') }}</h2>
+      <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.security.subtitle') }}</p>
 
       <div class="flex items-center justify-between py-2">
         <div>
-          <div class="font-medium">Enable authentication</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">When off, anyone can access your files.</div>
+          <div class="font-medium">{{ t('settings.security.enable') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.security.enableHelp') }}</div>
         </div>
         <label class="inline-flex cursor-pointer items-center">
           <input type="checkbox" v-model="local.authEnabled" class="peer sr-only" />
@@ -55,4 +57,3 @@ const save = async () => {
     </section>
   </div>
 </template>
-

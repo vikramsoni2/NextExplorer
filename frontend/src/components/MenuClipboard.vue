@@ -27,7 +27,7 @@ const {
         'opacity-50 cursor-not-allowed': !canCut,
         'text-sky-500 dark:text-sky-300': isCutActive,
       }"
-      title="Cut"
+      :title="$t('context.cut')"
     >
       <Cut20Filled class="w-6" />
     </button>
@@ -42,7 +42,7 @@ const {
         'opacity-50 cursor-not-allowed': !canCopy,
         'text-sky-500 dark:text-sky-300': isCopyActive,
       }"
-      title="Copy"
+      :title="$t('context.copy')"
     >
       <Copy20Regular class="w-6" />
     </button>
@@ -54,7 +54,7 @@ const {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canPaste }"
-      title="Paste"
+      :title="$t('context.paste')"
     >
       <ClipboardPaste20Regular class="w-6" />
     </button>

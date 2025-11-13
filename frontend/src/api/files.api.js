@@ -17,6 +17,12 @@ async function getVolumes() {
   return requestJson('/api/volumes', { method: 'GET' });
 }
 
+async function getUsage(path = '') {
+  const normalizedPath = normalizePath(path);
+  const encodedPath = encodePath(normalizedPath);
+  return requestJson(`/api/usage/${encodedPath}`, { method: 'GET' });
+}
+
 async function copyItems(items, destination) {
   return requestJson('/api/files/copy', {
     method: 'POST',
@@ -141,6 +147,7 @@ const getPreviewUrl = (relativePath) => {
 export {
   browse,
   getVolumes,
+  getUsage,
   copyItems,
   moveItems,
   deleteItems,
