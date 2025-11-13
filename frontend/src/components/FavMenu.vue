@@ -70,22 +70,6 @@ const isActiveFav = (favoritePath = '') => {
   return normalizedFavorite === currentPath.value;
 };
 
-const currentPath = computed(() => {
-  const rawPath = route.params?.path;
-  if (Array.isArray(rawPath)) {
-    return normalizePath(rawPath.join('/'));
-  }
-  if (typeof rawPath === 'string') {
-    return normalizePath(rawPath);
-  }
-  return '';
-});
-
-const isActiveFav = (favoritePath = '') => {
-  const normalizedFavorite = normalizePath(favoritePath || '');
-  return normalizedFavorite === currentPath.value;
-};
-
 const handleOpenFavorite = (favorite) => {
   if (!favorite?.path) {
     return;
