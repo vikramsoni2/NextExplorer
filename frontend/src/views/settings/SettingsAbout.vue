@@ -13,7 +13,7 @@ const { t } = useI18n();
 
 <template>
   <div class="space-y-6">
-    <section class="rounded-lg border border-white/10 bg-white/5 p-4 dark:bg-zinc-900/50">
+    <section class="rounded-lg   p-4">
       <h2 class="mb-2 text-base font-semibold">{{ t('settings.about.title') }}</h2>
       <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
         {{ t('settings.about.subtitle') }}

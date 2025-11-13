@@ -1,6 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
-const { auth: envAuthConfig, public: publicConfig } = require('../config/index');
+const { auth } = require('../config/index');
+
 const {
   countUsers,
   createLocalUser,
@@ -41,17 +42,20 @@ const respondWithUser = async (req, res) => {
 };
 
 router.get('/status', async (req, res) => {
-  const oidcEnv = (envAuthConfig && envAuthConfig.oidc) || {};
-  const requiresSetup = (await countUsers()) === 0;
+
+  console.log(auth)
+
+  const oidcEnv = (auth && auth.oidc) || {};
+  const requiresSetup = auth.enabled ? (await countUsers()) === 0 : false;
   const isEoc = Boolean(req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated());
   const hasLocal = Boolean(req.session && req.session.localUserId);
   const user = await getRequestUser(req);
   res.json({
     requiresSetup,
     strategies: { local: true, oidc: Boolean(oidcEnv.enabled) },
-    authEnabled: true,
+    authEnabled: auth.enabled,
     authMode: 'both',
-    authenticated: Boolean(isEoc || hasLocal),
+    authenticated: auth.enabled ? Boolean(isEoc || hasLocal) : true,
     user: user || null,
     oidc: {
       enabled: Boolean(oidcEnv.enabled),

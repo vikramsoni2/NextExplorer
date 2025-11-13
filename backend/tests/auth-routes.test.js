@@ -7,9 +7,10 @@ import session from 'express-session';
 import bodyParser from 'body-parser';
 import request from 'supertest';
 
-// Use temp cache dir for DB
-const tmp = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-auth-'));
-process.env.CACHE_DIR = tmp;
+// Use temp dirs for DB and cache
+const tmpRoot = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-auth-'));
+process.env.CONFIG_DIR = path.join(tmpRoot, 'config');
+process.env.CACHE_DIR = path.join(tmpRoot, 'cache');
 process.env.SESSION_SECRET = 'test-secret';
 
 const authRouter = (await import('../routes/auth.js')).default || (await import('../routes/auth.js'));
@@ -37,12 +38,16 @@ test('auth routes: setup -> login -> me -> password -> logout', async () => {
   assert.equal(s1.body.requiresSetup, true);
 
   // setup admin
-  const setup = await request(app).post('/api/auth/setup').send({ username: 'admin', password: 'secret123' }).expect(201);
+  const setup = await request(app).post('/api/auth/setup').send({
+    email: 'admin@example.com',
+    username: 'admin',
+    password: 'secret123',
+  }).expect(201);
   assert.ok(setup.body.user && setup.body.user.roles.includes('admin'));
 
   // login
   const agent = request.agent(app);
-  await agent.post('/api/auth/login').send({ username: 'admin', password: 'secret123' }).expect(200);
+  await agent.post('/api/auth/login').send({ email: 'admin@example.com', password: 'secret123' }).expect(200);
 
   // me
   const me = await agent.get('/api/auth/me').expect(200);
@@ -55,3 +60,12 @@ test('auth routes: setup -> login -> me -> password -> logout', async () => {
   await agent.post('/api/auth/logout').expect(204);
 });
 
+test('auth status disables when environment flag is set', async () => {
+  process.env.DISABLE_AUTH = 'true';
+  const app = buildApp();
+
+  const status = await request(app).get('/api/auth/status').expect(200);
+  assert.equal(status.body.authEnabled, false);
+
+  process.env.DISABLE_AUTH = 'false';
+});

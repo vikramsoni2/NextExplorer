@@ -59,12 +59,13 @@ Using the Application
 ### Prerequisites
 - Docker Engine 24+ and Docker Compose v2 installed on the host.
 - One or more host directories to serve (these will be mounted into the container).
-- A host directory for caching thumbnails and app settings (preferably SSD‑backed).
+- Persistent config directory for the SQLite database, `app-config.json`, and extensions (back this up), plus optional cache/log folders.
 - Ensure the user that runs the container has read/write access to all of the above.
 
 ### Prepare host folders
 Example layout:
-- `/srv/nextexplorer/cache` – cache and settings storage
+- `/srv/nextexplorer/config` – SQLite database, config files, and extensions (backup this)
+- `/srv/nextexplorer/cache` – thumbnails, search indexes, and other regenerable caches
 - `/srv/data/Projects` – example data volume
 - `/srv/data/Media` – another data volume
 
@@ -82,7 +83,7 @@ services:
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
-      - LOG_LEVEL=info          # use "debug" for verbose logging
+      - LOG_LEVEL=info  # use "debug" for verbose logging
       # - SESSION_SECRET=please-change-me       # optional static session secret
       # - PUID=1000                              # optional host user UID
       # - PGID=1000                              # optional host group GID
@@ -99,15 +100,19 @@ services:
       # - ONLYOFFICE_LANG=en
       # - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
     volumes:
-      - /srv/nextexplorer/cache:/cache   # cache & settings
-      - /srv/data/Projects:/mnt/Projects # mount "Projects" volume
-      - /srv/data/Media:/mnt/Media       # mount "Media" volume
+      - /srv/nextexplorer/config:/config   # persistent config, DB, and extensions
+      - /srv/nextexplorer/cache:/cache     # (OPTIONAL) 0thumbnails & search caches
+      - /srv/data/Projects:/mnt/Projects  # mount "Projects" volume
+      - /srv/data/Media:/mnt/Media        # mount "Media" volume
 ```
 
 Notes
 - Port 3000 in the container is published to port 3000 on the host; adjust as needed.
 - Environment variables configure nextExplorer (see Configuration below).
 - Every subfolder under `/mnt` becomes a top‑level volume in the UI; add more by repeating `host_path:/mnt/Label` entries.
+
+> **Upgrade compatibility:** On first launch the entrypoint migrates `app.db`, `app-config.json`, and related config from `/cache` into `/config`, then leaves `/cache` symlinks so legacy mounts keep working.
+> Mount your existing host configuration directory to `/config` prior to upgrading so the migration keeps the data on your persistent storage rather than moving it into an anonymous volume.
 
 ### Launch the container
 
@@ -130,7 +135,7 @@ docker compose pull
 docker compose up -d
 ```
 
-User data and settings live in the mounted volumes (especially `/cache`) and persist across updates. The app never modifies the contents of your mounted data volumes unless you perform file operations in the UI.
+Persistent user data and settings live under `/config`. `/cache` holds thumbnails and content indexes that can be regenerated when needed. The app never modifies the contents of your mounted data volumes unless you perform file operations in the UI.
 
 ## Configuration and Environment Variables
 
@@ -142,7 +147,8 @@ Core
 
 Storage and Volumes
 - `VOLUME_ROOT` – container path for mounted volumes (default `/mnt`).
-- `CACHE_DIR` – container path for cache and app data (default `/cache`). Map this to persistent, preferably fast storage.
+- `CONFIG_DIR` – container path for SQLite, `app-config.json`, and extensions/themes. Default `/config`; back this up.
+- `CACHE_DIR` – container path for thumbnails/search caches. Default `/cache`; safe to wipe if you need to reclaim space.
 - `PUID`, `PGID` – optional user and group IDs to run the app as, matching your host user/group to preserve file ownership.
 
 Security and Networking

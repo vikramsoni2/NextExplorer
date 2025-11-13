@@ -38,6 +38,7 @@ const avatarLetter = computed(() => {
 
 const themeActionLabel = computed(() => (settings.isDark ? t('user.useLightTheme') : t('user.useDarkTheme')));
 const themeStatusLabel = computed(() => (settings.isDark ? t('user.darkTheme') : t('user.lightTheme')));
+const showSignOut = computed(() => auth.authEnabled !== false);
 
 const toggleMenu = () => {
   isExpanded.value = !isExpanded.value;
@@ -109,6 +110,7 @@ const handleLogout = async () => {
             </button>
 
             <button
+              v-if="showSignOut"
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
               type="button" @click="handleLogout">
               <ArrowRightOnRectangleIcon class="h-5 w-5" />

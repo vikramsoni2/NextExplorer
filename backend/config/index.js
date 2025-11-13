@@ -20,9 +20,11 @@ const parseScopes = (raw) => {
 const port = Number(process.env.PORT) || 3000;
 const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
 const volumeWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
+const configDir = path.resolve(process.env.CONFIG_DIR || '/config');
 const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
 const thumbnailDir = path.join(cacheDir, 'thumbnails');
-const passwordConfigFile = path.join(cacheDir, 'app-config.json');
+const passwordConfigFile = path.join(configDir, 'app-config.json');
+const extensionsDir = path.join(configDir, 'extensions');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
 const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
@@ -127,6 +129,13 @@ const corsOptions = {
 const supportedAuthModes = new Set(['local', 'oidc', 'both']);
 const normalizedAuthMode = 'oidc';
 
+// New: central auth.enabled flag
+const authEnabled = (() => {
+  const value = normalizeBoolean(process.env.AUTH_ENABLED);
+  // Default: enabled, unless explicitly set to false
+  if (value === false) return false;
+  return true;
+})();
 
 const rawEnvScopes = process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null;
 const rawAdminGroups = process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null;
@@ -149,7 +158,10 @@ const envOidcConfig = {
 };
 
 const envAuthConfig = {
-  sessionSecret: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+  enabled: authEnabled,
+  sessionSecret: process.env.SESSION_SECRET 
+                || process.env.AUTH_SESSION_SECRET 
+                || crypto.randomBytes(32).toString('hex'),
   authMode: normalizedAuthMode,
   oidc: envOidcConfig,
 };
@@ -159,8 +171,10 @@ module.exports = {
   directories: {
     volume: volumeDir,
     volumeWithSep,
+    config: configDir,
     cache: cacheDir,
     thumbnails: thumbnailDir,
+    extensions: extensionsDir,
   },
   search: {
     // Enable deep (content) search. When false, only file/dir names are matched.
@@ -234,5 +248,5 @@ module.exports = {
     // Toggle volume usage UI and calculations in the frontend
     // Default is off when unset or invalid
     volumeUsage: (normalizeBoolean(process.env.SHOW_VOLUME_USAGE) ?? false),
-  },
+  }
 };

@@ -210,6 +210,7 @@ services:
       - OIDC_SCOPES=openid profile email groups
       - OIDC_ADMIN_GROUPS=next-admin admins
     volumes:
+      - /srv/nextexplorer/config:/config
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
       - /srv/data/Downloads:/mnt/Downloads
@@ -281,4 +282,3 @@ References
 - Authelia OIDC docs: https://www.authelia.com/integration/openid-connect/introduction/
 - Express OpenID Connect: https://github.com/auth0/express-openid-connect
 - Project OIDC config reference: see `README.md` and `docs/source/oidc.md`
-

@@ -8,9 +8,9 @@ const { ensureDir } = require('../utils/fsUtils');
 let dbInstance = null;
 
 const getDbPath = () => {
-  const cacheDir = directories.cache;
-  // Generic app database for auth, shares, user settings, etc.
-  return path.join(cacheDir, 'app.db');
+  const configDir = directories.config;
+  // Generic app database for auth, shares, and user settings.
+  return path.join(configDir, 'app.db');
 };
 
 const crypto = require('crypto');
@@ -185,7 +185,7 @@ const migrate = (db) => {
 const getDb = async () => {
   if (dbInstance) return dbInstance;
 
-  const dbDir = directories.cache;
+  const dbDir = directories.config;
   await ensureDir(dbDir);
   const dbPath = getDbPath();
 

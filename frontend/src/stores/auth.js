@@ -41,8 +41,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       try {
         const status = await fetchAuthStatus();
-        requiresSetup.value = Boolean(status.requiresSetup);
-        authEnabled.value = status?.authEnabled !== false;
+        const enabled = status?.authEnabled !== false;
+        requiresSetup.value = enabled ? Boolean(status.requiresSetup) : false;
+        authEnabled.value = enabled;
         authMode.value = typeof status?.authMode === 'string' ? status.authMode : 'local';
         strategies.value = status?.strategies || { local: true, oidc: false };
         currentUser.value = status?.user || null;

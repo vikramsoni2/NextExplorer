@@ -7,7 +7,6 @@ import EditorLayout from '@/layouts/EditorLayout.vue'
 import SearchResultsView from '@/views/SearchResultsView.vue'
 import SettingsLayout from '@/views/settings/SettingsLayout.vue'
 import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue'
-import SettingsSecurity from '@/views/settings/SettingsSecurity.vue'
 import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue'
 import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue'
 import AdminUsers from '@/views/settings/AdminUsers.vue'
@@ -32,7 +31,6 @@ const router = createRouter({
       children: [
         { path: '', redirect: '/settings/about' },
         { path: 'files-thumbnails', component: SettingsFilesThumbnails, meta: { requiresAdmin: true } },
-        { path: 'security', component: SettingsSecurity, meta: { requiresAdmin: true } },
         { path: 'account-password', component: SettingsPassword },
         { path: 'access-control', component: SettingsAccessControl, meta: { requiresAdmin: true } },
         // Admin-only placeholder routes

@@ -30,6 +30,7 @@ services:
       # - OIDC_SCOPES=openid profile email groups
       # - OIDC_ADMIN_GROUPS=next-admin admins
     volumes:
+      - /srv/nextexplorer/config:/config
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
       - /srv/data/Downloads:/mnt/Downloads

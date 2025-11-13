@@ -34,7 +34,6 @@ const userCategories = [
 // Admin-only settings
 const adminCategories = [
   { key: 'files-thumbnails', name: 'Files & Thumbnails', icon: Cog8ToothIcon },
-  { key: 'security', name: 'Security', icon: Cog8ToothIcon },
   { key: 'access-control', name: 'Access Control', icon: Cog8ToothIcon },
   { key: 'admin-users', name: 'User Management', icon: Cog8ToothIcon },
   // { key: 'admin-overview', name: 'Admin Overview', icon: Cog8ToothIcon, comingSoon: true },

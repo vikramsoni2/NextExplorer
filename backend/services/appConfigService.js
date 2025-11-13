@@ -322,7 +322,7 @@ const ensureInitialized = async () => {
     return;
   }
 
-  await ensureDir(directories.cache);
+  await ensureDir(directories.config);
 
   try {
     await fs.access(CONFIG_FILE_PATH);

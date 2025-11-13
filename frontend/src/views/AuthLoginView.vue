@@ -266,8 +266,24 @@ const handleOidcLogin = () => {
               <div class="flex items-start gap-3">
                 <InformationCircleIcon class="h-6 w-6 mt-0.5 flex-shrink-0" :class="LEVEL_ICON[announcement.level] || LEVEL_ICON.info" />
                 <div class="flex-1">
-                  <h3 v-if="announcement.title" class="font-semibold text-white mb-1">{{ announcement.title }}</h3>
-                  <div class="text-sm text-white/80 leading-relaxed whitespace-pre-line">{{ announcement.message }}</div>
+                  <h3 v-if="announcement.title" class="font-semibold text-blue-300 mb-2">
+                    {{ announcement.title }}
+                  </h3>
+                  <div class="text-sm text-white/80 leading-relaxed whitespace-pre-line">
+                    
+                    <p class="-ml-6" >You now need to use your new email-style username. </p>
+                    
+                    <ul class="list-disc ">
+                      <li>add <span class="px-2 font-bold text-yellow-300"> @example.local </span> to your username</li>
+                      <li>
+                        Your password stays the same.
+                      </li>
+                      <li>You can update existing users from Admin Menu</li>
+                    </ul>
+                     
+                   
+                  
+                  </div>
                 </div>
               </div>
             </div>

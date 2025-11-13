@@ -1,6 +1,6 @@
-const { getSettings } = require('../services/appConfigService');
 const { getRequestUser } = require('../services/users');
-
+const { auth } = require('../config/index');
+console.log(auth)
 const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
   const apiRoute = requestPath.startsWith('/api');
@@ -16,11 +16,7 @@ const authMiddleware = async (req, res, next) => {
     return;
   }
 
-  const settings = await getSettings();
-  const authEnabled = settings?.security?.authEnabled !== false;
-
-  if (!authEnabled) {
-    // Public mode: allow all API requests without auth
+  if (auth.enabled===false) {
     next();
     return;
   }

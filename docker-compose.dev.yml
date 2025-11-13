@@ -9,11 +9,13 @@ services:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads
       - /Users/vikram/Pictures:/mnt/Pictures
+      - /Users/vikram/Downloads/config:/config
       - /Users/vikram/Downloads/cache:/cache
     # user: "${UID:-1000}:${GID:-1000}"
     environment:
       - PORT=3001
       - VOLUME_ROOT=/mnt
+      - CONFIG_DIR=/config
       - LOG_LEVEL=debug
       - CACHE_DIR=/cache
       - PUBLIC_URL=https://files.vsoni.com
