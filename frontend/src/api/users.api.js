@@ -13,6 +13,13 @@ export async function updateUserRoles(userId, roles) {
   });
 }
 
+export async function updateUser(userId, data) {
+  return requestJson(`/api/users/${encodeURIComponent(userId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data || {}),
+  });
+}
+
 export async function createUser({ email, username, password, displayName, roles = [] }) {
   return requestJson('/api/users', {
     method: 'POST',

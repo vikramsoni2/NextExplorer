@@ -306,7 +306,10 @@
       "makeAdmin": "Make admin",
       "resetPassword": "Set/Reset password",
       "removeUser": "Remove user",
-      "promptNewPassword": "Enter a new password for {user} (min 6 chars):"
+      "promptNewPassword": "Enter a new password for {user} (min 6 chars):",
+      "failedUpdate": "Failed to update user",
+      "editUser": "Edit user",
+      "updating": "Updating…"
     }
   }
 }

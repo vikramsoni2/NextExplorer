@@ -306,7 +306,10 @@
       "makeAdmin": "Hacer admin",
       "resetPassword": "Establecer/Restablecer contraseña",
       "removeUser": "Eliminar usuario",
-      "promptNewPassword": "Ingresa una nueva contraseña para {user} (mínimo 6 caracteres):"
+      "promptNewPassword": "Ingresa una nueva contraseña para {user} (mínimo 6 caracteres):",
+      "failedUpdate": "Error al actualizar el usuario",
+      "editUser": "Editar usuario",
+      "updating": "Actualizando…"
     }
   }
 }

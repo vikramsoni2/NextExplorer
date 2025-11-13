@@ -305,7 +305,10 @@
       "makeAdmin": "Nommer admin",
       "resetPassword": "Définir/réinitialiser",
       "removeUser": "Supprimer",
-      "promptNewPassword": "Entrez un nouveau mot de passe pour {user} (min 6 caractères) :"
+      "promptNewPassword": "Entrez un nouveau mot de passe pour {user} (min 6 caractères) :",
+      "failedUpdate": "Échec de la mise à jour de l’utilisateur",
+      "editUser": "Modifier l'utilisateur",
+      "updating": "Mise à jour…"
     }
   }
 }

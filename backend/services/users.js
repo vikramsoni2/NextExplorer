@@ -516,6 +516,60 @@ const listUsers = async () => {
   return rows.map((r) => toClientUser(r));
 };
 
+const updateUserProfile = async ({ userId, email, username, displayName }) => {
+  const db = await getDb();
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  if (!user) {
+    const err = new Error('User not found.');
+    err.status = 404;
+    throw err;
+  }
+
+  const updates = [];
+  const values = [];
+
+  if (typeof email === 'string') {
+    const normalizedEmail = normalizeEmail(email);
+    if (!normalizedEmail) {
+      const err = new Error('Email is required.');
+      err.status = 400;
+      throw err;
+    }
+    const exists = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(normalizedEmail, userId);
+    if (exists) {
+      const err = new Error('Email already in use.');
+      err.status = 409;
+      throw err;
+    }
+    updates.push('email = ?');
+    values.push(normalizedEmail);
+  }
+
+  if (typeof username === 'string') {
+    const trimmed = username.trim();
+    updates.push('username = ?');
+    values.push(trimmed || null);
+  }
+
+  if (typeof displayName === 'string') {
+    const trimmed = displayName.trim();
+    updates.push('display_name = ?');
+    values.push(trimmed || null);
+  }
+
+  if (!updates.length) {
+    return toClientUser(user);
+  }
+
+  updates.push('updated_at = ?');
+  values.push(nowIso());
+  values.push(userId);
+
+  db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
+  return toClientUser(updated);
+};
+
 const updateUserRoles = async ({ userId, roles }) => {
   const db = await getDb();
   const r = Array.isArray(roles) ? roles.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.trim()) : [];
@@ -568,6 +622,7 @@ module.exports = {
   getRequestUser,
   listUsers,
   updateUserRoles,
+  updateUserProfile,
   deriveRolesFromClaims,
   deleteUser,
 

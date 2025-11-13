@@ -305,7 +305,10 @@
       "makeAdmin": "Admin machen",
       "resetPassword": "Passwort setzen/zurücksetzen",
       "removeUser": "Benutzer entfernen",
-      "promptNewPassword": "Neues Passwort für {user} eingeben (mind. 6 Zeichen):"
+      "promptNewPassword": "Neues Passwort für {user} eingeben (mind. 6 Zeichen):",
+      "failedUpdate": "Benutzer konnte nicht aktualisiert werden",
+      "editUser": "Benutzer bearbeiten",
+      "updating": "Aktualisieren…"
     }
   }
 }

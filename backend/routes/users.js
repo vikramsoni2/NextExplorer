@@ -1,5 +1,5 @@
 const express = require('express');
-const { listUsers, updateUserRoles, createLocalUser, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
+const { listUsers, updateUserRoles, updateUserProfile, createLocalUser, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
 
 const router = express.Router();
 
@@ -22,24 +22,40 @@ router.get('/users', ensureAdmin, async (req, res, next) => {
   }
 });
 
-// PATCH /api/users/:id - update roles (admin only)
+// PATCH /api/users/:id - update roles or profile (admin only)
 router.patch('/users/:id', ensureAdmin, async (req, res, next) => {
   try {
     const { id } = req.params || {};
-    const roles = Array.isArray(req.body?.roles) ? req.body.roles : [];
-    // Prevent admin demotion to align with backend policy
+    const payload = req.body || {};
+    const roles = Array.isArray(payload.roles) ? payload.roles : undefined;
     const existing = await getById(id);
     if (!existing) {
       res.status(404).json({ error: 'User not found.' });
       return;
     }
-    const wasAdmin = Array.isArray(existing.roles) && existing.roles.includes('admin');
-    const willBeAdmin = Array.isArray(roles) && roles.includes('admin');
-    if (wasAdmin && !willBeAdmin) {
-      res.status(400).json({ error: 'Demotion of admin is not allowed.' });
-      return;
+
+    let user = existing;
+
+    if (Array.isArray(roles)) {
+      const wasAdmin = Array.isArray(existing.roles) && existing.roles.includes('admin');
+      const willBeAdmin = Array.isArray(roles) && roles.includes('admin');
+      if (wasAdmin && !willBeAdmin) {
+        res.status(400).json({ error: 'Demotion of admin is not allowed.' });
+        return;
+      }
+      user = await updateUserRoles({ userId: id, roles });
     }
-    const user = await updateUserRoles({ userId: id, roles });
+
+    const hasProfileUpdates = ['email', 'username', 'displayName'].some((key) => typeof payload[key] === 'string');
+    if (hasProfileUpdates) {
+      user = await updateUserProfile({
+        userId: id,
+        email: payload.email,
+        username: payload.username,
+        displayName: payload.displayName,
+      });
+    }
+
     res.json({ user });
   } catch (e) {
     next(e);
