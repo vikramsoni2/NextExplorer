@@ -8,6 +8,17 @@ const logger = require('./logger');
 const bootstrap = async () => {
   logger.debug('Bootstrap start');
 
+  // Ensure config directory exists
+  try {
+    await ensureDir(directories.config);
+    logger.debug({ dir: directories.config }, 'Config directory ensured');
+  } catch (error) {
+    logger.warn(
+      { directory: directories.config, err: error },
+      'Unable to prepare config directory'
+    );
+  }
+
   // Ensure cache directory exists
   try {
     await ensureDir(directories.cache);

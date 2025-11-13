@@ -27,11 +27,10 @@ Access control
 
 Backups
 
-- The `/cache` directory contains your settings, users DB, and thumbnails
-- Back it up periodically; keep it mounted during upgrades
+- `/config` contains your SQLite database, `app-config.json`, and any extensions/themes; back this up and keep it mounted during upgrades
+- `/cache` stores thumbnails and other caches that can be regenerated when needed
 
 Suggested screenshots
 
 - images/admin-users.png – Listing users and actions
 - images/settings-access-control.png – Access rules in settings
-

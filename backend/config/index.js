@@ -20,9 +20,11 @@ const parseScopes = (raw) => {
 const port = Number(process.env.PORT) || 3000;
 const volumeDir = path.resolve(process.env.VOLUME_ROOT || '/mnt');
 const volumeWithSep = volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`;
+const configDir = path.resolve(process.env.CONFIG_DIR || '/config');
 const cacheDir = path.resolve(process.env.CACHE_DIR || '/cache');
 const thumbnailDir = path.join(cacheDir, 'thumbnails');
-const passwordConfigFile = path.join(cacheDir, 'app-config.json');
+const passwordConfigFile = path.join(configDir, 'app-config.json');
+const extensionsDir = path.join(configDir, 'extensions');
 
 const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
 const videoExtensions = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
@@ -159,8 +161,10 @@ module.exports = {
   directories: {
     volume: volumeDir,
     volumeWithSep,
+    config: configDir,
     cache: cacheDir,
     thumbnails: thumbnailDir,
+    extensions: extensionsDir,
   },
   search: {
     // Enable deep (content) search. When false, only file/dir names are matched.

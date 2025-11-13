@@ -4,8 +4,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 // Set up temp cache dir per test run
-const tmp = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-users-'));
-process.env.CACHE_DIR = tmp;
+const tmpRoot = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-users-'));
+process.env.CONFIG_DIR = path.join(tmpRoot, 'config');
+process.env.CACHE_DIR = path.join(tmpRoot, 'cache');
 
 const users = await import('../services/users.js');
 
@@ -36,4 +37,3 @@ test('create and verify local user, change password, and lockout', async (t) => 
   const ok = await users.verifyLocalCredentials({ username: 'admin', password: 'newpass456' });
   assert.ok(ok);
 });
-

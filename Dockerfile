@@ -49,6 +49,8 @@ RUN mkdir -p public \
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+VOLUME ["/config", "/cache"]
+
 ENV NODE_ENV=production
 
 EXPOSE 3000

@@ -43,5 +43,5 @@ Reverse proxy
 Upgrades and data
 
 - Settings/users lost after update
-  - Make sure `/cache` is mounted to a persistent host folder
-  - Back up `/cache/app-config.json` and the `thumbnails` subfolder as needed
+  - Make sure `/config` is mounted to a persistent host folder; it contains the SQLite database, `app-config.json`, and extensions/themes
+  - Back up `/config/app-config.json` (and `/config/app.db` if present); `/cache` only holds thumbnails/indexes that can be regenerated

@@ -39,7 +39,8 @@ Option B — run services locally in two terminals:
 # Terminal 1: backend
 cd backend
 npm install
-PORT=3001 CACHE_DIR=$PWD/.cache npm start
+PORT=3001 CONFIG_DIR=$PWD/.config CACHE_DIR=$PWD/.cache 
+npm start
 
 # Terminal 2: frontend
 cd frontend

@@ -7,9 +7,10 @@ import session from 'express-session';
 import bodyParser from 'body-parser';
 import request from 'supertest';
 
-// Use temp cache dir for DB
-const tmp = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-auth-'));
-process.env.CACHE_DIR = tmp;
+// Use temp dirs for DB and cache
+const tmpRoot = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-auth-'));
+process.env.CONFIG_DIR = path.join(tmpRoot, 'config');
+process.env.CACHE_DIR = path.join(tmpRoot, 'cache');
 process.env.SESSION_SECRET = 'test-secret';
 
 const authRouter = (await import('../routes/auth.js')).default || (await import('../routes/auth.js'));
@@ -54,4 +55,3 @@ test('auth routes: setup -> login -> me -> password -> logout', async () => {
   // logout
   await agent.post('/api/auth/logout').expect(204);
 });
-

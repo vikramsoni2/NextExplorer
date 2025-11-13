@@ -13,7 +13,7 @@ This document covers local development, testing, and release workflows for nextE
 - Node.js 18 or later and npm 9 or later.
 - FFmpeg installed locally (the Docker image installs it automatically).
 - Docker Desktop / Docker Engine + Compose v2 if you plan to build or run containers.
-- macOS/Linux with file-system permissions to mount your working directories under `/mnt` and `/cache`.
+- macOS/Linux with file-system permissions to mount your working directories under `/mnt`, persistent config under `/config`, and caches under `/cache`.
 
 ## Local Setup
 
@@ -28,7 +28,8 @@ npm start
 - Environment variables:
   - `PORT` (default `3000`)
   - `VOLUME_ROOT` (default `/mnt`)
-  - `CACHE_DIR` (default `/cache`, thumbnails in `${CACHE_DIR}/thumbnails`)
+  - `CONFIG_DIR` (default `/config`, stores `app-config.json`, the SQLite DB, and extensions)
+  - `CACHE_DIR` (default `/cache`, stores thumbnails/search caches that can be regenerated)
   - `LOG_LEVEL` (default `info`; set to `debug` for verbose logs). Setting `DEBUG=true` implicitly selects `LOG_LEVEL=debug`.
   - OIDC (provider-agnostic) via Express OpenID Connect (EOC):
     - `PUBLIC_URL` – required for correct callback/base URL when using EOC
@@ -47,7 +48,7 @@ When EOC is enabled, the backend exposes default OIDC routes:
 - `GET /logout` – logout (IdP logout enabled)
 
 For backward compatibility with the UI, the wrapper route `GET /api/auth/oidc/login` also triggers EOC login when available.
-- Ensure the process user can read/write the directories pointed to by `VOLUME_ROOT` and `CACHE_DIR`.
+- Ensure the process user can read/write the directories pointed to by `VOLUME_ROOT`, `CONFIG_DIR`, `CACHE_DIR`, and `LOG_DIR`.
 
 ### Frontend SPA
 ```bash
@@ -75,7 +76,7 @@ Local (no Docker):
 ```bash
 # Backend on 3001
 cd backend && npm ci
-PORT=3001 VOLUME_ROOT=$PWD/../example-express-openid CACHE_DIR=$PWD/.cache npm run start
+PORT=3001 VOLUME_ROOT=$PWD/../example-express-openid CONFIG_DIR=$PWD/.config CACHE_DIR=$PWD/.cache npm run start
 
 # Frontend on 3000 (proxies /api and /static/thumbnails to 3001)
 cd ../frontend && npm ci

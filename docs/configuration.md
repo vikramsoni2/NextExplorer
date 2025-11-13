@@ -11,7 +11,8 @@ Core
 Filesystem
 
 - `VOLUME_ROOT` – Root directory inside the container that holds your mounted folders. Default: `/mnt`.
-- `CACHE_DIR` – App cache (settings, thumbnails). Default: `/cache`.
+- `CONFIG_DIR` – Where the SQLite database, `app-config.json`, and extensions live. Default: `/config`.
+- `CACHE_DIR` – Regenerable data such as thumbnails, search indexes, and other caches. Default: `/cache`.
 
 Reverse proxy and CORS
 
@@ -43,7 +44,7 @@ Thumbnails and search
 
 Container user mapping
 
-- `PUID`, `PGID` – Map the container user to your host IDs so created files are owned by you. Defaults: `1000:1000`. The entrypoint adjusts ownership for `/app` and `/cache`.
+- `PUID`, `PGID` – Map the container user to your host IDs so created files are owned by you. Defaults: `1000:1000`. The entrypoint adjusts ownership for `/app`, `/config` and `/cache`.
 
 Frontend (dev only)
 
