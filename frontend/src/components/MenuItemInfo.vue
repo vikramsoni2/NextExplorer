@@ -160,7 +160,7 @@ const handleRename = () => {
         hover:bg-[rgb(239,239,240)] active:bg-zinc-200
         dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-default pointer-events-none': !hasSelection || isPreparingDownload }"
-      :title="isPreparingDownload ? 'Preparing download...' : 'Download'"
+      :title="isPreparingDownload ? $t('download.preparing') : $t('download.download')"
     >
       <ArrowPathIcon v-if="isPreparingDownload" class="w-6 animate-spin" />
       <ArrowDownTrayIcon v-else class="w-6" />

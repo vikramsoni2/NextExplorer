@@ -105,7 +105,7 @@ useClipboardShortcuts();
     <div
       class="relative w-1 cursor-col-resize bg-transparent group select-none hidden lg:block"
       @pointerdown="onPointerDown"
-      aria-label="Resize sidebar"
+      :aria-label="$t('browser.resizeSidebar')"
     >
       <!-- Visual guide line -->
       <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-px bg-neutral-200 dark:bg-neutral-700 group-hover:bg-neutral-500"></div>

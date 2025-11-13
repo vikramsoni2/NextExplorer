@@ -1,11 +1,13 @@
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { ChevronRight16Filled } from '@vicons/fluent';
 import { useRoute } from 'vue-router';
 import { useNavigation } from '@/composables/navigation';
 import { ellipses } from '@/utils/ellipses';
 
 const { openBreadcrumb } = useNavigation();
+const { t } = useI18n();
 const route = useRoute();
 
 const paths = computed(() => {
@@ -19,7 +21,7 @@ const paths = computed(() => {
       };
     });
   }
-  return [{ name: 'Volumes', path: ''}];
+  return [{ name: t('breadcrumb.volumes'), path: ''}];
 });
 </script>
 
@@ -34,7 +36,7 @@ const paths = computed(() => {
         :class="[index == paths.length -1? '' :'max-lg:hidden']"
         @click="openBreadcrumb(path.path)"
         >
-          {{ path.name || 'Volumes' }}
+          {{ path.name || $t('breadcrumb.volumes') }}
       </button>
     </template>
   </div>

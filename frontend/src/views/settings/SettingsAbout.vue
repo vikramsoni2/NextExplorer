@@ -7,20 +7,22 @@ const gitBranch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : ''
 const repoUrl = typeof __REPO_URL__ !== 'undefined' ? __REPO_URL__ : ''
 const commitShort = gitCommit ? gitCommit.slice(0, 7) : ''
 const commitUrl = repoUrl && gitCommit ? `${repoUrl}/commit/${gitCommit}` : ''
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 </script>
 
 <template>
   <div class="space-y-6">
     <section class="rounded-lg border border-white/10 bg-white/5 p-4 dark:bg-zinc-900/50">
-      <h2 class="mb-2 text-base font-semibold">About</h2>
+      <h2 class="mb-2 text-base font-semibold">{{ t('settings.about.title') }}</h2>
       <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
-        View build information for this application.
+        {{ t('settings.about.subtitle') }}
       </p>
 
       <div class="flex items-center justify-between py-2">
         <div>
-          <div class="font-medium">App version</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">The build version currently running.</div>
+          <div class="font-medium">{{ t('settings.about.appVersion') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.appVersionHelp') }}</div>
         </div>
         <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
           <span>v{{ version }}</span>
@@ -29,8 +31,8 @@ const commitUrl = repoUrl && gitCommit ? `${repoUrl}/commit/${gitCommit}` : ''
 
       <div class="flex items-center justify-between py-2">
         <div>
-          <div class="font-medium">Git commit</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Source revision embedded at build time.</div>
+          <div class="font-medium">{{ t('settings.about.gitCommit') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.gitCommitHelp') }}</div>
         </div>
         <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
           <template v-if="commitShort">
@@ -39,18 +41,18 @@ const commitUrl = repoUrl && gitCommit ? `${repoUrl}/commit/${gitCommit}` : ''
             </a>
             <span v-else>{{ commitShort }}</span>
           </template>
-          <span v-else class="text-neutral-500">unknown</span>
+          <span v-else class="text-neutral-500">{{ t('settings.about.unknown') }}</span>
         </div>
       </div>
 
       <div class="flex items-center justify-between py-2">
         <div>
-          <div class="font-medium">Branch</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Git branch at build time.</div>
+          <div class="font-medium">{{ t('settings.about.branch') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.branchHelp') }}</div>
         </div>
         <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
           <span v-if="gitBranch">{{ gitBranch }}</span>
-          <span v-else class="text-neutral-500">unknown</span>
+          <span v-else class="text-neutral-500">{{ t('settings.about.unknown') }}</span>
         </div>
       </div>
     </section>

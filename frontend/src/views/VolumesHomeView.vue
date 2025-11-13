@@ -80,7 +80,7 @@ const handleOpenFavorite = (favorite) => {
   <div class="flex flex-col gap-8">
     <!-- Quick Access -->
     <section>
-      <h3 class="mt-6 mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Quick access</h3>
+      <h3 class="mt-6 mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('volumes.quickAccess') }}</h3>
       <div v-if="quickAccess.length" class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         <button
           v-for="fav in quickAccess"
@@ -97,13 +97,13 @@ const handleOpenFavorite = (favorite) => {
         </button>
       </div>
       <div v-else class="text-xs">
-        Pin folders as favorites to access them quickly here.
+        {{ $t('volumes.quickAccessEmpty') }}
       </div>
     </section>
 
     <!-- Volumes -->
     <section>
-      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Volumes</h3>
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('volumes.title') }}</h3>
       <div v-if="!loading" class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         
         <button
@@ -143,7 +143,7 @@ const handleOpenFavorite = (favorite) => {
           </div>
         </button>
       </div>
-      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">Loading volumes…</div>
+      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('volumes.loading') }}</div>
     </section>
   </div>
 </template>

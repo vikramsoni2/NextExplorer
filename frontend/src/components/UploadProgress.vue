@@ -1,11 +1,13 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useToggle, useDraggable, useElementSize, useWindowSize } from '@vueuse/core'
 import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { useUppyStore } from '@/stores/uppyStore'
 import { formatBytes } from '@/utils'
 
 const uppyStore = useUppyStore()
+const { t } = useI18n();
 const [detailsOpen, toggleDetails] = useToggle(false)
 const isPaused = ref(false)
 
@@ -145,14 +147,14 @@ function toggleDetailsKey(e) {
     <div class="p-5">
       <div class="flex items-center gap-3">
         <h3 class="text-lg font-semibold tracking-tight">
-          {{ roundedProgress }}% complete
+          {{ t('upload.completePercent', { percent: roundedProgress }) }}
         </h3>
 
         <div class="ml-auto flex items-center gap-1.5">
           <button
             type="button"
-            :title="detailsOpen ? 'Hide details' : 'Show details'"
-            aria-label="Toggle upload details"
+            :title="detailsOpen ? t('upload.toggleDetailsHide') : t('upload.toggleDetailsShow')"
+            :aria-label="detailsOpen ? t('upload.toggleDetailsHide') : t('upload.toggleDetailsShow')"
             :aria-expanded="detailsOpen"
             @click="toggleDetails()"
             @keydown="toggleDetailsKey"
@@ -163,8 +165,8 @@ function toggleDetailsKey(e) {
 
           <button
             type="button"
-            :title="isPaused ? 'Resume uploads' : 'Pause uploads'"
-            aria-label="Pause or resume uploads"
+            :title="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
+            :aria-label="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             @click="onTogglePause"
             class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
           >
@@ -173,8 +175,8 @@ function toggleDetailsKey(e) {
 
           <button
             type="button"
-            title="Cancel all"
-            aria-label="Cancel all uploads"
+            :title="t('upload.cancelAll')"
+            :aria-label="t('upload.cancelAll')"
             @click="onCancelAll"
             class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
           >
@@ -184,9 +186,9 @@ function toggleDetailsKey(e) {
       </div>
 
       <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-        Uploading {{ fileStats.totalCount }} {{ fileStats.totalCount === 1 ? 'item' : 'items' }}
+        {{ t('upload.uploads', { count: fileStats.totalCount, items: fileStats.totalCount === 1 ? t('upload.item') : t('upload.items') }) }}
         <template v-if="destinationFolder">
-          to <span class="text-sky-600 dark:text-sky-300 font-medium">{{ destinationFolder }}</span>
+          {{ t('upload.to') }} <span class="text-sky-600 dark:text-sky-300 font-medium">{{ destinationFolder }}</span>
         </template>
       </div>
 
@@ -207,9 +209,9 @@ function toggleDetailsKey(e) {
       <!-- Overall stats -->
       <div class="mt-2 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
         <div class="flex items-center gap-2">
-          <span v-if="fileStats.completedCount">{{ fileStats.completedCount }} done</span>
+          <span v-if="fileStats.completedCount">{{ fileStats.completedCount }} {{ t('upload.done') }}</span>
           <span v-if="fileStats.completedCount && fileStats.activeCount" aria-hidden="true">·</span>
-          <span v-if="fileStats.activeCount">{{ fileStats.activeCount }} remaining</span>
+          <span v-if="fileStats.activeCount">{{ fileStats.activeCount }} {{ t('upload.remaining') }}</span>
         </div>
         <div class="tabular-nums">{{ formatBytes(uploadedBytes) }} / {{ formatBytes(totalBytes) }}</div>
       </div>
@@ -241,7 +243,7 @@ function toggleDetailsKey(e) {
                 class="text-xs flex-shrink-0"
                 :class="file._progress.uploadComplete ? 'text-emerald-600' : 'text-zinc-500'"
               >
-                {{ file._progress.uploadComplete ? 'Done' : file._progress.indeterminate ? '...' : (file._progress.percentage + '%') }}
+                {{ file._progress.uploadComplete ? t('upload.done') : file._progress.indeterminate ? '...' : (file._progress.percentage + '%') }}
               </span>
             </div>
 

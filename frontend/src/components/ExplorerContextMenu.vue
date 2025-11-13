@@ -9,6 +9,7 @@ import {
   watch,
 } from 'vue';
 import { offset, flip, shift, useFloating } from '@floating-ui/vue';
+import { useI18n } from 'vue-i18n';
 import { explorerContextMenuSymbol } from '@/composables/contextMenu';
 import { useFileStore } from '@/stores/fileStore';
 import { useSelection } from '@/composables/itemSelection';
@@ -68,6 +69,7 @@ const referenceStyles = computed(() => ({
 }));
 
 const actions = useFileActions();
+const { t } = useI18n();
 const selectedItems = actions.selectedItems;
 const hasSelection = actions.hasSelection;
 const primaryItem = actions.primaryItem;
@@ -77,23 +79,23 @@ const canRename = actions.canRename;
 const deleteDialogTitle = computed(() => {
   const count = selectedItems.value.length;
   if (count === 1 && primaryItem.value) {
-    return `Delete "${primaryItem.value.name}"?`;
+    return t('context.deleteTitle.single', { name: primaryItem.value.name });
   }
   if (count > 1) {
-    return `Delete ${count} items?`;
+    return t('context.deleteTitle.multiple', { count });
   }
-  return 'Delete items';
+  return t('context.deleteTitle.generic');
 });
 
 const deleteDialogMessage = computed(() => {
   const count = selectedItems.value.length;
   if (count === 1 && primaryItem.value) {
-    return `Are you sure you want to delete "${primaryItem.value.name}"? This action cannot be undone.`;
+    return t('context.deleteMessage.single', { name: primaryItem.value.name });
   }
   if (count > 1) {
-    return `Are you sure you want to delete these ${count} items? This action cannot be undone.`;
+    return t('context.deleteMessage.multiple', { count });
   }
-  return 'No items selected.';
+  return t('context.deleteMessage.generic');
 });
 
 const {
@@ -259,25 +261,25 @@ const menuSections = computed(() => {
   if (contextKind.value === 'background') {
     return [
       [
-        mk('get-info', 'Get Info', InfoRound, runGetInfo, {
+        mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, {
           disabled: !primaryItem.value,
         }),
       ],
       [
         mk(
           'fav-current',
-          isFavoriteCurrentDirectory.value ? 'Remove from Favorites' : 'Add to Favorites',
+          isFavoriteCurrentDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
           isFavoriteCurrentDirectory.value ? StarSolid : StarOutline,
           runToggleFavoriteForCurrent,
           { disabled: !currentDirectoryPath.value || isMutatingFavorite.value },
         ),
       ],
       [
-        mk('new-folder', 'New Folder', CreateNewFolderRound, runCreateFolder),
-        mk('new-file', 'New File', InsertDriveFileRound, runCreateFile),
+        mk('new-folder', t('context.newFolder'), CreateNewFolderRound, runCreateFolder),
+        mk('new-file', t('context.newFile'), InsertDriveFileRound, runCreateFile),
       ],
       [
-        mk('paste', 'Paste', ContentPasteRound, runPasteIntoCurrent, {
+        mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoCurrent, {
           disabled: !actions.canPaste.value,
           shortcut: `${modKeyLabel}V`,
         }),
@@ -287,29 +289,29 @@ const menuSections = computed(() => {
 
   const sections = [];
   sections.push([
-    mk('get-info', 'Get Info', InfoRound, runGetInfo, { disabled: !primaryItem.value }),
+    mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, { disabled: !primaryItem.value }),
   ]);
 
   const clipboardSection = [
-    mk('cut', 'Cut', ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
-    mk('copy', 'Copy', ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
+    mk('cut', t('context.cut'), ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
+    mk('copy', t('context.copy'), ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
   ];
   if (contextKind.value === 'directory') {
     clipboardSection.push(
-      mk('paste', 'Paste', ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
+      mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
     );
   }
   sections.push(clipboardSection);
 
   sections.push([
-    mk('rename', 'Rename', DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
+    mk('rename', t('context.rename'), DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
   ]);
 
   if (contextKind.value === 'directory') {
     sections.push([
       mk(
         'fav',
-        isFavoriteDirectory.value ? 'Remove from Favorites' : 'Add to Favorites',
+        isFavoriteDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
         isFavoriteDirectory.value ? StarSolid : StarOutline,
         runToggleFavoriteForDirectory,
         { disabled: !selectedDirectoryPath.value || isMutatingFavorite.value },
@@ -318,7 +320,7 @@ const menuSections = computed(() => {
   }
 
   sections.push([
-  mk('delete', 'Delete', DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
+  mk('delete', t('context.delete'), DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
   ]);
 
   return sections;
@@ -415,7 +417,7 @@ provide(explorerContextMenuSymbol, {
           <component :is="action.icon" class="w-4 h-4 opacity-80" />
           <p class="flex-1 font-medium">{{ action.label }}</p>
           <span v-if="action.shortcut" class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{{ action.shortcut }}</span>
-          <span v-if="action.disabled" class="sr-only">Disabled</span>
+          <span v-if="action.disabled" class="sr-only">{{ $t('common.disabled') }}</span>
         </button>
 
         <div
@@ -438,7 +440,7 @@ provide(explorerContextMenuSymbol, {
         @click="isDeleteConfirmOpen = false"
         :disabled="isDeleting"
       >
-        Cancel
+        {{ $t('common.cancel') }}
       </button>
       <button
         type="button"
@@ -446,8 +448,8 @@ provide(explorerContextMenuSymbol, {
         @click="confirmDelete"
         :disabled="isDeleting"
       >
-        <span v-if="isDeleting">Deleting...</span>
-        <span v-else>Delete</span>
+        <span v-if="isDeleting">{{ $t('common.deleting') }}</span>
+        <span v-else>{{ $t('common.delete') }}</span>
       </button>
     </div>
   </ModalDialog>

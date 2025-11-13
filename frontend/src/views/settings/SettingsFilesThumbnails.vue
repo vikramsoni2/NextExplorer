@@ -1,8 +1,10 @@
 <script setup>
 import { computed, reactive, watch } from 'vue';
 import { useAppSettings } from '@/stores/appSettings';
+import { useI18n } from 'vue-i18n';
 
 const appSettings = useAppSettings();
+const { t } = useI18n();
 
 const local = reactive({
   enabled: true,
@@ -42,21 +44,21 @@ const save = async () => {
 <template>
   <div class="space-y-6">
     <div v-if="dirty" class="sticky top-0 z-10 flex items-center justify-between rounded-md border border-yellow-400/30 bg-yellow-100/40 p-3 text-yellow-900 dark:border-yellow-400/20 dark:bg-yellow-500/10 dark:text-yellow-200">
-      <div class="text-sm">You have unsaved changes</div>
+      <div class="text-sm">{{ t('settings.common.unsavedChanges') }}</div>
       <div class="flex gap-2">
-        <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">Save</button>
-        <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">Discard</button>
+        <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">{{ t('common.save') }}</button>
+        <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">{{ t('common.discard') }}</button>
       </div>
     </div>
 
     <section class="rounded-lg border border-white/10 bg-white/5 p-4 dark:bg-zinc-900/50">
-      <h2 class="mb-2 text-base font-semibold">Thumbnails</h2>
-      <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">Customize preview thumbnails for images and videos.</p>
+      <h2 class="mb-2 text-base font-semibold">{{ t('settings.thumbs.title') }}</h2>
+      <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.subtitle') }}</p>
 
       <div class="flex items-center justify-between py-2">
         <div>
-          <div class="font-medium">Enable thumbnails</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Turn off to speed up browsing without generating previews.</div>
+          <div class="font-medium">{{ t('settings.thumbs.enable') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.enableHelp') }}</div>
         </div>
         <label class="inline-flex cursor-pointer items-center">
           <input type="checkbox" v-model="local.enabled" class="peer sr-only" />
@@ -66,8 +68,8 @@ const save = async () => {
 
       <div class="flex items-center justify-between py-2" :class="{ 'opacity-60 pointer-events-none': !local.enabled }">
         <div>
-          <div class="font-medium">Thumbnail quality</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Controls output quality (1–100). Default is 70.</div>
+          <div class="font-medium">{{ t('settings.thumbs.quality') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.qualityHelp') }}</div>
         </div>
         <div class="flex items-center gap-3">
           <input type="range" min="1" max="100" v-model.number="local.quality" class="w-64" />
@@ -77,8 +79,8 @@ const save = async () => {
 
       <div class="flex items-center justify-between py-2" :class="{ 'opacity-60 pointer-events-none': !local.enabled }">
         <div>
-          <div class="font-medium">Max dimension</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Longest side in pixels. Default is 200.</div>
+          <div class="font-medium">{{ t('settings.thumbs.maxDim') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.maxDimHelp') }}</div>
         </div>
         <div class="flex items-center gap-3">
           <input type="number" min="64" max="1024" step="1" v-model.number="local.size" class="w-24 rounded-md border border-white/10 bg-transparent px-2 py-1" />
@@ -87,4 +89,3 @@ const save = async () => {
     </section>
   </div>
 </template>
-

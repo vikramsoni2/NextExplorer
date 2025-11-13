@@ -49,7 +49,7 @@ const isActiveVolume = (volumeName = '') => {
     <h4 
     class="group flex items-center justify-between pb-2 pt-6 text-sm 
     text-neutral-400 dark:text-neutral-500 font-medium">
-        Volumes
+        {{ $t('volumes.title') }}
         <button 
         @click="open = !open"
         class="hidden group-hover:block 

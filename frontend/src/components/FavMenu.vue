@@ -6,6 +6,7 @@ import * as SolidIcons from '@heroicons/vue/24/solid';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useNavigation } from '@/composables/navigation';
 import { normalizePath } from '@/api';
+import { useI18n } from 'vue-i18n';
 
 const { ChevronDownIcon, StarIcon: StarIconOutline } = OutlineIcons;
 
@@ -51,6 +52,7 @@ const favorites = computed(() => favoritesStore.favorites.map((favorite) => ({
   label: favorite.path.split('/').pop() || favorite.path,
   iconComponent: resolveIconComponent(favorite.icon),
 })));
+const { t } = useI18n();
 
 const currentPath = computed(() => {
   const rawPath = route.params?.path;
@@ -80,7 +82,7 @@ const handleOpenFavorite = (favorite) => {
   <h4
     class="group flex items-center justify-between py-2 pt-6 text-sm text-neutral-400 dark:text-neutral-500 font-medium"
   >
-    Favourites
+    {{ t('favorites.title') }}
     <button
       @click="open = !open"
       class="hidden group-hover:block active:text-black dark:active:text-white text-neutral-500"
@@ -126,11 +128,11 @@ const handleOpenFavorite = (favorite) => {
           <div class="flex items-center gap-2 text-neutral-500 dark:text-neutral-300">
             <StarIconOutline class="h-4 w-4" />
             <span class="text-sm font-medium text-neutral-600 dark:text-neutral-100">
-              No favorites yet
+              {{ t('favorites.emptyTitle') }}
             </span>
           </div>
           <p class="mt-2 leading-relaxed">
-            Select a directory and tap the star in the main toolbar to pin it here.
+            {{ t('favorites.emptyDescription') }}
           </p>
         </div>
       </div>

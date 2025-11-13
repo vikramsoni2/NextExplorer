@@ -96,10 +96,10 @@ const handleBackgroundContextMenu = (event) => {
         backdrop-blur"
       >
         <div></div>
-        <div>Name</div>
-        <div>Size</div>
-        <div>Kind</div>
-        <div>Date Modified</div>
+        <div>{{ $t('folder.name') }}</div>
+        <div>{{ $t('folder.size') }}</div>
+        <div>{{ $t('folder.kind') }}</div>
+        <div>{{ $t('folder.dateModified') }}</div>
       </div>
       <FileObject 
       v-for="item in fileStore.getCurrentPathItems" 
@@ -111,7 +111,7 @@ const handleBackgroundContextMenu = (event) => {
 
     <div v-else class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
       <div class="flex  items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
-        <LoadingIcon/> Loading
+        <LoadingIcon/> {{ $t('folder.loading') }}
       </div>
     </div>
 

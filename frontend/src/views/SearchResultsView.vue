@@ -1,10 +1,12 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { search as searchApi, normalizePath } from '@/api';
 import FileIcon from '@/icons/FileIcon.vue';
 
 const route = useRoute();
+const { t } = useI18n();
 const router = useRouter();
 
 const items = ref([]);
@@ -24,7 +26,7 @@ async function load() {
     const { items: list = [] } = await searchApi(basePath.value, term);
     items.value = Array.isArray(list) ? list : [];
   } catch (e) {
-    errorMsg.value = e?.message || 'Search failed';
+    errorMsg.value = e?.message || t('search.failed');
   } finally {
     loading.value = false;
   }
@@ -69,13 +71,13 @@ function toIconItem(it) {
 <template>
   <div class="flex flex-col gap-3">
     <div class="text-sm text-neutral-600 dark:text-neutral-300">
-      <span v-if="q">Results for “{{ q }}”</span>
-      <span v-if="basePath"> in <span class="font-mono">/{{ basePath }}</span></span>
+      <span v-if="q">{{ $t('search.resultsFor', { q }) }}</span>
+      <span v-if="basePath"> {{ $t('search.in') }} <span class="font-mono">/{{ basePath }}</span></span>
     </div>
 
-    <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">Searching…</div>
+    <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('search.searching') }}</div>
     <div v-else-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</div>
-    <div v-else-if="items.length === 0" class="text-sm text-neutral-500 dark:text-neutral-400">No matches found.</div>
+    <div v-else-if="items.length === 0" class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('search.noMatches') }}</div>
 
     <div v-else class="flex flex-col divide-y divide-neutral-200 dark:divide-neutral-800 rounded-md overflow-hidden">
       <div v-for="it in items" :key="it.path + '/' + it.name" class="flex items-center justify-between p-3 bg-white dark:bg-zinc-800/50">
@@ -85,12 +87,12 @@ function toIconItem(it) {
             <div class="font-medium truncate">{{ it.name }}</div>
             <div class="text-xs text-neutral-500 font-mono truncate">/{{ it.path }}</div>
             <div v-if="it.matchLine" class="mt-1 text-xs text-neutral-700 dark:text-neutral-300 font-mono truncate">
-              <template v-if="Number.isFinite(it.matchLineNumber)">line {{ it.matchLineNumber }} · </template>{{ it.matchLine }}
+              <template v-if="Number.isFinite(it.matchLineNumber)">{{$t('search.line')}} {{ it.matchLineNumber }} · </template>{{ it.matchLine }}
             </div>
           </div>
         </div>
         <div class="shrink-0 ml-4">
-          <button class="px-3 py-1 text-sm rounded-md bg-neutral-200 hover:bg-neutral-300 dark:bg-zinc-700 dark:hover:bg-zinc-600" @click="openResult(it)">Open folder</button>
+          <button class="px-3 py-1 text-sm rounded-md bg-neutral-200 hover:bg-neutral-300 dark:bg-zinc-700 dark:hover:bg-zinc-600" @click="openResult(it)">{{ $t('search.openFolder') }}</button>
         </div>
       </div>
     </div>

@@ -1,0 +1,310 @@
+{
+  "common": {
+    "or": "OU",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "deleting": "Suppression...",
+    "loading": "Chargement",
+    "save": "Enregistrer",
+    "discard": "Rejeter",
+    "remove": "Retirer",
+    "create": "Créer",
+    "dismiss": "Fermer",
+    "disabled": "Désactivé"
+  },
+  "i18n": {
+    "language": "Langue",
+    "english": "Anglais",
+    "spanish": "Espagnol",
+    "french": "Français",
+    "german": "Allemand",
+    "chinese": "Chinois"
+  },
+  "search": {
+    "search": "Rechercher",
+    "openShortcutTitle": "Ouvrir la recherche (⌘/Ctrl + K)",
+    "resultsFor": "Résultats pour “{q}”",
+    "in": "dans",
+    "searching": "Recherche en cours…",
+    "noMatches": "Aucun résultat.",
+    "openFolder": "Ouvrir le dossier",
+    "line": "ligne",
+    "failed": "Échec de la recherche"
+  },
+  "user": {
+    "account": "Compte",
+    "settings": "Paramètres",
+    "signOut": "Déconnexion",
+    "useLightTheme": "Utiliser le thème clair",
+    "useDarkTheme": "Utiliser le thème sombre",
+    "lightTheme": "Thème clair",
+    "darkTheme": "Thème sombre"
+  },
+  "create": {
+    "createNew": "Créer",
+    "newFolder": "Nouveau dossier",
+    "fileUpload": "Téléverser un fichier",
+    "folderUpload": "Téléverser un dossier"
+  },
+  "context": {
+    "getInfo": "Afficher les infos",
+    "addToFavorites": "Ajouter aux favoris",
+    "removeFromFavorites": "Retirer des favoris",
+    "newFolder": "Nouveau dossier",
+    "newFile": "Nouveau fichier",
+    "paste": "Coller",
+    "cut": "Couper",
+    "copy": "Copier",
+    "rename": "Renommer",
+    "delete": "Supprimer",
+    "deleteTitle": {
+      "single": "Supprimer \"{name}\" ?",
+      "multiple": "Supprimer {count} éléments ?",
+      "generic": "Supprimer des éléments"
+    },
+    "deleteMessage": {
+      "single": "Supprimer \"{name}\" ? Cette action est irréversible.",
+      "multiple": "Supprimer ces {count} éléments ? Cette action est irréversible.",
+      "generic": "Aucun élément sélectionné."
+    }
+  },
+  "folder": {
+    "name": "Nom",
+    "size": "Taille",
+    "kind": "Type",
+    "dateModified": "Date de modification",
+    "loading": "Chargement"
+  },
+  "volumes": {
+    "quickAccess": "Accès rapide",
+    "quickAccessEmpty": "Épinglez des dossiers en favoris pour y accéder ici.",
+    "title": "Volumes",
+    "loading": "Chargement des volumes…"
+  },
+  "browser": {
+    "resizeSidebar": "Redimensionner la barre latérale"
+  },
+  "nav": {
+    "back": "Précédent",
+    "forward": "Suivant",
+    "upOneFolder": "Monter d’un dossier"
+  },
+  "view": {
+    "list": "Affichage liste",
+    "column": "Affichage colonnes",
+    "grid": "Affichage grille",
+    "photos": "Affichage photos"
+  },
+  "download": {
+    "download": "Télécharger",
+    "preparing": "Préparation du téléchargement..."
+  },
+  "upload": {
+    "toggleDetailsShow": "Afficher les détails",
+    "toggleDetailsHide": "Masquer les détails",
+    "pauseUploads": "Mettre en pause",
+    "resumeUploads": "Reprendre",
+    "cancelAll": "Tout annuler",
+    "uploads": "Téléversement de {count} {items}",
+    "item": "élément",
+    "items": "éléments",
+    "to": "vers",
+    "done": "Terminé",
+    "remaining": "restants",
+    "completePercent": "{percent}% terminé"
+  },
+  "info": {
+    "aria": "Panneau d’informations",
+    "details": "Détails",
+    "fileName": "Nom du fichier",
+    "type": "Type",
+    "size": "Taille",
+    "modified": "Modifié",
+    "location": "Emplacement",
+    "folder": "Dossier",
+    "folderSize": "Taille : {size}",
+    "items": "Éléments : {files} fichiers, {folders} dossiers",
+    "image": "Image",
+    "video": "Vidéo",
+    "dimensions": "Dimensions : {w} × {h}",
+    "dateTaken": "Date de prise : {date}",
+    "camera": "Appareil : {makeModel}",
+    "lens": "Objectif : {lens}",
+    "duration": "Durée : {seconds}s",
+    "loading": "Chargement des métadonnées…",
+    "failed": "Échec du chargement des métadonnées"
+  },
+  "favorites": {
+    "title": "Favoris",
+    "emptyTitle": "Pas encore de favoris",
+    "emptyDescription": "Sélectionnez un dossier et cliquez sur l’étoile pour l’épingler."
+  },
+  "photos": {
+    "menuTitle": "Taille de la photo",
+    "menuAria": "Afficher les contrôles de taille",
+    "thumbnailSize": "Taille de la miniature"
+  },
+  "spotlight": {
+    "placeholder": "Rechercher fichiers et dossiers…",
+    "close": "Fermer",
+    "hintWithin": "Tapez pour chercher dans"
+  },
+  "auth": {
+    "preparing": "Préparation de l’explorateur…",
+    "marketing": {
+      "headline": "L’avenir de la gestion des fichiers est là",
+      "subtitle": "Accédez, organisez et collaborez sur vos fichiers en toute sécurité depuis n’importe où",
+      "bullets": {
+        "keyboard": "Navigation optimisée pour le clavier et recherche ultra-rapide.",
+        "access": "Contrôles d’accès granulaires et actions auditables.",
+        "sso": "Connexion unique fluide avec votre fournisseur d’identité."
+      }
+    },
+    "login": {
+      "welcome": "Content de vous revoir",
+      "subtitle": "Connectez-vous pour accéder à NextExplorer.",
+      "submit": "Connexion"
+    },
+    "setup": {
+      "headline": "Mettons tout en place",
+      "subtitle": "Créez votre compte administrateur pour sécuriser vos fichiers.",
+      "formTitle": "Créez votre compte",
+      "formSubtitle": "Saisissez un e-mail et un mot de passe sécurisé pour terminer.",
+      "submit": "Terminer la configuration",
+      "bullets": {
+        "encryption": "Chiffrement robuste et actions auditable.",
+        "permissions": "Permissions granulaires et gestion utilisateurs.",
+        "sso": "Connexion unique fluide."
+      }
+    },
+    "email": "Adresse e-mail",
+    "emailPlaceholder": "nom@entreprise.com",
+    "usernameOptional": "Nom d’utilisateur (optionnel)",
+    "usernamePlaceholder": "Par défaut : début de l’e-mail",
+    "password": "Mot de passe",
+    "passwordPlaceholder": "Choisissez un mot de passe solide",
+    "confirmPassword": "Confirmer le mot de passe",
+    "confirmPasswordPlaceholder": "Retapez votre mot de passe",
+    "verifying": "Vérification…",
+    "creating": "Création…",
+    "sso": {
+      "continue": "Continuer avec la connexion unique"
+    },
+    "errors": {
+      "localSignInDisabled": "La connexion locale est désactivée.",
+      "emailRequired": "L’adresse e-mail est obligatoire.",
+      "passwordRequired": "Le mot de passe est obligatoire.",
+      "passwordLength": "Le mot de passe doit contenir au moins 6 caractères.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "signInFailed": "Échec de la connexion.",
+      "createAccountFailed": "Échec de la création du compte."
+    }
+  },
+  "breadcrumb": {
+    "volumes": "Volumes"
+  },
+  "sort": {
+    "title": "Options de tri",
+    "nameAToZ": "Nom A à Z",
+    "nameZToA": "Nom Z à A",
+    "smallToLarge": "Du plus petit au plus grand",
+    "largeToSmall": "Du plus grand au plus petit",
+    "oldToNew": "Les plus anciens en premier",
+    "newToOld": "Les plus récents en premier"
+  },
+  "settings": {
+    "user": "Utilisateur",
+    "admin": "Administrateur",
+    "title": "Paramètres",
+    "close": "Fermer les paramètres",
+    "categories": {
+      "account-password": "Modifier le mot de passe",
+      "about": "À propos",
+      "files-thumbnails": "Fichiers & miniatures",
+      "security": "Sécurité",
+      "access-control": "Contrôle d’accès",
+      "admin-users": "Gestion des utilisateurs"
+    },
+    "about": {
+      "title": "À propos",
+      "subtitle": "Consultez les informations de build.",
+      "appVersion": "Version de l’application",
+      "appVersionHelp": "Version actuellement utilisée.",
+      "gitCommit": "Commit Git",
+      "gitCommitHelp": "Révision du code embarquée dans la build.",
+      "branch": "Branche",
+      "branchHelp": "Branche Git lors du build.",
+      "unknown": "inconnu"
+    },
+    "common": { "unsavedChanges": "Vous avez des modifications non enregistrées" },
+    "thumbs": {
+      "title": "Miniatures",
+      "subtitle": "Personnalisez les aperçus images et vidéos.",
+      "enable": "Activer les miniatures",
+      "enableHelp": "Désactivez pour accélérer le parcours sans générer de prévisualisations.",
+      "quality": "Qualité des miniatures",
+      "qualityHelp": "Contrôle la qualité (1–100). Par défaut : 70.",
+      "maxDim": "Dimension max",
+      "maxDimHelp": "Plus grand côté en pixels. Par défaut : 200."
+    },
+    "security": {
+      "title": "Authentification",
+      "subtitle": "Contrôlez l’accès à l’app.",
+      "enable": "Activer l’authentification",
+      "enableHelp": "Si désactivée, tout le monde peut accéder aux fichiers.",
+      "confirmDisable": "Désactiver l’authentification rend vos fichiers publics. Continuer ?"
+    },
+    "access": {
+      "title": "Règles de dossiers",
+      "subtitle": "Définissez des permissions par dossier.",
+      "addRule": "Ajouter une règle",
+      "path": "Chemin",
+      "recursive": "Récursif",
+      "permissions": "Permissions",
+      "pathPlaceholder": "ex. Pictures/Holidays",
+      "readWrite": "Lecture & écriture",
+      "readOnly": "Lecture seule",
+      "hidden": "Masqué"
+    },
+    "comingSoon": { "title": "Bientôt disponible", "subtitle": "Cette section est en cours de développement." },
+    "password": {
+      "title": "Changer de mot de passe",
+      "notLocalUser": "La modification est réservée aux comptes locaux.",
+      "current": "Mot de passe actuel",
+      "new": "Nouveau mot de passe",
+      "confirm": "Confirmer le mot de passe",
+      "update": "Mettre à jour",
+      "updating": "Mise à jour…",
+      "updated": "Mot de passe mis à jour.",
+      "failed": "Échec de la mise à jour",
+      "validation": "Remplissez tous les champs; le mot de passe doit faire au moins 6 caractères et être confirmé."
+    },
+    "users": {
+      "title": "Gestion des utilisateurs",
+      "failedLoad": "Échec de chargement",
+      "failedUpdateRoles": "Échec de la mise à jour des rôles",
+      "failedCreate": "Échec de création",
+      "passwordMin": "Le mot de passe doit faire au moins 6 caractères.",
+      "passwordUpdated": "Mot de passe mis à jour",
+      "failedReset": "Échec du rétablissement",
+      "cannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte.",
+      "confirmRemove": "Supprimer {user} ? Cette action est irréversible.",
+      "failedRemove": "Échec de suppression",
+      "createUser": "Créer un utilisateur",
+      "email": "E-mail",
+      "emailPlaceholder": "utilisateur@exemple.com",
+      "username": "Nom d’utilisateur",
+      "usernameOptional": "Facultatif",
+      "password": "Mot de passe",
+      "grantAdmin": "Accorder admin",
+      "creating": "Création…",
+      "displayName": "Nom affiché",
+      "roles": "Rôles",
+      "actions": "Actions",
+      "makeAdmin": "Nommer admin",
+      "resetPassword": "Définir/réinitialiser",
+      "removeUser": "Supprimer",
+      "promptNewPassword": "Entrez un nouveau mot de passe pour {user} (min 6 caractères) :"
+    }
+  }
+}

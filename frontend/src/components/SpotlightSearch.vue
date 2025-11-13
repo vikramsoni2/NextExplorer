@@ -6,10 +6,12 @@ import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
 import { search as searchApi, normalizePath } from '@/api';
 import { useSpotlightStore } from '@/stores/spotlight';
 import FileIcon from '@/icons/FileIcon.vue';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const route = useRoute();
 const spotlight = useSpotlightStore();
+const { t } = useI18n();
 
 
 const query = ref('');
@@ -42,7 +44,7 @@ const performSearch = useDebounceFn(async () => {
     const { items = [] } = await searchApi(basePath.value, term);
     results.value = Array.isArray(items) ? items : [];
   } catch (e) {
-    errorMsg.value = e?.message || 'Search failed';
+    errorMsg.value = e?.message || t('search.failed');
   } finally {
     loading.value = false;
   }
@@ -184,21 +186,21 @@ onKeyStroke('Enter', (e) => {
             v-model="query"
             type="text"
             spellcheck="false"
-            placeholder="Search files and folders…"
+            :placeholder="t('spotlight.placeholder')"
             class="flex-1 bg-transparent outline-none text-[15px] placeholder-neutral-400 dark:placeholder-neutral-500 text-neutral-900 dark:text-neutral-100"
           />
           <div class="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
             <span class="px-1.5 py-[2px] rounded border text-white border-neutral-500 dark:border-neutral-700 bg-neutral-500 dark:bg-neutral-900">Esc</span>
-            <span>Close</span>
+            <span>{{ t('spotlight.close') }}</span>
           </div>
         </div>
 
         <!-- Results -->
         <div class="max-h-[60vh] overflow-y-auto">
-          <div v-if="loading" class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">Searching…</div>
+          <div v-if="loading" class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">{{ t('search.searching') }}</div>
           <div v-else-if="errorMsg" class="px-4 py-3 text-sm text-red-600">{{ errorMsg }}</div>
-          <div v-else-if="!query.trim()" class="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400">Type to search within <span class="font-mono">/{{ basePath }}</span></div>
-          <div v-else-if="results.length === 0" class="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400">No matches found.</div>
+          <div v-else-if="!query.trim()" class="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400">{{ t('spotlight.hintWithin') }} <span class="font-mono">/{{ basePath }}</span></div>
+          <div v-else-if="results.length === 0" class="px-4 py-6 text-sm text-neutral-500 dark:text-neutral-400">{{ t('search.noMatches') }}</div>
 
           <div v-else class="divide-y divide-neutral-100 dark:divide-neutral-800">
             <button
@@ -217,7 +219,7 @@ onKeyStroke('Enter', (e) => {
                   <div class="text-[12px] text-neutral-500 dark:text-neutral-400 font-mono truncate">/{{ item.path }}</div>
                   <div v-if="item.matchLine" class="mt-0.5 text-xs text-zinc-600 dark:text-yellow-500 font-mono truncate">
                     <template v-if="Number.isFinite(item.matchLineNumber)">
-                      <span class="text-zinc-500 dark:text-zinc-300 pr-2">line #{{ item.matchLineNumber }}</span>
+                      <span class="text-zinc-500 dark:text-zinc-300 pr-2">{{ t('search.line') }} #{{ item.matchLineNumber }}</span>
                     </template>
                     {{ item.matchLine }}
                   </div>

@@ -1,0 +1,310 @@
+{
+  "common": {
+    "or": "ODER",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "deleting": "Wird gelöscht...",
+    "loading": "Wird geladen",
+    "save": "Speichern",
+    "discard": "Verwerfen",
+    "remove": "Entfernen",
+    "create": "Erstellen",
+    "dismiss": "Schließen",
+    "disabled": "Deaktiviert"
+  },
+  "i18n": {
+    "language": "Sprache",
+    "english": "Englisch",
+    "spanish": "Spanisch",
+    "french": "Französisch",
+    "german": "Deutsch",
+    "chinese": "Chinesisch"
+  },
+  "search": {
+    "search": "Suche",
+    "openShortcutTitle": "Suche öffnen (⌘/Ctrl + K)",
+    "resultsFor": "Ergebnisse für „{q}“",
+    "in": "in",
+    "searching": "Suche läuft…",
+    "noMatches": "Keine Treffer gefunden.",
+    "openFolder": "Ordner öffnen",
+    "line": "Zeile",
+    "failed": "Suche fehlgeschlagen"
+  },
+  "user": {
+    "account": "Konto",
+    "settings": "Einstellungen",
+    "signOut": "Abmelden",
+    "useLightTheme": "Lichtmodus verwenden",
+    "useDarkTheme": "Dunkelmodus verwenden",
+    "lightTheme": "Lichtmodus",
+    "darkTheme": "Dunkelmodus"
+  },
+  "create": {
+    "createNew": "Erstellen",
+    "newFolder": "Neuer Ordner",
+    "fileUpload": "Datei hochladen",
+    "folderUpload": "Ordner hochladen"
+  },
+  "context": {
+    "getInfo": "Infos anzeigen",
+    "addToFavorites": "Zu Favoriten hinzufügen",
+    "removeFromFavorites": "Aus Favoriten entfernen",
+    "newFolder": "Neuer Ordner",
+    "newFile": "Neue Datei",
+    "paste": "Einfügen",
+    "cut": "Ausschneiden",
+    "copy": "Kopieren",
+    "rename": "Umbenennen",
+    "delete": "Löschen",
+    "deleteTitle": {
+      "single": "\"{name}\" löschen?",
+      "multiple": "{count} Elemente löschen?",
+      "generic": "Elemente löschen"
+    },
+    "deleteMessage": {
+      "single": "\"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "multiple": "Diese {count} Elemente wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "generic": "Keine Elemente ausgewählt."
+    }
+  },
+  "folder": {
+    "name": "Name",
+    "size": "Größe",
+    "kind": "Art",
+    "dateModified": "Geändert am",
+    "loading": "Lädt"
+  },
+  "volumes": {
+    "quickAccess": "Schneller Zugriff",
+    "quickAccessEmpty": "Markiere Ordner als Favoriten für den Schnellzugriff.",
+    "title": "Volumes",
+    "loading": "Volumes laden…"
+  },
+  "browser": {
+    "resizeSidebar": "Seitenleiste anpassen"
+  },
+  "nav": {
+    "back": "Zurück",
+    "forward": "Vorwärts",
+    "upOneFolder": "Eine Ebene hoch"
+  },
+  "view": {
+    "list": "Listenansicht",
+    "column": "Spaltenansicht",
+    "grid": "Rasteransicht",
+    "photos": "Fotosicht"
+  },
+  "download": {
+    "download": "Herunterladen",
+    "preparing": "Bereite Download vor..."
+  },
+  "upload": {
+    "toggleDetailsShow": "Details anzeigen",
+    "toggleDetailsHide": "Details verbergen",
+    "pauseUploads": "Pause",
+    "resumeUploads": "Fortsetzen",
+    "cancelAll": "Alles abbrechen",
+    "uploads": "Lade {count} {items} hoch",
+    "item": "Element",
+    "items": "Elemente",
+    "to": "nach",
+    "done": "Fertig",
+    "remaining": "verbleibend",
+    "completePercent": "{percent}% abgeschlossen"
+  },
+  "info": {
+    "aria": "Info-Bereich",
+    "details": "Details",
+    "fileName": "Dateiname",
+    "type": "Typ",
+    "size": "Größe",
+    "modified": "Geändert",
+    "location": "Ort",
+    "folder": "Ordner",
+    "folderSize": "Größe: {size}",
+    "items": "Elemente: {files} Dateien, {folders} Ordner",
+    "image": "Bild",
+    "video": "Video",
+    "dimensions": "Maße: {w} × {h}",
+    "dateTaken": "Aufnahmedatum: {date}",
+    "camera": "Kamera: {makeModel}",
+    "lens": "Objektiv: {lens}",
+    "duration": "Dauer: {seconds}s",
+    "loading": "Metadaten werden geladen…",
+    "failed": "Metadaten konnten nicht geladen werden"
+  },
+  "favorites": {
+    "title": "Favoriten",
+    "emptyTitle": "Noch nichts als Favorit gespeichert",
+    "emptyDescription": "Wähle einen Ordner aus und markiere ihn mit dem Stern für den Schnellzugriff."
+  },
+  "photos": {
+    "menuTitle": "Fotogröße",
+    "menuAria": "Foto-Größenregler öffnen",
+    "thumbnailSize": "Miniaturgröße"
+  },
+  "spotlight": {
+    "placeholder": "Dateien und Ordner suchen…",
+    "close": "Schließen",
+    "hintWithin": "Tippe, um in" 
+  },
+  "auth": {
+    "preparing": "Explorer wird vorbereitet…",
+    "marketing": {
+      "headline": "Die Zukunft der Dateiverwaltung beginnt hier",
+      "subtitle": "Greife sicher auf alle Dateien zu, organisiere sie und arbeite von überall zusammen",
+      "bullets": {
+        "keyboard": "Tastaturzentrierte Navigation und blitzschnelle Suche.",
+        "access": "Feingranulare Zugriffskontrolle mit prüffähigen Aktionen.",
+        "sso": "Nahtloses Single Sign-On mit deinem Identity Provider."
+      }
+    },
+    "login": {
+      "welcome": "Willkommen zurück",
+      "subtitle": "Melde dich an, um NextExplorer zu nutzen.",
+      "submit": "Anmelden"
+    },
+    "setup": {
+      "headline": "Richte alles ein",
+      "subtitle": "Lege dein Admin-Konto an, um deine Dateien zu schützen.",
+      "formTitle": "Konto erstellen",
+      "formSubtitle": "Gib eine E-Mail und ein sicheres Passwort ein.",
+      "submit": "Einrichtung abschließen",
+      "bullets": {
+        "encryption": "Starke Verschlüsselung und prüffähige Aktionen.",
+        "permissions": "Feingranulare Berechtigungen und Benutzerverwaltung.",
+        "sso": "Nahtloses Single Sign-On-Unterstützung."
+      }
+    },
+    "email": "E-Mail-Adresse",
+    "emailPlaceholder": "name@firma.com",
+    "usernameOptional": "Benutzername (optional)",
+    "usernamePlaceholder": "Standardmäßig der Teil vor dem @",
+    "password": "Passwort",
+    "passwordPlaceholder": "Sicheres Passwort wählen",
+    "confirmPassword": "Passwort bestätigen",
+    "confirmPasswordPlaceholder": "Passwort erneut eingeben",
+    "verifying": "Überprüfung…",
+    "creating": "Wird erstellt…",
+    "sso": {
+      "continue": "Mit Single Sign-On fortfahren"
+    },
+    "errors": {
+      "localSignInDisabled": "Lokale Anmeldung ist deaktiviert.",
+      "emailRequired": "E-Mail ist erforderlich.",
+      "passwordRequired": "Passwort ist erforderlich.",
+      "passwordLength": "Das Passwort muss mindestens 6 Zeichen haben.",
+      "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+      "signInFailed": "Anmeldung fehlgeschlagen.",
+      "createAccountFailed": "Kontoerstellung fehlgeschlagen."
+    }
+  },
+  "breadcrumb": {
+    "volumes": "Volumes"
+  },
+  "sort": {
+    "title": "Sortieroptionen",
+    "nameAToZ": "Name A bis Z",
+    "nameZToA": "Name Z bis A",
+    "smallToLarge": "Klein nach Groß",
+    "largeToSmall": "Groß nach Klein",
+    "oldToNew": "Alt zu neu",
+    "newToOld": "Neu zu alt"
+  },
+  "settings": {
+    "user": "Benutzer",
+    "admin": "Admin",
+    "title": "Einstellungen",
+    "close": "Einstellungen schließen",
+    "categories": {
+      "account-password": "Passwort ändern",
+      "about": "Über",
+      "files-thumbnails": "Dateien & Vorschaubilder",
+      "security": "Sicherheit",
+      "access-control": "Zugriffskontrolle",
+      "admin-users": "Benutzerverwaltung"
+    },
+    "about": {
+      "title": "Über",
+      "subtitle": "Zeigt Build-Informationen der Anwendung.",
+      "appVersion": "App-Version",
+      "appVersionHelp": "Die aktuell laufende Build-Version.",
+      "gitCommit": "Git-Commit",
+      "gitCommitHelp": "Die zur Build-Zeit eingebettete Revision.",
+      "branch": "Branch",
+      "branchHelp": "Der Git-Branch der Build-Session.",
+      "unknown": "unbekannt"
+    },
+    "common": { "unsavedChanges": "Du hast nicht gespeicherte Änderungen" },
+    "thumbs": {
+      "title": "Vorschaubilder",
+      "subtitle": "Passe die Miniaturansichten für Bilder und Videos an.",
+      "enable": "Vorschaubilder aktivieren",
+      "enableHelp": "Deaktiviere sie, um schneller zu navigieren ohne Vorschauen.",
+      "quality": "Bildqualität",
+      "qualityHelp": "Steuert die Ausgabequalität (1–100). Default 70.",
+      "maxDim": "Maximale Größe",
+      "maxDimHelp": "Längere Seite in Pixeln. Standard ist 200."
+    },
+    "security": {
+      "title": "Authentifizierung",
+      "subtitle": "Steuere den Zugriff auf die App.",
+      "enable": "Authentifizierung aktivieren",
+      "enableHelp": "Ist sie off, hat jeder Zugriff.",
+      "confirmDisable": "Authentifizierung zu deaktivieren macht deine Dateien öffentlich. Fortfahren?"
+    },
+    "access": {
+      "title": "Ordnerregeln",
+      "subtitle": "Setze Berechtigungen pro Ordner.",
+      "addRule": "Regel hinzufügen",
+      "path": "Pfad",
+      "recursive": "Rekursiv",
+      "permissions": "Berechtigungen",
+      "pathPlaceholder": "z. B. Pictures/Holidays",
+      "readWrite": "Lesen & Schreiben",
+      "readOnly": "Nur Lesen",
+      "hidden": "Versteckt"
+    },
+    "comingSoon": { "title": "Kommt bald", "subtitle": "Dieser Bereich befindet sich noch im Aufbau." },
+    "password": {
+      "title": "Passwort ändern",
+      "notLocalUser": "Passwörter lassen sich nur für lokale Benutzer ändern.",
+      "current": "Aktuelles Passwort",
+      "new": "Neues Passwort",
+      "confirm": "Neues Passwort bestätigen",
+      "update": "Passwort aktualisieren",
+      "updating": "Wird aktualisiert…",
+      "updated": "Passwort aktualisiert.",
+      "failed": "Aktualisierung fehlgeschlagen",
+      "validation": "Bitte alle Felder ausfüllen; Passwort mind. 6 Zeichen und muss bestätigt werden."
+    },
+    "users": {
+      "title": "Benutzerverwaltung",
+      "failedLoad": "Benutzer konnten nicht geladen werden",
+      "failedUpdateRoles": "Rollen konnten nicht aktualisiert werden",
+      "failedCreate": "Benutzer konnte nicht erstellt werden",
+      "passwordMin": "Passwort muss mindestens 6 Zeichen haben.",
+      "passwordUpdated": "Passwort aktualisiert",
+      "failedReset": "Passwort konnte nicht zurückgesetzt werden",
+      "cannotDeleteSelf": "Du kannst deinen eigenen Account nicht löschen.",
+      "confirmRemove": "{user} entfernen? Dies kann nicht rückgängig gemacht werden.",
+      "failedRemove": "Benutzer konnte nicht entfernt werden",
+      "createUser": "Benutzer erstellen",
+      "email": "E-Mail",
+      "emailPlaceholder": "user@example.com",
+      "username": "Benutzername",
+      "usernameOptional": "Optional",
+      "password": "Passwort",
+      "grantAdmin": "Admin-Rechte vergeben",
+      "creating": "Erstellt…",
+      "displayName": "Anzeigename",
+      "roles": "Rollen",
+      "actions": "Aktionen",
+      "makeAdmin": "Admin machen",
+      "resetPassword": "Passwort setzen/zurücksetzen",
+      "removeUser": "Benutzer entfernen",
+      "promptNewPassword": "Neues Passwort für {user} eingeben (mind. 6 Zeichen):"
+    }
+  }
+}

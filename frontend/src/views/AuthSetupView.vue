@@ -4,10 +4,12 @@ import { useRoute, useRouter } from 'vue-router';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import { LockClosedIcon } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/auth';
+import { useI18n } from 'vue-i18n';
 
 const version = __APP_VERSION__
 
 const auth = useAuthStore();
+const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 
@@ -65,17 +67,17 @@ const handleSetupSubmit = async () => {
   resetErrors();
 
   if (!setupEmailValue.value.trim()) {
-    setupError.value = 'Email is required.';
+    setupError.value = t('auth.errors.emailRequired');
     return;
   }
 
   if (setupPasswordValue.value.length < 6) {
-    setupError.value = 'Password must be at least 6 characters long.';
+    setupError.value = t('auth.errors.passwordLength');
     return;
   }
 
   if (setupPasswordValue.value !== setupConfirmValue.value) {
-    setupError.value = 'Passwords do not match.';
+    setupError.value = t('auth.errors.passwordMismatch');
     return;
   }
 
@@ -93,7 +95,7 @@ const handleSetupSubmit = async () => {
     setupConfirmValue.value = '';
     redirectToDestination();
   } catch (error) {
-    setupError.value = error instanceof Error ? error.message : 'Failed to create account.';
+    setupError.value = error instanceof Error ? error.message : t('auth.errors.createAccountFailed');
   } finally {
     isSubmittingSetup.value = false;
   }
@@ -106,7 +108,7 @@ const handleSetupSubmit = async () => {
     <div v-if="auth.isLoading" class="flex min-h-screen items-center justify-center px-4 py-12">
       <div class="flex flex-col items-center gap-3">
         <div class="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-accent"></div>
-        <p class="text-lg font-medium tracking-wide text-nextgray-100/80">Preparing your explorer…</p>
+        <p class="text-lg font-medium tracking-wide text-nextgray-100/80">{{ $t('auth.preparing') }}</p>
       </div>
     </div>
 
@@ -128,21 +130,21 @@ const handleSetupSubmit = async () => {
 
         <div class="max-w-xl">
           <h2 class="text-5xl font-semibold tracking-tight text-white">
-            Let’s get <span class="text-accent">set up</span>
+            {{ $t('auth.setup.headline') }}
           </h2>
-          <p class="mt-4 text-base leading-relaxed text-white/70">Create your administrator account to secure and manage your files.</p>
+          <p class="mt-4 text-base leading-relaxed text-white/70">{{ $t('auth.setup.subtitle') }}</p>
           <ul class="mt-8 space-y-3 text-sm text-white/80">
             <li class="flex items-center gap-3">
               <span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent"></span>
-              Strong encryption and audit-friendly actions.
+              {{ $t('auth.setup.bullets.encryption') }}
             </li>
             <li class="flex items-center gap-3">
               <span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent"></span>
-              Granular permissions and user management.
+              {{ $t('auth.setup.bullets.permissions') }}
             </li>
             <li class="flex items-center gap-3">
               <span class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-accent"></span>
-              Seamless Single Sign-On support.
+              {{ $t('auth.setup.bullets.sso') }}
             </li>
           </ul>
         </div>
@@ -160,59 +162,59 @@ const handleSetupSubmit = async () => {
             </span>
           </div>
           <div class="mb-6">
-            <p class="text-3xl font-black leading-tight tracking-tight text-white">Create your account</p>
-            <p class="mt-2 text-sm text-white/60">Provide an email and secure password to finish setup.</p>
+            <p class="text-3xl font-black leading-tight tracking-tight text-white">{{ $t('auth.setup.formTitle') }}</p>
+            <p class="mt-2 text-sm text-white/60">{{ $t('auth.setup.formSubtitle') }}</p>
           </div>
 
           <form class="space-y-5" @submit.prevent="handleSetupSubmit">
             <label class="block">
-              <span class="block text-sm font-medium text-white/80">Email address</span>
+              <span class="block text-sm font-medium text-white/80">{{ $t('auth.email') }}</span>
               <input
                 id="setup-email"
                 v-model="setupEmailValue"
                 type="email"
                 autocomplete="email"
                 :class="inputBaseClasses"
-                placeholder="name@company.com"
+                :placeholder="$t('auth.emailPlaceholder')"
                 :disabled="isSubmittingSetup"
               />
             </label>
 
             <label class="block">
-              <span class="block text-sm font-medium text-white/80">Username (optional)</span>
+              <span class="block text-sm font-medium text-white/80">{{ $t('auth.usernameOptional') }}</span>
               <input
                 id="setup-username"
                 v-model="setupUsernameValue"
                 type="text"
                 autocomplete="username"
                 :class="inputBaseClasses"
-                placeholder="Defaults to email prefix"
+                :placeholder="$t('auth.usernamePlaceholder')"
                 :disabled="isSubmittingSetup"
               />
             </label>
 
             <label class="block">
-              <span class="block text-sm font-medium text-white/80">Password</span>
+              <span class="block text-sm font-medium text-white/80">{{ $t('auth.password') }}</span>
               <input
                 id="setup-password"
                 v-model="setupPasswordValue"
                 type="password"
                 autocomplete="new-password"
                 :class="inputBaseClasses"
-                placeholder="Choose a strong password"
+                :placeholder="$t('auth.passwordPlaceholder')"
                 :disabled="isSubmittingSetup"
               />
             </label>
 
             <label class="block">
-              <span class="block text-sm font-medium text-white/80">Confirm password</span>
+              <span class="block text-sm font-medium text-white/80">{{ $t('auth.confirmPassword') }}</span>
               <input
                 id="setup-password-confirm"
                 v-model="setupConfirmValue"
                 type="password"
                 autocomplete="new-password"
                 :class="inputBaseClasses"
-                placeholder="Re-type your password"
+                :placeholder="$t('auth.confirmPasswordPlaceholder')"
                 :disabled="isSubmittingSetup"
               />
             </label>
@@ -221,8 +223,8 @@ const handleSetupSubmit = async () => {
             <p v-else-if="statusError" :class="helperTextClasses">{{ statusError }}</p>
 
             <button type="submit" :class="buttonBaseClasses" :disabled="isSubmittingSetup">
-              <span v-if="isSubmittingSetup">Creating…</span>
-              <span v-else class="inline-flex gap-2 items-center"> <LockClosedIcon class="w-5 h-5"/> Finish Setup</span>
+              <span v-if="isSubmittingSetup">{{ $t('auth.creating') }}</span>
+              <span v-else class="inline-flex gap-2 items-center"> <LockClosedIcon class="w-5 h-5"/> {{ $t('auth.setup.submit') }}</span>
             </button>
           </form>
         </div>

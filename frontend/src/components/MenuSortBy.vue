@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { SortByAlphaOutlined } from '@vicons/material';
 import { useSettingsStore } from '@/stores/settings'
 import { CheckIcon } from '@heroicons/vue/20/solid';
@@ -7,6 +8,17 @@ import { onClickOutside } from '@vueuse/core';
 
 
 const settings = useSettingsStore()
+const { t } = useI18n();
+
+function sortLabel(option){
+  if (option.by === 'name' && option.order === 'asc') return t('sort.nameAToZ')
+  if (option.by === 'name' && option.order === 'desc') return t('sort.nameZToA')
+  if (option.by === 'size' && option.order === 'asc') return t('sort.smallToLarge')
+  if (option.by === 'size' && option.order === 'desc') return t('sort.largeToSmall')
+  if (option.by === 'dateModified' && option.order === 'asc') return t('sort.oldToNew')
+  if (option.by === 'dateModified' && option.order === 'desc') return t('sort.newToOld')
+  return option.name
+}
 
 const menuOpen = ref(false)
 const menuPopup = ref(null)
@@ -25,7 +37,7 @@ onClickOutside(menuPopup, () => {
       hover:bg-[rgb(239,239,240)] active:bg-zinc-200
       dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'dark:bg-zinc-700 dark:bg-opacity-70': menuOpen == true }"
-      title="Sort options">
+      :title="t('sort.title')">
       <SortByAlphaOutlined class="w-6" />
     </button>
 
@@ -58,7 +70,7 @@ onClickOutside(menuPopup, () => {
             <CheckIcon 
             class="h-4 w-4  dark:text-white invisible"
             :class="{'!visible': settings.sortBy.key === option.key}"  />
-            {{ option.name }}
+            {{ sortLabel(option) }}
           </button>
 
         </div>
