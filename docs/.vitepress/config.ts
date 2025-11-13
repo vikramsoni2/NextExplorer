@@ -28,7 +28,7 @@ export default {
           { text: 'Troubleshooting', link: '/troubleshooting' },
           { text: 'ONLYOFFICE Integration', link: '/onlyoffice' },
           { text: 'Releases', link: '/releases' },
-          { text: 'Screenshots', link: '/screenshots' }
+          { text: 'Visual Tour', link: '/app-tour' }
         ]
       }
     ],
