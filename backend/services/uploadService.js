@@ -26,18 +26,15 @@ const resolveUploadPaths = (req, file) => {
   };
 };
 
-function CustomStorage(opts) {
-  this.getDestination = opts.destination || function (req, file, cb) {
-    cb(null, '/uploads/');
-  };
+function CustomStorage() {
+  // Custom multer storage engine for handling file uploads with:
+  // - Access control checks
+  // - Atomic-like writes via temporary files
+  // - Automatic file name conflict resolution
 }
 
 CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
-  this.getDestination(req, file, async (err) => {
-    if (err) {
-      return cb(err);
-    }
-
+  (async () => {
     try {
       const { destinationPath, destinationDir } = resolveUploadPaths(req, file);
       await ensureDir(destinationDir);
@@ -99,7 +96,7 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
     } catch (uploadError) {
       cb(uploadError);
     }
-  });
+  })();
 };
 
 CustomStorage.prototype._removeFile = function removeFile(req, file, cb) {
@@ -119,7 +116,7 @@ CustomStorage.prototype._removeFile = function removeFile(req, file, cb) {
     });
 };
 
-const createUploadMiddleware = () => multer({ storage: new CustomStorage({}) });
+const createUploadMiddleware = () => multer({ storage: new CustomStorage() });
 
 module.exports = {
   createUploadMiddleware,
