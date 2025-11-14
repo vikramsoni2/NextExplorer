@@ -371,7 +371,7 @@ const deriveRolesFromClaims = (claims = {}, adminGroups = []) => {
 };
 
 // Get or create user from OIDC claims (with auto-linking via email)
-const getOrCreateOidcUser = async ({ issuer, sub, email, emailVerified, username, displayName, roles }) => {
+const getOrCreateOidcUser = async ({ issuer, sub, email, emailVerified, username, displayName, roles, requireEmailVerified = false }) => {
   const db = await getDb();
   const normEmail = normalizeEmail(email);
 
@@ -379,8 +379,8 @@ const getOrCreateOidcUser = async ({ issuer, sub, email, emailVerified, username
     throw new Error('Email is required from OIDC provider');
   }
 
-  // For security, only auto-link if email is verified
-  if (!emailVerified) {
+  // For security, only auto-link if email is verified (when required)
+  if (requireEmailVerified && !emailVerified) {
     throw new Error('Email must be verified by identity provider');
   }
 

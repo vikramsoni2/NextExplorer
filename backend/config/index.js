@@ -95,6 +95,7 @@ const auth = {
     callbackUrl: env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
     scopes: parseScopes(env.OIDC_SCOPES) || null,
     adminGroups: parseScopes(env.OIDC_ADMIN_GROUPS) || null,
+    requireEmailVerified: env.OIDC_REQUIRE_EMAIL_VERIFIED,
   },
 };
 

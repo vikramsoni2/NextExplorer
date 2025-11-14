@@ -1,0 +1,320 @@
+{
+  "common": {
+    "or": "या",
+    "cancel": "रद्द करें",
+    "delete": "हटाएं",
+    "deleting": "हटाया जा रहा है...",
+    "loading": "लोड हो रहा है...",
+    "save": "सहेजें",
+    "discard": "छोड़ें",
+    "remove": "निकालें",
+    "create": "बनाएँ",
+    "dismiss": "बंद करें",
+    "disabled": "अक्षम"
+  },
+  "i18n": {
+    "language": "भाषा",
+    "english": "अंग्रेज़ी",
+    "spanish": "स्पेनिश",
+    "french": "फ़्रेंच",
+    "german": "जर्मन",
+    "chinese": "चीनी",
+    "hindi": "हिंदी"
+  },
+  "search": {
+    "search": "खोजें",
+    "openShortcutTitle": "खोज खोलें (⌘/Ctrl + K)",
+    "resultsFor": "“{q}” के लिए परिणाम",
+    "in": "में",
+    "searching": "खोज जारी है…",
+    "noMatches": "कोई मिलान नहीं मिला।",
+    "failed": "खोज विफल हुई",
+    "openFolder": "फ़ोल्डर खोलें",
+    "line": "पंक्ति"
+  },
+  "user": {
+    "account": "खाता",
+    "settings": "सेटिंग्स",
+    "signOut": "साइन आउट",
+    "useLightTheme": "हल्का थीम उपयोग करें",
+    "useDarkTheme": "गहरा थीम उपयोग करें",
+    "lightTheme": "हल्का थीम",
+    "darkTheme": "गहरा थीम"
+  },
+  "create": {
+    "createNew": "नया बनाएं",
+    "newFolder": "नया फ़ोल्डर",
+    "fileUpload": "फ़ाइल अपलोड",
+    "folderUpload": "फ़ोल्डर अपलोड"
+  },
+  "context": {
+    "getInfo": "जानकारी लें",
+    "addToFavorites": "पसंदीदा में जोड़ें",
+    "removeFromFavorites": "पसंदीदा से हटाएं",
+    "newFolder": "नया फ़ोल्डर",
+    "newFile": "नई फ़ाइल",
+    "paste": "चिपकाएँ",
+    "cut": "कट करें",
+    "copy": "कॉपी करें",
+    "rename": "नाम बदलें",
+    "delete": "हटाएं",
+    "deleteTitle": {
+      "single": "“{name}” हटाना है?",
+      "multiple": "{count} आइटम हटाना है?",
+      "generic": "आइटम हटाएं"
+    },
+    "deleteMessage": {
+      "single": "क्या आप वाकई “{name}” को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
+      "multiple": "क्या आप वाकई इन {count} आइटमों को हटाना चाहते हैं? यह क्रिया पूर्ववत नहीं की जा सकती।",
+      "generic": "कोई आइटम चयनित नहीं हैं।"
+    }
+  },
+  "folder": {
+    "name": "नाम",
+    "size": "आकार",
+    "kind": "प्रकार",
+    "dateModified": "अंतिम संशोधन",
+    "loading": "लोड हो रहा है"
+  },
+  "volumes": {
+    "quickAccess": "त्वरित पहुँच",
+    "quickAccessEmpty": "फ़ोल्डरों को पसंदीदा के रूप में पिन करें ताकि आप उन्हें यहां जल्दी एक्सेस कर सकें।",
+    "title": "वॉल्यूम",
+    "loading": "वॉल्यूम लोड हो रहे हैं…"
+  },
+  "browser": {
+    "resizeSidebar": "साइडबार का आकार बदलें"
+  },
+  "nav": {
+    "back": "पीछे",
+    "forward": "आगे",
+    "upOneFolder": "एक फ़ोल्डर ऊपर"
+  },
+  "view": {
+    "list": "सूची दृश्य",
+    "column": "स्तंभ दृश्य",
+    "grid": "ग्रिड दृश्य",
+    "photos": "फ़ोटो दृश्य"
+  },
+  "photos": {
+    "menuTitle": "फ़ोटो आकार",
+    "menuAria": "फ़ोटो आकार नियंत्रण खोलें",
+    "thumbnailSize": "थंबनेल आकार"
+  },
+  "favorites": {
+    "title": "पसंदीदा",
+    "emptyTitle": "अभी तक कोई पसंदीदा नहीं",
+    "emptyDescription": "एक निर्देशिका चुनें और मुख्य टूलबार में स्टार टैप करें ताकि इसे यहां पिन किया जा सके।"
+  },
+  "spotlight": {
+    "placeholder": "फ़ाइलों और फ़ोल्डरों में खोजें…",
+    "close": "बंद करें",
+    "hintWithin": "भीतर खोजने के लिए टाइप करें"
+  },
+  "download": {
+    "download": "डाउनलोड",
+    "preparing": "डाउनलोड की तैयारी..."
+  },
+  "upload": {
+    "toggleDetailsShow": "विवरण दिखाएँ",
+    "toggleDetailsHide": "विवरण छुपाएँ",
+    "pauseUploads": "अपलोड रोकें",
+    "resumeUploads": "अपलोड फिर से शुरू करें",
+    "cancelAll": "सभी रद्द करें",
+    "uploads": "{count} {items} अपलोड हो रहे हैं",
+    "item": "आइटम",
+    "items": "आइटम",
+    "to": "को",
+    "done": "पूरा",
+    "remaining": "शेष",
+    "completePercent": "{percent}% पूरा"
+  },
+  "info": {
+    "aria": "जानकारी पैनल",
+    "details": "विवरण",
+    "fileName": "फ़ाइल नाम",
+    "type": "प्रकार",
+    "size": "आकार",
+    "modified": "संशोधित",
+    "location": "स्थान",
+    "folder": "फ़ोल्डर",
+    "folderSize": "आकार: {size}",
+    "items": "आइटम: {files} फ़ाइलें, {folders} फ़ोल्डर",
+    "image": "छवि",
+    "video": "वीडियो",
+    "dimensions": "आयाम: {w} × {h}",
+    "dateTaken": "ली जाने की तारीख: {date}",
+    "camera": "कैमरा: {makeModel}",
+    "lens": "लेंस: {lens}",
+    "duration": "अवधि: {seconds} सेकंड",
+    "loading": "मेटाडेटा लोड हो रहा है…",
+    "failed": "मेटाडेटा लोड करने में विफल"
+  },
+  "auth": {
+    "preparing": "आपके एक्सप्लोरर की तैयारी हो रही है…",
+    "marketing": {
+      "headline": "फ़ाइल प्रबंधन का भविष्य यहाँ है",
+      "subtitle": "किसी भी स्थान से सुरक्षित रूप से अपनी फ़ाइलों तक पहुँचें, उन्हें व्यवस्थित करें और सहयोग करें",
+      "bullets": {
+        "keyboard": "कीबोर्ड-प्रथम नेविगेशन और तेज़ खोज।",
+        "access": "लेखापरीक्षण-अनुकूल कार्रवाइयों के साथ सूक्ष्म एक्सेस नियंत्रण।",
+        "sso": "आपके IdP के साथ निर्बाध Single Sign-On।"
+      }
+    },
+    "login": {
+      "welcome": "फिर स्वागत है",
+      "subtitle": "NextExplorer तक पहुँचने के लिए लॉग इन करें।",
+      "announcementConfirm": "पढ़ा गया चिन्हित करें",
+      "submit": "लॉग इन"
+    },
+    "setup": {
+      "headline": "चलो सेट अप करें",
+      "subtitle": "अपना प्रशासक खाता बनाकर अपनी फ़ाइलों को सुरक्षित रखें और प्रबंधित करें।",
+      "formTitle": "अपना खाता बनाएं",
+      "formSubtitle": "सेटअप पूरा करने के लिए ईमेल और सुरक्षित पासवर्ड दें।",
+      "submit": "सेटअप पूरा करें",
+      "bullets": {
+        "encryption": "मजबूत एन्क्रिप्शन और लेखा-परीक्षण-अनुकूल कार्रवाइयाँ।",
+        "permissions": "सूक्ष्म अनुमतियाँ और उपयोगकर्ता प्रबंधन।",
+        "sso": "सीमलेस Single Sign-On समर्थन।"
+      }
+    },
+    "email": "ईमेल पता",
+    "emailPlaceholder": "name{'@'}company.com",
+    "usernameOptional": "उपयोगकर्ता नाम (वैकल्पिक)",
+    "usernamePlaceholder": "डिफ़ॉल्ट रूप से ईमेल उपसर्ग",
+    "password": "पासवर्ड",
+    "passwordPlaceholder": "एक मजबूत पासवर्ड चुनें",
+    "confirmPassword": "पासवर्ड की पुष्टि करें",
+    "confirmPasswordPlaceholder": "अपना पासवर्ड फिर से टाइप करें",
+    "verifying": "सत्यापित किया जा रहा है…",
+    "creating": "बनाया जा रहा है…",
+    "sso": {
+      "continue": "Single Sign-On के साथ जारी रखें"
+    },
+    "errors": {
+      "localSignInDisabled": "स्थानीय साइन-इन अक्षम है।",
+      "emailRequired": "ईमेल आवश्यक है।",
+      "passwordRequired": "पासवर्ड आवश्यक है।",
+      "passwordLength": "पासवर्ड कम से कम 6 वर्ण का होना चाहिए।",
+      "passwordMismatch": "पासवर्ड मेल नहीं खाते।",
+      "signInFailed": "साइन इन करने में विफल।",
+      "createAccountFailed": "खाता बनाने में विफल।"
+    }
+  },
+  "breadcrumb": {
+    "volumes": "वॉल्यूम"
+  },
+  "sort": {
+    "title": "छंटाई विकल्प",
+    "nameAToZ": "नाम A से Z",
+    "nameZToA": "नाम Z से A",
+    "smallToLarge": "छोटा से बड़ा",
+    "largeToSmall": "बड़ा से छोटा",
+    "oldToNew": "पुराना से नया",
+    "newToOld": "नया से पुराना"
+  },
+  "settings": {
+    "user": "उपयोगकर्ता",
+    "admin": "प्रशासक",
+    "title": "सेटिंग्स",
+    "close": "सेटिंग्स बंद करें",
+    "categories": {
+      "account-password": "पासवर्ड बदलें",
+      "about": "के बारे में",
+      "files-thumbnails": "फ़ाइलें और थंबनेल",
+      "security": "सुरक्षा",
+      "access-control": "एक्सेस नियंत्रण",
+      "admin-users": "उपयोगकर्ता प्रबंधन"
+    },
+    "about": {
+      "title": "के बारे में",
+      "subtitle": "इस अनुप्रयोग के निर्माण जानकारी देखें।",
+      "appVersion": "ऐप संस्करण",
+      "appVersionHelp": "वर्तमान में चल रहा निर्माण संस्करण।",
+      "gitCommit": "Git कमिट",
+      "gitCommitHelp": "निर्माण समय में निहित स्रोत संशोधन।",
+      "branch": "शाखा",
+      "branchHelp": "निर्माण समय पर Git शाखा।",
+      "unknown": "अज्ञात"
+    },
+    "common": {
+      "unsavedChanges": "आपके पास असंरक्षित परिवर्तन हैं"
+    },
+    "thumbs": {
+      "title": "थंबनेल",
+      "subtitle": "चित्रों और वीडियो के लिए पूर्वावलोकन थंबनेल कस्टमाइज़ करें।",
+      "enable": "थंबनेल सक्षम करें",
+      "enableHelp": "पूर्वावलोकन उत्पन्न किए बिना ब्राउज़िंग तेज़ करने के लिए बंद करें।",
+      "quality": "थंबनेल गुणवत्ता",
+      "qualityHelp": "आउटपुट गुणवत्ता को नियंत्रित करता है (1–100)। डिफ़ॉल्ट 70 है।",
+      "maxDim": "अधिकतम आयाम",
+      "maxDimHelp": "पिक्सेल में लंबाई का बड़ा पक्ष। डिफ़ॉल्ट 200 है।"
+    },
+    "security": {
+      "title": "प्रमाणीकरण",
+      "subtitle": "ऐप तक पहुँच नियंत्रित करें।",
+      "enable": "प्रमाणीकरण सक्षम करें",
+      "enableHelp": "बंद होने पर कोई भी आपकी फ़ाइलों तक पहुँच सकता है।",
+      "confirmDisable": "प्रमाणीकरण को अक्षम करना आपकी फ़ाइलों को सार्वजनिक रूप से सुलभ बना देगा। क्या जारी रखें?"
+    },
+    "access": {
+      "title": "फ़ोल्डर नियम",
+      "subtitle": "प्रति-फ़ोल्डर अनुमतियाँ सेट करें: पढ़ें-लिखें, केवल पढ़ें, या छिपा।",
+      "addRule": "नियम जोड़ें",
+      "path": "पथ",
+      "recursive": "पुनरावर्ती",
+      "permissions": "अनुमतियाँ",
+      "pathPlaceholder": "उदा. Pictures/Holidays",
+      "readWrite": "पढ़ें और लिखें",
+      "readOnly": "केवल पढ़ें",
+      "hidden": "छिपा"
+    },
+    "comingSoon": {
+      "title": "जल्द आ रहा है",
+      "subtitle": "यह सेटिंग्स अनुभाग बनाया जा रहा है। देखते रहें!"
+    },
+    "password": {
+      "title": "पासवर्ड बदलें",
+      "notLocalUser": "पासवर्ड केवल स्थानीय उपयोगकर्ताओं के लिए बदला जा सकता है। आपका खाता आपके पहचान प्रदाता द्वारा प्रबंधित होता है।",
+      "current": "वर्तमान पासवर्ड",
+      "new": "नया पासवर्ड",
+      "confirm": "नए पासवर्ड की पुष्टि करें",
+      "update": "पासवर्ड अपडेट करें",
+      "updating": "अपडेट किया जा रहा है…",
+      "updated": "पासवर्ड सफलतापूर्वक अपडेट हुआ।",
+      "failed": "पासवर्ड बदलने में विफल।",
+      "validation": "कृपया सभी फ़ील्ड भरें; नया पासवर्ड कम से कम 6 वर्ण का होना चाहिए और पुष्टि से मेल खाना चाहिए।"
+    },
+    "users": {
+      "title": "उपयोगकर्ता प्रबंधन",
+      "failedLoad": "उपयोगकर्ता लोड करने में विफल",
+      "failedUpdateRoles": "भूमिकाएँ अपडेट करने में विफल",
+      "failedCreate": "उपयोगकर्ता बनाने में विफल",
+      "passwordMin": "पासवर्ड कम से कम 6 वर्ण का होना चाहिए।",
+      "passwordUpdated": "पासवर्ड अपडेट किया गया",
+      "failedReset": "पासवर्ड रीसेट करने में विफल",
+      "cannotDeleteSelf": "आप अपना खुद का खाता हटा नहीं सकते।",
+      "confirmRemove": "उपयोगकर्ता {user} को हटाएँ? इसे पूर्ववत नहीं किया जा सकता।",
+      "failedRemove": "उपयोगकर्ता हटाने में विफल",
+      "createUser": "उपयोगकर्ता बनाएं",
+      "email": "ईमेल",
+      "emailPlaceholder": "user{'@'}example.com",
+      "username": "उपयोगकर्ता नाम",
+      "usernameOptional": "वैकल्पिक",
+      "password": "पासवर्ड",
+      "grantAdmin": "प्रशासक बनाएं",
+      "creating": "बनाया जा रहा है…",
+      "displayName": "प्रदर्शित नाम",
+      "roles": "भूमिकाएँ",
+      "actions": "कार्रवाइयाँ",
+      "makeAdmin": "प्रशासक बनाएं",
+      "resetPassword": "पासवर्ड सेट/रीसेट करें",
+      "removeUser": "उपयोगकर्ता हटाएँ",
+      "promptNewPassword": "{user} के लिए नया पासवर्ड दर्ज करें (न्यूनतम 6 वर्ण):",
+      "failedUpdate": "उपयोगकर्ता अपडेट करने में विफल",
+      "editUser": "उपयोगकर्ता संपादित करें",
+      "updating": "अपडेट किया जा रहा है…"
+    }
+  }
+}
