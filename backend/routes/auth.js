@@ -43,13 +43,14 @@ const respondWithUser = async (req, res) => {
 
 router.get('/status', async (req, res) => {
   const oidcEnv = (auth && auth.oidc) || {};
-  const requiresSetup = auth.enabled ? (await countUsers()) === 0 : false;
+  const authMode = auth.mode || 'both';
+  // Skip setup requirement if AUTH_MODE is 'oidc' only
+  const requiresSetup = auth.enabled && authMode !== 'oidc' ? (await countUsers()) === 0 : false;
   const isEoc = Boolean(req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated());
   const hasLocal = Boolean(req.session && req.session.localUserId);
   const user = await getRequestUser(req);
 
   // Determine available strategies based on auth.mode
-  const authMode = auth.mode || 'both';
   const strategies = {
     local: authMode === 'local' || authMode === 'both',
     oidc: (authMode === 'oidc' || authMode === 'both') && Boolean(oidcEnv.enabled),
