@@ -1,12 +1,14 @@
 import { defineConfig } from 'vitepress'
 
+// Default to root so assets load on the custom domain; set VITEPRESS_BASE when hosting under a subpath
+const docsBase = process.env.VITEPRESS_BASE ?? '/'
+
 export default defineConfig({
   lang: 'en-US',
   title: 'nextExplorer',
   description: 'Modern, self-hosted file explorer',
 
-  // If hosted on GitHub Pages under /nextExplorer/
-  base: '/nextExplorer/',
+  base: docsBase,
 
   themeConfig: {
     logo: '/images/logo.png',

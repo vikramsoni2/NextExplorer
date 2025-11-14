@@ -20,6 +20,11 @@ jobs:
         run: |
           cd docs
           npm ci || npm install
+      - name: Ensure custom domain file
+        if: ${{ secrets.DOCS_CUSTOM_DOMAIN != '' }}
+        run: |
+          mkdir -p docs/.vitepress/public
+          printf '%s\n' "${{ secrets.DOCS_CUSTOM_DOMAIN }}" > docs/.vitepress/public/CNAME
       - name: Build VitePress site
         run: |
           cd docs
