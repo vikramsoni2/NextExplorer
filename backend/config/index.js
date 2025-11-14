@@ -64,10 +64,26 @@ const corsOptions = {
 };
 
 // --- Auth ---
+// Determine auth mode: 'local', 'oidc', 'both', or 'disabled'
+// If AUTH_MODE is not set, fall back to legacy behavior based on OIDC_ENABLED
+const determineAuthMode = () => {
+  if (env.AUTH_MODE) {
+    const validModes = ['local', 'oidc', 'both', 'disabled'];
+    if (!validModes.includes(env.AUTH_MODE)) {
+      console.warn(`[Config] Invalid AUTH_MODE="${env.AUTH_MODE}". Using "both" as default.`);
+      return 'both';
+    }
+    return env.AUTH_MODE;
+  }
+  return 'both';
+};
+
+const authMode = determineAuthMode();
+
 const auth = {
-  enabled: env.AUTH_ENABLED !== false,
+  enabled: authMode === 'disabled' ? false : (env.AUTH_ENABLED !== false),
   sessionSecret: env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
-  authMode: 'oidc',
+  mode: authMode,
   oidc: {
     enabled: env.OIDC_ENABLED ?? null,
     issuer: env.OIDC_ISSUER,

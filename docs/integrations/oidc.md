@@ -11,6 +11,15 @@ nextExplorer uses Express OpenID Connect (EOC) to federate authentication with e
 - `OIDC_ADMIN_GROUPS` contains comma/space-separated group names that grant the admin role when present in `groups`, `roles`, or `entitlements` claims.
 - Optional overrides: `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL`, and an explicit `OIDC_CALLBACK_URL` (defaults to `${PUBLIC_URL}/callback`).
 
+## Choosing authentication modes
+
+Use `AUTH_MODE` to control which authentication methods are available:
+
+- `AUTH_MODE=oidc` — **OIDC only**: The login page shows only the "Continue with Single Sign-On" button. Users cannot create local passwords.
+- `AUTH_MODE=local` — **Local only**: The login page shows only username/password fields. OIDC is disabled even if `OIDC_ENABLED=true`.
+- `AUTH_MODE=both` — **Dual authentication** (default): Users can choose between local login or SSO. The login page displays both options.
+- `AUTH_MODE=disabled` — **No authentication**: Skips the login page entirely and makes all APIs public (same as `AUTH_ENABLED=false`).
+
 ## Flow overview
 
 1. A user clicks “Continue with Single Sign-On” on the login page.

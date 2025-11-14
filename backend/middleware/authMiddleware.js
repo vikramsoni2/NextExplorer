@@ -1,6 +1,6 @@
 const { getRequestUser } = require('../services/users');
 const { auth } = require('../config/index');
-console.log(auth)
+
 const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
   const apiRoute = requestPath.startsWith('/api');

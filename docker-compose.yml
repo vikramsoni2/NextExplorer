@@ -34,6 +34,15 @@ services:
       - ONLYOFFICE_LANG=en
       - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
 
+      # Authentication configuration
+      # AUTH_MODE: Controls which authentication methods are available
+      #   - 'local': Only username/password authentication
+      #   - 'oidc': Only OIDC/SSO authentication
+      #   - 'both': Both local and OIDC (default if not specified)
+      #   - 'disabled': Skip authentication entirely (same as AUTH_ENABLED=false)
+      - AUTH_MODE=disabled
+
+      # Legacy auth toggle (deprecated, use AUTH_MODE=disabled instead)
       # - AUTH_ENABLED=false
 
     restart: unless-stopped

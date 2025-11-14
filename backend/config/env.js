@@ -27,6 +27,7 @@ module.exports = {
   
   // Auth
   AUTH_ENABLED: normalizeBoolean(process.env.AUTH_ENABLED),
+  AUTH_MODE: process.env.AUTH_MODE?.trim().toLowerCase() || null,
   SESSION_SECRET: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || null,
   AUTH_MAX_FAILED: Number(process.env.AUTH_MAX_FAILED) || 5,
   AUTH_LOCK_MINUTES: Number(process.env.AUTH_LOCK_MINUTES) || 15,

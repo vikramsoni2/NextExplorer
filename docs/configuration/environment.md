@@ -23,7 +23,8 @@ nextExplorer is configured almost entirely through environment variables. The ba
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `AUTH_ENABLED` | `true` (in prod) | Toggles authentication; disabling makes all APIs public. |
+| `AUTH_ENABLED` | `true` (in prod) | Toggles authentication; disabling makes all APIs public. **Deprecated:** use `AUTH_MODE=disabled` instead. |
+| `AUTH_MODE` | `both` (or `local` if OIDC not configured) | Controls which authentication methods are available: `local` (username/password only), `oidc` (SSO only), `both` (both methods), or `disabled` (skip login entirely, same as `AUTH_ENABLED=false`). |
 | `SESSION_SECRET`, `AUTH_SESSION_SECRET` | _auto-generated_ | Session secret used by Express; set it explicitly to keep sessions across restarts or replicas. |
 | `AUTH_MAX_FAILED` | `5` | Failed login attempts before temporary lockout. |
 | `AUTH_LOCK_MINUTES` | `15` | Lockout duration in minutes when max failures reached. |

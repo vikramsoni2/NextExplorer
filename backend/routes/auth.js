@@ -42,19 +42,24 @@ const respondWithUser = async (req, res) => {
 };
 
 router.get('/status', async (req, res) => {
-
-  console.log(auth)
-
   const oidcEnv = (auth && auth.oidc) || {};
   const requiresSetup = auth.enabled ? (await countUsers()) === 0 : false;
   const isEoc = Boolean(req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated());
   const hasLocal = Boolean(req.session && req.session.localUserId);
   const user = await getRequestUser(req);
+
+  // Determine available strategies based on auth.mode
+  const authMode = auth.mode || 'both';
+  const strategies = {
+    local: authMode === 'local' || authMode === 'both',
+    oidc: (authMode === 'oidc' || authMode === 'both') && Boolean(oidcEnv.enabled),
+  };
+
   res.json({
     requiresSetup,
-    strategies: { local: true, oidc: Boolean(oidcEnv.enabled) },
+    strategies,
     authEnabled: auth.enabled,
-    authMode: 'both',
+    authMode,
     authenticated: auth.enabled ? Boolean(isEoc || hasLocal) : true,
     user: user || null,
     oidc: {
