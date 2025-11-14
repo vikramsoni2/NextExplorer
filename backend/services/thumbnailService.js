@@ -8,7 +8,7 @@ const fsPromises = fs.promises;
 
 const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions } = require('../config/index');
-const { getSettings } = require('./appConfigService');
+const { getSettings } = require('../services/settingsService');
 const logger = require('../utils/logger');
 
 const getThumbOptions = async () => {
