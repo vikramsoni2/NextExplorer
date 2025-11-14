@@ -40,6 +40,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `OIDC_CALLBACK_URL` | `${PUBLIC_URL}/callback` when `PUBLIC_URL` is set | Explicit callback path; defaults to `/callback` under `PUBLIC_URL`. |
 | `OIDC_SCOPES` | `openid profile email` | Default scopes; add `groups` to propagate group claims. |
 | `OIDC_ADMIN_GROUPS` | _none_ | Space/comma-separated names that grant admin rights when found in `groups`, `roles`, or `entitlements`. |
+| `OIDC_REQUIRE_EMAIL_VERIFIED` | `false` | When `true`, requires the IdP to verify the user's email before allowing user creation or auto-linking. Some providers like newer Authentik versions set `email_verified` to `false` by default. |
 
 ## Feature toggles
 

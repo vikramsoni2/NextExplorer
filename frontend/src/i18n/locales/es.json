@@ -12,13 +12,14 @@
     "dismiss": "Cerrar",
     "disabled": "Deshabilitado"
   },
-  "i18n": { 
-    "language": "Idioma", 
-    "english": "English", 
-    "spanish": "Español", 
+  "i18n": {
+    "language": "Idioma",
+    "english": "English",
+    "spanish": "Español",
     "french": "Frances",
     "german": "Aleman",
-    "chinese": "Chino"
+    "chinese": "Chino",
+    "hindi": "Hindi"
   },
   "search": {
     "search": "Buscar",

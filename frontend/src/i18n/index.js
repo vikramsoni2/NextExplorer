@@ -4,8 +4,9 @@ import es from './locales/es.json'
 import fr from './locales/fr.json'
 import de from './locales/de.json'
 import zh from './locales/zh.json'
+import hi from './locales/hi.json'
 
-const supportedLocales = ['en', 'es', 'fr', 'de', 'zh']
+const supportedLocales = ['en', 'es', 'fr', 'de', 'zh', 'hi']
 
 function detectLocale() {
   try {
@@ -23,7 +24,7 @@ const i18n = createI18n({
   globalInjection: true,
   locale: detectLocale(),
   fallbackLocale: 'en',
-  messages: { en, es, fr, de, zh },
+  messages: { en, es, fr, de, zh, hi },
 })
 
 export default i18n

@@ -146,6 +146,7 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
         email,
         emailVerified,
         roles,
+        requireEmailVerified: envAuthConfig?.oidc?.requireEmailVerified || false,
       });
       
       logger.debug('afterCallback: user persisted/synced');

@@ -75,6 +75,7 @@ const availableLocaleOptions = [
   { code: 'fr', label: 'i18n.french' },
   { code: 'de', label: 'i18n.german' },
   { code: 'zh', label: 'i18n.chinese' },
+  { code: 'hi', label: 'i18n.hindi' },
 ];
 
 const languages = computed(() => availableLocaleOptions.map(({ code, label }) => ({
