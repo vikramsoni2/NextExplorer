@@ -23,6 +23,7 @@ import ModalDialog from '@/components/ModalDialog.vue';
 import { useFavoritesStore } from '@/stores/favorites';
 import { StarIcon as StarOutline } from '@heroicons/vue/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid';
+import { useFavoriteEditor } from '@/composables/useFavoriteEditor';
 // Icons
 import {
   CreateNewFolderRound,
@@ -40,6 +41,7 @@ const previewManager = usePreviewManager();
 const infoPanel = useInfoPanelStore();
 const { clearSelection } = useSelection();
 const favoritesStore = useFavoritesStore();
+const { openEditorForFavorite } = useFavoriteEditor();
 
 const isOpen = ref(false);
 const pointer = ref({ x: 0, y: 0 });
@@ -222,7 +224,10 @@ const runToggleFavoriteForDirectory = async () => {
     if (isFavoriteDirectory.value) {
       await favoritesStore.removeFavorite(path);
     } else {
-      await favoritesStore.addFavorite({ path, icon: 'solid:StarIcon' });
+      const favorite = await favoritesStore.addFavorite({ path });
+      if (favorite) {
+        openEditorForFavorite(favorite);
+      }
     }
   } finally {
     isMutatingFavorite.value = false;
@@ -237,7 +242,10 @@ const runToggleFavoriteForCurrent = async () => {
     if (isFavoriteCurrentDirectory.value) {
       await favoritesStore.removeFavorite(path);
     } else {
-      await favoritesStore.addFavorite({ path, icon: 'solid:StarIcon' });
+      const favorite = await favoritesStore.addFavorite({ path });
+      if (favorite) {
+        openEditorForFavorite(favorite);
+      }
     }
   } finally {
     isMutatingFavorite.value = false;

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
@@ -7,6 +7,9 @@ import { useFileStore } from '@/stores/fileStore';
 import LoadingIcon from '@/icons/LoadingIcon.vue';
 import { useSelection } from '@/composables/itemSelection';
 import { useExplorerContextMenu } from '@/composables/contextMenu';
+import { isPreviewableImage } from '@/config/media';
+import { PhotoIcon } from '@heroicons/vue/24/outline';
+import { ImagesOutline } from '@vicons/ionicons5';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
@@ -44,6 +47,22 @@ const handleBackgroundContextMenu = (event) => {
   contextMenu?.openBackgroundMenu(event);
 };
 
+const showNoPhotosMessage = computed(() => {
+  if (loading.value) return false;
+  if (settings.view !== 'photos') return false;
+
+  const items = fileStore.getCurrentPathItems;
+  if (items.length === 0) return false;
+
+  // Check if any item is a photo
+  const hasPhotos = items.some((item) => {
+    const kind = (item?.kind || '').toLowerCase();
+    return isPreviewableImage(kind);
+  });
+
+  return !hasPhotos;
+});
+
 // const toggleSelection = (item, event) => {
 //   if (event.ctrlKey || event.metaKey) {
 //     // Ctrl + Click: Toggle selection
@@ -75,9 +94,9 @@ const handleBackgroundContextMenu = (event) => {
 </script>
 
 <template>
-    <div
+  <div
     v-if="!loading"
-    class="min-h-full"
+    class="min-h-full relative"
     :class="settings.view === 'grid' ? 'grid content-start items-start grid-cols-[repeat(auto-fill,6rem)] gap-2' : 
     settings.view === 'tab'? 'grid content-start items-start grid-cols-[repeat(auto-fill,20rem)] gap-2' :
     settings.view === 'photos' ? 'grid content-start items-start gap-1 md:gap-2' :
@@ -101,18 +120,31 @@ const handleBackgroundContextMenu = (event) => {
         <div>{{ $t('folder.kind') }}</div>
         <div>{{ $t('folder.dateModified') }}</div>
       </div>
-      <FileObject 
-      v-for="item in fileStore.getCurrentPathItems" 
-      :key="item.name" 
-      :item="item" 
+
+      <FileObject
+      v-for="item in fileStore.getCurrentPathItems"
+      :key="item.name"
+      :item="item"
       :view="settings.view"
       />
+
+      <!-- No photos message -->
+      <div v-if="showNoPhotosMessage" class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4">
+        <div class="text-neutral-400 dark:text-neutral-500 mb-2">
+          <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+        </div>
+        <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ $t('folder.noPhotos') }}</h3>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('folder.noPhotosHint') }}</p>
+      </div>
+
     </div>
+
+    
 
     <div v-else class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
       <div class="flex  items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
         <LoadingIcon/> {{ $t('folder.loading') }}
       </div>
-    </div>
+  </div>
 
 </template>

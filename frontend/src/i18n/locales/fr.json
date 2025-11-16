@@ -5,6 +5,8 @@
     "delete": "Supprimer",
     "deleting": "Suppression...",
     "loading": "Chargement",
+    "open": "Ouvrir",
+    "edit": "Modifier",
     "save": "Enregistrer",
     "discard": "Rejeter",
     "remove": "Retirer",
@@ -75,7 +77,9 @@
     "size": "Taille",
     "kind": "Type",
     "dateModified": "Date de modification",
-    "loading": "Chargement"
+    "loading": "Chargement",
+    "noPhotos": "Aucune photo dans ce dossier",
+    "noPhotosHint": "Changez de mode d'affichage pour voir tous les fichiers"
   },
   "volumes": {
     "quickAccess": "Accès rapide",
@@ -139,7 +143,11 @@
   "favorites": {
     "title": "Favoris",
     "emptyTitle": "Pas encore de favoris",
-    "emptyDescription": "Sélectionnez un dossier et cliquez sur l’étoile pour l’épingler."
+    "emptyDescription": "Sélectionnez un dossier et cliquez sur l’étoile pour l’épingler.",
+    "editTitle": "Modifier le favori",
+    "path": "Chemin",
+    "name": "Nom",
+    "icon": "Icône"
   },
   "photos": {
     "menuTitle": "Taille de la photo",

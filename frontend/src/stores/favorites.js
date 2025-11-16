@@ -1,6 +1,13 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { normalizePath, fetchFavorites, addFavorite as addFavoriteRequest, removeFavorite as removeFavoriteRequest } from '@/api';
+import {
+  normalizePath,
+  fetchFavorites,
+  addFavorite as addFavoriteRequest,
+  updateFavorite as updateFavoriteRequest,
+  reorderFavorites as reorderFavoritesRequest,
+  removeFavorite as removeFavoriteRequest,
+} from '@/api';
 
 export const useFavoritesStore = defineStore('favorites', () => {
   const favorites = ref([]);
@@ -42,19 +49,22 @@ export const useFavoritesStore = defineStore('favorites', () => {
     return favoriteSet.value.has(normalizedPath);
   };
 
-  const addFavorite = async ({ path, icon }) => {
+  const addFavorite = async ({ path, label, icon }) => {
     const normalizedPath = normalizePath(path || '');
     if (!normalizedPath) {
       throw new Error('A valid path is required to add a favorite.');
     }
 
-    const payload = await addFavoriteRequest(normalizedPath, icon);
-    const favorite = {
-      path: payload?.path || normalizedPath,
-      icon: payload?.icon || icon || 'solid:StarIcon',
-    };
+    const payload = await addFavoriteRequest(normalizedPath, { label, icon });
+    const favorite = payload && typeof payload === 'object'
+      ? payload
+      : {
+          path: normalizedPath,
+          label: label || '',
+          icon: icon || null,
+        };
 
-    const currentIndex = favorites.value.findIndex((entry) => entry.path === favorite.path);
+    const currentIndex = favorites.value.findIndex((entry) => entry.id === favorite.id || entry.path === favorite.path);
     if (currentIndex === -1) {
       favorites.value = [...favorites.value, favorite];
     } else {
@@ -72,10 +82,49 @@ export const useFavoritesStore = defineStore('favorites', () => {
       throw new Error('A valid path is required to remove a favorite.');
     }
 
-    await removeFavoriteRequest(normalizedPath);
-    favorites.value = favorites.value.filter((entry) => entry.path !== normalizedPath);
+    const payload = await removeFavoriteRequest(normalizedPath);
+    if (Array.isArray(payload)) {
+      favorites.value = payload;
+    } else {
+      favorites.value = favorites.value.filter((entry) => entry.path !== normalizedPath);
+    }
 
     return normalizedPath;
+  };
+
+  const updateFavorite = async (id, updates) => {
+    if (!id) {
+      throw new Error('A valid favorite id is required to update a favorite.');
+    }
+
+    const payload = await updateFavoriteRequest(id, updates || {});
+    if (!payload || typeof payload !== 'object') {
+      return null;
+    }
+
+    const currentIndex = favorites.value.findIndex((entry) => entry.id === id);
+    if (currentIndex === -1) {
+      favorites.value = [...favorites.value, payload];
+    } else {
+      const nextFavorites = [...favorites.value];
+      nextFavorites.splice(currentIndex, 1, payload);
+      favorites.value = nextFavorites;
+    }
+
+    return payload;
+  };
+
+  const reorderFavorites = async (orderedIds) => {
+    if (!Array.isArray(orderedIds)) {
+      throw new Error('A valid array of ids is required to reorder favorites.');
+    }
+
+    const payload = await reorderFavoritesRequest(orderedIds);
+    if (Array.isArray(payload)) {
+      favorites.value = payload;
+    }
+
+    return favorites.value;
   };
 
   return {
@@ -90,5 +139,7 @@ export const useFavoritesStore = defineStore('favorites', () => {
     isFavorite,
     addFavorite,
     removeFavorite,
+    updateFavorite,
+    reorderFavorites,
   };
 });

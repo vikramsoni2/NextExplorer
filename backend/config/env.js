@@ -66,4 +66,7 @@ module.exports = {
   // FFmpeg
   FFMPEG_PATH: process.env.FFMPEG_PATH || null,
   FFPROBE_PATH: process.env.FFPROBE_PATH || null,
+
+  // Favorites
+  FAVORITES_DEFAULT_ICON: process.env.FAVORITES_DEFAULT_ICON || 'outline:StarIcon',
 };

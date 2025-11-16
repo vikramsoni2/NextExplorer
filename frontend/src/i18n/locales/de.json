@@ -5,6 +5,8 @@
     "delete": "Löschen",
     "deleting": "Wird gelöscht...",
     "loading": "Wird geladen",
+    "open": "Öffnen",
+    "edit": "Bearbeiten",
     "save": "Speichern",
     "discard": "Verwerfen",
     "remove": "Entfernen",
@@ -75,7 +77,9 @@
     "size": "Größe",
     "kind": "Art",
     "dateModified": "Geändert am",
-    "loading": "Lädt"
+    "loading": "Lädt",
+    "noPhotos": "Keine Fotos in diesem Ordner",
+    "noPhotosHint": "Wechseln Sie zu einem anderen Anzeigemodus, um alle Dateien zu sehen"
   },
   "volumes": {
     "quickAccess": "Schneller Zugriff",
@@ -139,7 +143,11 @@
   "favorites": {
     "title": "Favoriten",
     "emptyTitle": "Noch nichts als Favorit gespeichert",
-    "emptyDescription": "Wähle einen Ordner aus und markiere ihn mit dem Stern für den Schnellzugriff."
+    "emptyDescription": "Wähle einen Ordner aus und markiere ihn mit dem Stern für den Schnellzugriff.",
+    "editTitle": "Favorit bearbeiten",
+    "path": "Pfad",
+    "name": "Name",
+    "icon": "Symbol"
   },
   "photos": {
     "menuTitle": "Fotogröße",

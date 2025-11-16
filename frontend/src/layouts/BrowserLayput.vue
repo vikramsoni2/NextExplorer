@@ -27,6 +27,7 @@ import { useUppyStore } from '@/stores/uppyStore';
 import { useFileStore } from '@/stores/fileStore';
 import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
 import SpotlightSearch from '@/components/SpotlightSearch.vue';
+import FavoriteEditDialog from '@/components/FavoriteEditDialog.vue';
 
 
 const route = useRoute()
@@ -166,6 +167,7 @@ useClipboardShortcuts();
   <PreviewHost/>
   <InfoPanel/>
   <SpotlightSearch/>
+  <FavoriteEditDialog/>
   </div>
 
 </template>

@@ -1,8 +1,8 @@
-const path = require('path');
 const fs = require('fs');
+const path = require('path');
 const Database = require('better-sqlite3');
 
-const { directories, files } = require('../config/index');
+const { directories, files, favorites } = require('../config');
 const { ensureDir } = require('../utils/fsUtils');
 
 let dbInstance = null;
@@ -16,6 +16,7 @@ const getDbPath = () => {
 const crypto = require('crypto');
 
 const generateId = () => (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`);
+const DEFAULT_FAVORITE_ICON = favorites.defaultIcon;
 
 const migrate = (db) => {
   // Simple schema versioning
@@ -179,7 +180,108 @@ const migrate = (db) => {
       }
       version = 3;
     }
+    if (version < 4) {
+      console.log('[DB Migration] Migrating to v4: Adding favorites table...');
+
+      db.exec(`
+        CREATE TABLE favorites (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          path TEXT NOT NULL,
+          label TEXT,
+          icon TEXT DEFAULT '${DEFAULT_FAVORITE_ICON.replace(/'/g, "''")}',
+          position INTEGER NOT NULL DEFAULT 0,
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+        CREATE UNIQUE INDEX idx_favorites_user_path ON favorites(user_id, path);
+        CREATE INDEX idx_favorites_user ON favorites(user_id);
+      `);
+
+      // Migrate existing favorites from app-config.json to SQLite
+      migrateFavoritesFromJson(db);
+
+      console.log('[DB Migration] Migration to v4 completed successfully!');
+      db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run('schema_version', String(4));
+      version = 4;
+    }
   })();
+};
+
+/**
+ * Migrate favorites from app-config.json to SQLite
+ */
+const migrateFavoritesFromJson = (db) => {
+  try {
+    const jsonStoragePath = files.passwordConfig;
+
+    // Check if app-config.json exists
+    if (!fs.existsSync(jsonStoragePath)) {
+      console.log('[DB Migration] No app-config.json found, skipping favorites migration');
+      return;
+    }
+
+    const configData = JSON.parse(fs.readFileSync(jsonStoragePath, 'utf8'));
+    const oldFavorites = configData.favorites || [];
+
+    if (oldFavorites.length === 0) {
+      console.log('[DB Migration] No favorites to migrate');
+      return;
+    }
+
+    // Get all users from database
+    const users = db.prepare('SELECT id FROM users').all();
+
+    if (users.length === 0) {
+      console.log('[DB Migration] No users found, skipping favorites migration');
+      return;
+    }
+
+    // If there's only one user, assign all favorites to them
+    // If multiple users, assign to the first user (admin)
+    const targetUserId = users[0].id;
+
+    const insertFavorite = db.prepare(`
+      INSERT INTO favorites (id, user_id, path, label, icon, created_at, updated_at, position)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const now = new Date().toISOString();
+    let migratedCount = 0;
+
+    for (const [index, fav] of oldFavorites.entries()) {
+      if (!fav.path) continue;
+
+      try {
+        insertFavorite.run(
+          generateId(),
+          targetUserId,
+          fav.path,
+          fav.label || null, // Use existing label if present
+          fav.icon || DEFAULT_FAVORITE_ICON,
+          now,
+          now,
+          index
+        );
+        migratedCount++;
+      } catch (err) {
+        // Skip duplicates or invalid entries
+        console.log(`[DB Migration] Skipping favorite ${fav.path}: ${err.message}`);
+      }
+    }
+
+    console.log(`[DB Migration] Migrated ${migratedCount} favorites to user ${targetUserId}`);
+
+    // Clear favorites from app-config.json
+    configData.favorites = [];
+    fs.writeFileSync(jsonStoragePath, JSON.stringify(configData, null, 2) + '\n', 'utf8');
+    console.log('[DB Migration] Cleared favorites from app-config.json');
+
+  } catch (err) {
+    console.error('[DB Migration] Error migrating favorites:', err);
+    // Non-fatal, continue
+  }
 };
 
 const getDb = async () => {

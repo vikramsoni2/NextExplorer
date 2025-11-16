@@ -5,6 +5,8 @@
     "delete": "Delete",
     "deleting": "Deleting...",
     "loading": "Loading",
+    "open": "Open",
+    "edit": "Edit",
     "save": "Save",
     "discard": "Discard",
     "remove": "Remove",
@@ -75,7 +77,9 @@
     "size": "Size",
     "kind": "Kind",
     "dateModified": "Date Modified",
-    "loading": "Loading"
+    "loading": "Loading",
+    "noPhotos": "No photos in this folder",
+    "noPhotosHint": "Switch to another view mode to see all files"
   },
   "volumes": {
     "quickAccess": "Quick access",
@@ -105,7 +109,11 @@
   "favorites": {
     "title": "Favorites",
     "emptyTitle": "No favorites yet",
-    "emptyDescription": "Select a directory and tap the star in the main toolbar to pin it here."
+    "emptyDescription": "Select a directory and tap the star in the main toolbar to pin it here.",
+    "editTitle": "Edit favorite",
+    "path": "Path",
+    "name": "Name",
+    "icon": "Icon"
   },
   "spotlight": {
     "placeholder": "Search files and folders…",

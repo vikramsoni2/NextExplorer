@@ -5,6 +5,8 @@
     "delete": "Eliminar",
     "deleting": "Eliminando...",
     "loading": "Cargando",
+    "open": "Abrir",
+    "edit": "Editar",
     "save": "Guardar",
     "discard": "Descartar",
     "remove": "Eliminar",
@@ -75,7 +77,9 @@
     "size": "Tamaño",
     "kind": "Tipo",
     "dateModified": "Fecha de modificación",
-    "loading": "Cargando"
+    "loading": "Cargando",
+    "noPhotos": "No hay fotos en esta carpeta",
+    "noPhotosHint": "Cambia a otro modo de vista para ver todos los archivos"
   },
   "volumes": {
     "quickAccess": "Acceso rápido",
@@ -109,7 +113,11 @@
   "favorites": {
     "title": "Favoritos",
     "emptyTitle": "Aún no hay favoritos",
-    "emptyDescription": "Selecciona una carpeta y toca la estrella en la barra principal para fijarla aquí."
+    "emptyDescription": "Selecciona una carpeta y toca la estrella en la barra principal para fijarla aquí.",
+    "editTitle": "Editar favorito",
+    "path": "Ruta",
+    "name": "Nombre",
+    "icon": "Icono"
   },
   "spotlight": {
     "placeholder": "Buscar archivos y carpetas…",

@@ -119,6 +119,11 @@ const editor = {
   extensions: env.EDITOR_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 };
 
+// --- Favorites ---
+const favorites = {
+  defaultIcon: env.FAVORITES_DEFAULT_ICON,
+};
+
 // --- Main Export ---
 module.exports = {
   port: env.PORT,
@@ -153,6 +158,7 @@ module.exports = {
   thumbnails: { size: 200, quality: 70 },
   onlyoffice,
   editor,
+  favorites,
 
   features: {
     volumeUsage: env.SHOW_VOLUME_USAGE,

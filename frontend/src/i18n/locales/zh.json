@@ -5,6 +5,8 @@
     "delete": "删除",
     "deleting": "正在删除...",
     "loading": "加载中",
+    "open": "打开",
+    "edit": "编辑",
     "save": "保存",
     "discard": "放弃",
     "remove": "移除",
@@ -75,7 +77,9 @@
     "size": "大小",
     "kind": "类型",
     "dateModified": "修改时间",
-    "loading": "加载中"
+    "loading": "加载中",
+    "noPhotos": "此文件夹中没有照片",
+    "noPhotosHint": "切换到其他视图模式以查看所有文件"
   },
   "volumes": {
     "quickAccess": "快速访问",
@@ -139,7 +143,11 @@
   "favorites": {
     "title": "收藏",
     "emptyTitle": "还没有收藏",
-    "emptyDescription": "选择一个目录并点击星标即可固定到这里。"
+    "emptyDescription": "选择一个目录并点击星标即可固定到这里。",
+    "editTitle": "编辑收藏",
+    "path": "路径",
+    "name": "名称",
+    "icon": "图标"
   },
   "photos": {
     "menuTitle": "照片尺寸",

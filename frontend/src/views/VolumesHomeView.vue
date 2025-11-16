@@ -9,7 +9,6 @@ import * as SolidIcons from '@heroicons/vue/24/solid';
 const ProgressBar = defineAsyncComponent(() => import('@/components/ProgressBar.vue'));
 import IconDrive from '@/icons/IconDrive.vue';
 import { formatBytes } from '@/utils';
-import DirectoryIcon from '@/icons/files/directory-icon.vue';
 
 
 const volumes = ref([]);
@@ -63,11 +62,14 @@ const resolveIconComponent = (iconName) => {
   return OutlineIcons[trimmed] || SolidIcons[trimmed] || OutlineIcons.StarIcon;
 };
 
-const quickAccess = computed(() => favoritesStore.favorites.map((favorite) => ({
-  ...favorite,
-  label: favorite.path.split('/').pop() || favorite.path,
-  iconComponent: resolveIconComponent(favorite.icon),
-})));
+const quickAccess = computed(() => favoritesStore.favorites.map((favorite) => {
+  const autoLabel = favorite.path.split('/').pop() || favorite.path;
+  return {
+    ...favorite,
+    label: favorite.label || autoLabel,
+    iconComponent: resolveIconComponent(favorite.icon),
+  };
+}));
 
 const handleOpenFavorite = (favorite) => {
   if (!favorite?.path) return;
@@ -87,9 +89,9 @@ const handleOpenFavorite = (favorite) => {
           type="button"
           :title="fav.label"
           @dblclick="handleOpenFavorite(fav)"
-          class="flex items-center gap-3 py-4 rounded-md cursor-pointer select-none hover:bg-neutral-100 dark:hover:bg-zinc-800"
+          class="flex items-center gap-3 py-4 rounded-md cursor-pointer select-none"
         >
-          <DirectoryIcon class="h-16 shrink-0" />
+          <component :is="fav.iconComponent" class="h-12 shrink-0" />
           <div class="text-sm text-left break-all line-clamp-2 rounded-md px-2 -mx-2">
             {{ fav.label }}
           </div>
