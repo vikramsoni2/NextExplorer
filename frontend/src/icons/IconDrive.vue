@@ -1,9 +1,9 @@
 <script setup>
-import { usePreferredDark } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed } from 'vue';
+import { useSettingsStore } from '@/stores/settings';
 
-const isDark = usePreferredDark()
-const fillColor = computed(() => isDark.value ? '#bbbbbb' : '#000')
+const settings = useSettingsStore()
+const fillColor = computed(() => settings.isDark ? '#bbbbbb' : '#777')
 
 </script>
 

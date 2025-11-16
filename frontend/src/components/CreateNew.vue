@@ -2,7 +2,14 @@
 import { ref } from 'vue'
 import {PlusIcon} from '@heroicons/vue/24/outline'
 import { useToggle, onClickOutside } from '@vueuse/core'
-import {CreateNewFolderRound, UploadFileRound, DriveFolderUploadRound} from '@vicons/material'
+import {CreateNewFolderRound, 
+  UploadFileRound, 
+  DriveFolderUploadRound, 
+  InsertDriveFileRound,
+  DriveFolderUploadOutlined,
+  UploadFileOutlined,
+  FileOpenOutlined
+} from '@vicons/material'
 
 
 
@@ -48,6 +55,20 @@ const createFolder = async () => {
   }
 }
 
+const createFile = async () => {
+  if (isCreating.value) return;
+
+  isCreating.value = true;
+  try {
+    await fileStore.createFile();
+  } catch (error) {
+    console.error('Failed to create file', error);
+  } finally {
+    menuOpen.value = false;
+    isCreating.value = false;
+  }
+}
+
 </script>
 <template>
   <div class="relative">
@@ -71,15 +92,21 @@ const createFolder = async () => {
       <button
       @click="createFolder"
       :disabled="isCreating"
-      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg disabled:opacity-60 disabled:cursor-not-allowed"> <CreateNewFolderRound class="w-5 text-yellow-400"/> {{ $t('create.newFolder') }}</button>
-      <button 
+      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 rounded-t-lg disabled:opacity-60 disabled:cursor-not-allowed"> 
+        <CreateNewFolderRound class="w-6 text-yellow-400"/> {{ $t('create.newFolder') }}</button>
+      <button
+      @click="createFile"
+      :disabled="isCreating"
+      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 disabled:opacity-60 disabled:cursor-not-allowed">
+        <FileOpenOutlined class="w-6 text-orange-400"/>{{ $t('create.newFile') }}</button>
+      <button
       @click="uploadFiles"
-      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white">
-        <UploadFileRound class="w-5"/>{{ $t('create.fileUpload') }}</button>
+      class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600">
+        <UploadFileOutlined class="w-6 text-sky-400"/>{{ $t('create.fileUpload') }}</button>
       <button 
       @click="uploadFolder"
       class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white rounded-b-lg">
-        <DriveFolderUploadRound class="w-5"/>{{ $t('create.folderUpload') }}
+        <DriveFolderUploadOutlined class="w-6 text-green-400"/>{{ $t('create.folderUpload') }}
       </button>
     </div>
     

@@ -114,6 +114,11 @@ const onlyoffice = {
   extensions: env.ONLYOFFICE_FILE_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
 };
 
+// --- Editor ---
+const editor = {
+  extensions: env.EDITOR_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+};
+
 // --- Main Export ---
 module.exports = {
   port: env.PORT,
@@ -147,7 +152,8 @@ module.exports = {
   
   thumbnails: { size: 200, quality: 70 },
   onlyoffice,
-  
+  editor,
+
   features: {
     volumeUsage: env.SHOW_VOLUME_USAGE,
   },

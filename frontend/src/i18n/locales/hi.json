@@ -44,8 +44,9 @@
   "create": {
     "createNew": "नया बनाएं",
     "newFolder": "नया फ़ोल्डर",
-    "fileUpload": "फ़ाइल अपलोड",
-    "folderUpload": "फ़ोल्डर अपलोड"
+    "newFile": "नई फ़ाइल",
+    "fileUpload": "अपलोड फ़ाइल",
+    "folderUpload": "अपलोड फ़ोल्डर"
   },
   "context": {
     "getInfo": "जानकारी लें",

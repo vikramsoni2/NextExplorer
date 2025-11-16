@@ -44,6 +44,7 @@
   "create": {
     "createNew": "新建",
     "newFolder": "新建文件夹",
+    "newFile": "新建文件",
     "fileUpload": "上传文件",
     "folderUpload": "上传文件夹"
   },

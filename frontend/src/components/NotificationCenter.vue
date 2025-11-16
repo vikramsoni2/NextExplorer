@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useStorage } from '@vueuse/core';
 import { XMarkIcon, InformationCircleIcon } from '@heroicons/vue/24/outline';
-import { fetchFeatures } from '@/api';
+import { useFeaturesStore } from '@/stores/features';
 import DOMPurify from 'dompurify';
 
 // Local persistent state of dismissed announcement ids
@@ -44,8 +44,9 @@ function safeHtml(input) {
 onMounted(async () => {
   try {
     loading.value = true;
-    const features = await fetchFeatures();
-    const anns = Array.isArray(features?.announcements) ? features.announcements : [];
+    const featuresStore = useFeaturesStore();
+    await featuresStore.ensureLoaded();
+    const anns = featuresStore.announcements || [];
     // normalize
     announcements.value = anns.map(a => ({
       id: String(a.id),

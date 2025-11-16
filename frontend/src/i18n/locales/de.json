@@ -44,6 +44,7 @@
   "create": {
     "createNew": "Erstellen",
     "newFolder": "Neuer Ordner",
+    "newFile": "Neue Datei",
     "fileUpload": "Datei hochladen",
     "folderUpload": "Ordner hochladen"
   },

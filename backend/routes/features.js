@@ -1,5 +1,5 @@
 const express = require('express');
-const { onlyoffice, features } = require('../config/index');
+const { onlyoffice, editor, features } = require('../config/index');
 const { getDb } = require('../services/db');
 
 const router = express.Router();
@@ -11,6 +11,9 @@ router.get('/features', async (_req, res) => {
       onlyoffice: {
         enabled: Boolean(onlyoffice && onlyoffice.serverUrl),
         extensions: Array.isArray(onlyoffice?.extensions) ? onlyoffice.extensions : [],
+      },
+      editor: {
+        extensions: Array.isArray(editor?.extensions) ? editor.extensions : [],
       },
       volumeUsage: {
         enabled: Boolean(features?.volumeUsage),

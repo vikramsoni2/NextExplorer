@@ -6,12 +6,18 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { installPreviewPlugins } from '@/plugins';
+import { useFeaturesStore } from '@/stores/features';
 import i18n from './i18n'
 
 const pinia = createPinia()
 const app = createApp(App)
 
 app.use(pinia)
+
+const featuresStore = useFeaturesStore(pinia)
+featuresStore.initialize().catch(err => {
+  console.debug('Failed to load features at startup:', err)
+})
 
 // Install preview plugins
 // Option 1: Basic usage (installs all core + ONLYOFFICE)

@@ -1,3 +1,6 @@
+import { useFeaturesStore } from '@/stores/features';
+import { computed } from 'vue';
+
 const DEFAULT_EDITOR_EXTENSIONS = [
   'txt',
   'md',
@@ -50,21 +53,21 @@ const DEFAULT_EDITOR_EXTENSIONS = [
   'less',
 ];
 
-const envExtensions = (import.meta.env.VITE_EDITOR_EXTENSIONS || '')
-  .split(',')
-  .map((value) => value.trim().toLowerCase())
-  .filter(Boolean);
+// Computed set of all editable extensions (default + runtime from features)
+const editableExtensionsSet = computed(() => {
+  const featuresStore = useFeaturesStore();
+  const runtimeExtensions = featuresStore.editorExtensions || [];
+  return new Set([
+    ...DEFAULT_EDITOR_EXTENSIONS,
+    ...runtimeExtensions,
+  ]);
+});
 
-const editableExtensionsSet = new Set([
-  ...DEFAULT_EDITOR_EXTENSIONS,
-  ...envExtensions,
-]);
-
-const getEditableExtensions = () => Array.from(editableExtensionsSet.values());
+const getEditableExtensions = () => Array.from(editableExtensionsSet.value.values());
 
 const isEditableExtension = (extension = '') => {
   if (!extension) return false;
-  return editableExtensionsSet.has(extension.toLowerCase());
+  return editableExtensionsSet.value.has(extension.toLowerCase());
 };
 
 export {

@@ -9,7 +9,7 @@ nextExplorer mixes a modern browser experience with secure access controls and f
 - **Context menus:** Right-click the background or individual items for quick shortcuts (New Folder/File, Paste, Rename, Get Info, download, delete).
 
 ## Editing & document workflows
-- **Built-in editor:** Supported text/code files open with syntax highlighting, line numbers, and Save/Cancel actions; changes persist to disk immediately.
+- **Built-in editor:** Double-click any text or code file to edit it inline with syntax highlighting, line numbers, and Save/Cancel actions. Supports 50+ file types by default (txt, md, json, js, ts, py, yml, html, css, and many more). Extend support for additional formats at runtime using the `EDITOR_EXTENSIONS` environment variable—no rebuild required.
 - **ONLYOFFICE integration:** When `ONLYOFFICE_URL` and the JWT `ONLYOFFICE_SECRET` are configured, docx/xlsx/pptx/odt/ods/odp files open with co-editing capabilities via `/api/onlyoffice/*` endpoints.
 - **Favorites:** Pin folders to the sidebar with a star so critical paths stay in reach across sessions.
 

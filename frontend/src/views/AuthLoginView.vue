@@ -6,9 +6,10 @@ import HeaderLogo from '@/components/HeaderLogo.vue';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { LockClosedIcon, KeyIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { useStorage } from '@vueuse/core';
-import { apiBase, fetchFeatures } from '@/api';
+import { apiBase } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
+import { useFeaturesStore } from '@/stores/features';
 
 const version = __APP_VERSION__
 
@@ -120,8 +121,9 @@ onMounted(async () => {
     auth.initialize();
   }
   try {
-    const features = await fetchFeatures();
-    const anns = Array.isArray(features?.announcements) ? features.announcements : [];
+    const featuresStore = useFeaturesStore();
+    await featuresStore.ensureLoaded();
+    const anns = featuresStore.announcements || [];
     // Prefer the migration announcement if present; else show the first
     const mig = anns.find(a => a?.id === 'v3-user-migration');
     announcement.value = mig || anns[0] || null;

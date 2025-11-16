@@ -4,7 +4,7 @@ import { videoPreviewPlugin } from '@/plugins/video/videoPreview';
 import { markdownPreviewPlugin } from '@/plugins/markdown/markdownPreview';
 import { pdfPreviewPlugin } from '@/plugins/pdf/pdfPreview';
 import { onlyofficePreviewPlugin } from '@/plugins/onlyoffice/onlyofficePreview';
-import { fetchFeatures } from '@/api';
+import { useFeaturesStore } from '@/stores/features';
 
 /**
  * @param {import('pinia').Pinia} pinia - Pinia instance
@@ -56,14 +56,15 @@ function registerCorePlugins(manager) {
  */
 async function loadOnlyOfficePlugin(manager) {
   try {
-    const features = await fetchFeatures();
+    const featuresStore = useFeaturesStore();
+    await featuresStore.ensureLoaded();
 
-    if (!features?.onlyoffice?.enabled) return;
+    if (!featuresStore.onlyofficeEnabled) return;
 
-    // Get supported extensions from server
-    const extensions = normalizeExtensions(features.onlyoffice.extensions);
+    // Get supported extensions from store
+    const extensions = normalizeExtensions(featuresStore.onlyofficeExtensions);
     manager.register(onlyofficePreviewPlugin(extensions));
-    
+
     console.info(`ONLYOFFICE plugin loaded (${extensions.length} extensions)`);
   } catch (error) {
     console.debug('ONLYOFFICE plugin unavailable:', error.message);

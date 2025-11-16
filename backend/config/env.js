@@ -59,7 +59,10 @@ module.exports = {
   
   // Features
   SHOW_VOLUME_USAGE: normalizeBoolean(process.env.SHOW_VOLUME_USAGE) || false,
-  
+
+  // Editor
+  EDITOR_EXTENSIONS: process.env.EDITOR_EXTENSIONS || '',
+
   // FFmpeg
   FFMPEG_PATH: process.env.FFMPEG_PATH || null,
   FFPROBE_PATH: process.env.FFPROBE_PATH || null,

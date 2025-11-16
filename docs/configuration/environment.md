@@ -51,16 +51,22 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SEARCH_MAX_FILESIZE` | _unbounded_ | Skip ripgrep for files larger than this (e.g., `5MB`). |
 | `SHOW_VOLUME_USAGE` | `false` | Show volume usage badges in the sidebar. |
 
+## Editor
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `EDITOR_EXTENSIONS` | _empty_ | Comma-separated list of additional file extensions to support in the inline text editor (e.g., `toml,proto,graphql`). These are **added to** the built-in defaults (txt, md, json, js, ts, py, etc.), not replacing them. Changes take effect immediately on container restart—no frontend rebuild required. |
+
 ## OnlyOffice & thumbnails
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `ONLYOFFICE_URL` | _none_ | Public URL for Document Server (must reach your app’s `PUBLIC_URL`). |
+| `ONLYOFFICE_URL` | _none_ | Public URL for Document Server (must reach your app's `PUBLIC_URL`). |
 | `ONLYOFFICE_SECRET` | _none_ | JWT secret shared with OnlyOffice Document Server for `/api/onlyoffice` calls. |
 | `ONLYOFFICE_LANG` | `en` | Language code for the editor UI. |
 | `ONLYOFFICE_FORCE_SAVE` | `false` | When true, OnlyOffice forces users to save via the editor UI. |
 | `ONLYOFFICE_FILE_EXTENSIONS` | _default list_ | Extra file extensions to surface to the Document Server. |
-| `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn’t suit your needs. |
+| `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn't suit your needs. |
 
 ## Container user mapping
 

@@ -39,8 +39,10 @@ npm start
     - `OIDC_SCOPES` – e.g. `openid profile email` (add `groups` if your provider supports it)
     - `SESSION_SECRET` – optional; if omitted the backend generates a strong secret at startup (used for sessions and EOC cookies)
     - Optional overrides: `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL`, `OIDC_CALLBACK_URL`
-  - Feature flags:
-    - `FEATURE_VOLUME_USAGE` – `true` to enable volume usage progress bar and used/total labels on the Volumes page. Defaults to `false`.
+  - Runtime features (loaded via centralized features store):
+    - `EDITOR_EXTENSIONS` – comma-separated list of additional file extensions to support in the inline editor (e.g. `toml,proto,graphql`). These are added to the default list of supported extensions.
+    - `SHOW_VOLUME_USAGE` – `true` to enable volume usage progress bar and used/total labels on the Volumes page. Defaults to `false`.
+    - `ONLYOFFICE_URL`, `ONLYOFFICE_FILE_EXTENSIONS` – OnlyOffice integration is also loaded via the features store.
 
 When EOC is enabled, the backend exposes default OIDC routes:
 - `GET /login` – start login
@@ -68,6 +70,47 @@ npm run dev
   - `npm run preview` – serve the built assets locally.
   - `npm run test:unit` – Vitest unit suite.
   - `npm run lint` – ESLint with Vue plugin; auto-fixes where possible.
+
+#### Features Store Architecture
+
+The frontend uses a centralized Pinia store (`frontend/src/stores/features.js`) to manage all runtime configuration from Docker environment variables. This provides optimal performance and consistency.
+
+**Key Characteristics**:
+- **Eager initialization**: Features load immediately at app startup (`main.js`) in parallel with other initialization
+- **Single source of truth**: All components access features through the store, ensuring consistency
+- **Performance optimized**: Only one HTTP request to `/api/features` per app load
+- **Reactive state**: Components automatically update when features load
+
+**Usage in Components**:
+```javascript
+// Async components (wait for features to load)
+import { useFeaturesStore } from '@/stores/features'
+
+const featuresStore = useFeaturesStore()
+await featuresStore.ensureLoaded()
+
+// Now access features
+if (featuresStore.volumeUsageEnabled) {
+  // Load volume usage data
+}
+```
+
+```javascript
+// Reactive computed (automatically updates when features load)
+import { useFeaturesStore } from '@/stores/features'
+
+const featuresStore = useFeaturesStore()
+const extensions = computed(() => featuresStore.editorExtensions)
+```
+
+**Available Features**:
+- `editorExtensions` – array of custom file extensions from `EDITOR_EXTENSIONS`
+- `onlyofficeEnabled` – boolean from `ONLYOFFICE_URL`
+- `onlyofficeExtensions` – array from `ONLYOFFICE_FILE_EXTENSIONS`
+- `volumeUsageEnabled` – boolean from `SHOW_VOLUME_USAGE`
+- `announcements` – array of system announcements (from DB metadata)
+
+**Backend API**: Features are served by `GET /api/features` which consolidates all runtime configuration from environment variables.
 
 ### Single-port Dev via Vite proxy (recommended)
 Serve the SPA on port 3000 and proxy API calls to the backend on an internal port 3001.

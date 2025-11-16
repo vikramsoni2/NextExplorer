@@ -107,6 +107,7 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
 
+  // Initialize auth store
   if (!auth.hasStatus && !auth.isLoading) {
     await auth.initialize();
   } else if (auth.isLoading) {

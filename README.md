@@ -95,6 +95,8 @@ services:
       # - OIDC_SCOPES=openid profile email groups
       # - OIDC_ADMIN_GROUPS=next-admin admins
       # - OIDC_REQUIRE_EMAIL_VERIFIED=false
+      # Editor (optional): extend supported file extensions for inline editing
+      # - EDITOR_EXTENSIONS=toml,proto,graphql,dockerfile
       # OnlyOffice (optional): in‑browser editing for office docs
       # - ONLYOFFICE_URL=https://office.example.com
       # - ONLYOFFICE_SECRET=your-jwt-secret
@@ -199,7 +201,39 @@ Notes
   - `POST /api/onlyoffice/config` – generate editor config for a file
   - `GET /api/onlyoffice/file` – token‑guarded file fetch for the Document Server
   - `POST /api/onlyoffice/callback` – save callback from the Document Server
-- “Document security token is not correctly configured” usually indicates a secret mismatch. Ensure `ONLYOFFICE_SECRET` matches the Document Server’s JWT secret or disable JWT there.
+- "Document security token is not correctly configured" usually indicates a secret mismatch. Ensure `ONLYOFFICE_SECRET` matches the Document Server's JWT secret or disable JWT there.
+
+## Inline Editor (Text & Code Files)
+
+nextExplorer includes a built-in inline editor with syntax highlighting for common text and code files. Double-click any supported file to open it in the editor.
+
+### Default Supported Extensions
+
+The editor supports these file types out of the box:
+- **Text**: txt, md, markdown, log
+- **Data**: csv, tsv, json, json5, yml, yaml, xml
+- **Config**: ini, cfg, conf, env, properties
+- **JavaScript/TypeScript**: js, jsx, mjs, cjs, ts, tsx
+- **Programming**: py, rb, php, java, c, h, cpp, hpp, cs, go, rs, swift, kt, scala
+- **Shell**: sh, bash, zsh, ps1, bat
+- **Web**: vue, svelte, astro, html, css, scss, sass, less
+
+### Extending Supported Extensions
+
+Add custom file extensions at runtime using the `EDITOR_EXTENSIONS` environment variable:
+
+```yaml
+environment:
+  - EDITOR_EXTENSIONS=toml,proto,graphql,dockerfile,makefile
+```
+
+**Important Notes**:
+- Custom extensions are **added to** the default list (they don't replace it)
+- No frontend rebuild required—changes take effect immediately on container restart
+- Extensions are case-insensitive and automatically lowercased
+- Multiple extensions are comma-separated
+
+**Example**: With `EDITOR_EXTENSIONS=toml,proto`, the editor will support all default extensions plus `.toml` and `.proto` files.
 
 ## Logging & Debug Mode
 - Default log level is `info`. Set `LOG_LEVEL=debug` for verbose diagnostics (HTTP request details, etc.).

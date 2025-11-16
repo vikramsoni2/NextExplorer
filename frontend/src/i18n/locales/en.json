@@ -44,8 +44,9 @@
   "create": {
     "createNew": "Create New",
     "newFolder": "New Folder",
-    "fileUpload": "File Upload",
-    "folderUpload": "Folder Upload"
+    "newFile": "New File",
+    "fileUpload": "Upload File",
+    "folderUpload": "Upload Folder"
   },
   "context": {
     "getInfo": "Get Info",

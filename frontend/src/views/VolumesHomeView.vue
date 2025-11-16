@@ -1,12 +1,13 @@
 <script setup>
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue';
 import { useFavoritesStore } from '@/stores/favorites';
-import { getVolumes, getUsage, fetchFeatures } from '@/api';
+import { useFeaturesStore } from '@/stores/features';
+import { getVolumes, getUsage } from '@/api';
 import { useNavigation } from '@/composables/navigation';
 import * as OutlineIcons from '@heroicons/vue/24/outline';
 import * as SolidIcons from '@heroicons/vue/24/solid';
 const ProgressBar = defineAsyncComponent(() => import('@/components/ProgressBar.vue'));
-import IconDrive from '@/components/IconDrive.vue';
+import IconDrive from '@/icons/IconDrive.vue';
 import { formatBytes } from '@/utils';
 import DirectoryIcon from '@/icons/files/directory-icon.vue';
 
@@ -14,23 +15,21 @@ import DirectoryIcon from '@/icons/files/directory-icon.vue';
 const volumes = ref([]);
 const loading = ref(true);
 const favoritesStore = useFavoritesStore();
+const featuresStore = useFeaturesStore();
 const usage = ref({});
 const { openItem, openBreadcrumb } = useNavigation();
-const showVolumeUsage = ref(false);
+const showVolumeUsage = computed(() => featuresStore.volumeUsageEnabled);
 
 onMounted(async () => {
   try {
-    favoritesStore.ensureLoaded();
-    // Load volumes first
-    volumes.value = await getVolumes();
+    // Ensure features are loaded before checking flags
+    await Promise.all([
+      favoritesStore.ensureLoaded(),
+      featuresStore.ensureLoaded(),
+    ]);
 
-    // Check server feature flags to determine whether to load usage
-    try {
-      const features = await fetchFeatures();
-      showVolumeUsage.value = Boolean(features?.volumeUsage?.enabled);
-    } catch (_) {
-      showVolumeUsage.value = false;
-    }
+    // Load volumes
+    volumes.value = await getVolumes();
 
     // Lazy-load usage for each volume only when the feature is enabled
     if (showVolumeUsage.value) {
