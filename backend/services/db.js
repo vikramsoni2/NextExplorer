@@ -285,6 +285,44 @@ const migrateFavoritesFromJson = (db) => {
   }
 };
 
+/**
+ * Ensure the anonymous user exists in the database
+ * This user is used when AUTH_ENABLED=false to provide user context for features like favorites
+ */
+const ensureAnonymousUser = (db) => {
+  try {
+    const { auth } = require('../config/index');
+
+    // Only create anonymous user when auth is disabled
+    if (auth.enabled !== false) {
+      return;
+    }
+
+    const existingUser = db.prepare('SELECT id FROM users WHERE id = ?').get('anonymous');
+
+    if (!existingUser) {
+      const now = new Date().toISOString();
+      db.prepare(`
+        INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `).run(
+        'anonymous',
+        'anonymous@local',
+        1,
+        'anonymous',
+        'Anonymous User',
+        '[]',
+        now,
+        now
+      );
+      console.log('[DB] Created anonymous user for AUTH_ENABLED=false mode');
+    }
+  } catch (err) {
+    console.error('[DB] Error ensuring anonymous user:', err);
+    // Non-fatal, continue
+  }
+};
+
 const getDb = async () => {
   if (dbInstance) return dbInstance;
 
@@ -301,6 +339,7 @@ const getDb = async () => {
 
   const db = new Database(dbPath);
   migrate(db);
+  ensureAnonymousUser(db);
   dbInstance = db;
   return dbInstance;
 };

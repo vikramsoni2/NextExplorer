@@ -37,11 +37,18 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
   (async () => {
     try {
       const { destinationPath, destinationDir } = resolveUploadPaths(req, file);
-      await ensureDir(destinationDir);
 
       // Enforce access control: destination directory must be writable
       const volumeRoot = resolveVolumePath('');
       const relDestDir = normalizeRelativePath(path.relative(volumeRoot, destinationDir));
+
+      // Prevent uploading directly to the volume root
+      if (!relDestDir || relDestDir.trim() === '') {
+        throw new Error('Cannot upload files to the root volume path. Please select a specific volume first.');
+      }
+
+      await ensureDir(destinationDir);
+
       const perm = await getPermissionForPath(relDestDir);
       if (perm !== 'rw') {
         throw new Error('Destination path is read-only.');

@@ -52,6 +52,15 @@ router.post('/files/folder', async (req, res) => {
     const requestedName = req.body?.name;
 
     const parentRelative = normalizeRelativePath(destination);
+
+    // Prevent creating folders directly in the volume root
+    if (!parentRelative || parentRelative.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        error: 'Cannot create folders in the root volume path. Please select a specific volume first.'
+      });
+    }
+
     await assertWritable(parentRelative);
     const parentAbsolute = resolveVolumePath(parentRelative);
 

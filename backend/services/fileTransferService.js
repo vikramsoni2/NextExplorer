@@ -52,6 +52,12 @@ const transferItems = async (items, destination, operation) => {
   }
 
   const destinationRelative = normalizeRelativePath(destination);
+
+  // Prevent copying/moving items directly to the volume root
+  if (!destinationRelative || destinationRelative.trim() === '') {
+    throw new Error('Cannot copy or move items to the root volume path. Please select a specific volume first.');
+  }
+
   const destinationAbsolute = resolveVolumePath(destinationRelative);
   await ensureDir(destinationAbsolute);
 

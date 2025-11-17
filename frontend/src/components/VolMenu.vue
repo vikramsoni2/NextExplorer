@@ -46,6 +46,7 @@ const isActiveVolume = (volumeName = '') => {
 </script>
 
 <template>
+    <div>
     <h4 
     class="group flex items-center justify-between pb-2 pt-6 text-sm 
     text-neutral-400 dark:text-neutral-500 font-medium">
@@ -83,5 +84,6 @@ const isActiveVolume = (volumeName = '') => {
                 </button>
             </div>
         </transition>
+    </div>
     </div>
 </template>

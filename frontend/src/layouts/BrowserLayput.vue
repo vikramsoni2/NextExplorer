@@ -70,6 +70,13 @@ return s.split('/').filter(Boolean).pop() || 'Volumes';
 });
 useTitle(currentPathName)
 
+// Check if we're at the volumes home view (no path selected)
+const isVolumesView = computed(() => {
+  const p = route.params.path;
+  const s = Array.isArray(p) ? p.join('/') : (p || '');
+  return !s || s.trim() === '';
+});
+
 
 // Ensure Uppy is initialized app-wide and bound to current path
 useFileUploader();
@@ -96,9 +103,11 @@ useClipboardShortcuts();
       :style="{ width: asideWidth + 'px' }"
     >
       <HeaderLogo appname="Explorer"/>
-      <CreateNew class="mt-6"/>
-      <FavMenu />
-      <VolMenu />
+      <CreateNew v-if="!isVolumesView" class="mt-6"/> 
+      <div class="overflow-y-scroll -mx-8 px-8 scroll-on-hover">
+        <FavMenu/>
+        <VolMenu/>
+      </div>
       <UserMenu class="mt-auto -mx-4"/>
     </aside>
 
@@ -177,5 +186,12 @@ useClipboardShortcuts();
 .upload-drop-target.uppy-is-drag-over {
   outline: 2px dashed rgba(59, 130, 246, 0.6); /* tailwind blue-500 */
   outline-offset: -2px;
+}
+
+.scroll-on-hover {
+  overflow-y: hidden;
+}
+.scroll-on-hover:hover {
+  overflow-y: scroll;
 }
 </style>

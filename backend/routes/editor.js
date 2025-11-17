@@ -39,6 +39,15 @@ router.put('/editor', async (req, res) => {
     }
 
     const relativePath = normalizeRelativePath(relative);
+
+    // Prevent creating files directly in the volume root
+    // Check if the file would be created at the root level (no parent directory)
+    if (!relativePath.includes('/') && !relativePath.includes(path.sep)) {
+      return res.status(400).json({
+        error: 'Cannot create files in the root volume path. Please select a specific volume first.'
+      });
+    }
+
     const absolutePath = resolveVolumePath(relativePath);
     await ensureDir(path.dirname(absolutePath));
     await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
