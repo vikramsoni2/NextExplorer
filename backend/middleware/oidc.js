@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const { auth: eocAuth } = require('express-openid-connect');
-const MemoryStore = require('memorystore')(eocAuth);
 
 const { auth: envAuthConfig, public: publicConfig } = require('../config/index');
 const { getOrCreateOidcUser, deriveRolesFromClaims } = require('../services/users');
 const { fetchUserInfoClaims } = require('../services/oidcService');
+const { oidcStore } = require('../utils/sessionStore');
 const logger = require('../utils/logger');
 
 /**
@@ -211,6 +211,7 @@ const configureOidc = async (app) => {
     // Determine cookie security
     const eocCookieSecure = shouldOidcCookieBeSecure(baseURL);
     logger.debug({ eocCookieSecure }, 'OIDC session cookie security');
+    logger.debug('Using shared SQLite session store for OIDC');
 
     // Configure OIDC middleware
     app.use(eocAuth({
@@ -227,9 +228,7 @@ const configureOidc = async (app) => {
         scope: scopeParam,
       },
       session: {
-        store: new MemoryStore({
-          checkPeriod: 24 * 60 * 1000,
-        }),
+        store: oidcStore,
         rolling: true,
         cookie: {
           sameSite: 'Lax',
