@@ -216,7 +216,7 @@ onBeforeUnmount(() => {
         <button
           type="button"
           class="hidden group-hover:flex items-center justify-center rounded-full
-          border dark:border-zinc-500 px-3 text-xs
+          border border-zinc-400 dark:border-zinc-500 px-3 text-xs
            text-neutral-500  dark:text-neutral-400 "
           
           @click.stop="toggleEditMode"
