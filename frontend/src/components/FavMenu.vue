@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import * as OutlineIcons from '@heroicons/vue/24/outline';
 import * as SolidIcons from '@heroicons/vue/24/solid';
+import { storeToRefs } from 'pinia';
+import draggable from 'vuedraggable';
 import { useFavoritesStore } from '@/stores/favorites';
 import { useNavigation } from '@/composables/navigation';
 import { normalizePath } from '@/api';
@@ -21,13 +23,10 @@ const rootEl = ref(null);
 const open = ref(true);
 const isEditMode = ref(false);
 const favoritesStore = useFavoritesStore();
+const { favorites } = storeToRefs(favoritesStore);
 const route = useRoute();
 const { openBreadcrumb } = useNavigation();
 const { openEditorForFavorite } = useFavoriteEditor();
-
-// Drag and drop state
-const draggedItem = ref(null);
-const draggedOverItem = ref(null);
 
 const ICON_VARIANTS = {
   outline: OutlineIcons,
@@ -57,15 +56,12 @@ const resolveIconComponent = (iconName) => {
   return OutlineIcons[trimmed] || SolidIcons[trimmed] || StarIconOutline;
 };
 
-const favorites = computed(() => favoritesStore.favorites.map((favorite) => {
-  const autoLabel = favorite.path.split('/').pop() || favorite.path;
-  return {
-    ...favorite,
-    label: favorite.label || autoLabel,
-    iconComponent: resolveIconComponent(favorite.icon),
-    color: favorite.color || null,
-  };
-}));
+const getFavoriteLabel = (favorite = {}) => {
+  const path = favorite.path || '';
+  const autoLabel = path.split('/').pop() || path;
+  return favorite.label || autoLabel;
+};
+
 const { t } = useI18n();
 
 const currentPath = computed(() => {
@@ -94,11 +90,6 @@ const handleOpenFavorite = (favorite) => {
 const toggleEditMode = () => {
   if (!favorites.value.length) return;
   isEditMode.value = !isEditMode.value;
-  // Clean up drag state when exiting edit mode
-  if (!isEditMode.value) {
-    draggedItem.value = null;
-    draggedOverItem.value = null;
-  }
 };
 
 const handleEditFavorite = (favorite) => {
@@ -120,84 +111,27 @@ const handleGlobalPointerDown = (event) => {
   if (!el) return;
   if (el === event.target || el.contains(event.target)) return;
   isEditMode.value = false;
-  // Clean up drag state
-  draggedItem.value = null;
-  draggedOverItem.value = null;
 };
 
-// Drag and drop handlers
-const handleDragStart = (event, favorite) => {
-  draggedItem.value = favorite;
-  event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', favorite.id);
-};
-
-const handleDragOver = (event, favorite) => {
-  event.preventDefault();
-  event.dataTransfer.dropEffect = 'move';
-  draggedOverItem.value = favorite;
-};
-
-const handleDragEnter = (event, favorite) => {
-  event.preventDefault();
-  draggedOverItem.value = favorite;
-};
-
-const handleDragLeave = (event) => {
-  if (event.target.closest('[data-favorite-item]') === null) {
-    draggedOverItem.value = null;
-  }
-};
-
-const handleDrop = async (event, targetFavorite) => {
-  event.preventDefault();
-
-  if (!draggedItem.value || !targetFavorite) {
-    draggedItem.value = null;
-    draggedOverItem.value = null;
-    return;
-  }
-
-  if (draggedItem.value.id === targetFavorite.id) {
-    draggedItem.value = null;
-    draggedOverItem.value = null;
-    return;
-  }
+const handleReorderEnd = async () => {
+  if (!favorites.value.length) return;
 
   try {
-    // Create a new order array
-    const items = [...favorites.value];
-    const draggedIndex = items.findIndex(f => f.id === draggedItem.value.id);
-    const targetIndex = items.findIndex(f => f.id === targetFavorite.id);
-
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    // Remove the dragged item and insert it at the target position
-    const [removed] = items.splice(draggedIndex, 1);
-    // When moving down, adjust target index because we just removed an item before it
-    const insertIndex = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
-    items.splice(insertIndex, 0, removed);
-
-    // Extract the ordered IDs
-    const orderedIds = items.map(f => f.id);
-
-    // Call the store to reorder
+    const orderedIds = favorites.value.map((favorite) => favorite.id);
     await favoritesStore.reorderFavorites(orderedIds);
   } catch (error) {
     console.error('Failed to reorder favorites', error);
-  } finally {
-    draggedItem.value = null;
-    draggedOverItem.value = null;
+    // Reload from server to ensure a consistent state if the reorder fails
+    try {
+      await favoritesStore.loadFavorites();
+    } catch (reloadError) {
+      console.error('Failed to reload favorites after reorder error', reloadError);
+    }
   }
 };
 
-const handleDragEnd = () => {
-  draggedItem.value = null;
-  draggedOverItem.value = null;
-};
-
-onMounted(() => {
-  favoritesStore.ensureLoaded();
+onMounted(async () => {
+  await favoritesStore.ensureLoaded();
   window.addEventListener('pointerdown', handleGlobalPointerDown);
 });
 
@@ -247,63 +181,64 @@ onBeforeUnmount(() => {
       >
         <div v-if="open" class="overflow-hidden">
           <template v-if="favorites.length">
-            <div
-              v-for="favorite in favorites"
-              :key="favorite.path"
-              data-favorite-item
-              :draggable="isEditMode"
-              @dragstart="isEditMode ? handleDragStart($event, favorite) : null"
-              @dragover="isEditMode ? handleDragOver($event, favorite) : null"
-              @dragenter="isEditMode ? handleDragEnter($event, favorite) : null"
-              @dragleave="isEditMode ? handleDragLeave($event) : null"
-              @drop="isEditMode ? handleDrop($event, favorite) : null"
-              @dragend="isEditMode ? handleDragEnd : null"
-              class="group/item my-3 flex items-center gap-2 transition-all duration-200"
-              :class="{
-                'opacity-50': isEditMode && draggedItem?.id === favorite.id,
-                'border-t-2 border-yellow-500/50 pt-2': isEditMode && draggedOverItem?.id === favorite.id && draggedItem?.id !== favorite.id
-              }"
+            <draggable
+              v-model="favorites"
+              item-key="id"
+              handle=".favorite-drag-handle"
+              :disabled="!isEditMode || favorites.length < 2"
+              :animation="250"
+              :easing="'cubic-bezier(0.25, 0.46, 0.45, 0.94)'"
+              ghost-class="favorite-ghost"
+              chosen-class="favorite-chosen"
+              drag-class="favorite-drag"
+              :force-fallback="true"
+              @end="handleReorderEnd"
             >
-              <Bars3Icon
-                v-if="isEditMode"
-                class="h-4 w-4 shrink-0 cursor-grab text-neutral-400 group-hover/item:text-white dark:text-neutral-500 dark:group-hover/item:text-neutral-100"
-                :class="{ 'cursor-grabbing': draggedItem?.id === favorite.id }"
-              />
-              <button
-                type="button"
-                @click="handleOpenFavorite(favorite)"
-                class="truncate"
-                :class="[
-                  'cursor-pointer flex w-full items-center gap-3 rounded-lg transition-colors duration-200 text-sm',
-                  isActiveFav(favorite.path)
-                    ? 'text-neutral-950 dark:text-white'
-                    : 'text-neutral-950 dark:text-neutral-300/80'
-                ]"
-              >
-                <component
-                  :is="favorite.iconComponent"
-                  class="h-5 shrink-0"
-                  :style="{ color: favorite.color || 'currentColor' }"
-                />
-                <span class="truncate">{{ favorite.label }}</span>
-              </button>
-              <template v-if="isEditMode">
-                <button
-                  type="button"
-                  class="shrink-0 rounded-md text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-700"
-                  @click.stop="handleEditFavorite(favorite)"
+              <template #item="{ element: favorite }">
+                <div
+                  class="group/item mb-3 flex items-center gap-2 favorite-drag-handle"
                 >
-                  <PencilSquareIcon class="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  class="shrink-0 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/40"
-                  @click.stop="handleRemoveFavorite(favorite)"
-                >
-                  <XMarkIcon class="h-4 w-4" />
-                </button>
+                  <Bars3Icon
+                    v-if="isEditMode"
+                    class=" h-4 w-4 shrink-0 cursor-grab text-neutral-400 group-hover/item:text-white dark:text-neutral-500 dark:group-hover/item:text-neutral-100 transition-colors duration-150"
+                  />
+                  <button
+                    type="button"
+                    @click="handleOpenFavorite(favorite)"
+                    class="truncate"
+                    :class="[
+                      'cursor-pointer flex w-full items-center gap-3 rounded-lg text-sm',
+                      isActiveFav(favorite.path)
+                        ? 'text-neutral-950 dark:text-white'
+                        : 'text-neutral-950 dark:text-neutral-300/90'
+                    ]"
+                  >
+                    <component
+                      :is="resolveIconComponent(favorite.icon)"
+                      class="h-5 shrink-0"
+                      :style="{ color: favorite.color || 'currentColor' }"
+                    />
+                    <span class="truncate">{{ getFavoriteLabel(favorite) }}</span>
+                  </button>
+                  <template v-if="isEditMode">
+                    <button
+                      type="button"
+                      class="shrink-0 rounded-md text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-700 transition-colors duration-150"
+                      @click.stop="handleEditFavorite(favorite)"
+                    >
+                      <PencilSquareIcon class="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      class="shrink-0 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/40 transition-colors duration-150"
+                      @click.stop="handleRemoveFavorite(favorite)"
+                    >
+                      <XMarkIcon class="h-4 w-4" />
+                    </button>
+                  </template>
+                </div>
               </template>
-            </div>
+            </draggable>
           </template>
           <div
             v-else
@@ -324,3 +259,22 @@ onBeforeUnmount(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Ghost: the placeholder showing where the item will drop */
+.favorite-ghost {
+  opacity: 0.4 !important;
+}
+
+/* Chosen: the item being picked up - keep it visible initially */
+.favorite-chosen {
+  opacity: 0.7 !important;
+  cursor: grabbing !important;
+}
+
+/* Drag: the element that follows the cursor - hide it */
+.favorite-drag {
+  cursor: grabbing !important;
+  opacity: 0 !important;
+}
+</style>

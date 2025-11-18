@@ -6,6 +6,8 @@ const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils
 const { extensions } = require('../config/index');
 const { getThumbnail } = require('../services/thumbnailService');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const { ValidationError, NotFoundError } = require('../errors/AppError');
 
 const router = express.Router();
 const { getSettings } = require('../services/settingsService');
@@ -17,46 +19,57 @@ const isPreviewable = (extension = '') => {
   return extensions.previewable.has(extension.toLowerCase());
 };
 
-router.get('/thumbnails/*', async (req, res) => {
+router.get('/thumbnails/*', asyncHandler(async (req, res) => {
+  const settings = await getSettings();
+  const thumbsEnabled = settings?.thumbnails?.enabled !== false;
+  if (!thumbsEnabled) {
+    return res.json({ thumbnail: '' });
+  }
+  const rawPath = req.params[0];
+  const relativePath = normalizeRelativePath(rawPath);
+
+  if (!relativePath) {
+    throw new ValidationError('A file path is required.');
+  }
+
+  const absolutePath = resolveVolumePath(relativePath);
+  let stats;
   try {
-    const settings = await getSettings();
-    const thumbsEnabled = settings?.thumbnails?.enabled !== false;
-    if (!thumbsEnabled) {
-      return res.json({ thumbnail: '' });
-    }
-    const rawPath = req.params[0];
-    const relativePath = normalizeRelativePath(rawPath);
-
-    if (!relativePath) {
-      return res.status(400).json({ error: 'A file path is required.' });
-    }
-
-    const absolutePath = resolveVolumePath(relativePath);
-    const stats = await fs.stat(absolutePath);
-
-    if (!stats.isFile()) {
-      return res.status(400).json({ error: 'Thumbnails are only available for files.' });
-    }
-
-    const extension = path.extname(relativePath).slice(1).toLowerCase();
-    if (extension === 'pdf') {
-      return res.status(400).json({ error: 'Thumbnails are not available for PDF files.' });
-    }
-
-    if (!isPreviewable(extension)) {
-      return res.status(400).json({ error: 'Thumbnails are not available for this file type.' });
-    }
-
-    const thumbnail = await getThumbnail(absolutePath);
-    res.json({ thumbnail: thumbnail || '' });
+    stats = await fs.stat(absolutePath);
   } catch (error) {
     if (error?.code === 'ENOENT') {
-      return res.status(404).json({ error: 'File not found.' });
+      throw new NotFoundError('File not found.');
     }
-
-    logger.error({ err: error }, 'Failed to resolve thumbnail');
-    res.status(500).json({ error: 'Failed to generate thumbnail.' });
+    throw error;
   }
-});
+
+  if (!stats.isFile()) {
+    throw new ValidationError('Thumbnails are only available for files.');
+  }
+
+  const extension = path.extname(relativePath).slice(1).toLowerCase();
+  if (extension === 'pdf') {
+    throw new ValidationError('Thumbnails are not available for PDF files.');
+  }
+
+  if (!isPreviewable(extension)) {
+    throw new ValidationError('Thumbnails are not available for this file type.');
+  }
+
+  let thumbnail = '';
+  try {
+    thumbnail = await getThumbnail(absolutePath);
+  } catch (error) {
+    logger.warn({ absolutePath, err: error }, 'Thumbnail generation failed, falling back to original file');
+  }
+
+  // If thumbnail generation failed or produced no result, fall back to the original file
+  if (!thumbnail && extensions.images.includes(extension)) {
+    const previewUrl = `/api/preview?path=${encodeURIComponent(relativePath)}`;
+    return res.json({ thumbnail: previewUrl });
+  }
+
+  res.json({ thumbnail: thumbnail || '' });
+}));
 
 module.exports = router;

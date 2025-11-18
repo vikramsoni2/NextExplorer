@@ -4,6 +4,7 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import FavMenu from '@/components/FavMenu.vue';
 import VolMenu from '@/components/VolMenu.vue';
+import TerminalMenu from '@/components/TerminalMenu.vue';
 import CreateNew from '@/components/CreateNew.vue';
 import ViewMode from '@/components/ViewMode.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
@@ -12,13 +13,16 @@ import SearchBar from '@/components/SearchBar.vue';
 import MenuItemInfo from '@/components/MenuItemInfo.vue';
 import UploadProgress from '@/components/UploadProgress.vue';
 import UserMenu from '@/components/UserMenu.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
+import NotificationToastContainer from '@/components/NotificationToastContainer.vue';
+import NotificationPanel from '@/components/NotificationPanel.vue';
 import { RouterView, useRoute } from 'vue-router'
 import { useTitle, useStorage, useEventListener } from '@vueuse/core'
 
 import MenuSortBy from '@/components/MenuSortBy.vue'
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
-// import TerminalPanel from '@/components/TerminalPanel.vue';
+import TerminalPanel from '@/components/TerminalPanel.vue';
 import { useSettingsStore } from '@/stores/settings';
 import PhotoSizeControl from '@/components/PhotoSizeControl.vue';
 import InfoPanel from '@/components/InfoPanel.vue';
@@ -107,6 +111,7 @@ useClipboardShortcuts();
       <div class="overflow-y-scroll -mx-8 px-8 scroll-on-hover">
         <FavMenu/>
         <VolMenu/>
+        <TerminalMenu/>
       </div>
       <UserMenu class="mt-auto -mx-4"/>
     </aside>
@@ -146,6 +151,7 @@ useClipboardShortcuts();
         <PhotoSizeControl />
         <div class="h-8 w-[1px] mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <SearchBar/>
+        <NotificationBell/>
 
         <!-- <div 
         style="background:url('http://gravatar.com/userimage/106458114/6eb8be0fbf770f939299c3e5f67ff6da.jpeg?size=256'); background-size: contain"
@@ -177,6 +183,9 @@ useClipboardShortcuts();
   <InfoPanel/>
   <SpotlightSearch/>
   <FavoriteEditDialog/>
+  <NotificationToastContainer/>
+  <NotificationPanel/>
+  <TerminalPanel/>
   </div>
 
 </template>

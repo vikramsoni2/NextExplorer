@@ -9,6 +9,8 @@ const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils
 const { extensions } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const { ValidationError, ForbiddenError, NotFoundError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -73,18 +75,17 @@ const sumDirectory = async (dirPath, limit = 200000) => {
   return { totalSize, fileCount, dirCount, truncated: visited > limit };
 };
 
-router.get('/metadata/*', async (req, res) => {
-  try {
-    const rawPath = req.params[0] || '';
-    const relativePath = normalizeRelativePath(rawPath);
-    if (!relativePath) {
-      return res.status(400).json({ error: 'A file path is required.' });
-    }
+router.get('/metadata/*', asyncHandler(async (req, res) => {
+  const rawPath = req.params[0] || '';
+  const relativePath = normalizeRelativePath(rawPath);
+  if (!relativePath) {
+    throw new ValidationError('A file path is required.');
+  }
 
-    const perm = await getPermissionForPath(relativePath);
-    if (perm === 'hidden') {
-      return res.status(403).json({ error: 'Path is not accessible.' });
-    }
+  const perm = await getPermissionForPath(relativePath);
+  if (perm === 'hidden') {
+    throw new ForbiddenError('Path is not accessible.');
+  }
 
     const absolutePath = resolveVolumePath(relativePath);
     const stats = await fs.stat(absolutePath);
@@ -140,15 +141,15 @@ router.get('/metadata/*', async (req, res) => {
       if (v) payload.video = v;
     }
 
+  try {
     return res.json(payload);
   } catch (error) {
-    logger.error({ err: error }, 'Metadata fetch failed');
     if (error.code === 'ENOENT') {
-      return res.status(404).json({ error: 'Path not found.' });
+      throw new NotFoundError('Path not found.');
     }
-    return res.status(500).json({ error: 'Failed to fetch metadata.' });
+    throw error;
   }
-});
+}));
 
 module.exports = router;
 

@@ -5,57 +5,47 @@ const fs = require('fs/promises');
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const { ValidationError } = require('../errors/AppError');
 
 const router = express.Router();
 
-router.post('/editor', async (req, res) => {
-  try {
-    const { path: relative = '' } = req.body || {};
-    if (typeof relative !== 'string' || !relative) {
-      return res.status(400).json({ error: 'A valid file path is required.' });
-    }
-
-    const relativePath = normalizeRelativePath(relative);
-    const absolutePath = resolveVolumePath(relativePath);
-    const stats = await fs.stat(absolutePath);
-
-    if (stats.isDirectory()) {
-      return res.status(400).json({ error: 'Cannot open a directory in the editor.' });
-    }
-
-    const data = await fs.readFile(absolutePath, { encoding: 'utf-8' });
-    res.send({ content: data });
-  } catch (error) {
-    logger.error({ err: error }, 'Error reading the file');
-    res.status(500).json({ error: 'Failed to read file.' });
+router.post('/editor', asyncHandler(async (req, res) => {
+  const { path: relative = '' } = req.body || {};
+  if (typeof relative !== 'string' || !relative) {
+    throw new ValidationError('A valid file path is required.');
   }
-});
 
-router.put('/editor', async (req, res) => {
-  try {
-    const { path: relative = '', content = '' } = req.body || {};
-    if (typeof relative !== 'string' || !relative) {
-      return res.status(400).json({ error: 'A valid file path is required.' });
-    }
+  const relativePath = normalizeRelativePath(relative);
+  const absolutePath = resolveVolumePath(relativePath);
+  const stats = await fs.stat(absolutePath);
 
-    const relativePath = normalizeRelativePath(relative);
-
-    // Prevent creating files directly in the volume root
-    // Check if the file would be created at the root level (no parent directory)
-    if (!relativePath.includes('/') && !relativePath.includes(path.sep)) {
-      return res.status(400).json({
-        error: 'Cannot create files in the root volume path. Please select a specific volume first.'
-      });
-    }
-
-    const absolutePath = resolveVolumePath(relativePath);
-    await ensureDir(path.dirname(absolutePath));
-    await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
-    res.send({ success: true });
-  } catch (error) {
-    logger.error({ err: error }, 'Error writing to the file');
-    res.status(500).json({ error: 'Failed to update file.' });
+  if (stats.isDirectory()) {
+    throw new ValidationError('Cannot open a directory in the editor.');
   }
-});
+
+  const data = await fs.readFile(absolutePath, { encoding: 'utf-8' });
+  res.send({ content: data });
+}));
+
+router.put('/editor', asyncHandler(async (req, res) => {
+  const { path: relative = '', content = '' } = req.body || {};
+  if (typeof relative !== 'string' || !relative) {
+    throw new ValidationError('A valid file path is required.');
+  }
+
+  const relativePath = normalizeRelativePath(relative);
+
+  // Prevent creating files directly in the volume root
+  // Check if the file would be created at the root level (no parent directory)
+  if (!relativePath.includes('/') && !relativePath.includes(path.sep)) {
+    throw new ValidationError('Cannot create files in the root volume path. Please select a specific volume first.');
+  }
+
+  const absolutePath = resolveVolumePath(relativePath);
+  await ensureDir(path.dirname(absolutePath));
+  await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
+  res.send({ success: true });
+}));
 
 module.exports = router;

@@ -1,3 +1,5 @@
+import { useNotificationsStore } from '@/stores/notifications';
+
 const DEFAULT_API_BASE = '/';
 const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
@@ -31,28 +33,79 @@ const requestRaw = async (endpoint, options = {}) => {
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(buildUrl(endpoint), {
-    credentials: options.credentials || 'include', // All requests rely on cookies
-    ...options,
-    method,
-    headers,
-  });
+  try {
+    const response = await fetch(buildUrl(endpoint), {
+      credentials: options.credentials || 'include', // All requests rely on cookies
+      ...options,
+      method,
+      headers,
+    });
 
-  if (!response.ok) {
-    let errorMessage = `Request failed with status ${response.status}`;
-    try {
-      // Try to parse a JSON error message from the backend
-      const errorData = await response.json();
-      if (errorData?.error) {
-        errorMessage = errorData.error;
+    if (!response.ok) {
+      let errorMessage = `Request failed with status ${response.status}`;
+      let errorDetails = null;
+
+      try {
+        // Try to parse backend error response
+        const errorData = await response.json();
+
+        // Handle new standardized error format
+        if (errorData?.error) {
+          if (typeof errorData.error === 'object') {
+            // New format: { success: false, error: { message, statusCode, requestId, timestamp } }
+            errorDetails = errorData.error;
+            errorMessage = errorDetails.message || errorMessage;
+
+            // Create notification for the error
+            const notificationsStore = useNotificationsStore();
+            notificationsStore.addNotification({
+              type: 'error',
+              heading: errorMessage,
+              body: errorDetails.details ? JSON.stringify(errorDetails.details) : '',
+              requestId: errorDetails.requestId,
+              statusCode: errorDetails.statusCode || response.status,
+            });
+          } else {
+            // Old format: { error: "string" }
+            errorMessage = errorData.error;
+
+            // Create notification for old format
+            const notificationsStore = useNotificationsStore();
+            notificationsStore.addNotification({
+              type: 'error',
+              heading: errorMessage,
+              statusCode: response.status,
+            });
+          }
+        }
+      } catch (parseError) {
+        // Ignore JSON parsing errors, create notification with basic info
+        const notificationsStore = useNotificationsStore();
+        notificationsStore.addNotification({
+          type: 'error',
+          heading: errorMessage,
+          statusCode: response.status,
+        });
       }
-    } catch (error) {
-      // Ignore JSON parsing errors and use the status-based message
-    }
-    throw new Error(errorMessage);
-  }
 
-  return response;
+      throw new Error(errorMessage);
+    }
+
+    return response;
+  } catch (error) {
+    // Handle network errors (fetch failures)
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      const notificationsStore = useNotificationsStore();
+      notificationsStore.addNotification({
+        type: 'error',
+        heading: 'Network Error',
+        body: 'Failed to connect to server. Please check your internet connection.',
+      });
+    }
+
+    // Re-throw the error so calling code can handle it
+    throw error;
+  }
 };
 
 
