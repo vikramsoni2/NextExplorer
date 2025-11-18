@@ -1,5 +1,7 @@
 <script setup>
+import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import { onClickOutside } from '@vueuse/core'
 import { TransitionRoot, TransitionChild } from '@headlessui/vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import { useNotificationsStore } from '@/stores/notifications'
@@ -17,9 +19,19 @@ const filterTypes = [
   { key: 'info', label: 'Info', colorClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-900/50' }
 ]
 
+// Reference to the panel element
+const panelRef = ref(null)
+
 function handleCopy(id) {
   copyNotification(id)
 }
+
+// Setup click outside listener with VueUse
+onClickOutside(panelRef, () => {
+  if (isPanelOpen.value) {
+    closePanel()
+  }
+})
 </script>
 
 <template>
@@ -48,7 +60,7 @@ function handleCopy(id) {
                 leave="transform transition ease-in-out duration-300"
                 leave-from="translate-x-0"
                 leave-to="translate-x-full">
-                <div class="pointer-events-auto w-screen max-w-md h-screen">
+                <div ref="panelRef" class="pointer-events-auto w-screen max-w-md h-screen">
                   <div class="flex h-full flex-col border-l bg-white/90 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80">
                     <!-- Header -->
                     <div class="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
