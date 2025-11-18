@@ -56,7 +56,19 @@ router.get('/thumbnails/*', asyncHandler(async (req, res) => {
     throw new ValidationError('Thumbnails are not available for this file type.');
   }
 
-  const thumbnail = await getThumbnail(absolutePath);
+  let thumbnail = '';
+  try {
+    thumbnail = await getThumbnail(absolutePath);
+  } catch (error) {
+    logger.warn({ absolutePath, err: error }, 'Thumbnail generation failed, falling back to original file');
+  }
+
+  // If thumbnail generation failed or produced no result, fall back to the original file
+  if (!thumbnail && extensions.images.includes(extension)) {
+    const previewUrl = `/api/preview?path=${encodeURIComponent(relativePath)}`;
+    return res.json({ thumbnail: previewUrl });
+  }
+
   res.json({ thumbnail: thumbnail || '' });
 }));
 
