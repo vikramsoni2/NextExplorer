@@ -14,6 +14,7 @@ const { bootstrap } = require('./utils/bootstrap');
 const { configureSession } = require('./middleware/session');
 const logger = require('./utils/logger');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const terminalService = require('./services/terminalService');
 
 const app = express();
 let server = null;
@@ -51,6 +52,23 @@ const initializeApp = async () => {
     logger.info({ port }, 'Server is running');
     logger.debug('HTTP server listen callback executed');
   });
+
+  // Initialize WebSocket server for terminal
+  terminalService.createWebSocketServer(server);
+  logger.debug('Terminal WebSocket server initialized');
+
+  // Cleanup on process termination
+  const cleanup = () => {
+    logger.info('Shutting down server...');
+    terminalService.cleanup();
+    server.close(() => {
+      logger.info('Server closed');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', cleanup);
+  process.on('SIGINT', cleanup);
 };
 
 initializeApp().catch((error) => {

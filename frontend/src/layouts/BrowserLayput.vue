@@ -4,6 +4,7 @@ import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import FavMenu from '@/components/FavMenu.vue';
 import VolMenu from '@/components/VolMenu.vue';
+import TerminalMenu from '@/components/TerminalMenu.vue';
 import CreateNew from '@/components/CreateNew.vue';
 import ViewMode from '@/components/ViewMode.vue';
 import BreadCrumb from '@/components/BreadCrumb.vue';
@@ -21,7 +22,7 @@ import { useTitle, useStorage, useEventListener } from '@vueuse/core'
 import MenuSortBy from '@/components/MenuSortBy.vue'
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
-// import TerminalPanel from '@/components/TerminalPanel.vue';
+import TerminalPanel from '@/components/TerminalPanel.vue';
 import { useSettingsStore } from '@/stores/settings';
 import PhotoSizeControl from '@/components/PhotoSizeControl.vue';
 import InfoPanel from '@/components/InfoPanel.vue';
@@ -110,6 +111,7 @@ useClipboardShortcuts();
       <div class="overflow-y-scroll -mx-8 px-8 scroll-on-hover">
         <FavMenu/>
         <VolMenu/>
+        <TerminalMenu/>
       </div>
       <UserMenu class="mt-auto -mx-4"/>
     </aside>
@@ -183,6 +185,7 @@ useClipboardShortcuts();
   <FavoriteEditDialog/>
   <NotificationToastContainer/>
   <NotificationPanel/>
+  <TerminalPanel/>
   </div>
 
 </template>
