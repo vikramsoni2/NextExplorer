@@ -1,4 +1,4 @@
-const pty = require('node-pty');
+const pty = require('@homebridge/node-pty-prebuilt-multiarch');
 const WebSocket = require('ws');
 const logger = require('../utils/logger');
 
