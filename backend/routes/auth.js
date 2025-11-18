@@ -12,6 +12,13 @@ const {
   getRequestUser,
 } = require('../services/users');
 const rateLimit = require('express-rate-limit');
+const asyncHandler = require('../utils/asyncHandler');
+const {
+  ValidationError,
+  UnauthorizedError,
+  RateLimitError,
+  NotFoundError
+} = require('../errors/AppError');
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -72,116 +79,88 @@ router.get('/status', async (req, res) => {
 });
 
 // Initial admin setup
-router.post('/setup', setupLimiter, async (req, res, next) => {
-  try {
-    if ((await countUsers()) > 0) {
-      res.status(400).json({ error: 'Already configured.' });
-      return;
-    }
-    const { email, password, username } = req.body || {};
-    const user = await createLocalUser({
-      email,
-      password,
-      username: username || email?.split('@')[0],
-      displayName: username || email?.split('@')[0],
-      roles: ['admin']
-    });
-    if (req.session) req.session.localUserId = user.id;
-    res.status(201).json({ user });
-  } catch (e) {
-    next(e);
+router.post('/setup', setupLimiter, asyncHandler(async (req, res) => {
+  if ((await countUsers()) > 0) {
+    throw new ValidationError('Aoolication Already configured. Skkipping Setup.');
   }
-});
+  const { email, password, username } = req.body || {};
+  const user = await createLocalUser({
+    email,
+    password,
+    username: username || email?.split('@')[0],
+    displayName: username || email?.split('@')[0],
+    roles: ['admin']
+  });
+  if (req.session) req.session.localUserId = user.id;
+  res.status(201).json({ user });
+}));
 
 // Local login with email + password
-router.post('/login', loginLimiter, async (req, res, next) => {
-  try {
-    const { email, password, username } = req.body || {};
-    // Support both email and username (backward compatibility)
-    const emailOrUsername = email || username;
+router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
+  const { email, password, username } = req.body || {};
+  // Support both email and username (backward compatibility)
+  const emailOrUsername = email || username;
 
-    let user = null;
-    try {
-      user = await attemptLocalLogin({ email: emailOrUsername, password });
-    } catch (e) {
-      if (e?.status === 423) {
-        res.status(423).json({ error: e.message, until: e.until });
-        return;
-      }
-      throw e;
-    }
-    if (!user) {
-      res.status(401).json({ error: 'Invalid credentials.' });
-      return;
-    }
-    if (req.session) req.session.localUserId = user.id;
-    res.json({ user });
+  let user = null;
+  try {
+    user = await attemptLocalLogin({ email: emailOrUsername, password });
   } catch (e) {
-    next(e);
+    if (e?.status === 423) {
+      throw new RateLimitError(e.message, e.until);
+    }
+    throw e;
   }
-});
+  if (!user) {
+    throw new UnauthorizedError('Invalid credentials.');
+  }
+  if (req.session) req.session.localUserId = user.id;
+  res.json({ user });
+}));
 
 // Change password (for users with password auth)
-router.post('/password', passwordLimiter, async (req, res, next) => {
-  try {
-    const me = await getRequestUser(req);
-    if (!me) {
-      res.status(401).json({ error: 'Authentication required.' });
-      return;
-    }
-
-    const { currentPassword, newPassword } = req.body || {};
-    await changeLocalPassword({ userId: me.id, currentPassword, newPassword });
-    res.status(204).end();
-  } catch (e) {
-    const status = typeof e?.status === 'number' ? e.status : 400;
-    res.status(status).json({ error: e?.message || 'Failed to change password.' });
+router.post('/password', passwordLimiter, asyncHandler(async (req, res) => {
+  const me = await getRequestUser(req);
+  if (!me) {
+    throw new UnauthorizedError('Authentication required.');
   }
-});
+
+  const { currentPassword, newPassword } = req.body || {};
+  await changeLocalPassword({ userId: me.id, currentPassword, newPassword });
+  res.status(204).end();
+}));
 
 // Add password authentication to current user (for OIDC-only users)
-router.post('/password/add', passwordLimiter, async (req, res, next) => {
-  try {
-    const user = await getRequestUser(req);
-    if (!user) {
-      res.status(401).json({ error: 'Authentication required.' });
-      return;
-    }
-
-    const { password } = req.body || {};
-    await addLocalPassword({ userId: user.id, password });
-
-    res.json({ message: 'Password authentication added successfully.' });
-  } catch (e) {
-    const status = typeof e?.status === 'number' ? e.status : 400;
-    res.status(status).json({ error: e?.message || 'Failed to add password authentication.' });
+router.post('/password/add', passwordLimiter, asyncHandler(async (req, res) => {
+  const user = await getRequestUser(req);
+  if (!user) {
+    throw new UnauthorizedError('Authentication required.');
   }
-});
+
+  const { password } = req.body || {};
+  await addLocalPassword({ userId: user.id, password });
+
+  res.json({ message: 'Password authentication added successfully.' });
+}));
 
 // Get available auth methods for current user
-router.get('/methods', async (req, res, next) => {
-  try {
-    const user = await getRequestUser(req);
-    if (!user) {
-      res.status(401).json({ error: 'Authentication required.' });
-      return;
-    }
-
-    const methods = await getUserAuthMethods(user.id);
-
-    res.json({
-      methods: methods.map(m => ({
-        id: m.id,
-        type: m.method_type,
-        provider: m.provider_name || (m.method_type === 'local_password' ? 'Password' : 'Unknown'),
-        lastUsedAt: m.last_used_at,
-        createdAt: m.created_at,
-      })),
-    });
-  } catch (e) {
-    next(e);
+router.get('/methods', asyncHandler(async (req, res) => {
+  const user = await getRequestUser(req);
+  if (!user) {
+    throw new UnauthorizedError('Authentication required.');
   }
-});
+
+  const methods = await getUserAuthMethods(user.id);
+
+  res.json({
+    methods: methods.map(m => ({
+      id: m.id,
+      type: m.method_type,
+      provider: m.provider_name || (m.method_type === 'local_password' ? 'Password' : 'Unknown'),
+      lastUsedAt: m.last_used_at,
+      createdAt: m.created_at,
+    })),
+  });
+}));
 
 router.post('/logout', (req, res) => {
   // Clear local app session if present (local auth)
@@ -206,7 +185,7 @@ router.get('/me', async (req, res) => {
 
 router.post('/token', (req, res) => res.status(400).json({ error: 'Token minting is disabled.' }));
 
-router.get('/oidc/login', async (req, res, next) => {
+router.get('/oidc/login', asyncHandler(async (req, res) => {
   try {
     if (res.oidc && typeof res.oidc.login === 'function') {
       const redirect = typeof req.query?.redirect === 'string' ? req.query.redirect : '/';
@@ -216,8 +195,8 @@ router.get('/oidc/login', async (req, res, next) => {
   } catch (e) {
     // ignore
   }
-  res.status(404).json({ error: 'OIDC is not configured.' });
-});
+  throw new NotFoundError('OIDC is not configured.');
+}));
 
 
 module.exports = router;

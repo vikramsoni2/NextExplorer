@@ -9,6 +9,8 @@ const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles, search: searchConfig } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const { ValidationError, NotFoundError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -280,41 +282,38 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
   yield* walk(baseAbsPath, relBasePath);
 }
 
-router.get('/search', async (req, res) => {
-  try {
-    const q = (req.query.q || '').trim();
-    if (!q) return res.status(400).json({ error: 'Search term (q) is required.' });
-
-    const relBase = normalizeRelativePath(req.query.path || '');
-    const baseAbs = resolveVolumePath(relBase);
-
-    if (!(await pathExists(baseAbs))) {
-      return res.status(404).json({ error: 'Base path not found.' });
-    }
-    if (!(await isDirectory(baseAbs))) {
-      return res.status(400).json({ error: 'Search base path must be a directory.' });
-    }
-
-    const limit = toLimit(req.query.limit);
-    const ripgrepAllowed = searchConfig?.ripgrep !== false;
-    const useRipgrep = ripgrepAllowed && await hasRipgrep();
-    const deepEnabled = searchConfig?.deep !== false;
-
-    const generator = useRipgrep 
-      ? generateRipgrepResults(baseAbs, relBase, q, deepEnabled)
-      : generateFallbackResults(baseAbs, relBase, q, deepEnabled);
-
-    const items = [];
-    for await (const item of generator) {
-      items.push(item);
-      if (items.length >= limit) break; 
-    }
-
-    res.json({ items });
-  } catch (error) {
-    logger.error({ err: error }, 'Search failed');
-    res.status(500).json({ error: 'Search failed.' });
+router.get('/search', asyncHandler(async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q) {
+    throw new ValidationError('Search term (q) is required.');
   }
-});
+
+  const relBase = normalizeRelativePath(req.query.path || '');
+  const baseAbs = resolveVolumePath(relBase);
+
+  if (!(await pathExists(baseAbs))) {
+    throw new NotFoundError('Base path not found.');
+  }
+  if (!(await isDirectory(baseAbs))) {
+    throw new ValidationError('Search base path must be a directory.');
+  }
+
+  const limit = toLimit(req.query.limit);
+  const ripgrepAllowed = searchConfig?.ripgrep !== false;
+  const useRipgrep = ripgrepAllowed && await hasRipgrep();
+  const deepEnabled = searchConfig?.deep !== false;
+
+  const generator = useRipgrep
+    ? generateRipgrepResults(baseAbs, relBase, q, deepEnabled)
+    : generateFallbackResults(baseAbs, relBase, q, deepEnabled);
+
+  const items = [];
+  for await (const item of generator) {
+    items.push(item);
+    if (items.length >= limit) break;
+  }
+
+  res.json({ items });
+}));
 
 module.exports = router;

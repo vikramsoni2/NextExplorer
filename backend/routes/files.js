@@ -16,15 +16,21 @@ const { pathExists } = require('../utils/fsUtils');
 const { extensions, mimeTypes } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
 const logger = require('../utils/logger');
+const asyncHandler = require('../utils/asyncHandler');
+const {
+  ValidationError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+  UnsupportedMediaTypeError
+} = require('../errors/AppError');
 
 const router = express.Router();
 
 const assertWritable = async (relativePath) => {
   const perm = await getPermissionForPath(relativePath);
   if (perm !== 'rw') {
-    const err = new Error('Path is read-only.');
-    err.status = 403;
-    throw err;
+    throw new ForbiddenError('Path is read-only.');
   }
 };
 
@@ -46,161 +52,133 @@ const buildItemMetadata = async (absolutePath, relativeParent, name) => {
   };
 };
 
-router.post('/files/folder', async (req, res) => {
-  try {
-    const destination = req.body?.path ?? req.body?.destination ?? '';
-    const requestedName = req.body?.name;
+router.post('/files/folder', asyncHandler(async (req, res) => {
+  const destination = req.body?.path ?? req.body?.destination ?? '';
+  const requestedName = req.body?.name;
 
-    const parentRelative = normalizeRelativePath(destination);
+  const parentRelative = normalizeRelativePath(destination);
 
-    // Prevent creating folders directly in the volume root
-    if (!parentRelative || parentRelative.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'Cannot create folders in the root volume path. Please select a specific volume first.'
-      });
-    }
-
-    await assertWritable(parentRelative);
-    const parentAbsolute = resolveVolumePath(parentRelative);
-
-    let parentStats;
-    try {
-      parentStats = await fs.stat(parentAbsolute);
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        throw new Error('Destination path does not exist.');
-      }
-      throw error;
-    }
-
-    if (!parentStats.isDirectory()) {
-      throw new Error('Destination must be an existing directory.');
-    }
-
-    const baseName = typeof requestedName === 'string' && requestedName.trim()
-      ? ensureValidName(requestedName)
-      : 'Untitled Folder';
-
-    const finalName = await findAvailableFolderName(parentAbsolute, baseName);
-    const folderAbsolute = path.join(parentAbsolute, finalName);
-
-    await fs.mkdir(folderAbsolute);
-
-    const item = await buildItemMetadata(folderAbsolute, parentRelative, finalName);
-    res.status(201).json({ success: true, item });
-  } catch (error) {
-    logger.error({ err: error }, 'Create folder failed');
-    res.status(400).json({ success: false, error: error.message });
+  // Prevent creating folders directly in the volume root
+  if (!parentRelative || parentRelative.trim() === '') {
+    throw new ValidationError('Cannot create folders in the root volume path. Please select a specific volume first.');
   }
-});
 
-router.post('/files/rename', async (req, res) => {
+  await assertWritable(parentRelative);
+  const parentAbsolute = resolveVolumePath(parentRelative);
+
+  let parentStats;
   try {
-    const parentPath = req.body?.path ?? '';
-    const originalName = req.body?.name;
-    const newNameRaw = req.body?.newName;
-
-    if (typeof originalName !== 'string' || !originalName) {
-      throw new Error('Original name is required.');
+    parentStats = await fs.stat(parentAbsolute);
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new NotFoundError('Destination path does not exist.');
     }
+    throw error;
+  }
 
-    const parentRelative = normalizeRelativePath(parentPath);
-    const parentAbsolute = resolveVolumePath(parentRelative);
+  if (!parentStats.isDirectory()) {
+    throw new ValidationError('Destination must be an existing directory.');
+  }
 
-    const currentRelative = combineRelativePath(parentRelative, originalName);
-    const currentAbsolute = resolveVolumePath(currentRelative);
+  const baseName = typeof requestedName === 'string' && requestedName.trim()
+    ? ensureValidName(requestedName)
+    : 'Untitled Folder';
 
-    await assertWritable(parentRelative);
+  const finalName = await findAvailableFolderName(parentAbsolute, baseName);
+  const folderAbsolute = path.join(parentAbsolute, finalName);
 
-    if (!(await pathExists(currentAbsolute))) {
-      throw new Error('Item not found.');
-    }
+  await fs.mkdir(folderAbsolute);
 
-    const validatedNewName = typeof newNameRaw === 'string'
-      ? ensureValidName(newNameRaw)
-      : null;
+  const item = await buildItemMetadata(folderAbsolute, parentRelative, finalName);
+  res.status(201).json({ success: true, item });
+}));
 
-    if (!validatedNewName) {
-      throw new Error('A new name is required.');
-    }
+router.post('/files/rename', asyncHandler(async (req, res) => {
+  const parentPath = req.body?.path ?? '';
+  const originalName = req.body?.name;
+  const newNameRaw = req.body?.newName;
 
-    if (validatedNewName === originalName) {
-      const item = await buildItemMetadata(currentAbsolute, parentRelative, originalName);
-      res.json({ success: true, item });
-      return;
-    }
+  if (typeof originalName !== 'string' || !originalName) {
+    throw new ValidationError('Original name is required.');
+  }
 
-    const targetRelative = combineRelativePath(parentRelative, validatedNewName);
-    const targetAbsolute = resolveVolumePath(targetRelative);
+  const parentRelative = normalizeRelativePath(parentPath);
+  const parentAbsolute = resolveVolumePath(parentRelative);
 
-    if (await pathExists(targetAbsolute)) {
-      throw new Error(`The name "${validatedNewName}" is already taken.`);
-    }
+  const currentRelative = combineRelativePath(parentRelative, originalName);
+  const currentAbsolute = resolveVolumePath(currentRelative);
 
-    await fs.rename(currentAbsolute, targetAbsolute);
+  await assertWritable(parentRelative);
 
-    const item = await buildItemMetadata(targetAbsolute, parentRelative, validatedNewName);
+  if (!(await pathExists(currentAbsolute))) {
+    throw new NotFoundError('Item not found.');
+  }
+
+  const validatedNewName = typeof newNameRaw === 'string'
+    ? ensureValidName(newNameRaw)
+    : null;
+
+  if (!validatedNewName) {
+    throw new ValidationError('A new name is required.');
+  }
+
+  if (validatedNewName === originalName) {
+    const item = await buildItemMetadata(currentAbsolute, parentRelative, originalName);
     res.json({ success: true, item });
-  } catch (error) {
-    logger.error({ err: error }, 'Rename operation failed');
-    res.status(400).json({ success: false, error: error.message });
+    return;
   }
-});
 
-router.post('/files/copy', async (req, res) => {
-  try {
-    const { items = [], destination = '' } = req.body || {};
-    // validate read on each source (hidden not allowed), write on destination
-    for (const item of items) {
-      if (!item || !item.name) continue;
-      const srcRel = combineRelativePath(normalizeRelativePath(item.path || ''), item.name);
-      const perm = await getPermissionForPath(srcRel);
-      if (perm === 'hidden') {
-        throw new Error('Source path is not accessible.');
-      }
+  const targetRelative = combineRelativePath(parentRelative, validatedNewName);
+  const targetAbsolute = resolveVolumePath(targetRelative);
+
+  if (await pathExists(targetAbsolute)) {
+    throw new ConflictError(`The name "${validatedNewName}" is already taken.`);
+  }
+
+  await fs.rename(currentAbsolute, targetAbsolute);
+
+  const item = await buildItemMetadata(targetAbsolute, parentRelative, validatedNewName);
+  res.json({ success: true, item });
+}));
+
+router.post('/files/copy', asyncHandler(async (req, res) => {
+  const { items = [], destination = '' } = req.body || {};
+  // validate read on each source (hidden not allowed), write on destination
+  for (const item of items) {
+    if (!item || !item.name) continue;
+    const srcRel = combineRelativePath(normalizeRelativePath(item.path || ''), item.name);
+    const perm = await getPermissionForPath(srcRel);
+    if (perm === 'hidden') {
+      throw new ForbiddenError('Source path is not accessible.');
     }
-    await assertWritable(normalizeRelativePath(destination));
-
-    const result = await transferItems(items, destination, 'copy');
-    res.json({ success: true, ...result });
-  } catch (error) {
-    logger.error({ err: error }, 'Copy operation failed');
-    res.status(400).json({ success: false, error: error.message });
   }
-});
+  await assertWritable(normalizeRelativePath(destination));
 
-router.post('/files/move', async (req, res) => {
-  try {
-    const { items = [], destination = '' } = req.body || {};
-    for (const item of items) {
-      const parent = normalizeRelativePath(item?.path || '');
-      await assertWritable(parent);
-    }
-    await assertWritable(normalizeRelativePath(destination));
+  const result = await transferItems(items, destination, 'copy');
+  res.json({ success: true, ...result });
+}));
 
-    const result = await transferItems(items, destination, 'move');
-    res.json({ success: true, ...result });
-  } catch (error) {
-    logger.error({ err: error }, 'Move operation failed');
-    res.status(400).json({ success: false, error: error.message });
+router.post('/files/move', asyncHandler(async (req, res) => {
+  const { items = [], destination = '' } = req.body || {};
+  for (const item of items) {
+    const parent = normalizeRelativePath(item?.path || '');
+    await assertWritable(parent);
   }
-});
+  await assertWritable(normalizeRelativePath(destination));
 
-router.delete('/files', async (req, res) => {
-  try {
-    const { items = [] } = req.body || {};
-    for (const item of items) {
-      const parent = normalizeRelativePath(item?.path || '');
-      await assertWritable(parent);
-    }
-    const results = await deleteItems(items);
-    res.json({ success: true, items: results });
-  } catch (error) {
-    logger.error({ err: error }, 'Delete operation failed');
-    res.status(400).json({ success: false, error: error.message });
+  const result = await transferItems(items, destination, 'move');
+  res.json({ success: true, ...result });
+}));
+
+router.delete('/files', asyncHandler(async (req, res) => {
+  const { items = [] } = req.body || {};
+  for (const item of items) {
+    const parent = normalizeRelativePath(item?.path || '');
+    await assertWritable(parent);
   }
-});
+  const results = await deleteItems(items);
+  res.json({ success: true, items: results });
+}));
 
 const collectInputPaths = (...sources) => {
   const collected = [];
@@ -271,12 +249,12 @@ const stripBasePath = (relativePath, basePath) => {
 
 const handleDownloadRequest = async (paths, res, basePath = '') => {
   if (!Array.isArray(paths) || paths.length === 0) {
-    throw new Error('At least one path is required.');
+    throw new ValidationError('At least one path is required.');
   }
 
   const normalizedPaths = [...new Set(paths.map((item) => normalizeRelativePath(item)).filter(Boolean))];
   if (normalizedPaths.length === 0) {
-    throw new Error('No valid paths provided.');
+    throw new ValidationError('No valid paths provided.');
   }
 
   const baseNormalized = basePath ? normalizeRelativePath(basePath) : '';
@@ -365,39 +343,31 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
   await archive.finalize();
 };
 
-router.post('/download', async (req, res) => {
-  try {
-    const basePath = req.body?.basePath || req.body?.currentPath || '';
-    const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
-    await handleDownloadRequest(paths, res, basePath);
-  } catch (error) {
-    logger.error({ err: error }, 'Download request failed');
-    if (!res.headersSent) {
-      res.status(400).json({ error: error.message });
-    }
+router.post('/download', asyncHandler(async (req, res) => {
+  const basePath = req.body?.basePath || req.body?.currentPath || '';
+  const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
+  await handleDownloadRequest(paths, res, basePath);
+}));
+
+router.get('/preview', asyncHandler(async (req, res) => {
+  const { path: relative = '' } = req.query || {};
+  if (typeof relative !== 'string' || !relative) {
+    throw new ValidationError('A file path is required.');
   }
-});
 
-router.get('/preview', async (req, res) => {
-  try {
-    const { path: relative = '' } = req.query || {};
-    if (typeof relative !== 'string' || !relative) {
-      return res.status(400).json({ error: 'A file path is required.' });
-    }
+  const relativePath = normalizeRelativePath(relative);
+  const absolutePath = resolveVolumePath(relativePath);
+  const stats = await fs.stat(absolutePath);
 
-    const relativePath = normalizeRelativePath(relative);
-    const absolutePath = resolveVolumePath(relativePath);
-    const stats = await fs.stat(absolutePath);
+  if (stats.isDirectory()) {
+    throw new ValidationError('Cannot preview a directory.');
+  }
 
-    if (stats.isDirectory()) {
-      return res.status(400).json({ error: 'Cannot preview a directory.' });
-    }
+  const extension = path.extname(absolutePath).slice(1).toLowerCase();
 
-    const extension = path.extname(absolutePath).slice(1).toLowerCase();
-
-    if (!extensions.previewable.has(extension)) {
-      return res.status(415).json({ error: 'Preview is not available for this file type.' });
-    }
+  if (!extensions.previewable.has(extension)) {
+    throw new UnsupportedMediaTypeError('Preview is not available for this file type.');
+  }
 
     const mimeType = mimeTypes[extension] || 'application/octet-stream';
     const isVideo = extensions.videos.includes(extension);
@@ -461,14 +431,6 @@ router.get('/preview', async (req, res) => {
       'Content-Length': stats.size,
     });
     streamFile();
-  } catch (error) {
-    logger.error({ err: error }, 'Preview request failed');
-    if (!res.headersSent) {
-      res.status(400).json({ error: error.message });
-    } else {
-      res.end();
-    }
-  }
-});
+}));
 
 module.exports = router;

@@ -13,6 +13,7 @@ const { configureStaticFiles } = require('./utils/staticServer');
 const { bootstrap } = require('./utils/bootstrap');
 const { configureSession } = require('./middleware/session');
 const logger = require('./utils/logger');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
 let server = null;
@@ -38,7 +39,13 @@ const initializeApp = async () => {
   registerRoutes(app);
   logger.debug('Registered application routes');
 
+  
   configureStaticFiles(app);
+  
+  // Error handling middleware (must be after all routes)
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+  logger.debug('Mounted error handling middleware');
 
   server = app.listen(port, '0.0.0.0', () => {
     logger.info({ port }, 'Server is running');
