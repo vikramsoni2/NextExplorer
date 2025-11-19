@@ -22,7 +22,8 @@
     "french": "Français",
     "german": "Deutsch",
     "chinese": "中文",
-    "hindi": "印地语"
+    "hindi": "印地语",
+    "polish": "波兰语"
   },
   "search": {
     "search": "搜索",
@@ -150,6 +151,20 @@
     "name": "名称",
     "icon": "图标"
   },
+  "notifications": {
+    "title": "通知",
+    "open": "打开通知",
+    "closePanel": "关闭通知面板",
+    "clearAll": "清除全部",
+    "empty": "暂无通知",
+    "dismiss": "关闭通知",
+    "filters": {
+      "error": "错误",
+      "warning": "警告",
+      "success": "成功",
+      "info": "信息"
+    }
+  },
   "photos": {
     "menuTitle": "照片尺寸",
     "menuAria": "打开照片尺寸控制",
@@ -175,7 +190,14 @@
       "welcome": "欢迎回来",
       "subtitle": "登录以访问 NextExplorer。",
       "announcementConfirm": "标记为已阅读",
-      "submit": "登录"
+      "submit": "登录",
+      "announcementMigration": {
+        "title": "我们更新了登录方式",
+        "intro": "现在需要使用新的邮箱格式用户名登录。",
+        "bulletAddSuffix": "在用户名后添加 {suffix}",
+        "bulletPasswordSame": "您的密码保持不变。",
+        "bulletUpdateUsers": "您可以在管理菜单中更新现有用户。"
+      }
     },
     "setup": {
       "headline": "开始设置",
@@ -223,6 +245,12 @@
     "largeToSmall": "从大到小",
     "oldToNew": "旧到新",
     "newToOld": "新到旧"
+  },
+  "terminal": {
+    "title": "终端",
+    "close": "关闭终端",
+    "menuHeading": "工具",
+    "menuOpen": "终端"
   },
   "settings": {
     "user": "用户",

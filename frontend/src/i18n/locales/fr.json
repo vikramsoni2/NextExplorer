@@ -22,7 +22,8 @@
     "french": "Français",
     "german": "Allemand",
     "chinese": "Chinois",
-    "hindi": "Hindi"
+    "hindi": "Hindi",
+    "polish": "Polonais"
   },
   "search": {
     "search": "Rechercher",
@@ -150,6 +151,20 @@
     "name": "Nom",
     "icon": "Icône"
   },
+  "notifications": {
+    "title": "Notifications",
+    "open": "Ouvrir les notifications",
+    "closePanel": "Fermer le panneau de notifications",
+    "clearAll": "Tout effacer",
+    "empty": "Aucune notification",
+    "dismiss": "Ignorer la notification",
+    "filters": {
+      "error": "Erreurs",
+      "warning": "Avertissements",
+      "success": "Succès",
+      "info": "Infos"
+    }
+  },
   "photos": {
     "menuTitle": "Taille de la photo",
     "menuAria": "Afficher les contrôles de taille",
@@ -175,7 +190,14 @@
       "welcome": "Content de vous revoir",
       "subtitle": "Connectez-vous pour accéder à NextExplorer.",
       "announcementConfirm": "Marquer comme lu",
-      "submit": "Connexion"
+      "submit": "Connexion",
+      "announcementMigration": {
+        "title": "Nous avons mis à jour la méthode de connexion",
+        "intro": "Vous devez désormais utiliser votre nouveau nom d’utilisateur au format e-mail.",
+        "bulletAddSuffix": "Ajoutez {suffix} à votre nom d’utilisateur",
+        "bulletPasswordSame": "Votre mot de passe reste inchangé.",
+        "bulletUpdateUsers": "Vous pouvez mettre à jour les utilisateurs existants depuis le menu d’administration."
+      }
     },
     "setup": {
       "headline": "Mettons tout en place",
@@ -223,6 +245,12 @@
     "largeToSmall": "Du plus grand au plus petit",
     "oldToNew": "Les plus anciens en premier",
     "newToOld": "Les plus récents en premier"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "close": "Fermer le terminal",
+    "menuHeading": "Outils",
+    "menuOpen": "Terminal"
   },
   "settings": {
     "user": "Utilisateur",

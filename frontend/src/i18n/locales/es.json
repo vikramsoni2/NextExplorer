@@ -22,7 +22,8 @@
     "french": "Frances",
     "german": "Aleman",
     "chinese": "Chino",
-    "hindi": "Hindi"
+    "hindi": "Hindi",
+    "polish": "Polaco"
   },
   "search": {
     "search": "Buscar",
@@ -120,6 +121,20 @@
     "name": "Nombre",
     "icon": "Icono"
   },
+  "notifications": {
+    "title": "Notificaciones",
+    "open": "Abrir notificaciones",
+    "closePanel": "Cerrar panel de notificaciones",
+    "clearAll": "Borrar todo",
+    "empty": "No hay notificaciones",
+    "dismiss": "Descartar notificación",
+    "filters": {
+      "error": "Errores",
+      "warning": "Advertencias",
+      "success": "Éxitos",
+      "info": "Información"
+    }
+  },
   "spotlight": {
     "placeholder": "Buscar archivos y carpetas…",
     "close": "Cerrar",
@@ -175,7 +190,14 @@
       "welcome": "Bienvenido de nuevo",
       "subtitle": "Inicia sesión para acceder a NextExplorer.",
       "announcementConfirm": "Marcar como leído",
-      "submit": "Iniciar sesión"
+      "submit": "Iniciar sesión",
+      "announcementMigration": {
+        "title": "Hemos actualizado la forma de iniciar sesión",
+        "intro": "Ahora debes usar tu nuevo nombre de usuario con formato de correo electrónico.",
+        "bulletAddSuffix": "Añade {suffix} a tu nombre de usuario",
+        "bulletPasswordSame": "Tu contraseña sigue siendo la misma.",
+        "bulletUpdateUsers": "Puedes actualizar usuarios existentes desde el menú de administración."
+      }
     },
     "setup": {
       "headline": "Vamos a configurar",
@@ -223,8 +245,13 @@
     "largeToSmall": "De mayor a menor",
     "oldToNew": "De antiguo a nuevo",
     "newToOld": "De nuevo a antiguo"
-  }
-  ,
+  },
+  "terminal": {
+    "title": "Terminal",
+    "close": "Cerrar terminal",
+    "menuHeading": "Herramientas",
+    "menuOpen": "Terminal"
+  },
   "settings": {
     "user": "Usuario",
     "admin": "Administrador",

@@ -77,6 +77,7 @@ const availableLocaleOptions = [
   { code: 'de', label: 'i18n.german' },
   { code: 'zh', label: 'i18n.chinese' },
   { code: 'hi', label: 'i18n.hindi' },
+  { code: 'pl', label: 'i18n.polish' },
 ];
 
 const languages = computed(() => availableLocaleOptions.map(({ code, label }) => ({
@@ -270,22 +271,37 @@ const handleOidcLogin = () => {
                 <InformationCircleIcon class="h-6 w-6 mt-0.5 flex-shrink-0" :class="LEVEL_ICON[announcement.level] || LEVEL_ICON.info" />
                 <div class="flex-1">
                   <h3 v-if="announcement.title" class="font-semibold text-blue-300 mb-2">
-                    {{ announcement.title }}
+                    <span v-if="announcement.id === 'v3-user-migration'">
+                      {{ $t('auth.login.announcementMigration.title') }}
+                    </span>
+                    <span v-else>
+                      {{ announcement.title }}
+                    </span>
                   </h3>
                   <div class="text-sm text-white/80 leading-relaxed whitespace-pre-line">
-                    
-                    <p class="-ml-6" >You now need to use your new email-style username. </p>
-                    
-                    <ul class="list-disc ">
-                      <li>add <span class="px-2 font-bold text-yellow-300"> @example.local </span> to your username</li>
-                      <li>
-                        Your password stays the same.
-                      </li>
-                      <li>You can update existing users from Admin Menu</li>
-                    </ul>
-                     
-                   
-                  
+                    <template v-if="announcement.id === 'v3-user-migration'">
+                      <p class="-ml-6">
+                        {{ $t('auth.login.announcementMigration.intro') }}
+                      </p>
+                      <ul class="list-disc">
+                        <li>
+                          <span
+                            v-html="$t('auth.login.announcementMigration.bulletAddSuffix', { suffix: '<span class=&quot;px-2 font-bold text-yellow-300&quot;>@example.local</span>' })"
+                          />
+                        </li>
+                        <li>
+                          {{ $t('auth.login.announcementMigration.bulletPasswordSame') }}
+                        </li>
+                        <li>
+                          {{ $t('auth.login.announcementMigration.bulletUpdateUsers') }}
+                        </li>
+                      </ul>
+                    </template>
+                    <template v-else>
+                      <p>
+                        {{ announcement.message }}
+                      </p>
+                    </template>
                   </div>
                 </div>
               </div>

@@ -17,7 +17,7 @@ const { togglePanel } = notificationsStore
            focus:outline-none focus:ring-2 focus:ring-offset-2
            focus:ring-zinc-400 dark:focus:ring-offset-zinc-900
            transition-colors duration-200"
-    aria-label="Open notifications">
+    :aria-label="$t('notifications.open')">
     <BellIcon class="w-6" />
 
     <!-- Badge with count and pulse animation -->

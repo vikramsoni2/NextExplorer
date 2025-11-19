@@ -22,7 +22,8 @@
     "french": "फ़्रेंच",
     "german": "जर्मन",
     "chinese": "चीनी",
-    "hindi": "हिंदी"
+    "hindi": "हिंदी",
+    "polish": "पोलिश"
   },
   "search": {
     "search": "खोजें",
@@ -116,6 +117,20 @@
     "name": "नाम",
     "icon": "आइकन"
   },
+  "notifications": {
+    "title": "सूचनाएँ",
+    "open": "सूचनाएँ खोलें",
+    "closePanel": "सूचना पैनल बंद करें",
+    "clearAll": "सभी साफ करें",
+    "empty": "कोई सूचनाएँ नहीं हैं",
+    "dismiss": "सूचना खारिज करें",
+    "filters": {
+      "error": "त्रुटियाँ",
+      "warning": "चेतावनियाँ",
+      "success": "सफलताएँ",
+      "info": "जानकारी"
+    }
+  },
   "spotlight": {
     "placeholder": "फ़ाइलों और फ़ोल्डरों में खोजें…",
     "close": "बंद करें",
@@ -175,7 +190,14 @@
       "welcome": "फिर स्वागत है",
       "subtitle": "NextExplorer तक पहुँचने के लिए लॉग इन करें।",
       "announcementConfirm": "पढ़ा गया चिन्हित करें",
-      "submit": "लॉग इन"
+      "submit": "लॉग इन",
+      "announcementMigration": {
+        "title": "हमने साइन-इन करने का तरीका अपडेट किया है",
+        "intro": "अब आपको नया ईमेल-शैली वाला उपयोगकर्ता नाम इस्तेमाल करना होगा।",
+        "bulletAddSuffix": "{suffix} को अपने उपयोगकर्ता नाम में जोड़ें",
+        "bulletPasswordSame": "आपका पासवर्ड वही रहेगा।",
+        "bulletUpdateUsers": "आप मौजूदा उपयोगकर्ताओं को व्यवस्थापक मेनू से अपडेट कर सकते हैं।"
+      }
     },
     "setup": {
       "headline": "चलो सेट अप करें",
@@ -223,6 +245,12 @@
     "largeToSmall": "बड़ा से छोटा",
     "oldToNew": "पुराना से नया",
     "newToOld": "नया से पुराना"
+  },
+  "terminal": {
+    "title": "टर्मिनल",
+    "close": "टर्मिनल बंद करें",
+    "menuHeading": "उपकरण",
+    "menuOpen": "टर्मिनल"
   },
   "settings": {
     "user": "उपयोगकर्ता",

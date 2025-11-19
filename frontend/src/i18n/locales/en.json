@@ -22,7 +22,8 @@
     "french": "French",
     "german": "German",
     "chinese": "Chinese",
-    "hindi": "Hindi"
+    "hindi": "Hindi",
+    "polish": "Polish"
   },
   "search": {
     "search": "Search",
@@ -116,6 +117,20 @@
     "name": "Name",
     "icon": "Icon"
   },
+  "notifications": {
+    "title": "Notifications",
+    "open": "Open notifications",
+    "closePanel": "Close notifications panel",
+    "clearAll": "Clear all",
+    "empty": "No notifications",
+    "dismiss": "Dismiss notification",
+    "filters": {
+      "error": "Errors",
+      "warning": "Warnings",
+      "success": "Success",
+      "info": "Info"
+    }
+  },
   "spotlight": {
     "placeholder": "Search files and folders…",
     "close": "Close",
@@ -175,7 +190,14 @@
       "welcome": "Welcome back",
       "subtitle": "Log in to access NextExplorer.",
       "announcementConfirm": "Mark as read",
-      "submit": "Log In"
+      "submit": "Log In",
+      "announcementMigration": {
+        "title": "We've updated how you sign in",
+        "intro": "You now need to use your new email-style username.",
+        "bulletAddSuffix": "Add {suffix} to your username",
+        "bulletPasswordSame": "Your password stays the same.",
+        "bulletUpdateUsers": "You can update existing users from Admin Menu"
+      }
     },
     "setup": {
       "headline": "Let’s get set up",
@@ -223,8 +245,13 @@
     "largeToSmall": "Large to small",
     "oldToNew": "Old to new",
     "newToOld": "New to old"
-  }
-  ,
+  },
+  "terminal": {
+    "title": "Terminal",
+    "close": "Close terminal",
+    "menuHeading": "Tools",
+    "menuOpen": "Terminal"
+  },
   "settings": {
     "user": "User",
     "admin": "Admin",

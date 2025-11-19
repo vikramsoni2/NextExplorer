@@ -67,7 +67,7 @@ const iconComponent = iconComponents[props.iconName] || InformationCircleIcon
             class="inline-flex rounded-md text-gray-400 hover:text-gray-500
                    dark:hover:text-gray-300 focus:outline-none focus:ring-2
                    focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-offset-zinc-800">
-            <span class="sr-only">Close</span>
+            <span class="sr-only">{{ $t('notifications.dismiss') }}</span>
             <XMarkIcon class="h-5 w-5" />
           </button>
         </div>

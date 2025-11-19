@@ -16,11 +16,11 @@
     >
       <aside ref="panelRef" class="flex h-full flex-col border-l dark:bg-zinc-950 shadow-2xl dark:border-white/10">
         <header class="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <h2 class="text-lg font-semibold text-white">Terminal</h2>
+          <h2 class="text-lg font-semibold text-white">{{ $t('terminal.title') }}</h2>
           <button
             @click="close"
             class="rounded-lg p-1.5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
-            aria-label="Close terminal"
+            :aria-label="$t('terminal.close')"
           >
             <XMarkIcon class="w-5 h-5" />
           </button>

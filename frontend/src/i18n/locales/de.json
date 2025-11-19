@@ -22,7 +22,8 @@
     "french": "Französisch",
     "german": "Deutsch",
     "chinese": "Chinesisch",
-    "hindi": "Hindi"
+    "hindi": "Hindi",
+    "polish": "Polnisch"
   },
   "search": {
     "search": "Suche",
@@ -150,6 +151,20 @@
     "name": "Name",
     "icon": "Symbol"
   },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "open": "Benachrichtigungen öffnen",
+    "closePanel": "Benachrichtigungspanel schließen",
+    "clearAll": "Alle löschen",
+    "empty": "Keine Benachrichtigungen",
+    "dismiss": "Benachrichtigung schließen",
+    "filters": {
+      "error": "Fehler",
+      "warning": "Warnungen",
+      "success": "Erfolge",
+      "info": "Informationen"
+    }
+  },
   "photos": {
     "menuTitle": "Fotogröße",
     "menuAria": "Foto-Größenregler öffnen",
@@ -175,7 +190,14 @@
       "welcome": "Willkommen zurück",
       "subtitle": "Melde dich an, um NextExplorer zu nutzen.",
       "announcementConfirm": "Als gelesen markieren",
-      "submit": "Anmelden"
+      "submit": "Anmelden",
+      "announcementMigration": {
+        "title": "Wir haben die Anmeldung aktualisiert",
+        "intro": "Du musst nun deinen neuen Benutzernamen im E-Mail-Format verwenden.",
+        "bulletAddSuffix": "Füge {suffix} zu deinem Benutzernamen hinzu",
+        "bulletPasswordSame": "Dein Passwort bleibt unverändert.",
+        "bulletUpdateUsers": "Du kannst bestehende Nutzer im Admin-Menü aktualisieren."
+      }
     },
     "setup": {
       "headline": "Richte alles ein",
@@ -223,6 +245,12 @@
     "largeToSmall": "Groß nach Klein",
     "oldToNew": "Alt zu neu",
     "newToOld": "Neu zu alt"
+  },
+  "terminal": {
+    "title": "Terminal",
+    "close": "Terminal schließen",
+    "menuHeading": "Werkzeuge",
+    "menuOpen": "Terminal"
   },
   "settings": {
     "user": "Benutzer",

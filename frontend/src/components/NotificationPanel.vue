@@ -13,10 +13,10 @@ const { closePanel, clearAll, toggleFilter, copyNotification, removeNotification
 
 // Filter chip data
 const filterTypes = [
-  { key: 'error', label: 'Errors', colorClass: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-900/50' },
-  { key: 'warning', label: 'Warnings', colorClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50' },
-  { key: 'success', label: 'Success', colorClass: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-900/50' },
-  { key: 'info', label: 'Info', colorClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-900/50' }
+  { key: 'error', labelKey: 'notifications.filters.error', colorClass: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400 border-red-200 dark:border-red-900/50' },
+  { key: 'warning', labelKey: 'notifications.filters.warning', colorClass: 'bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-900/50' },
+  { key: 'success', labelKey: 'notifications.filters.success', colorClass: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 border-green-200 dark:border-green-900/50' },
+  { key: 'info', labelKey: 'notifications.filters.info', colorClass: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400 border-blue-200 dark:border-blue-900/50' }
 ]
 
 // Reference to the panel element
@@ -66,7 +66,7 @@ onClickOutside(panelRef, () => {
                     <div class="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
                       <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                          Notifications
+                          {{ $t('notifications.title') }}
                         </h2>
                         <div class="flex items-center gap-3">
                           <button
@@ -75,7 +75,7 @@ onClickOutside(panelRef, () => {
                             class="text-sm text-gray-500 dark:text-gray-400
                                    hover:text-gray-700 dark:hover:text-gray-300
                                    focus:outline-none transition-colors duration-200">
-                            Clear All
+                            {{ $t('notifications.clearAll') }}
                           </button>
                           <button
                             @click="closePanel"
@@ -84,7 +84,7 @@ onClickOutside(panelRef, () => {
                                    focus:outline-none focus:ring-2 focus:ring-gray-400
                                    dark:focus:ring-offset-zinc-900 rounded-lg p-1
                                    transition-colors duration-200">
-                            <span class="sr-only">Close panel</span>
+                            <span class="sr-only">{{ $t('notifications.closePanel') }}</span>
                             <XMarkIcon class="h-6 w-6" />
                           </button>
                         </div>
@@ -102,7 +102,7 @@ onClickOutside(panelRef, () => {
                               ? filter.colorClass
                               : 'bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-gray-400 border-gray-200 dark:border-gray-700 opacity-50 hover:opacity-75'
                           ]">
-                          {{ filter.label }}
+                          {{ $t(filter.labelKey) }}
                         </button>
                       </div>
                     </div>
@@ -111,7 +111,7 @@ onClickOutside(panelRef, () => {
                     <div class="flex-1 overflow-y-auto px-4 py-4">
                       <div v-if="filteredNotifications.length === 0" class="text-center py-12">
                         <p class="text-gray-500 dark:text-gray-400">
-                          No notifications
+                          {{ $t('notifications.empty') }}
                         </p>
                       </div>
 
