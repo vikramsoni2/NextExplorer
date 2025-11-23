@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import FolderView from '@/views/FolderView.vue'
-import VolumesHomeView from '@/views/VolumesHomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 import EditorView from '@/views/EditorView.vue'
 import BrowserLayput from '@/layouts/BrowserLayput.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
@@ -56,7 +56,7 @@ const router = createRouter({
       children: [
         {
           path: '',
-          component: VolumesHomeView,
+          component: HomeView,
         },
         {
           path: ':path(.+)',
