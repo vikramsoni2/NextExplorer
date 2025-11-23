@@ -513,7 +513,19 @@ const getRequestUser = async (req) => {
 const listUsers = async () => {
   const db = await getDb();
   const rows = db.prepare('SELECT * FROM users ORDER BY created_at ASC').all();
-  return rows.map((r) => toClientUser(r));
+
+  const authMethods = db.prepare('SELECT user_id, method_type, provider_name FROM auth_methods WHERE enabled = 1').all();
+  const authMap = {};
+  for (const am of authMethods) {
+    if (!authMap[am.user_id]) authMap[am.user_id] = [];
+    authMap[am.user_id].push({ method: am.method_type, provider: am.provider_name });
+  }
+
+  return rows.map((r) => {
+    const u = toClientUser(r);
+    u.authMethods = authMap[r.id] || [];
+    return u;
+  });
 };
 
 const updateUserProfile = async ({ userId, email, username, displayName }) => {
