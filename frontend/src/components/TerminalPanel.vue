@@ -4,14 +4,14 @@
     <transition name="tp-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[1450] bg-black/30"
+        class="fixed inset-0 z-1450 bg-black/30"
         @click="close"
       />
     </transition>
 
     <!-- Panel -->
     <div
-      class="fixed inset-y-0 right-0 z-[1500] w-full sm:w-[600px] md:w-[700px] lg:w-[800px] transform transition-transform duration-200 ease-out"
+      class="fixed inset-y-0 right-0 z-1500 w-full sm:w-[600px] md:w-[700px] lg:w-[800px] transform transition-transform duration-200 ease-out"
       :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
     >
       <aside ref="panelRef" class="flex h-full flex-col border-l dark:bg-zinc-950 shadow-2xl dark:border-white/10">

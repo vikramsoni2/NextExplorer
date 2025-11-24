@@ -144,10 +144,10 @@ const favoriteIconOptions = computed(() =>
             <button
               type="button"
               class="rounded-md border px-3 py-1.5 text-xs font-medium transition"
-              :class="editorIconVariant === 'outline'
+              :class="editorIconVariant === 'outline-solid'
                 ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-300'
                 : 'border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'"
-              @click="editorIconVariant = 'outline'"
+              @click="editorIconVariant = 'outline-solid'"
             >
               Outline
             </button>
@@ -175,7 +175,7 @@ const favoriteIconOptions = computed(() =>
               @click="editorColor = null"
               title="Default"
             >
-              <div class="h-5 w-5 rounded-sm bg-gradient-to-br from-zinc-300 to-zinc-500 dark:from-zinc-600 dark:to-zinc-400"></div>
+              <div class="h-5 w-5 rounded-xs bg-linear-to-br from-zinc-300 to-zinc-500 dark:from-zinc-600 dark:to-zinc-400"></div>
             </button>
 
             <!-- Color options -->

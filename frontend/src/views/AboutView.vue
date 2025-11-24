@@ -66,9 +66,9 @@
     </div>
   </div>
 
-  <div class="m-2 mt-0 flex rounded-lg border border-zinc-300 bg-white p-1 px-2 shadow-sm">
-    <textarea class="my-1 w-full grow resize-none rounded-l-full bg-inherit px-2 outline-none" rows="1"></textarea>
-    <button class="rounded-[5px] py-[1px] text-sm">
+  <div class="m-2 mt-0 flex rounded-lg border border-zinc-300 bg-white p-1 px-2 shadow-xs">
+    <textarea class="my-1 w-full grow resize-none rounded-l-full bg-inherit px-2 outline-hidden" rows="1"></textarea>
+    <button class="rounded-[5px] py-px text-sm">
       <svg class="h-6 w-6 text-zinc-400" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         viewBox="0 0 32 32">
         <path

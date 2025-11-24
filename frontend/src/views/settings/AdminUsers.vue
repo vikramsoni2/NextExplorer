@@ -230,7 +230,7 @@ onMounted(() => { loadUsers(); });
       role="dialog"
       aria-modal="true"
     >
-      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" @click="closeCreateModal"></div>
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" @click="closeCreateModal"></div>
       <div class="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all">
         <div class="flex items-center justify-between mb-5">
           <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ t('settings.users.createUser') }}</h3>
@@ -254,7 +254,7 @@ onMounted(() => { loadUsers(); });
               type="email"
               required
               :placeholder="t('settings.users.emailPlaceholder')"
-              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
           </div>
           <div>
@@ -263,7 +263,7 @@ onMounted(() => { loadUsers(); });
               v-model.trim="newUsername"
               type="text"
               :placeholder="t('settings.users.usernameOptional')"
-              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
           </div>
           <div>
@@ -273,7 +273,7 @@ onMounted(() => { loadUsers(); });
               type="password"
               required
               placeholder="••••••"
-              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
             <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('settings.users.passwordMin') }}</p>
           </div>
@@ -284,7 +284,7 @@ onMounted(() => { loadUsers(); });
                 id="is-admin"
                 v-model="newIsAdmin"
                 type="checkbox"
-                class="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
+                class="h-4 w-4 rounded-sm border-zinc-300 text-zinc-600 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
               />
             </div>
             <div class="ml-3 text-sm">
@@ -296,7 +296,7 @@ onMounted(() => { loadUsers(); });
           <div class="mt-6 flex justify-end gap-3">
             <button
               type="button"
-              class="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-sm hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              class="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-xs hover:bg-zinc-50 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               @click="closeCreateModal"
             >
               {{ t('common.cancel') }}
@@ -304,7 +304,7 @@ onMounted(() => { loadUsers(); });
             <button
               type="submit"
               :disabled="creating"
-              class="inline-flex justify-center rounded-md border border-transparent bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50"
+              class="inline-flex justify-center rounded-md border border-transparent bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50"
             >
               {{ creating ? t('settings.users.creating') : t('common.create') }}
             </button>

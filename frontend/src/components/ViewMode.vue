@@ -55,7 +55,7 @@ onClickOutside(menuPopup, () => {
 
 <template>
 
-  <div class="flex gap-1 items-center">
+  <div class="flex gap-1 items-center bg-black">
     <div class="hidden md:flex gap-1 items-center">
       <button
         v-for="option in viewOptions"
@@ -103,7 +103,7 @@ onClickOutside(menuPopup, () => {
             >
               <CheckIcon
                 class="h-4 w-4 dark:text-white invisible"
-                :class="{ '!visible': settings.view === option.key }"
+                :class="{ 'visible!': settings.view === option.key }"
               />
               <span>{{ option.label }}</span>
             </button>

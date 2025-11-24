@@ -17,11 +17,11 @@ function openSpotlight() {
       @click="openSpotlight"
     >
       <MagnifyingGlassIcon class="w-[1.36rem]" />
-      <span class="hidden md:block text-sm text-neutral-600 dark:text-neutral-300">{{$t('search.search')}}</span>
+      <!-- <span class="hidden md:block text-sm text-neutral-600 dark:text-neutral-300">{{$t('search.search')}}</span>
       <span class="hidden md:flex items-center gap-1 ml-1 text-[11px] text-neutral-500 dark:text-neutral-400">
         
-        <span class="px-1.5 py-[2px] rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">⌘K</span>
-      </span>
+        <span class="px-1.5 py-[2px] rounded-sm border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">⌘K</span>
+      </span> -->
     </button>
   </div>
 </template>

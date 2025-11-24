@@ -112,7 +112,7 @@ const showNoPhotosMessage = computed(() => {
         text-neutral-600 dark:text-neutral-300 
         uppercase tracking-wide select-none sticky top-0 
         bg-white dark:bg-zinc-800 
-        backdrop-blur"
+        backdrop-blur-sm"
       >
         <div></div>
         <div>{{ $t('folder.name') }}</div>

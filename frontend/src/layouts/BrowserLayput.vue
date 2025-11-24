@@ -101,7 +101,7 @@ useClipboardShortcuts();
     <input id="sidebar-toggle" type="checkbox" class="peer hidden" />
 
     <aside
-      class="flex flex-col bg-nextgray-100 dark:bg-zinc-800 lg:dark:bg-opacity-70 pt-4 pb-2 px-8 shrink-0
+      class="flex flex-col bg-neutral-100 dark:bg-neutral-800 pt-4 pb-2 px-8 shrink-0
       fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-40
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
@@ -128,11 +128,11 @@ useClipboardShortcuts();
 
     <main
       ref="dropTargetRef"
-      class="upload-drop-target flex flex-col grow relative dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg"
+      class="upload-drop-target flex flex-col grow relative dark:bg-neutral-800/80 shadow-lg"
     >
       
 
-       <div class="flex z-10 items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+       <div class="flex z-10 items-center p-3">
         <!-- Hamburger (small screens) -->
         <label for="sidebar-toggle" class="lg:hidden -ml-2 mr-3 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6">
@@ -144,12 +144,12 @@ useClipboardShortcuts();
         <BreadCrumb class="mr-auto "/>
 
         <MenuItemInfo/>
-        <div class="h-8 w-[1px] mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <MenuSortBy/>
-        <div class="h-8 w-[1px] mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <ViewMode/>
         <PhotoSizeControl />
-        <div class="h-8 w-[1px] mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         <SearchBar/>
         <NotificationBell/>
 

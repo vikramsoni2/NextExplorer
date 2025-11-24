@@ -14,7 +14,7 @@ const { togglePanel } = notificationsStore
     class="relative p-[6px] text-zinc-600 dark:text-zinc-300
            hover:text-zinc-900 dark:hover:text-white rounded-lg
            hover:bg-zinc-100 dark:hover:bg-zinc-700
-           focus:outline-none focus:ring-2 focus:ring-offset-2
+           focus:outline-hidden focus:ring-2 focus:ring-offset-2
            focus:ring-zinc-400 dark:focus:ring-offset-zinc-900
            transition-colors duration-200"
     :aria-label="$t('notifications.open')">

@@ -142,8 +142,8 @@ const handleOpenFavorite = (favorite) => {
               <template v-else>
                 <div class="mb-2 w-[120px] h-2 rounded-full bg-neutral-200 dark:bg-neutral-700 animate-pulse"></div>
                 <div class="flex justify-between text-xs w-[120px]">
-                  <span class="h-3 w-10 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></span>
-                  <span class="h-3 w-10 rounded bg-neutral-200 dark:bg-neutral-700 animate-pulse"></span>
+                  <span class="h-3 w-10 rounded-sm bg-neutral-200 dark:bg-neutral-700 animate-pulse"></span>
+                  <span class="h-3 w-10 rounded-sm bg-neutral-200 dark:bg-neutral-700 animate-pulse"></span>
                 </div>
               </template>
             </template>

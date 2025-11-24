@@ -158,7 +158,7 @@ function toggleDetailsKey(e) {
             :aria-expanded="detailsOpen"
             @click="toggleDetails()"
             @keydown="toggleDetailsKey"
-            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500"
           >
             <ChevronDownIcon class="h-5 w-5 transition-transform" :class="detailsOpen ? 'rotate-180' : ''" />
           </button>
@@ -168,7 +168,7 @@ function toggleDetailsKey(e) {
             :title="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             :aria-label="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             @click="onTogglePause"
-            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500"
           >
             <component :is="isPaused ? PlayIcon : PauseIcon" class="h-5 w-5" />
           </button>
@@ -178,7 +178,7 @@ function toggleDetailsKey(e) {
             :title="t('upload.cancelAll')"
             :aria-label="t('upload.cancelAll')"
             @click="onCancelAll"
-            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
+            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500"
           >
             <XMarkIcon class="h-5 w-5" />
           </button>
@@ -229,7 +229,7 @@ function toggleDetailsKey(e) {
       >
         <div class="flex items-start gap-3">
           <!-- File badge -->
-          <div class="mt-0.5 h-6 w-6 flex-shrink-0 grid place-items-center rounded-md bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 uppercase text-[10px] font-semibold">
+          <div class="mt-0.5 h-6 w-6 shrink-0 grid place-items-center rounded-md bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 uppercase text-[10px] font-semibold">
             {{ (file.extension || file.type || 'file').toString().split('/').pop().slice(0,3) }}
           </div>
 
@@ -240,7 +240,7 @@ function toggleDetailsKey(e) {
                 {{ file.name }}
               </span>
               <span
-                class="text-xs flex-shrink-0"
+                class="text-xs shrink-0"
                 :class="file._progress.uploadComplete ? 'text-emerald-600' : 'text-zinc-500'"
               >
                 {{ file._progress.uploadComplete ? t('upload.done') : file._progress.indeterminate ? '...' : (file._progress.percentage + '%') }}

@@ -67,7 +67,7 @@ onMounted(async () => {
   <!-- Fixed bottom-right popover stack -->
   <div
     v-if="visibleAnnouncements.length > 0"
-    class="fixed bottom-4 right-4 z-[1300] max-w-sm w-[min(92vw,22rem)] space-y-2 pointer-events-none"
+    class="fixed bottom-4 right-4 z-1300 max-w-sm w-[min(92vw,22rem)] space-y-2 pointer-events-none"
   >
     <div
       v-for="a in visibleAnnouncements"

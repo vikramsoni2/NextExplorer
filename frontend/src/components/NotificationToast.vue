@@ -45,7 +45,7 @@ const iconComponent = iconComponents[props.iconName] || InformationCircleIcon
     <div class="p-4">
       <div class="flex items-start">
         <!-- Icon -->
-        <div class="flex-shrink-0">
+        <div class="shrink-0">
           <component :is="iconComponent" class="h-6 w-6" :class="iconClass" />
         </div>
 
@@ -60,12 +60,12 @@ const iconComponent = iconComponents[props.iconName] || InformationCircleIcon
         </div>
 
         <!-- Close button -->
-        <div class="ml-4 flex flex-shrink-0">
+        <div class="ml-4 flex shrink-0">
           <button
             type="button"
             @click="emit('close', id)"
             class="inline-flex rounded-md text-gray-400 hover:text-gray-500
-                   dark:hover:text-gray-300 focus:outline-none focus:ring-2
+                   dark:hover:text-gray-300 focus:outline-hidden focus:ring-2
                    focus:ring-offset-2 focus:ring-gray-400 dark:focus:ring-offset-zinc-800">
             <span class="sr-only">{{ $t('notifications.dismiss') }}</span>
             <XMarkIcon class="h-5 w-5" />

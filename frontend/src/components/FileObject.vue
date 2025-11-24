@@ -22,7 +22,7 @@ const { renameState } = storeToRefs(fileStore);
 const contextMenu = useExplorerContextMenu();
 
 const renameInputRef = ref(null);
-const baseRenameInputClass = 'w-full rounded border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
+const baseRenameInputClass = 'w-full rounded-sm border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
 
 const isRenaming = computed(() => fileStore.isItemBeingRenamed(props.item));
 
@@ -239,7 +239,7 @@ const isPhotoItem = computed(() => {
     even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
     "
     :class="{
-      '!text-white !bg-blue-500 !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
+      'text-white! bg-blue-500! !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
       'opacity-60': isCut && !isSelected(item)
     }" 
      >

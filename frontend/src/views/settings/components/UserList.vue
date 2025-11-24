@@ -43,7 +43,7 @@ const getAuthLabel = (auth) => {
       </div>
       <button
         @click="$emit('create')"
-        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 rounded-md hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-zinc-900 rounded-md hover:bg-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-zinc-900 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
       >
         {{ t('settings.users.createUser') }}
       </button>
@@ -71,7 +71,7 @@ const getAuthLabel = (auth) => {
         >
           <div class="flex items-center gap-4 min-w-0">
             <!-- Avatar -->
-            <div class="flex-shrink-0">
+            <div class="shrink-0">
               <div class="h-10 w-10 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 font-medium text-sm">
                 {{ getInitials(user.displayName || user.username || user.email) }}
               </div>

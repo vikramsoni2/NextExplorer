@@ -103,14 +103,14 @@ onBeforeUnmount(() => {
     <transition name="ip-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[1450] bg-black/30" 
+        class="fixed inset-0 z-1450 bg-black/30" 
         @click="close"
       />
     </transition>
 
     <!-- Panel -->
     <div 
-      class="fixed inset-y-0 right-0 z-[1500] w-[380px] sm:w-[420px] transform transition-transform duration-200 ease-out"
+      class="fixed inset-y-0 right-0 z-1500 w-[380px] sm:w-[420px] transform transition-transform duration-200 ease-out"
       :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
       :aria-label="t('info.aria')"
     >

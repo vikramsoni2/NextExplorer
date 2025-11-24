@@ -74,14 +74,14 @@ onClickOutside(panelRef, () => {
                             @click="clearAll"
                             class="text-sm text-gray-500 dark:text-gray-400
                                    hover:text-gray-700 dark:hover:text-gray-300
-                                   focus:outline-none transition-colors duration-200">
+                                   focus:outline-hidden transition-colors duration-200">
                             {{ $t('notifications.clearAll') }}
                           </button>
                           <button
                             @click="closePanel"
                             class="text-gray-500 dark:text-gray-400
                                    hover:text-gray-700 dark:hover:text-gray-300
-                                   focus:outline-none focus:ring-2 focus:ring-gray-400
+                                   focus:outline-hidden focus:ring-2 focus:ring-gray-400
                                    dark:focus:ring-offset-zinc-900 rounded-lg p-1
                                    transition-colors duration-200">
                             <span class="sr-only">{{ $t('notifications.closePanel') }}</span>

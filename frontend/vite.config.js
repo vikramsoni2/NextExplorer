@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueDevTools from 'vite-plugin-vue-devtools'
@@ -12,6 +12,7 @@ export default defineConfig({
   plugins: [
     vue(),
     VueDevTools(),
+    tailwindcss(),
   ],
   define: {
     __APP_VERSION__: JSON.stringify(process.env.VITE_APP_VERSION || process.env.npm_package_version || '1.0.5'),

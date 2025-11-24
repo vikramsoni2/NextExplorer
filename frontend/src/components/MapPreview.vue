@@ -25,7 +25,7 @@ const frameStyle = computed(() => ({ height: `${props.height}px` }));
 </script>
 
 <template>
-  <div class="w-full overflow-hidden rounded-lg ring-1 ring-black/5 dark:ring-white/10 shadow-sm">
+  <div class="w-full overflow-hidden rounded-lg ring-1 ring-black/5 dark:ring-white/10 shadow-xs">
     <iframe
       :src="src"
       class="w-full"

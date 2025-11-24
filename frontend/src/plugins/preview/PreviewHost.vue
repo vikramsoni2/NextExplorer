@@ -11,7 +11,7 @@
     <transition v-else name="preview-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[2000] flex items-center justify-center bg-black/70"
+        class="fixed inset-0 z-2000 flex items-center justify-center bg-black/70"
         @click.self="handleClose"
         @keydown.esc="handleClose"
       >
@@ -20,7 +20,7 @@
           <!-- Header (unless minimal) -->
           <header
             v-if="!isMinimal"
-            class="flex items-center gap-3 border-b border-neutral-200 bg-white px-4 py-2 shadow-sm dark:border-neutral-700 dark:bg-zinc-800"
+            class="flex items-center gap-3 border-b border-neutral-200 bg-white px-4 py-2 shadow-xs dark:border-neutral-700 dark:bg-zinc-800"
           >
             <div class="min-w-0">
               <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
@@ -68,7 +68,7 @@
             <button
               v-if="isMinimal"
               type="button"
-              class="absolute right-12 top-0 z-[2100] rounded-md bg-black/50 p-1 text-white shadow transition hover:bg-black/70"
+              class="absolute right-12 top-0 z-2100 rounded-md bg-black/50 p-1 text-white shadow-sm transition hover:bg-black/70"
               @click="handleClose"
             >
               <XMarkIcon class="h-5 w-5" />

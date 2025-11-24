@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 /* Themed, thin scrollbars (global) */
 @layer base {
@@ -11,9 +10,17 @@
     --scrollbar-thumb-hover: #BDBDBD;
   }
 
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
   /* Dark theme overrides (Tailwind uses .dark on html) */
   .dark {
-    --scrollbar-track: #1B1F26; /* nextslate-900 */
+    --scrollbar-track: var(--color-neutral-800); /* nextslate-900 */
     --scrollbar-thumb: #3d3d3f; /* nextgray-700 */
     --scrollbar-thumb-hover: #3a3a3d;
   }

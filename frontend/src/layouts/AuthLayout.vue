@@ -68,7 +68,7 @@ onClickOutside(languageSwitcherRef, () => {
     <div v-else class="relative isolate min-h-screen overflow-hidden bg-nextzinc-900">
       <svg
         aria-hidden="true"
-        class="absolute inset-0 -z-10 h-full w-full stroke-white/10 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+        class="absolute inset-0 -z-10 h-full w-full stroke-white/10 mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]"
       >
         <defs>
           <pattern
@@ -102,7 +102,7 @@ onClickOutside(languageSwitcherRef, () => {
       >
         <div
           style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"
-          class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-zinc-200/40 via-zinc-500/40 to-zinc-800/70 opacity-40 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+          class="relative left-[calc(50%-11rem)] aspect-1155/678 w-144.5 -translate-x-1/2 rotate-30 bg-linear-to-tr from-zinc-200/40 via-zinc-500/40 to-zinc-800/70 opacity-40 sm:left-[calc(50%-30rem)] sm:w-288.75"
         ></div>
       </div>
 
@@ -112,7 +112,7 @@ onClickOutside(languageSwitcherRef, () => {
       >
         <div
           style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"
-          class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-zinc-200/30 via-zinc-500/30 to-zinc-800/60 opacity-35 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"
+          class="relative left-[calc(50%+3rem)] aspect-1155/678 w-144.5 -translate-x-1/2 bg-linear-to-tr from-zinc-200/30 via-zinc-500/30 to-zinc-800/60 opacity-35 sm:left-[calc(50%+36rem)] sm:w-288.75"
         ></div>
       </div>
 
@@ -121,7 +121,7 @@ onClickOutside(languageSwitcherRef, () => {
         class="pointer-events-none absolute right-5 top-0 -z-10 h-40 w-40 transform-gpu blur-3xl"
       >
         <div
-          class="h-full w-full rounded-full bg-[radial-gradient(circle_at_center,_rgba(244,244,245,0.3),transparent_60%)]"
+          class="h-full w-full rounded-full bg-[radial-gradient(circle_at_center,rgba(244,244,245,0.3),transparent_60%)]"
         ></div>
       </div>
 
@@ -161,7 +161,7 @@ onClickOutside(languageSwitcherRef, () => {
             <div ref="languageSwitcherRef" class="relative inline-block text-left">
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10 focus:outline-none"
+                class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10 focus:outline-hidden"
                 :aria-label="t('i18n.language')"
                 @click="languageMenuOpen = !languageMenuOpen"
               >
@@ -176,7 +176,7 @@ onClickOutside(languageSwitcherRef, () => {
 
               <div
                 v-if="languageMenuOpen"
-                class="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg border border-white/10 bg-nextzinc-900/95 py-1 text-xs shadow-lg backdrop-blur"
+                class="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg border border-white/10 bg-nextzinc-900/95 py-1 text-xs shadow-lg backdrop-blur-sm"
               >
                 <button
                   v-for="lang in languages"
@@ -197,7 +197,7 @@ onClickOutside(languageSwitcherRef, () => {
             <template v-for="(lang, idx) in languages" :key="lang.code">
               <button
                 type="button"
-                class="rounded px-2 py-1 hover:bg-white/10"
+                class="rounded-sm px-2 py-1 hover:bg-white/10"
                 :class="{ 'bg-white/10 font-semibold': locale === lang.code }"
                 @click="setLocale(lang.code)"
               >
