@@ -61,40 +61,11 @@ onClickOutside(languageSwitcherRef, () => {
     <div v-if="props.isLoading" class="flex min-h-screen items-center justify-center px-4 py-12">
       <div class="flex flex-col items-center gap-3">
         <div class="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-accent"></div>
-        <p class="text-lg font-medium tracking-wide text-nextgray-100/80">{{ t('auth.preparing') }}</p>
+        <p class="text-lg font-medium tracking-wide text-neutral-100/80">{{ t('auth.preparing') }}</p>
       </div>
     </div>
 
     <div v-else class="relative isolate min-h-screen overflow-hidden bg-neutral-900">
-      <svg
-        aria-hidden="true"
-        class="absolute inset-0 -z-10 h-full w-full stroke-white/10 mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]"
-      >
-        <defs>
-          <pattern
-            id="auth-login-grid-pattern"
-            width="200"
-            height="200"
-            x="50%"
-            y="-1"
-            patternUnits="userSpaceOnUse"
-          >
-            <path d="M.5 200V.5H200" fill="none" />
-          </pattern>
-        </defs>
-        <svg x="50%" y="-1" class="overflow-visible fill-neutral-900">
-          <path
-            d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
-            stroke-width="0"
-          />
-        </svg>
-        <rect
-          width="100%"
-          height="100%"
-          fill="url(#auth-login-grid-pattern)"
-          stroke-width="0"
-        />
-      </svg>
 
       <div
         aria-hidden="true"
@@ -140,7 +111,11 @@ onClickOutside(languageSwitcherRef, () => {
         <main class="flex flex-1 items-center justify-center px-6 pb-8 sm:px-12">
           <div class="relative z-10 w-full max-w-md">
             <div
-              class="relative w-full rounded-2xl border border-white/15 bg-neutral-900/10 px-6 py-6 shadow-2xl shadow-black/50 backdrop-blur-xl sm:px-8 sm:py-8"
+              class="relative w-full rounded-2xl 
+              border border-white/15 bg-neutral-800/40 px-6 py-6 shadow-2xl 
+              shadow-black/50 backdrop-blur-xl sm:px-8 sm:py-8
+              
+              "
             >
               <div class="mb-6">
                 <slot name="heading" />

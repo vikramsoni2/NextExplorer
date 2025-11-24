@@ -30,7 +30,7 @@ const redirectTarget = computed(() => {
 });
 
 const inputBaseClasses =
-  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-zinc-800/30 px-4 text-nextgray-100 placeholder-zinc-500 focus:ring-accent/60 focus:outline-hidden transition';
+  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-zinc-800/30 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-yellow-500/60 focus:outline-hidden transition';
 
 
 const helperTextClasses = 'text-sm text-red-400';

@@ -134,14 +134,6 @@ useClipboardShortcuts();
           </router-view>
         </div>
       </ExplorerContextMenu>
-
-      <!-- Drop target gets visual state via CSS class from @uppy/drop-target -->
-      
-      
-      <!-- <hr class="h-px border-0 bg-nextgray-400 dark:bg-neutral-700 mb-4" /> -->
-      <!-- <div>
-        <TerminalPanel/>
-      </div> -->
     </main>
   
   <!-- Backdrop to close sidebar on small screens -->

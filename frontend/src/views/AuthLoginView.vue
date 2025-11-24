@@ -34,10 +34,10 @@ const redirectTarget = computed(() => {
 });
 
 const inputBaseClasses =
-  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-zinc-800/70 px-4 text-nextgray-100 placeholder-zinc-500 focus:ring-accent/60 focus:outline-hidden transition';
+  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-neutral-800/70 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-blue-500/60 focus:outline-hidden transition';
 
 const buttonBaseClasses =
-  'w-full h-12 rounded-lg bg-yellow-500 px-4 font-semibold text-neutral-900 transition hover:bg-yellow-500/90 disabled:cursor-not-allowed disabled:opacity-60';
+  'w-full h-12 rounded-lg bg-blue-500 px-4 font-semibold text-neutral-100 transition hover:bg-blue-500/90 disabled:cursor-not-allowed disabled:opacity-60';
 
 const helperTextClasses = 'text-sm text-red-400';
 
@@ -212,7 +212,7 @@ const handleOidcLogin = () => {
                   <ul class="list-disc">
                     <li>
                       <span
-                        v-html="$t('auth.login.announcementMigration.bulletAddSuffix', { suffix: '<span class=&quot;px-2 font-bold text-yellow-300&quot;>@example.local</span>' })"
+                        v-html="$t('auth.login.announcementMigration.bulletAddSuffix', { suffix: '<span class=&quot;px-2 font-bold text-blue-300&quot;>@example.local</span>' })"
                       />
                     </li>
                     <li>
