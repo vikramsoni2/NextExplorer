@@ -404,16 +404,16 @@ provide(explorerContextMenuSymbol, {
       v-if="isOpen"
       ref="floatingRef"
       :style="floatingStyles"
-      class="min-w-[220px] rounded-xl border border-white/10 bg-white/70 p-2 text-sm text-zinc-800 shadow-2xl backdrop-blur-xl dark:border-white/5 dark:bg-black/40 dark:text-zinc-200"
+      class="min-w-[220px] rounded-xl border border-white/10 bg-white/70 p-1.5 text-sm text-zinc-800 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-neutral-800/70 dark:text-zinc-200"
       @contextmenu.prevent
       @click.stop
     >
-      <div v-for="(section, sIdx) in menuSections" :key="`section-${sIdx}`" class="flex flex-col gap-1">
+      <div v-for="(section, sIdx) in menuSections" :key="`section-${sIdx}`" class="flex flex-col">
         <button
           v-for="action in section"
           :key="action.id"
           type="button"
-          class="flex h-8 w-full items-center gap-3 rounded-md px-3 text-left transition disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition disabled:cursor-not-allowed disabled:opacity-50"
           :class="[
             action.danger
               ? 'text-red-600 hover:bg-red-500/20 dark:text-red-500 dark:hover:bg-red-500/20'

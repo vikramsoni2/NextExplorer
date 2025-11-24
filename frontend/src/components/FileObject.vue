@@ -11,9 +11,11 @@ import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { useSettingsStore } from '@/stores/settings';
 import { ellipses } from '@/utils/ellipses';
+import { useViewConfig } from '@/composables/useViewConfig';
 
 const props = defineProps(['item', 'view'])
 const settings = useSettingsStore();
+const { LIST_VIEW_GRID_COLS } = useViewConfig();
 
 const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
@@ -229,19 +231,18 @@ const isPhotoItem = computed(() => {
         </div>
     </div>
 
-    <div 
+    <div
     v-if="view==='list'"
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent="handleContextMenu"
-    class="grid select-none items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
-    cursor-pointer auto-cols-fr p-1 px-4 rounded-md
-    even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
-    "
-    :class="{
+    :class="['grid select-none items-center', LIST_VIEW_GRID_COLS,
+    'cursor-pointer auto-cols-fr p-1 px-4 rounded-md',
+    'even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50',
+    {
       'text-white! bg-blue-500! !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
       'opacity-60': isCut && !isSelected(item)
-    }" 
+    }]"
      >
         
         <FileIcon 

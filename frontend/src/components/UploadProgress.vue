@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useToggle, useDraggable, useElementSize, useWindowSize } from '@vueuse/core'
 import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
@@ -15,29 +15,24 @@ const el = ref(null)
 const { width: viewportWidth, height: viewportHeight } = useWindowSize()
 const { width: panelWidth, height: panelHeight } = useElementSize(el)
 const edgeOffset = 16
+
 const { x, y, style } = useDraggable(el, {
   initialValue: { x: 400, y: 400 },
   preventDefault: true,
 })
 
-const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
-const keepInView = () => {
-  const viewW = Number.isFinite(viewportWidth.value) && viewportWidth.value > 0 ? viewportWidth.value : 1024
-  const viewH = Number.isFinite(viewportHeight.value) && viewportHeight.value > 0 ? viewportHeight.value : 768
-  const panelW = Number.isFinite(panelWidth.value) && panelWidth.value > 0 ? panelWidth.value : 360
-  const panelH = Number.isFinite(panelHeight.value) && panelHeight.value > 0 ? panelHeight.value : 200
+// Auto-clamp position to keep panel in viewport - watchEffect automatically tracks all dependencies
+watchEffect(() => {
+  const viewW = viewportWidth.value || 1024
+  const viewH = viewportHeight.value || 768
+  const panelW = panelWidth.value || 360
+  const panelH = panelHeight.value || 200
 
   const maxX = Math.max(edgeOffset, viewW - panelW - edgeOffset)
   const maxY = Math.max(edgeOffset, viewH - panelH - edgeOffset)
-  const nextX = clamp(x.value, edgeOffset, maxX)
-  const nextY = clamp(y.value, edgeOffset, maxY)
 
-  if (nextX !== x.value) x.value = nextX
-  if (nextY !== y.value) y.value = nextY
-}
-
-watch([x, y, viewportWidth, viewportHeight, panelWidth, panelHeight], keepInView, {
-  immediate: true,
+  x.value = Math.max(edgeOffset, Math.min(x.value, maxX))
+  y.value = Math.max(edgeOffset, Math.min(y.value, maxY))
 })
 
 
@@ -138,7 +133,8 @@ function toggleDetailsKey(e) {
   <div
     ref="el"
     v-if="uploadInProgress"
-    class="fixed min-w-[360px] max-w-sm max-h-[400px] rounded-2xl border border-zinc-200/70 dark:border-zinc-700/40 bg-white/85 dark:bg-zinc-900/80 backdrop-blur-md shadow-xl ring-1 ring-black/5"
+    
+    class="fixed min-w-[360px] max-w-sm max-h-[400px] rounded-2xl border border-zinc-200/70 dark:border-white/10 bg-white/85 dark:bg-zinc-700/90 backdrop-blur-md shadow-xl ring-1 ring-black/5"
     role="status"
     aria-live="polite"
     :style="style"
