@@ -57,7 +57,7 @@ onClickOutside(languageSwitcherRef, () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-nextzinc-900 text-nextgray-100">
+  <div class="min-h-screen bg-neutral-900 text-neutral-100">
     <div v-if="props.isLoading" class="flex min-h-screen items-center justify-center px-4 py-12">
       <div class="flex flex-col items-center gap-3">
         <div class="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-accent"></div>
@@ -65,7 +65,7 @@ onClickOutside(languageSwitcherRef, () => {
       </div>
     </div>
 
-    <div v-else class="relative isolate min-h-screen overflow-hidden bg-nextzinc-900">
+    <div v-else class="relative isolate min-h-screen overflow-hidden bg-neutral-900">
       <svg
         aria-hidden="true"
         class="absolute inset-0 -z-10 h-full w-full stroke-white/10 mask-[radial-gradient(100%_100%_at_top_right,white,transparent)]"
@@ -82,7 +82,7 @@ onClickOutside(languageSwitcherRef, () => {
             <path d="M.5 200V.5H200" fill="none" />
           </pattern>
         </defs>
-        <svg x="50%" y="-1" class="overflow-visible fill-nextzinc-900">
+        <svg x="50%" y="-1" class="overflow-visible fill-neutral-900">
           <path
             d="M-200 0h201v201h-201Z M600 0h201v201h-201Z M-400 600h201v201h-201Z M200 800h201v201h-201Z"
             stroke-width="0"
@@ -176,7 +176,7 @@ onClickOutside(languageSwitcherRef, () => {
 
               <div
                 v-if="languageMenuOpen"
-                class="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg border border-white/10 bg-nextzinc-900/95 py-1 text-xs shadow-lg backdrop-blur-sm"
+                class="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg border border-white/10 bg-neutral-900/95 py-1 text-xs shadow-lg backdrop-blur-sm"
               >
                 <button
                   v-for="lang in languages"

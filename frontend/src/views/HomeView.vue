@@ -79,7 +79,7 @@ const handleOpenFavorite = (favorite) => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
+  <div class="flex flex-col gap-8 px-8">
     <!-- Quick Access -->
     <section>
       <h3 class="mt-6 mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('volumes.quickAccess') }}</h3>

@@ -37,7 +37,7 @@ const inputBaseClasses =
   'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-zinc-800/70 px-4 text-nextgray-100 placeholder-zinc-500 focus:ring-accent/60 focus:outline-hidden transition';
 
 const buttonBaseClasses =
-  'w-full h-12 rounded-lg bg-accent px-4 font-semibold text-nextzinc-900 transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60';
+  'w-full h-12 rounded-lg bg-yellow-500 px-4 font-semibold text-neutral-900 transition hover:bg-yellow-500/90 disabled:cursor-not-allowed disabled:opacity-60';
 
 const helperTextClasses = 'text-sm text-red-400';
 
