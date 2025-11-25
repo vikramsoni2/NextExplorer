@@ -225,6 +225,25 @@ const collectInputPaths = (...sources) => {
 
 const toPosix = (value = '') => value.replace(/\\/g, '/');
 
+const encodeContentDisposition = (filename) => {
+  // Check if filename contains non-ASCII characters
+  const hasNonAscii = /[^\x00-\x7F]/.test(filename);
+
+  if (!hasNonAscii) {
+    // Simple case: filename is ASCII-only
+    return `attachment; filename="${filename}"`;
+  }
+
+  // For non-ASCII filenames, use RFC 5987 encoding
+  // Create ASCII fallback (replace non-ASCII with underscores)
+  const asciiFallback = filename.replace(/[^\x00-\x7F]/g, '_');
+
+  // Encode filename for filename* parameter (RFC 5987)
+  const encodedFilename = encodeURIComponent(filename);
+
+  return `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodedFilename}`;
+};
+
 const stripBasePath = (relativePath, basePath) => {
   const relPosix = toPosix(relativePath);
   const basePosix = toPosix(basePath);
@@ -313,7 +332,7 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
   })();
 
   res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', `attachment; filename="${archiveName}"`);
+  res.setHeader('Content-Disposition', encodeContentDisposition(archiveName));
 
   const archive = archiver('zip', { zlib: { level: 1 } });
   archive.on('error', (archiveError) => {
