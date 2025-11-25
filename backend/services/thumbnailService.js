@@ -2,6 +2,7 @@ const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
 const fsPromises = require('fs/promises');
+const { spawn } = require('child_process');
 const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
 const PQueue = require('p-queue').default;
@@ -197,25 +198,35 @@ const makeVideoThumb = async (srcPath, destPath) => {
 };
 
 const makeHeicThumb = async (srcPath, destPath) => {
-  if (!canProcessVideoThumbnails) {
-    logger.warn({ srcPath }, 'Skipping HEIC thumbnail (no ffmpeg/ffprobe)');
-    return;
-  }
-
   const { size, quality } = await getThumbOptions();
 
   await new Promise((resolve, reject) => {
-    const command = ffmpeg(srcPath)
-      .inputOptions(['-hide_banner', '-loglevel', 'error'])
-      .outputOptions(['-frames:v', '1', '-vf', `scale=${size}:-1:flags=lanczos`, '-vcodec', 'png'])
-      .format('image2pipe')
-      .on('error', reject);
+    // Use ImageMagick to convert HEIC to PNG, then pipe to sharp for WebP conversion
+    const convert = spawn('convert', [
+      srcPath,
+      '-resize', `${size}x`,
+      '-quality', '100',
+      'png:-'
+    ]);
 
-    const stream = command.pipe();
-    stream.on('error', reject);
+    let stderr = '';
+    convert.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    convert.on('error', (err) => {
+      reject(new Error(`Failed to spawn ImageMagick convert: ${err.message}`));
+    });
+
+    convert.on('exit', (code) => {
+      if (code !== 0 && code !== null) {
+        reject(new Error(`ImageMagick convert exited with code ${code}: ${stderr}`));
+      }
+    });
 
     const pipeline = sharp().webp({ quality, effort: 4 });
-    stream.pipe(pipeline);
+    convert.stdout.pipe(pipeline);
+
     pipeline
       .toBuffer()
       .then((buffer) => atomicWrite(destPath, buffer))

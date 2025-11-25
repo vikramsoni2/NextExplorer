@@ -4,9 +4,9 @@ FROM public.ecr.aws/docker/library/node:24-bookworm-slim
 RUN groupadd --system appuser && \
     useradd --system --gid appuser --shell /bin/bash --create-home appuser
 
-# Install runtime tooling (ffmpeg, gosu for UID remapping, ripgrep for searches).
+# Install runtime tooling (ffmpeg, gosu for UID remapping, ripgrep for searches, imagemagick for HEIC thumbnails).
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep \
+  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
