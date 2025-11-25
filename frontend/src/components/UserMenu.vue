@@ -123,7 +123,7 @@ const handleLogout = async () => {
       <div type="button" class="group flex w-full items-center gap-3 text-left transition" @click="toggleMenu"
         :aria-expanded="isExpanded">
         <span
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20">
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20">
           <template v-if="avatarLetter">{{ avatarLetter }}</template>
           <UserCircleIcon v-else class="h-6 w-6" />
         </span>
@@ -133,7 +133,7 @@ const handleLogout = async () => {
             }}</span>
         </div>
         <ChevronUpIcon
-          class="h-4 w-4 text-neutral-400 transition group-hover:text-neutral-700 dark:text-white/60 dark:group-hover:text-white/80"
+          class="h-3 w-3 text-neutral-400 transition group-hover:text-neutral-700 dark:text-white/60 dark:group-hover:text-white/80"
           :class="{ 'rotate-180': isExpanded }" />
       </div>
     </div>

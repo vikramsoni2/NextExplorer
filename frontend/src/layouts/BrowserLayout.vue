@@ -93,19 +93,19 @@ useClipboardShortcuts();
     <input id="sidebar-toggle" type="checkbox" class="peer hidden" />
 
     <aside
-      class="flex flex-col bg-neutral-100 dark:bg-neutral-800 pt-4 pb-2 px-8 shrink-0
+      class="flex flex-col bg-neutral-100 dark:bg-neutral-800 pt-4 pb-2 px-6 shrink-0
       fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-40
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
     >
       <HeaderLogo appname="Explorer"/>
       <CreateNew v-if="!isVolumesView" class="mt-6"/> 
-      <div class="overflow-y-scroll -mx-8 px-8 scroll-on-hover">
+      <div class="overflow-y-scroll -mx-6 px-6 scroll-on-hover">
         <FavMenu/>
         <VolMenu/>
         <TerminalMenu/>
       </div>
-      <UserMenu class="mt-auto -mx-6"/>
+      <UserMenu class="mt-auto -mx-4"/>
     </aside>
 
     <!-- Resizer handle -->

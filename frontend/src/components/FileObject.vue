@@ -144,6 +144,7 @@ const isPhotoItem = computed(() => {
 <template>
 
   <DragSelectOption
+    class="group/item"
     v-if="(view==='photos' && isPhotoItem) || view!='photos'"
     :value="props.item"
   >
@@ -244,9 +245,9 @@ const isPhotoItem = computed(() => {
     @contextmenu.prevent="handleContextMenu"
     :class="['grid select-none items-center', LIST_VIEW_GRID_COLS,
     'cursor-pointer auto-cols-fr p-1 px-4 rounded-md',
-    'even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50',
+    'group-odd/item:bg-zinc-100 dark:group-odd/item:bg-neutral-700/30',
     {
-      'text-white! bg-blue-500! !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
+      'text-white dark:text-white bg-blue-600 dark:bg-blue-600/80 group-odd/item:bg-blue-600! dark:group-odd/item:bg-blue-600/80!': isSelected(item),
       'opacity-60': isCut && !isSelected(item)
     }]"
      >

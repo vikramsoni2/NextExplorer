@@ -19,7 +19,7 @@ const { t } = useI18n();
 <template>
   <div v-if="isAdmin">
     <h4
-      class="group flex items-center justify-between pb-1 pt-6 text-sm
+      class="group flex items-center justify-between pb-1 pt-2 text-sm
       text-neutral-400 dark:text-neutral-500 font-medium"
     >
       {{ t('terminal.menuHeading') }}
