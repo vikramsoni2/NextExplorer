@@ -73,7 +73,7 @@ router.get('/browse/*', asyncHandler(async (req, res) => {
 
     if (thumbsEnabled && stats.isFile() && previewable.has(extension.toLowerCase()) && extension !== 'pdf') {
       try {
-        const existingThumbnail = await getThumbnailPathIfExists(filePath);
+        const existingThumbnail = await getThumbnailPathIfExists(filePath, stats);
         if (existingThumbnail) {
           item.thumbnail = existingThumbnail;
         } else {

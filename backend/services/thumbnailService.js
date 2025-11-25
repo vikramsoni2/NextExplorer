@@ -1,10 +1,9 @@
 const path = require('path');
 const crypto = require('crypto');
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
-
-const fsPromises = fs.promises;
 
 const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions } = require('../config/index');
@@ -80,8 +79,8 @@ const isPdf = (ext) => ext === 'pdf';
 
 const inflight = new Map();
 
-const hashForFile = async (filePath) => {
-  const info = await fsPromises.stat(filePath);
+const hashForFile = async (filePath, stats = null) => {
+  const info = stats || await fsPromises.stat(filePath);
   const hash = crypto.createHash('sha1');
   hash.update(filePath);
   hash.update(String(info.size));
@@ -182,14 +181,14 @@ const generateThumbnail = async (filePath, thumbPath) => {
   throw new Error(`Unsupported file type: .${extension}`);
 };
 
-const buildThumbnailPaths = async (filePath) => {
-  const key = await hashForFile(filePath);
+const buildThumbnailPaths = async (filePath, stats = null) => {
+  const key = await hashForFile(filePath, stats);
   const thumbFile = `${key}.webp`;
   const thumbPath = path.join(directories.thumbnails, thumbFile);
   return { thumbFile, thumbPath };
 };
 
-const getThumbnailPathIfExists = async (filePath) => {
+const getThumbnailPathIfExists = async (filePath, stats = null) => {
   if (filePath.includes(directories.thumbnails)) {
     return '';
   }
@@ -199,7 +198,7 @@ const getThumbnailPathIfExists = async (filePath) => {
     return '';
   }
 
-  const { thumbFile, thumbPath } = await buildThumbnailPaths(filePath);
+  const { thumbFile, thumbPath } = await buildThumbnailPaths(filePath, stats);
 
   try {
     await fsPromises.access(thumbPath, fs.constants.F_OK);
