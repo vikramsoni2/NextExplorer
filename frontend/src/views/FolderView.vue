@@ -11,6 +11,7 @@ import { isPreviewableImage } from '@/config/media';
 import { ImagesOutline } from '@vicons/ionicons5';
 import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 import { useViewConfig } from '@/composables/useViewConfig';
+import { DragSelect, DragSelectOption } from '@coleqiu/vue-drag-select';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
@@ -29,6 +30,17 @@ const applySelectionFromQuery = () => {
     fileStore.selectedItems = [match];
   }
 };
+
+const selectionModel = computed({
+  get: () => fileStore.selectedItems,
+  set: (val) => {
+    // val is the new selection from drag-select (array of items)
+    // We update the store.
+    // Note: drag-select might replace the selection.
+    // If we want to support modifiers, the library handles 'multiple' prop.
+    fileStore.selectedItems = val;
+  }
+});
 
 const loadFiles = async () => {
   loading.value = true
@@ -71,53 +83,60 @@ const showNoPhotosMessage = computed(() => {
 <template>
   <div
     v-if="!loading"
-    class="min-h-full relative flex flex-col max-h-screen"
+    class="h-full relative flex flex-col max-h-screen"
     @click.self="clearSelection()"
     @contextmenu.prevent.self="handleBackgroundContextMenu">
 
       <!-- Toolbar -->
       <FolderViewToolbar />
 
-    <div
-    :class="[gridClasses, 'grow overflow-y-scroll px-2']"
-    :style="gridStyle"
-    @click.self="clearSelection()"
-    @contextmenu.prevent.self="handleBackgroundContextMenu"
+    <DragSelect
+      v-model="selectionModel"
+      :click-option-to-select="false"
+      class="grow overflow-y-scroll px-2"
+      @click.self="clearSelection()"
+      @contextmenu.prevent.self="handleBackgroundContextMenu"
     >
-      <!-- Detail view header -->
-      <div
-        v-if="settings.view === 'list'"
-        :class="['grid items-center', LIST_VIEW_GRID_COLS,
-        'px-4 py-2 text-xs',
-        'text-neutral-600 dark:text-neutral-300',
-        'uppercase tracking-wide select-none sticky top-0',
-        'bg-white dark:bg-zinc-800',
-        'backdrop-blur-sm']"
-      >
-        <div></div>
-        <div>{{ $t('folder.name') }}</div>
-        <div>{{ $t('folder.size') }}</div>
-        <div>{{ $t('folder.kind') }}</div>
-        <div>{{ $t('folder.dateModified') }}</div>
-      </div>
-
-      <FileObject
-      v-for="item in fileStore.getCurrentPathItems"
-      :key="item.name"
-      :item="item"
-      :view="settings.view"
-      />
-
-      <!-- No photos message -->
-      <div v-if="showNoPhotosMessage" class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4">
-        <div class="text-neutral-400 dark:text-neutral-500 mb-2">
-          <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+      <div :class="gridClasses" :style="gridStyle">
+        <!-- Detail view header -->
+        <div
+          v-if="settings.view === 'list'"
+          :class="['grid items-center', LIST_VIEW_GRID_COLS,
+          'px-4 py-2 text-xs',
+          'text-neutral-600 dark:text-neutral-300',
+          'uppercase tracking-wide select-none sticky top-0',
+          'bg-white dark:bg-zinc-800',
+          'backdrop-blur-sm']"
+        >
+          <div></div>
+          <div>{{ $t('folder.name') }}</div>
+          <div>{{ $t('folder.size') }}</div>
+          <div>{{ $t('folder.kind') }}</div>
+          <div>{{ $t('folder.dateModified') }}</div>
         </div>
-        <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ $t('folder.noPhotos') }}</h3>
-        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('folder.noPhotosHint') }}</p>
-      </div>
 
-    </div>
+        <DragSelectOption
+          v-for="item in fileStore.getCurrentPathItems"
+          :key="item.name"
+          :value="item"
+          class="h-full"
+        >
+          <FileObject
+            :item="item"
+            :view="settings.view"
+          />
+        </DragSelectOption>
+
+        <!-- No photos message -->
+        <div v-if="showNoPhotosMessage" class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4">
+          <div class="text-neutral-400 dark:text-neutral-500 mb-2">
+            <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+          </div>
+          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ $t('folder.noPhotos') }}</h3>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('folder.noPhotosHint') }}</p>
+        </div>
+      </div>
+    </DragSelect>
 
     
 

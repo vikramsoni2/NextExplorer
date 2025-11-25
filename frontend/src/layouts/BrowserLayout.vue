@@ -128,7 +128,7 @@ useClipboardShortcuts();
 
 
       <ExplorerContextMenu>
-        <div class="overflow-y-auto grow">
+        <div class="overflow-y-auto grow h-full pb-0.5">
           <router-view :key="route.fullPath">
           </router-view>
         </div>
