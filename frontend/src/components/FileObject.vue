@@ -11,9 +11,12 @@ import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { useSettingsStore } from '@/stores/settings';
 import { ellipses } from '@/utils/ellipses';
+import { useViewConfig } from '@/composables/useViewConfig';
+import { DragSelectOption } from '@coleqiu/vue-drag-select';
 
 const props = defineProps(['item', 'view'])
 const settings = useSettingsStore();
+const { LIST_VIEW_GRID_COLS } = useViewConfig();
 
 const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
@@ -22,7 +25,7 @@ const { renameState } = storeToRefs(fileStore);
 const contextMenu = useExplorerContextMenu();
 
 const renameInputRef = ref(null);
-const baseRenameInputClass = 'w-full rounded border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
+const baseRenameInputClass = 'w-full rounded-sm border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
 
 const isRenaming = computed(() => fileStore.isItemBeingRenamed(props.item));
 
@@ -140,12 +143,18 @@ const isPhotoItem = computed(() => {
 
 <template>
 
+  <DragSelectOption
+    class="group/item"
+    v-if="(view==='photos' && isPhotoItem) || view!='photos'"
+    :value="props.item"
+  >
+
     <div
     v-if="view==='photos' && isPhotoItem"
     :title="item.name"
     @click="handleClick"
     @dblclick="handleDblClick"
-    @contextmenu.prevent="handleContextMenu"
+    @contextmenu.prevent.stop="handleContextMenu"
     class="photo-cell relative rounded-md overflow-hidden cursor-pointer select-none bg-neutral-100 dark:bg-zinc-800/60 hover:brightness-105"
     :class="{ 'ring-2 ring-blue-500 dark:ring-blue-400': isSelected(item), 'opacity-60': isCut }"
     :style="{ width: settings.photoSize + 'px', height: settings.photoSize + 'px' }"
@@ -153,13 +162,13 @@ const isPhotoItem = computed(() => {
       <FileIcon :item="item" class="w-full h-full" />
     </div>
 
-    <div 
+    <div
     :title="item.name"
     v-if="view==='grid'"
     @click="handleClick"
     @dblclick="handleDblClick"
-    @contextmenu.prevent="handleContextMenu"
-    class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"    
+    @contextmenu.prevent.stop="handleContextMenu"
+    class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"
     :class="{ 'opacity-60': isCut }"
     > 
         <FileIcon 
@@ -188,13 +197,13 @@ const isPhotoItem = computed(() => {
     </div>
 
 
-    <div 
+    <div
     :title="item.name"
     v-if="view==='tab'"
     @click="handleClick"
     @dblclick="handleDblClick"
-    @contextmenu.prevent="handleContextMenu"
-    
+    @contextmenu.prevent.stop="handleContextMenu"
+
     class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
     :class="{ 'opacity-60': isCut }">
         
@@ -229,19 +238,18 @@ const isPhotoItem = computed(() => {
         </div>
     </div>
 
-    <div 
+    <div
     v-if="view==='list'"
     @click="handleClick"
     @dblclick="handleDblClick"
-    @contextmenu.prevent="handleContextMenu"
-    class="grid select-none items-center grid-cols-[30px_5fr_1fr_1fr_2fr] 
-    cursor-pointer auto-cols-fr p-1 px-4 rounded-md
-    even:bg-zinc-100 dark:even:bg-zinc-900 dark:even:bg-opacity-50
-    "
-    :class="{
-      '!text-white !bg-blue-500 !even:bg-blue-500 !dark:bg-blue-600 !dark:even:bg-blue-600 dark:bg-opacity-80 dark:even:bg-opacity-80': isSelected(item),
+    @contextmenu.prevent.stop="handleContextMenu"
+    :class="['grid select-none items-center', LIST_VIEW_GRID_COLS,
+    'cursor-pointer auto-cols-fr p-1 px-4 rounded-md',
+    'group-even/item:bg-zinc-100 dark:group-even/item:bg-neutral-700/30',
+    {
+      'text-white dark:text-white bg-blue-600 dark:bg-blue-600/80 group-even/item:bg-blue-600! dark:group-even/item:bg-blue-600/80!': isSelected(item),
       'opacity-60': isCut && !isSelected(item)
-    }" 
+    }]"
      >
         
         <FileIcon 
@@ -275,7 +283,7 @@ const isPhotoItem = computed(() => {
             {{ formatDate(item.dateModified) }}
         </div>
     </div>
-
+  </DragSelectOption>
 </template>
 
 <style scoped>

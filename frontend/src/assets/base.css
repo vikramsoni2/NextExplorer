@@ -1,21 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 /* Themed, thin scrollbars (global) */
 @layer base {
   /* Default (light) theme variables */
   :root {
-    --scrollbar-track: #EAEAEA; /* nextgray-200 */
+    --scrollbar-track: transparent; /* nextgray-200 */
     --scrollbar-thumb: #b7b4b4; /* nextgray-400 */
     --scrollbar-thumb-hover: #BDBDBD;
+
+    --clr-base: oklch(1 0 0);
+    --clr-base-muted: oklch(0.9514 0.0011 197.14)
   }
 
-  /* Dark theme overrides (Tailwind uses .dark on html) */
   .dark {
-    --scrollbar-track: #1B1F26; /* nextslate-900 */
+    --scrollbar-track: transparent; /* nextslate-900 */
     --scrollbar-thumb: #3d3d3f; /* nextgray-700 */
     --scrollbar-thumb-hover: #3a3a3d;
+
+    --clr-base: oklch(0.234 0.0015 197.05);
+    --clr-base-muted: oklch(0.2649 0.0018 286.27)
+  }
+
+    *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
   }
 
   /* Firefox */
@@ -41,3 +56,25 @@
     background-color: var(--scrollbar-thumb-hover);
   }
 }
+
+@layer components {
+  /* Make vue-drag-select behave like its “Drag To Scroll” story:
+     root wrapper is the scroll container, and the inner
+     .drag-select area fills its height so you can start a drag
+     anywhere in the visible region (even with few items). */
+  .drag-select__wrapper {
+    @apply h-full;
+  }
+
+  .drag-select {
+    @apply min-h-full;
+  }
+}
+
+
+
+@theme {
+  --color-base: var(--clr-base);
+  --color-base-muted: var(--clr-base-muted);
+}
+

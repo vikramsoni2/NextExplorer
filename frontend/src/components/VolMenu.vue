@@ -48,7 +48,7 @@ const isActiveVolume = (volumeName = '') => {
 <template>
     <div>
     <h4 
-    class="group flex items-center justify-between pt-6 text-sm 
+    class="group flex items-center justify-between pt-2 text-sm 
     text-neutral-400 dark:text-neutral-500 font-medium">
         {{ $t('volumes.title') }}
         <button 

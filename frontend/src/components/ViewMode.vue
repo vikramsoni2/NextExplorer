@@ -10,7 +10,7 @@ import {
   ListBulletIcon,
   PhotoIcon,
 } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/20/solid';
+import { ChevronUpDownIcon, CheckIcon } from '@heroicons/vue/20/solid';
 
 const settings = useSettingsStore()
 const { t } = useI18n();
@@ -61,7 +61,7 @@ onClickOutside(menuPopup, () => {
         v-for="option in viewOptions"
         :key="option.key"
         @click="option.activate"
-        class="p-[6px] rounded-md hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+        class="p-1.5 rounded-md hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
         :class="{ 'bg-[rgb(239,239,240)] dark:bg-zinc-700': settings.view === option.key }"
         :title="option.label"
       >
@@ -77,7 +77,7 @@ onClickOutside(menuPopup, () => {
         :title="activeView?.label"
       >
         <component :is="activeView?.icon" class="w-6" />
-        <ChevronDownIcon class="w-4 h-4" />
+        <ChevronUpDownIcon class="w-4 h-4" />
       </button>
 
       <transition
@@ -103,7 +103,7 @@ onClickOutside(menuPopup, () => {
             >
               <CheckIcon
                 class="h-4 w-4 dark:text-white invisible"
-                :class="{ '!visible': settings.view === option.key }"
+                :class="{ 'visible!': settings.view === option.key }"
               />
               <span>{{ option.label }}</span>
             </button>

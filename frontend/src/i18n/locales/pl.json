@@ -285,7 +285,9 @@
       "quality": "Jakość miniatur",
       "qualityHelp": "Kontroluje jakość wyjściową (1–100). Domyślnie 70.",
       "maxDim": "Maksymalny wymiar",
-      "maxDimHelp": "Najdłuższy bok w pikselach. Domyślnie 200."
+      "maxDimHelp": "Najdłuższy bok w pikselach. Domyślnie 200.",
+      "concurrency": "Generowanie równoległe",
+      "concurrencyHelp": "Liczba miniatur do wygenerowania jednocześnie (1–50). Domyślnie 10."
     },
     "security": {
       "title": "Uwierzytelnianie",

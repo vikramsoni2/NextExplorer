@@ -14,7 +14,7 @@ export function useFavoriteEditor() {
   const editorName = ref('');
   const editorPath = ref('');
   const editorIcon = ref('');
-  const editorIconVariant = ref('outline');
+  const editorIconVariant = ref('outline-solid');
   const editorColor = ref(null);
   const isSaving = ref(false);
 
@@ -32,7 +32,7 @@ export function useFavoriteEditor() {
       editorIconVariant.value = variant.toLowerCase();
       editorIcon.value = iconName.trim();
     } else {
-      editorIconVariant.value = 'outline';
+      editorIconVariant.value = 'outline-solid';
       editorIcon.value = iconStr;
     }
 

@@ -82,7 +82,7 @@ const formattedTime = computed(() => {
       <!-- Icon -->
       <component
         :is="iconComponent"
-        class="h-5 w-5 flex-shrink-0"
+        class="h-5 w-5 shrink-0"
         :class="iconClass" />
 
       <!-- Content -->
@@ -94,7 +94,7 @@ const formattedTime = computed(() => {
         </p>
         <p
           v-if="body"
-          class="text-xs text-gray-500 dark:text-gray-400 mt-1 break-words">
+          class="text-xs text-gray-500 dark:text-gray-400 mt-1 wrap-break-word">
           {{ body }}
         </p>
 
@@ -111,14 +111,14 @@ const formattedTime = computed(() => {
       </div>
 
       <!-- Actions -->
-      <div class="flex gap-1 flex-shrink-0">
+      <div class="flex gap-1 shrink-0">
         <button
           @click="emit('copy', id)"
           title="Copy details"
           class="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700
                  text-gray-500 dark:text-gray-400
                  hover:text-gray-700 dark:hover:text-gray-300
-                 focus:outline-none focus:ring-2 focus:ring-offset-2
+                 focus:outline-hidden focus:ring-2 focus:ring-offset-2
                  focus:ring-gray-400 dark:focus:ring-offset-zinc-900
                  transition-colors duration-200">
           <DocumentDuplicateIcon class="h-4 w-4" />
@@ -129,7 +129,7 @@ const formattedTime = computed(() => {
           class="p-1 rounded hover:bg-gray-100 dark:hover:bg-zinc-700
                  text-gray-500 dark:text-gray-400
                  hover:text-gray-700 dark:hover:text-gray-300
-                 focus:outline-none focus:ring-2 focus:ring-offset-2
+                 focus:outline-hidden focus:ring-2 focus:ring-offset-2
                  focus:ring-gray-400 dark:focus:ring-offset-zinc-900
                  transition-colors duration-200">
           <XMarkIcon class="h-4 w-4" />

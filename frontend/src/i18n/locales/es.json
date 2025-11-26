@@ -285,7 +285,9 @@
       "quality": "Calidad de miniatura",
       "qualityHelp": "Controla la calidad de salida (1–100). El valor predeterminado es 70.",
       "maxDim": "Dimensión máxima",
-      "maxDimHelp": "Lado más largo en píxeles. El valor predeterminado es 200."
+      "maxDimHelp": "Lado más largo en píxeles. El valor predeterminado es 200.",
+      "concurrency": "Generación paralela",
+      "concurrencyHelp": "Número de miniaturas para generar simultáneamente (1–50). El valor predeterminado es 10."
     },
     "security": {
       "title": "Autenticación",

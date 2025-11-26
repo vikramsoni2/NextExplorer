@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full w-full flex-col bg-white dark:bg-zinc-900">
     <header
-      class="flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white px-6 py-2 shadow-sm
+      class="flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white px-6 py-2 shadow-xs
              dark:border-neutral-700 dark:bg-zinc-800"
     >
       <div class="min-w-0">

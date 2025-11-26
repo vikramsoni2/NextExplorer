@@ -10,22 +10,20 @@ import {
 } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import { useI18n } from 'vue-i18n';
+import UserList from './components/UserList.vue';
+import UserDetail from './components/UserDetail.vue';
 
 const auth = useAuthStore();
 const { t } = useI18n();
+
 const users = ref([]);
 const loading = ref(false);
 const errorMsg = ref('');
+const selectedUser = ref(null);
+const saving = ref(false);
 
+// Create User Modal State
 const showCreateModal = ref(false);
-const showEditModal = ref(false);
-const editUser = ref(null);
-const editEmail = ref('');
-const editUsername = ref('');
-const editDisplayName = ref('');
-const editingUser = ref(false);
-
-// Create user form state
 const newEmail = ref('');
 const newUsername = ref('');
 const newPassword = ref('');
@@ -38,6 +36,16 @@ const loadUsers = async () => {
   try {
     const res = await fetchUsers();
     users.value = Array.isArray(res?.users) ? res.users : [];
+    
+    // If we have a selected user, update their data from the fresh list
+    if (selectedUser.value) {
+      const freshUser = users.value.find(u => u.id === selectedUser.value.id);
+      if (freshUser) {
+        selectedUser.value = freshUser;
+      } else {
+        selectedUser.value = null; // User was deleted?
+      }
+    }
   } catch (e) {
     errorMsg.value = e?.message || t('settings.users.failedLoad');
   } finally {
@@ -45,46 +53,113 @@ const loadUsers = async () => {
   }
 };
 
-const openCreateModal = () => {
-  showCreateModal.value = true;
+const handleSelectUser = (user) => {
+  selectedUser.value = user;
 };
 
-const resetCreateForm = () => {
-  newEmail.value = '';
-  newUsername.value = '';
-  newPassword.value = '';
-  newIsAdmin.value = false;
+const handleBack = () => {
+  selectedUser.value = null;
 };
 
-const closeCreateModal = () => {
-  showCreateModal.value = false;
-  resetCreateForm();
+// User Actions
+const handleUpdateUser = async (userData) => {
+  saving.value = true;
+  try {
+    const res = await updateUser(userData.id, {
+      email: userData.email,
+      username: userData.username,
+      displayName: userData.displayName
+    });
+    
+    if (res?.user) {
+      // Update local list
+      users.value = users.value.map(u => u.id === userData.id ? { ...u, ...res.user } : u);
+      selectedUser.value = { ...selectedUser.value, ...res.user };
+    }
+  } catch (e) {
+    alert(e?.message || t('settings.users.failedUpdate'));
+  } finally {
+    saving.value = false;
+  }
 };
 
-const openEditModal = (user) => {
-  editUser.value = user;
-  editEmail.value = user.email || '';
-  editUsername.value = user.username || '';
-  editDisplayName.value = user.displayName || '';
-  showEditModal.value = true;
-};
-
-const closeEditModal = () => {
-  showEditModal.value = false;
-  editUser.value = null;
-};
-
-const grantAdmin = async (u) => {
+const handleMakeAdmin = async (u) => {
   const nextRoles = Array.from(new Set([...(u.roles || []), 'admin']));
   try {
     const res = await updateUserRoles(u.id, nextRoles);
     const updated = res?.user;
     if (updated) {
       users.value = users.value.map((it) => (it.id === u.id ? updated : it));
+      if (selectedUser.value?.id === u.id) {
+        selectedUser.value = updated;
+      }
     }
   } catch (e) {
     alert(e?.message || t('settings.users.failedUpdateRoles'));
   }
+};
+
+const handleRevokeAdmin = async (u) => {
+  const nextRoles = (u.roles || []).filter(r => r !== 'admin');
+  try {
+    const res = await updateUserRoles(u.id, nextRoles);
+    const updated = res?.user;
+    if (updated) {
+      users.value = users.value.map((it) => (it.id === u.id ? updated : it));
+      if (selectedUser.value?.id === u.id) {
+        selectedUser.value = updated;
+      }
+    }
+  } catch (e) {
+    alert(e?.message || t('settings.users.failedUpdateRoles'));
+  }
+};
+
+const handleResetPassword = async (u) => {
+  const pwd = window.prompt(t('settings.users.promptNewPassword', { user: u.username }));
+  if (pwd == null) return; // cancelled
+  if (pwd.length < 6) {
+    alert(t('settings.users.passwordMin'));
+    return;
+  }
+  try {
+    await adminSetUserPassword(u.id, pwd);
+    alert(t('settings.users.passwordUpdated'));
+    // Ideally we should refresh the user to update "hasLocalAuth" status if we had that info in the API response
+    // But for now, we assume it worked.
+    loadUsers(); 
+  } catch (e) {
+    alert(e?.message || t('settings.users.failedReset'));
+  }
+};
+
+const handleDeleteUser = async (u) => {
+  if (u.id === auth.currentUser?.id) {
+    alert(t('settings.users.cannotDeleteSelf'));
+    return;
+  }
+  const ok = window.confirm(t('settings.users.confirmRemove', { user: u.username }));
+  if (!ok) return;
+  try {
+    await deleteUser(u.id);
+    users.value = users.value.filter((it) => it.id !== u.id);
+    selectedUser.value = null;
+  } catch (e) {
+    alert(e?.message || t('settings.users.failedRemove'));
+  }
+};
+
+// Create User Logic
+const openCreateModal = () => {
+  newEmail.value = '';
+  newUsername.value = '';
+  newPassword.value = '';
+  newIsAdmin.value = false;
+  showCreateModal.value = true;
+};
+
+const closeCreateModal = () => {
+  showCreateModal.value = false;
 };
 
 const handleCreate = async () => {
@@ -107,6 +182,8 @@ const handleCreate = async () => {
     if (res?.user) {
       users.value = users.value.concat([res.user]);
       closeCreateModal();
+      // Optionally select the new user?
+      // selectedUser.value = res.user;
     }
   } catch (e) {
     alert(e?.message || t('settings.users.failedCreate'));
@@ -115,195 +192,111 @@ const handleCreate = async () => {
   }
 };
 
-const handleEditSave = async () => {
-  if (!editUser.value) return;
-  if (!editEmail.value.trim()) {
-    alert(t('auth.errors.emailRequired'));
-    return;
-  }
-  editingUser.value = true;
-  try {
-    const res = await updateUser(editUser.value.id, {
-      email: editEmail.value.trim(),
-      username: editUsername.value.trim(),
-      displayName: editDisplayName.value.trim()
-    });
-    const updated = res?.user;
-    if (updated) {
-      users.value = users.value.map((it) => (it.id === updated.id ? updated : it));
-    }
-    closeEditModal();
-  } catch (e) {
-    alert(e?.message || t('settings.users.failedUpdate'));
-  } finally {
-    editingUser.value = false;
-  }
-};
-
-const handleResetPassword = async (u) => {
-  const pwd = window.prompt(t('settings.users.promptNewPassword', { user: u.username }));
-  if (pwd == null) return; // cancelled
-  if (pwd.length < 6) {
-    alert(t('settings.users.passwordMin'));
-    return;
-  }
-  try {
-    await adminSetUserPassword(u.id, pwd);
-    alert(t('settings.users.passwordUpdated'));
-  } catch (e) {
-    alert(e?.message || t('settings.users.failedReset'));
-  }
-};
-
-const handleDeleteUser = async (u) => {
-  if (u.id === auth.currentUser?.id) {
-    alert(t('settings.users.cannotDeleteSelf'));
-    return;
-  }
-  const ok = window.confirm(t('settings.users.confirmRemove', { user: u.username }));
-  if (!ok) return;
-  try {
-    await deleteUser(u.id);
-    users.value = users.value.filter((it) => it.id !== u.id);
-  } catch (e) {
-    alert(e?.message || t('settings.users.failedRemove'));
-  }
-};
-
 onMounted(() => { loadUsers(); });
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="flex items-center gap-3">
-      <h2 class="text-lg font-semibold">{{ t('settings.users.title') }}</h2>
-      <span v-if="loading" class="text-sm opacity-75">{{ t('common.loading') }}…</span>
-      <div class="ml-auto">
-        <button
-          type="button"
-          class="rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-400"
-          @click="openCreateModal"
-        >
-          {{ t('settings.users.createUser') }}
-        </button>
-      </div>
-    </div>
-    <p v-if="errorMsg" class="text-sm text-red-500">{{ errorMsg }}</p>
-
-    <div class="overflow-x-auto rounded border border-white/10">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-white/5">
-          <tr>
-            <th class="px-3 py-2">{{ t('settings.users.email') }}</th>
-            <th class="px-3 py-2">{{ t('settings.users.username') }}</th>
-            <th class="px-3 py-2">{{ t('settings.users.displayName') }}</th>
-            <th class="px-3 py-2">{{ t('settings.users.roles') }}</th>
-            <th class="px-3 py-2">{{ t('settings.users.actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="u in users" :key="u.id" class="border-t border-white/5">
-            <td class="px-3 py-2">{{ u.email }}</td>
-            <td class="px-3 py-2">{{ u.username || '—' }}</td>
-            <td class="px-3 py-2">{{ u.displayName || '—' }}</td>
-            <td class="px-3 py-2">{{ (u.roles || []).join(', ') || '—' }}</td>
-            <td class="px-3 py-2 flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="rounded px-3 py-1 text-sm border border-white/20 hover:bg-white/10"
-                @click="openEditModal(u)"
-              >
-                {{ t('settings.users.editUser') }}
-              </button>
-              <button
-                v-if="!(u.roles || []).includes('admin')"
-                type="button"
-                class="rounded px-3 py-1 text-sm border border-white/20 hover:bg-white/10"
-                @click="grantAdmin(u)"
-              >
-                {{ t('settings.users.makeAdmin') }}
-              </button>
-
-              <button
-                type="button"
-                class="rounded px-3 py-1 text-sm border border-white/20 hover:bg-white/10"
-                @click="handleResetPassword(u)"
-              >
-                {{ t('settings.users.resetPassword') }}
-              </button>
-
-              <button
-                v-if="u.id !== auth.currentUser?.id"
-                type="button"
-                class="rounded px-3 py-1 text-sm border border-red-400 text-red-300 hover:bg-red-500/10"
-                @click="handleDeleteUser(u)"
-              >
-                {{ t('settings.users.removeUser') }}
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="h-full">
+    <div v-if="errorMsg" class="mb-4 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md">
+      {{ errorMsg }}
     </div>
 
+    <!-- Detail View -->
+    <UserDetail
+      v-if="selectedUser"
+      :user="selectedUser"
+      :saving="saving"
+      @back="handleBack"
+      @update="handleUpdateUser"
+      @make-admin="handleMakeAdmin"
+      @revoke-admin="handleRevokeAdmin"
+      @reset-password="handleResetPassword"
+      @delete="handleDeleteUser"
+    />
+
+    <!-- List View -->
+    <UserList
+      v-else
+      :users="users"
+      :loading="loading"
+      @select="handleSelectUser"
+      @create="openCreateModal"
+    />
+
+    <!-- Create Modal -->
     <div
       v-if="showCreateModal"
       class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
       role="dialog"
       aria-modal="true"
     >
-      <div class="fixed inset-0 bg-black/50" @click="closeCreateModal"></div>
-      <div class="relative z-10 w-full max-w-3xl overflow-hidden rounded-lg border border-white/10 bg-white/90 p-6 shadow-xl dark:border-white/10 dark:bg-zinc-900/90">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ t('settings.users.createUser') }}</h3>
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" @click="closeCreateModal"></div>
+      <div class="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all">
+        <div class="flex items-center justify-between mb-5">
+          <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ t('settings.users.createUser') }}</h3>
           <button
             type="button"
-            class="text-neutral-500 hover:text-neutral-300"
-            :aria-label="t('common.dismiss')"
+            class="text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
             @click="closeCreateModal"
           >
-            &times;
+            <span class="sr-only">{{ t('common.dismiss') }}</span>
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        <form class="mt-4 space-y-4" @submit.prevent="handleCreate">
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-4">
-            <div>
-              <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.email') }} *</label>
+        
+        <form class="space-y-4" @submit.prevent="handleCreate">
+          <div>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.email') }} <span class="text-red-500">*</span></label>
+            <input
+              v-model.trim="newEmail"
+              type="email"
+              required
+              :placeholder="t('settings.users.emailPlaceholder')"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.username') }}</label>
+            <input
+              v-model.trim="newUsername"
+              type="text"
+              :placeholder="t('settings.users.usernameOptional')"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.password') }} <span class="text-red-500">*</span></label>
+            <input
+              v-model="newPassword"
+              type="password"
+              required
+              placeholder="••••••"
+              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+            />
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('settings.users.passwordMin') }}</p>
+          </div>
+          
+          <div class="flex items-start pt-2">
+            <div class="flex h-5 items-center">
               <input
-                v-model.trim="newEmail"
-                type="email"
-                :placeholder="t('settings.users.emailPlaceholder')"
-                class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
+                id="is-admin"
+                v-model="newIsAdmin"
+                type="checkbox"
+                class="h-4 w-4 rounded-sm border-zinc-300 text-zinc-600 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-800"
               />
             </div>
-            <div>
-              <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.username') }}</label>
-              <input
-                v-model.trim="newUsername"
-                :placeholder="t('settings.users.usernameOptional')"
-                class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
-              />
-            </div>
-            <div>
-              <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.password') }} *</label>
-              <input
-                v-model="newPassword"
-                type="password"
-                placeholder="••••••"
-                class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
-              />
-            </div>
-            <div class="flex items-end">
-              <label class="inline-flex items-center gap-2">
-                <input type="checkbox" v-model="newIsAdmin" />
-                <span>{{ t('settings.users.grantAdmin') }}</span>
-              </label>
+            <div class="ml-3 text-sm">
+              <label for="is-admin" class="font-medium text-zinc-700 dark:text-zinc-300">{{ t('settings.users.grantAdmin') }}</label>
+              <p class="text-zinc-500 dark:text-zinc-400">Grants full access to all settings and users.</p>
             </div>
           </div>
-          <div class="flex justify-end gap-2">
+
+          <div class="mt-6 flex justify-end gap-3">
             <button
               type="button"
-              class="rounded-md border border-white/10 px-3 py-1 text-sm text-white hover:bg-white/5"
+              class="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-xs hover:bg-zinc-50 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               @click="closeCreateModal"
             >
               {{ t('common.cancel') }}
@@ -311,75 +304,9 @@ onMounted(() => { loadUsers(); });
             <button
               type="submit"
               :disabled="creating"
-              class="rounded-md bg-green-600 px-3 py-1 text-sm text-white hover:bg-green-500 disabled:opacity-60"
+              class="inline-flex justify-center rounded-md border border-transparent bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50"
             >
               {{ creating ? t('settings.users.creating') : t('common.create') }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <div
-      v-if="showEditModal"
-      class="fixed inset-0 z-50 flex items-center justify-center px-4 py-6"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div class="fixed inset-0 bg-black/50" @click="closeEditModal"></div>
-      <div class="relative z-10 w-full max-w-2xl overflow-hidden rounded-lg border border-white/10 bg-white/90 p-6 shadow-xl dark:border-white/10 dark:bg-zinc-900/90">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold">{{ t('settings.users.editUser') }}</h3>
-          <button
-            type="button"
-            class="text-neutral-500 hover:text-neutral-300"
-            :aria-label="t('common.dismiss')"
-            @click="closeEditModal"
-          >
-            &times;
-          </button>
-        </div>
-        <form class="mt-4 space-y-4" @submit.prevent="handleEditSave">
-          <div>
-            <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.email') }} *</label>
-            <input
-              v-model.trim="editEmail"
-              type="email"
-              :placeholder="t('settings.users.emailPlaceholder')"
-              class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
-            />
-          </div>
-          <div>
-            <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.username') }}</label>
-            <input
-              v-model.trim="editUsername"
-              type="text"
-              :placeholder="t('settings.users.usernameOptional')"
-              class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
-            />
-          </div>
-          <div>
-            <label class="block text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('settings.users.displayName') }}</label>
-            <input
-              v-model.trim="editDisplayName"
-              type="text"
-              class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1"
-            />
-          </div>
-          <div class="flex justify-end gap-2">
-            <button
-              type="button"
-              class="rounded-md border border-white/10 px-3 py-1 text-sm text-white hover:bg-white/5"
-              @click="closeEditModal"
-            >
-              {{ t('common.cancel') }}
-            </button>
-            <button
-              type="submit"
-              :disabled="editingUser"
-              class="rounded-md bg-blue-600 px-3 py-1 text-sm text-white hover:bg-blue-500 disabled:opacity-60"
-            >
-              {{ editingUser ? t('settings.users.updating') : t('common.save') }}
             </button>
           </div>
         </form>

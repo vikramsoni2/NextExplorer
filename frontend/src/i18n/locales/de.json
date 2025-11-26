@@ -285,7 +285,9 @@
       "quality": "Bildqualität",
       "qualityHelp": "Steuert die Ausgabequalität (1–100). Default 70.",
       "maxDim": "Maximale Größe",
-      "maxDimHelp": "Längere Seite in Pixeln. Standard ist 200."
+      "maxDimHelp": "Längere Seite in Pixeln. Standard ist 200.",
+      "concurrency": "Parallele Generierung",
+      "concurrencyHelp": "Anzahl gleichzeitig zu generierender Miniaturansichten (1–50). Standard ist 10."
     },
     "security": {
       "title": "Authentifizierung",

@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import FolderView from '@/views/FolderView.vue'
-import VolumesHomeView from '@/views/VolumesHomeView.vue'
+import HomeView from '@/views/HomeView.vue'
 import EditorView from '@/views/EditorView.vue'
-import BrowserLayput from '@/layouts/BrowserLayput.vue'
+import BrowserLayout from '@/layouts/BrowserLayout.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
 import SearchResultsView from '@/views/SearchResultsView.vue'
 import SettingsLayout from '@/views/settings/SettingsLayout.vue'
@@ -51,12 +51,12 @@ const router = createRouter({
     },
     {
       path: '/browse',
-      component: BrowserLayput,
+      component: BrowserLayout,
       meta: { requiresAuth: true },
       children: [
         {
           path: '',
-          component: VolumesHomeView,
+          component: HomeView,
         },
         {
           path: ':path(.+)',
@@ -67,7 +67,7 @@ const router = createRouter({
     },
     {
       path: '/search',
-      component: BrowserLayput,
+      component: BrowserLayout,
       meta: { requiresAuth: true },
       children: [
         { path: '', component: SearchResultsView },

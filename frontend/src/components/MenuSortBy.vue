@@ -3,9 +3,8 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { SortByAlphaOutlined } from '@vicons/material';
 import { useSettingsStore } from '@/stores/settings'
-import { CheckIcon } from '@heroicons/vue/20/solid';
 import { onClickOutside } from '@vueuse/core';
-
+import { CheckIcon } from '@heroicons/vue/20/solid';
 
 const settings = useSettingsStore()
 const { t } = useI18n();
@@ -33,7 +32,7 @@ onClickOutside(menuPopup, () => {
 
   <div class="relative">
     <button @click="menuOpen = !menuOpen" 
-      class="p-[6px] rounded-md 
+      class="p-1.5 rounded-md 
       hover:bg-[rgb(239,239,240)] active:bg-zinc-200
       dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'dark:bg-zinc-700 dark:bg-opacity-70': menuOpen == true }"
@@ -69,7 +68,7 @@ onClickOutside(menuPopup, () => {
             
             <CheckIcon 
             class="h-4 w-4  dark:text-white invisible"
-            :class="{'!visible': settings.sortBy.key === option.key}"  />
+            :class="{'visible!': settings.sortBy.key === option.key}"  />
             {{ sortLabel(option) }}
           </button>
 

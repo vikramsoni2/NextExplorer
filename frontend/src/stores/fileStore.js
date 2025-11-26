@@ -241,6 +241,11 @@ export const useFileStore = defineStore('fileStore', () => {
       return null;
     }
 
+    // Check if item supports thumbnails (set by backend)
+    if (!item.supportsThumbnail) {
+      return null;
+    }
+
     // Respect app settings: if thumbnails disabled or settings not yet loaded, skip
     try {
       const appSettings = useAppSettings();

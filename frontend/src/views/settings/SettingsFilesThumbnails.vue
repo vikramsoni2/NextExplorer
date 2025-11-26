@@ -10,13 +10,15 @@ const local = reactive({
   enabled: true,
   quality: 70,
   size: 200,
+  concurrency: 10,
 });
 
 const original = computed(() => appSettings.state.thumbnails);
 const dirty = computed(() => (
   local.enabled !== original.value.enabled ||
   local.quality !== original.value.quality ||
-  local.size !== original.value.size
+  local.size !== original.value.size ||
+  local.concurrency !== original.value.concurrency
 ));
 
 watch(
@@ -25,6 +27,7 @@ watch(
     local.enabled = t.enabled;
     local.quality = t.quality;
     local.size = t.size;
+    local.concurrency = t.concurrency ?? 10;
   },
   { immediate: true },
 );
@@ -34,10 +37,18 @@ const reset = () => {
   local.enabled = t.enabled;
   local.quality = t.quality;
   local.size = t.size;
+  local.concurrency = t.concurrency ?? 10;
 };
 
 const save = async () => {
-  await appSettings.save({ thumbnails: { enabled: local.enabled, quality: local.quality, size: local.size } });
+  await appSettings.save({
+    thumbnails: {
+      enabled: local.enabled,
+      quality: local.quality,
+      size: local.size,
+      concurrency: local.concurrency
+    }
+  });
 };
 </script>
 
@@ -84,6 +95,17 @@ const save = async () => {
         </div>
         <div class="flex items-center gap-3">
           <input type="number" min="64" max="1024" step="1" v-model.number="local.size" class="w-24 rounded-md border border-white/10 bg-transparent px-2 py-1" />
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between py-2" :class="{ 'opacity-60 pointer-events-none': !local.enabled }">
+        <div>
+          <div class="font-medium">{{ t('settings.thumbs.concurrency') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.concurrencyHelp') }}</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <input type="range" min="1" max="50" v-model.number="local.concurrency" class="w-64" />
+          <input type="number" min="1" max="50" v-model.number="local.concurrency" class="w-16 rounded-md border border-white/10 bg-transparent px-2 py-1" />
         </div>
       </div>
     </section>

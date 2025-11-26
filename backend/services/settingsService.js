@@ -7,12 +7,15 @@ const { normalizeRelativePath } = require('../utils/pathUtils');
 const sanitizeThumbnails = (thumbnails = {}) => {
   return {
     enabled: typeof thumbnails.enabled === 'boolean' ? thumbnails.enabled : true,
-    size: Number.isFinite(thumbnails.size) 
-      ? Math.max(64, Math.min(1024, Math.floor(thumbnails.size))) 
+    size: Number.isFinite(thumbnails.size)
+      ? Math.max(64, Math.min(1024, Math.floor(thumbnails.size)))
       : 200,
-    quality: Number.isFinite(thumbnails.quality) 
-      ? Math.max(1, Math.min(100, Math.floor(thumbnails.quality))) 
+    quality: Number.isFinite(thumbnails.quality)
+      ? Math.max(1, Math.min(100, Math.floor(thumbnails.quality)))
       : 70,
+    concurrency: Number.isFinite(thumbnails.concurrency)
+      ? Math.max(1, Math.min(50, Math.floor(thumbnails.concurrency)))
+      : 10,
   };
 };
 
@@ -69,7 +72,7 @@ const sanitize = (settings) => {
 const getSettings = async () => {
   const data = await storage.get();
   return data.settings || {
-    thumbnails: { enabled: true, size: 200, quality: 70 },
+    thumbnails: { enabled: true, size: 200, quality: 70, concurrency: 10 },
     access: { rules: [] },
   };
 };

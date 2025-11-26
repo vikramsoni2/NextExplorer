@@ -87,8 +87,8 @@ const closeSettings = () => {
       </div>
     </aside>
 
-    <main class="flex flex-col grow dark:bg-opacity-95 dark:bg-zinc-800 shadow-lg">
-      <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-nextgray-700 dark:bg-opacity-50">
+    <main class="flex flex-col grow dark:bg-neutral-800/95 shadow-lg">
+      <div class="flex items-center p-6 py-4 shadow-md mb-4 dark:bg-neutral-700/50">
         <div class="flex items-center gap-3 mr-auto">
           <Cog8ToothIcon class="w-6" />
           <h1 class="text-lg font-semibold">{{ t('settings.title') }}</h1>

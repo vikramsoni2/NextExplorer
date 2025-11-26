@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, ref, watchEffect } from 'vue';
 
 import { apiBase } from '@/api';
 import { useAppSettings } from '@/stores/appSettings';
@@ -78,38 +78,27 @@ const isPreviewable = computed(() => {
   return isPreviewableImage(ext.value) || isPreviewableVideo(ext.value);
 });
 
-// Only request thumbnail once on mount, not on every prop change
-const requestThumbnailIfNeeded = () => {
-  if (props.disableThumbnails) {
-    return;
-  }
+// Track if we've already requested the thumbnail
+const hasRequestedThumbnail = ref(false);
 
-  if (!props.item || props.item.kind === 'directory') {
-    return;
-  }
+// Automatically request thumbnail when all conditions are met
+// watchEffect automatically tracks all reactive dependencies and re-runs when they change
+watchEffect(() => {
+  // Exit early if already requested
+  if (hasRequestedThumbnail.value) return;
 
-  if (!isPreviewable.value) {
-    return;
-  }
+  // Check all conditions
+  if (props.disableThumbnails) return;
+  if (!props.item || props.item.kind === 'directory') return;
+  if (!isPreviewable.value) return;
+  if (!appSettings.loaded) return;
+  if (appSettings.state.thumbnails?.enabled === false) return;
+  if (props.item.thumbnail) return;
+  if (!props.item.supportsThumbnail) return;
 
-  // Respect settings: if not loaded yet, wait; if disabled, skip
-  if (!appSettings.loaded) {
-    return;
-  }
-  if (appSettings.state.thumbnails?.enabled === false) {
-    return;
-  }
-
-  if (props.item.thumbnail) {
-    return;
-  }
-
+  // All conditions met - request thumbnail once
+  hasRequestedThumbnail.value = true;
   fileStore.ensureItemThumbnail(props.item);
-};
-
-// Request thumbnail only once on mount, not on every reactive change
-onMounted(() => {
-  requestThumbnailIfNeeded();
 });
 
 // Additional type groupings

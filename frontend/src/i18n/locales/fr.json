@@ -285,7 +285,9 @@
       "quality": "Qualité des miniatures",
       "qualityHelp": "Contrôle la qualité (1–100). Par défaut : 70.",
       "maxDim": "Dimension max",
-      "maxDimHelp": "Plus grand côté en pixels. Par défaut : 200."
+      "maxDimHelp": "Plus grand côté en pixels. Par défaut : 200.",
+      "concurrency": "Génération parallèle",
+      "concurrencyHelp": "Nombre de miniatures à générer simultanément (1–50). Par défaut : 10."
     },
     "security": {
       "title": "Authentification",

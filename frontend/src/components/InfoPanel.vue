@@ -6,7 +6,8 @@ import { formatBytes, formatDate } from '@/utils';
 import { getKindLabel } from '@/utils/fileKinds';
 import FileIcon from '@/icons/FileIcon.vue';
 import MapPreview from '@/components/MapPreview.vue';
-import { fetchMetadata } from '@/api';
+import PermissionsPanel from '@/components/PermissionsPanel.vue';
+import { fetchMetadata, fetchPermissions, changePermissions, changeOwnership } from '@/api';
 import { useI18n } from 'vue-i18n';
 
 const store = useInfoPanelStore();
@@ -39,6 +40,10 @@ const loading = ref(false);
 const details = ref(null);
 const errorMsg = ref('');
 
+const permissionsLoading = ref(false);
+const permissions = ref(null);
+const permissionsError = ref('');
+
 const loadDetails = async () => {
   if (!isOpen.value || !relativePath.value) {
     details.value = null;
@@ -52,6 +57,56 @@ const loadDetails = async () => {
     errorMsg.value = e?.message || t('info.failed');
   } finally {
     loading.value = false;
+  }
+};
+
+const loadPermissions = async () => {
+  if (!isOpen.value || !relativePath.value) {
+    permissions.value = null;
+    return;
+  }
+  permissionsLoading.value = true;
+  permissionsError.value = '';
+  try {
+    permissions.value = await fetchPermissions(relativePath.value);
+  } catch (e) {
+    permissionsError.value = e?.message || 'Failed to load permissions';
+  } finally {
+    permissionsLoading.value = false;
+  }
+};
+
+const handleChangePermissions = async ({ mode, recursive }) => {
+  if (!relativePath.value) return;
+
+  permissionsLoading.value = true;
+  permissionsError.value = '';
+
+  try {
+    await changePermissions(relativePath.value, mode, recursive);
+    // Reload permissions after successful change
+    await loadPermissions();
+  } catch (e) {
+    permissionsError.value = e?.message || 'Failed to change permissions';
+  } finally {
+    permissionsLoading.value = false;
+  }
+};
+
+const handleChangeOwner = async ({ owner, group }) => {
+  if (!relativePath.value) return;
+
+  permissionsLoading.value = true;
+  permissionsError.value = '';
+
+  try {
+    await changeOwnership(relativePath.value, owner, group);
+    // Reload permissions after successful change
+    await loadPermissions();
+  } catch (e) {
+    permissionsError.value = e?.message || 'Failed to change ownership';
+  } finally {
+    permissionsLoading.value = false;
   }
 };
 
@@ -79,12 +134,14 @@ watch(isOpen, (open) => {
   document.body.classList.toggle('overflow-hidden', open);
   if (open) {
     loadDetails();
+    loadPermissions();
   }
 });
 
 watch(relativePath, () => {
   if (isOpen.value) {
     loadDetails();
+    loadPermissions();
   }
 });
 
@@ -103,14 +160,14 @@ onBeforeUnmount(() => {
     <transition name="ip-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-[1450] bg-black/30" 
+        class="fixed inset-0 z-1450 bg-black/30" 
         @click="close"
       />
     </transition>
 
     <!-- Panel -->
     <div 
-      class="fixed inset-y-0 right-0 z-[1500] w-[380px] sm:w-[420px] transform transition-transform duration-200 ease-out"
+      class="fixed inset-y-0 right-0 z-1500 w-[380px] sm:w-[420px] transform transition-transform duration-200 ease-out"
       :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
       :aria-label="t('info.aria')"
     >
@@ -197,6 +254,16 @@ onBeforeUnmount(() => {
             <!-- Loading / error states -->
             <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('info.loading') }}</div>
             <div v-else-if="errorMsg" class="text-sm text-red-600 dark:text-red-400">{{ errorMsg }}</div>
+
+            <!-- Permissions Panel -->
+            <PermissionsPanel
+              :permissions="permissions"
+              :is-directory="item?.kind === 'directory'"
+              :loading="permissionsLoading"
+              @change-permissions="handleChangePermissions"
+              @change-owner="handleChangeOwner"
+            />
+            <div v-if="permissionsError" class="text-sm text-red-600 dark:text-red-400 mt-2">{{ permissionsError }}</div>
           </div>
         </div>
       </aside>

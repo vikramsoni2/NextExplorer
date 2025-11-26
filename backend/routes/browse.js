@@ -5,10 +5,6 @@ const fs = require('fs/promises');
 const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles, extensions } = require('../config/index');
-const {
-  getThumbnailPathIfExists,
-  queueThumbnailGeneration,
-} = require('../services/thumbnailService');
 const { getSettings } = require('../services/settingsService');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
@@ -71,17 +67,10 @@ router.get('/browse/*', asyncHandler(async (req, res) => {
       return null;
     }
 
+    // Mark files that support thumbnails without blocking on existence checks
+    // Client will request thumbnails lazily via /thumbnails/* endpoint
     if (thumbsEnabled && stats.isFile() && previewable.has(extension.toLowerCase()) && extension !== 'pdf') {
-      try {
-        const existingThumbnail = await getThumbnailPathIfExists(filePath);
-        if (existingThumbnail) {
-          item.thumbnail = existingThumbnail;
-        } else {
-          queueThumbnailGeneration(filePath);
-        }
-      } catch (error) {
-        logger.warn({ filePath, err: error }, 'Failed to schedule thumbnail');
-      }
+      item.supportsThumbnail = true;
     }
 
     return item;

@@ -285,7 +285,9 @@
       "quality": "Thumbnail quality",
       "qualityHelp": "Controls output quality (1–100). Default is 70.",
       "maxDim": "Max dimension",
-      "maxDimHelp": "Longest side in pixels. Default is 200."
+      "maxDimHelp": "Longest side in pixels. Default is 200.",
+      "concurrency": "Parallel generation",
+      "concurrencyHelp": "Number of thumbnails to generate simultaneously (1–50). Default is 10."
     },
     "security": {
       "title": "Authentication",

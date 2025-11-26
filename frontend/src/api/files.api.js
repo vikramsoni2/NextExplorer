@@ -144,6 +144,39 @@ const getPreviewUrl = (relativePath) => {
   return buildUrl(`/api/preview?${params.toString()}`);
 };
 
+async function fetchPermissions(relativePath) {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    throw new Error('A file path is required to fetch permissions.');
+  }
+  const encodedPath = encodePath(normalizedPath);
+  return requestJson(`/api/permissions/${encodedPath}`, { method: 'GET' });
+}
+
+async function changePermissions(path, mode, recursive = false) {
+  const normalizedPath = normalizePath(path);
+  return requestJson('/api/permissions/chmod', {
+    method: 'POST',
+    body: JSON.stringify({
+      path: normalizedPath,
+      mode,
+      recursive,
+    }),
+  });
+}
+
+async function changeOwnership(path, owner, group) {
+  const normalizedPath = normalizePath(path);
+  const payload = { path: normalizedPath };
+  if (owner) payload.owner = owner;
+  if (group) payload.group = group;
+
+  return requestJson('/api/permissions/chown', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 export {
   browse,
   getVolumes,
@@ -159,5 +192,8 @@ export {
   fetchMetadata,
   downloadItems,
   search,
-  getPreviewUrl
+  getPreviewUrl,
+  fetchPermissions,
+  changePermissions,
+  changeOwnership
 }

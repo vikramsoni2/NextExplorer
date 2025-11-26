@@ -25,7 +25,7 @@ function onBackgroundClick() {
 <template>
     <Teleport to="body" v-if="popupOpened">
         <div  @click="onBackgroundClick"
-        class="fixed top-0 z-50 flex items-center justify-center w-full h-full bg-opacity-50 max-sm:items-end bg-zinc-700 dark:bg-zinc-500 dark:bg-opacity-50">
+        class="fixed top-0 z-50 flex items-center justify-center w-full h-full max-sm:items-end bg-zinc-700/50 dark:bg-neutral-700/50 backdrop-blur-xs ">
             <div @click.stop
             class="rounded-xl w-[500px] shadow-lg 
             text-gray-800

@@ -20,7 +20,7 @@
       :href="previewUrl"
       target="_blank"
       rel="noopener noreferrer"
-      class="absolute bottom-3 right-3 rounded-md bg-neutral-800/80 px-3 py-1 text-sm font-medium text-white shadow hover:bg-neutral-700"
+      class="absolute bottom-3 right-3 rounded-md bg-neutral-800/80 px-3 py-1 text-sm font-medium text-white shadow-sm hover:bg-neutral-700"
     >
       Open in new tab
     </a>

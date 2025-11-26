@@ -6,22 +6,24 @@ import { useNavigation } from '@/composables/navigation';
 const { goNext, goPrev, goUp } = useNavigation();
 </script>
 <template>
+  <div class="flex items-center">
     <button 
     @click="goPrev"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2"
+    class="p-1.5 rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-1"
     :title="$t('nav.back')">
-      <ChevronLeft16Filled class="h-6"/>
+      <ChevronLeft16Filled class="h-5"/>
     </button>
     <button 
     @click="goNext"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2"
+    class="p-1.5 rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-1"
     :title="$t('nav.forward')">
-      <ChevronRight16Filled class="h-6"/>
+      <ChevronRight16Filled class="h-5"/>
     </button>
     <button 
     @click="goUp"
-    class="p-[6px] rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-6"
+    class="p-1.5 rounded-md dark:hover:bg-zinc-700 dark:active:bg-zinc-600 mr-2"
     :title="$t('nav.upOneFolder')">
-      <ArrowUp class="h-6"/>
+      <ArrowUp class="h-5"/>
     </button>
+  </div>
 </template>

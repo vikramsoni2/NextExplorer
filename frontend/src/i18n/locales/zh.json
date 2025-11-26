@@ -285,7 +285,9 @@
       "quality": "缩略图质量",
       "qualityHelp": "控制输出质量 (1–100)，默认 70。",
       "maxDim": "最大尺寸",
-      "maxDimHelp": "最长边的像素数，默认 200。"
+      "maxDimHelp": "最长边的像素数，默认 200。",
+      "concurrency": "并行生成",
+      "concurrencyHelp": "同时生成的缩略图数量 (1–50)，默认 10。"
     },
     "security": {
       "title": "身份验证",

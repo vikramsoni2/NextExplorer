@@ -198,8 +198,8 @@ onKeyStroke('Enter', (e) => {
 <template>
   <!-- Use v-show instead of v-if to keep component mounted but hidden -->
   <transition name="fade">
-    <div v-show="spotlight.isOpen" class="fixed inset-0 z-[550] flex items-start justify-center pt-[10vh]">
-      <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="spotlight.close()"></div>
+    <div v-show="spotlight.isOpen" class="fixed inset-0 z-550 flex items-start justify-center pt-[10vh]">
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-xs" @click="spotlight.close()"></div>
 
       <div class="relative w-[90%] sm:w-[640px] max-w-[720px] rounded-2xl shadow-2xl border border-neutral-200/70 dark:border-neutral-700/60 bg-white/90 dark:bg-zinc-800/95 overflow-hidden">
         <!-- Input row -->
@@ -211,10 +211,10 @@ onKeyStroke('Enter', (e) => {
             type="text"
             spellcheck="false"
             :placeholder="t('spotlight.placeholder')"
-            class="flex-1 bg-transparent outline-none text-[15px] placeholder-neutral-400 dark:placeholder-neutral-500 text-neutral-900 dark:text-neutral-100"
+            class="flex-1 bg-transparent outline-hidden text-[15px] placeholder-neutral-400 dark:placeholder-neutral-500 text-neutral-900 dark:text-neutral-100"
           />
           <div class="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
-            <span class="px-1.5 py-[2px] rounded border text-white border-neutral-500 dark:border-neutral-700 bg-neutral-500 dark:bg-neutral-900">Esc</span>
+            <span class="px-1.5 py-[2px] rounded-sm border text-white border-neutral-500 dark:border-neutral-700 bg-neutral-500 dark:bg-neutral-900">Esc</span>
             <span>{{ t('spotlight.close') }}</span>
           </div>
         </div>
@@ -232,7 +232,7 @@ onKeyStroke('Enter', (e) => {
               :key="item.path + '/' + item.name"
               :data-index="idx"
               type="button"
-              class="w-full text-left px-3 py-2 hover:bg-zinc-300/60 dark:hover:bg-slate-300/10 focus:bg-blue-50/70 dark:focus:bg-blue-500/10 outline-none"
+              class="w-full text-left px-3 py-2 hover:bg-zinc-300/60 dark:hover:bg-slate-300/10 focus:bg-blue-50/70 dark:focus:bg-blue-500/10 outline-hidden"
               :class="{ 'bg-zinc-300/60 dark:bg-slate-300/10 ': idx === activeIndex }"
               @mouseenter="activeIndex = idx"
               @click="openResult(item)"

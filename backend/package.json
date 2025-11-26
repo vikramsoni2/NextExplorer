@@ -10,6 +10,7 @@
     "author": "Vikram Soni",
     "license": "ISC",
     "dependencies": {
+        "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
         "archiver": "^6.0.2",
         "axios": "^1.7.7",
         "bcryptjs": "^2.4.3",
@@ -26,7 +27,7 @@
         "jsonwebtoken": "^9.0.2",
         "memorystore": "^1.6.7",
         "multer": "^1.4.5-lts.1",
-        "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
+        "p-queue": "^7.4.1",
         "pino": "^10.1.0",
         "pino-http": "^11.0.0",
         "pino-pretty": "^13.1.2",

@@ -14,6 +14,7 @@ const metadataRoutes = require('./metadata');
 const onlyofficeRoutes = require('./onlyoffice');
 const featuresRoutes = require('./features');
 const terminalRoutes = require('./terminal');
+const permissionsRoutes = require('./permissions');
 const { onlyoffice } = require('../config/index');
 
 const registerRoutes = (app) => {
@@ -30,6 +31,7 @@ const registerRoutes = (app) => {
   app.use('/api', searchRoutes);
   app.use('/api', usersRoutes);
   app.use('/api', metadataRoutes);
+  app.use('/api', permissionsRoutes);
   // Public features endpoint (always available)
   app.use('/api', featuresRoutes);
   // Admin-only terminal session endpoint
