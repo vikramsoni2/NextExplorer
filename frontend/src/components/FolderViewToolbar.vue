@@ -11,10 +11,6 @@ import { useSettingsStore } from '@/stores/settings';
 
 const settings = useSettingsStore();
 
-// Helper component for toolbar divider
-const ToolbarDivider = {
-  template: '<div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>'
-};
 </script>
 
 <template>
@@ -32,12 +28,12 @@ const ToolbarDivider = {
       <BreadCrumb class="ml-2"/>
 
       <MenuItemInfo class="ml-auto"/>
-      <ToolbarDivider />
+      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
       <MenuSortBy />
-      <ToolbarDivider />
+      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
       <ViewMode />
       <PhotoSizeControl v-if="settings.view === 'photos'" />
-      <ToolbarDivider />
+      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
       <NotificationBell />
       <SearchBar />
     </div>
