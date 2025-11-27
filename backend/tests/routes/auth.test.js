@@ -1,21 +1,30 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('node:path');
-const fs = require('node:fs');
 const express = require('express');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const request = require('supertest');
+const { setupTestEnv, clearModuleCache } = require('../helpers/env-test-utils');
 
-// Use temp dirs for DB and cache
-const tmpRoot = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-auth-'));
-process.env.CONFIG_DIR = path.join(tmpRoot, 'config');
-process.env.CACHE_DIR = path.join(tmpRoot, 'cache');
-process.env.SESSION_SECRET = 'test-secret';
+let envContext;
 
-// Build a tiny app with session and our auth routes.
-// Optionally control AUTH_ENABLED via options.
+test.before(async () => {
+  envContext = await setupTestEnv({
+    tag: 'auth-routes-test-',
+    modules: ['src/services/db', 'src/services/users', 'src/routes/auth'],
+  });
+});
+
+test.after(async () => {
+  await envContext.cleanup();
+});
+
 const buildApp = ({ authEnabled } = {}) => {
+  if (!envContext) {
+    throw new Error('Test environment not initialized');
+  }
+
   if (authEnabled === true) {
     process.env.AUTH_ENABLED = 'true';
   } else if (authEnabled === false) {
@@ -24,15 +33,12 @@ const buildApp = ({ authEnabled } = {}) => {
     delete process.env.AUTH_ENABLED;
   }
 
-  // Clear config and dependent modules so they pick up updated env
-  delete require.cache[require.resolve('../src/config/env')];
-  delete require.cache[require.resolve('../src/config/index')];
-  delete require.cache[require.resolve('../src/services/db')];
-  delete require.cache[require.resolve('../src/services/users')];
-  delete require.cache[require.resolve('../src/routes/auth')];
+  clearModuleCache('src/config/env');
+  clearModuleCache('src/config/index');
+  clearModuleCache('src/services/db');
+  clearModuleCache('src/services/users');
 
-  const authRoutes = require('../src/routes/auth');
-
+  const authRoutes = envContext.requireFresh('src/routes/auth');
   const app = express();
   app.use(bodyParser.json());
   app.use(session({
@@ -40,11 +46,13 @@ const buildApp = ({ authEnabled } = {}) => {
     resave: false,
     saveUninitialized: false,
   }));
+
   // Minimal stub for req.oidc so /status works without EOC
   app.use((req, _res, next) => {
     req.oidc = { isAuthenticated: () => false };
     next();
   });
+
   app.use('/api/auth', authRoutes);
   return app;
 };
