@@ -8,7 +8,7 @@ const tmpRoot = fs.mkdtempSync(path.join(process.cwd(), 'tmp-test-users-'));
 process.env.CONFIG_DIR = path.join(tmpRoot, 'config');
 process.env.CACHE_DIR = path.join(tmpRoot, 'cache');
 
-const users = require('../services/users.js');
+const users = require('../src/services/users.js');
 
 test('create local user, login, change password, and enforce lockout', async () => {
   // Initially no users

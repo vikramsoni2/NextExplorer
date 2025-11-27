@@ -1,6 +1,6 @@
 const express = require('express');
 const { onlyoffice, editor, features } = require('../config/index');
-const packageJson = require('../package.json');
+const packageJson = require('../../package.json');
 
 const router = express.Router();
 

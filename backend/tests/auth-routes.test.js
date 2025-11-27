@@ -25,13 +25,13 @@ const buildApp = ({ authEnabled } = {}) => {
   }
 
   // Clear config and dependent modules so they pick up updated env
-  delete require.cache[require.resolve('../config/env')];
-  delete require.cache[require.resolve('../config/index')];
-  delete require.cache[require.resolve('../services/db')];
-  delete require.cache[require.resolve('../services/users')];
-  delete require.cache[require.resolve('../routes/auth')];
+  delete require.cache[require.resolve('../src/config/env')];
+  delete require.cache[require.resolve('../src/config/index')];
+  delete require.cache[require.resolve('../src/services/db')];
+  delete require.cache[require.resolve('../src/services/users')];
+  delete require.cache[require.resolve('../src/routes/auth')];
 
-  const authRoutes = require('../routes/auth');
+  const authRoutes = require('../src/routes/auth');
 
   const app = express();
   app.use(bodyParser.json());
