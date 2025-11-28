@@ -5,7 +5,7 @@ import EditorView from '@/views/EditorView.vue'
 import BrowserLayout from '@/layouts/BrowserLayout.vue'
 import EditorLayout from '@/layouts/EditorLayout.vue'
 import SearchResultsView from '@/views/SearchResultsView.vue'
-import SettingsLayout from '@/views/settings/SettingsLayout.vue'
+import SettingsView from '@/views/settings/SettingsView.vue'
 import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue'
 import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue'
 import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue'
@@ -26,27 +26,33 @@ const router = createRouter({
     },
     {
       path: '/settings',
-      component: SettingsLayout,
+      component: BrowserLayout,
       meta: { requiresAuth: true },
       children: [
-        { path: '', redirect: '/settings/about' },
-        { path: 'files-thumbnails', component: SettingsFilesThumbnails, meta: { requiresAdmin: true } },
-        { path: 'account-password', component: SettingsPassword },
-        { path: 'access-control', component: SettingsAccessControl, meta: { requiresAdmin: true } },
-        // Admin-only placeholder routes
-        { path: 'admin-overview', component: SettingsComingSoon, meta: { requiresAdmin: true } },
-        { path: 'admin-users', component: AdminUsers, meta: { requiresAdmin: true } },
-        { path: 'admin-mounts', component: SettingsComingSoon, meta: { requiresAdmin: true } },
-        { path: 'admin-audit', component: SettingsComingSoon, meta: { requiresAdmin: true } },
-        // Scaffolded routes
-        { path: 'general', component: SettingsComingSoon },
-        { path: 'appearance', component: SettingsComingSoon },
-        { path: 'uploads-downloads', component: SettingsComingSoon },
-        { path: 'performance', component: SettingsComingSoon },
-        { path: 'logging', component: SettingsComingSoon },
-        { path: 'integrations', component: SettingsComingSoon },
-        { path: 'advanced', component: SettingsComingSoon },
-        { path: 'about', component: SettingsAbout },
+        {
+          path: '',
+          component: SettingsView,
+          children: [
+            { path: '', redirect: '/settings/about' },
+            { path: 'files-thumbnails', component: SettingsFilesThumbnails, meta: { requiresAdmin: true } },
+            { path: 'account-password', component: SettingsPassword },
+            { path: 'access-control', component: SettingsAccessControl, meta: { requiresAdmin: true } },
+            // Admin-only placeholder routes
+            { path: 'admin-overview', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+            { path: 'admin-users', component: AdminUsers, meta: { requiresAdmin: true } },
+            { path: 'admin-mounts', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+            { path: 'admin-audit', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+            // Scaffolded routes
+            { path: 'general', component: SettingsComingSoon },
+            { path: 'appearance', component: SettingsComingSoon },
+            { path: 'uploads-downloads', component: SettingsComingSoon },
+            { path: 'performance', component: SettingsComingSoon },
+            { path: 'logging', component: SettingsComingSoon },
+            { path: 'integrations', component: SettingsComingSoon },
+            { path: 'advanced', component: SettingsComingSoon },
+            { path: 'about', component: SettingsAbout },
+          ],
+        },
       ],
     },
     {
