@@ -18,12 +18,13 @@ import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 import TerminalPanel from '@/components/TerminalPanel.vue';
 import { useSettingsStore } from '@/stores/settings';
 import InfoPanel from '@/components/InfoPanel.vue';
-import { useFileUploader, useUppyDropTarget } from '@/composables/fileUploader';
-import { useUppyStore } from '@/stores/uppyStore';
-import { useFileStore } from '@/stores/fileStore';
+import { useFileUploader } from '@/composables/fileUploader';
 import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
+import NotificationBell from '@/components/NotificationBell.vue';
+import SearchBar from '@/components/SearchBar.vue';
 import SpotlightSearch from '@/components/SpotlightSearch.vue';
 import FavoriteEditDialog from '@/components/FavoriteEditDialog.vue';
+import { Bars3Icon } from '@heroicons/vue/24/outline';
 
 
 const route = useRoute()
@@ -76,10 +77,6 @@ const isVolumesView = computed(() => {
 
 // Ensure Uppy is initialized app-wide and bound to current path
 useFileUploader();
-const uppyStore = useUppyStore();
-const fileStore = useFileStore();
-const dropTargetRef = ref(null);
-useUppyDropTarget(dropTargetRef);
 
 // Global clipboard keyboard shortcuts for the browser layout
 useClipboardShortcuts();
@@ -119,17 +116,39 @@ useClipboardShortcuts();
     </div>
 
     <main
-      ref="dropTargetRef"
-      class="upload-drop-target flex flex-col grow relative bg-base shadow-lg"
+      class="flex flex-col grow relative bg-base shadow-lg"
     >
-      
+      <div class="flex flex-col h-full">
+        <!-- Mobile top bar -->
+        <header
+          class="lg:hidden grid grid-cols-3 items-center gap-2 px-3 py-2 border-b border-neutral-200 dark:border-neutral-800"
+        >
+          <div class="flex justify-start">
+            <label
+              for="sidebar-toggle"
+              class="-ml-1 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center"
+            >
+              <Bars3Icon class="h-6 w-6" />
+            </label>
+          </div>
 
-      <ExplorerContextMenu>
-        <div class="overflow-y-auto grow h-full pb-0.5">
-          <router-view :key="route.fullPath">
-          </router-view>
-        </div>
-      </ExplorerContextMenu>
+          <div class="flex justify-center">
+            <HeaderLogo appname="Explorer" />
+          </div>
+
+          <div class="flex items-center justify-end">
+            <NotificationBell/>
+            <SearchBar/>
+          </div>
+        </header>
+
+        <ExplorerContextMenu>
+          <div class="overflow-y-auto grow pb-0.5">
+            <router-view :key="route.fullPath">
+            </router-view>
+          </div>
+        </ExplorerContextMenu>
+      </div>
     </main>
   
   <!-- Backdrop to close sidebar on small screens -->
@@ -147,9 +166,9 @@ useClipboardShortcuts();
 </template>
 
 <style scoped>
-/* Minimal visual hint when dragging over the main area */
+
 .upload-drop-target.uppy-is-drag-over {
-  outline: 2px dashed rgba(59, 130, 246, 0.6); /* tailwind blue-500 */
+  outline: 2px dashed rgba(59, 130, 246, 0.6); 
   outline-offset: -2px;
 }
 
