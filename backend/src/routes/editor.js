@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
 
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
@@ -17,7 +17,7 @@ router.post('/editor', asyncHandler(async (req, res) => {
   }
 
   const relativePath = normalizeRelativePath(relative);
-  const absolutePath = resolveVolumePath(relativePath);
+  const { absolutePath } = resolveLogicalPath(relativePath, { user: req.user });
   const stats = await fs.stat(absolutePath);
 
   if (stats.isDirectory()) {
@@ -42,7 +42,7 @@ router.put('/editor', asyncHandler(async (req, res) => {
     throw new ValidationError('Cannot create files in the root volume path. Please select a specific volume first.');
   }
 
-  const absolutePath = resolveVolumePath(relativePath);
+  const { absolutePath } = resolveLogicalPath(relativePath, { user: req.user });
   await ensureDir(path.dirname(absolutePath));
   await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
   res.send({ success: true });

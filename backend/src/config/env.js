@@ -12,6 +12,7 @@ module.exports = {
   VOLUME_ROOT: process.env.VOLUME_ROOT || '/mnt',
   CONFIG_DIR: process.env.CONFIG_DIR || '/config',
   CACHE_DIR: process.env.CACHE_DIR || '/cache',
+  USER_ROOT: process.env.USER_ROOT || '',
   
   // Public URL & Network
   PUBLIC_URL: process.env.PUBLIC_URL?.trim() || null,
@@ -59,6 +60,7 @@ module.exports = {
   
   // Features
   SHOW_VOLUME_USAGE: normalizeBoolean(process.env.SHOW_VOLUME_USAGE) || false,
+  USER_DIR_ENABLED: normalizeBoolean(process.env.USER_DIR_ENABLED) || false,
 
   // Editor
   EDITOR_EXTENSIONS: process.env.EDITOR_EXTENSIONS || '',

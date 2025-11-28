@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { extensions } = require('../config/index');
 const { getThumbnail } = require('../services/thumbnailService');
 const logger = require('../utils/logger');
@@ -32,7 +32,14 @@ router.get('/thumbnails/*', asyncHandler(async (req, res) => {
     throw new ValidationError('A file path is required.');
   }
 
-  const absolutePath = resolveVolumePath(relativePath);
+  let resolved;
+  try {
+    resolved = resolveLogicalPath(relativePath, { user: req.user });
+  } catch (error) {
+    throw new NotFoundError('File not found.');
+  }
+
+  const { absolutePath, relativePath: logicalPath } = resolved;
   let stats;
   try {
     stats = await fs.stat(absolutePath);
@@ -65,7 +72,7 @@ router.get('/thumbnails/*', asyncHandler(async (req, res) => {
 
   // If thumbnail generation failed or produced no result, fall back to the original file
   if (!thumbnail && extensions.images.includes(extension)) {
-    const previewUrl = `/api/preview?path=${encodeURIComponent(relativePath)}`;
+    const previewUrl = `/api/preview?path=${encodeURIComponent(logicalPath)}`;
     return res.json({ thumbnail: previewUrl });
   }
 

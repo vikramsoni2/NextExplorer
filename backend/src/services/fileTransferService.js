@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const { ensureDir, pathExists } = require('../utils/fsUtils');
 const {
   normalizeRelativePath,
-  resolveVolumePath,
+  resolveLogicalPath,
   resolveItemPaths,
   combineRelativePath,
   findAvailableName,
@@ -46,25 +46,25 @@ const moveEntry = async (sourcePath, destinationPath, isDirectory) => {
   }
 };
 
-const transferItems = async (items, destination, operation) => {
+const transferItems = async (items, destination, operation, options = {}) => {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error('At least one item is required.');
   }
 
   const destinationRelative = normalizeRelativePath(destination);
 
-  // Prevent copying/moving items directly to the volume root
+  // Prevent copying/moving items directly to the root path
   if (!destinationRelative || destinationRelative.trim() === '') {
-    throw new Error('Cannot copy or move items to the root volume path. Please select a specific volume first.');
+    throw new Error('Cannot copy or move items to the root path. Please select a specific volume or folder first.');
   }
 
-  const destinationAbsolute = resolveVolumePath(destinationRelative);
+  const { absolutePath: destinationAbsolute } = resolveLogicalPath(destinationRelative, options);
   await ensureDir(destinationAbsolute);
 
   const results = [];
 
   for (const item of items) {
-    const { relativePath: sourceRelative, absolutePath: sourceAbsolute } = resolveItemPaths(item);
+    const { relativePath: sourceRelative, absolutePath: sourceAbsolute } = resolveItemPaths(item, options);
     if (!(await pathExists(sourceAbsolute))) {
       throw new Error(`Source path not found: ${sourceRelative}`);
     }
@@ -96,7 +96,7 @@ const transferItems = async (items, destination, operation) => {
   return { destination: destinationRelative, items: results };
 };
 
-const deleteItems = async (items = []) => {
+const deleteItems = async (items = [], options = {}) => {
   if (!Array.isArray(items) || items.length === 0) {
     throw new Error('At least one item is required.');
   }
@@ -104,7 +104,7 @@ const deleteItems = async (items = []) => {
   const results = [];
 
   for (const item of items) {
-    const { relativePath, absolutePath } = resolveItemPaths(item);
+    const { relativePath, absolutePath } = resolveItemPaths(item, options);
     if (!(await pathExists(absolutePath))) {
       results.push({ path: relativePath, status: 'missing' });
       continue;

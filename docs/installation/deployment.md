@@ -15,6 +15,7 @@ Deploy nextExplorer via Docker Compose for reproducible self-hosted workflows. T
 | Configuration, user DB, extensions | `/config` | Holds SQLite, `app-config.json`, and upgrades. Back this directory up before changes. |
 | Thumbnail/search cache | `/cache` | Regenerable; safe to delete when troubleshooting. |
 | Browsable data | `/mnt/Label` | Each mount appears as a top-level volume with the given label. |
+| Personal user data (optional) | `/srv/users` (or any path set as `USER_ROOT`) | When `USER_DIR_ENABLED=true`, each authenticated user gets their own private folder inside this root. |
 
 ## Production compose example
 
@@ -32,11 +33,16 @@ services:
       - SESSION_SECRET=please-change-me
       - PUID=1000
       - PGID=1000
+      # Enable per-user "My Files" home folders
+      - USER_DIR_ENABLED=true
+      - USER_ROOT=/srv/nextexplorer/users
     volumes:
       - /srv/nextexplorer/config:/config
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
       - /srv/data/Media:/mnt/Media
+      # Personal home folders (one subfolder per user)
+      - /srv/nextexplorer/users:/srv/nextexplorer/users
 ```
 
 - `PUBLIC_URL` informs the backend's cookie settings, CORS, and default OIDC callback (see `backend/config/env.js`).

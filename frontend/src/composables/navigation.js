@@ -25,6 +25,12 @@ export function useNavigation() {
       })();
       return;
     }
+    if (item.kind === 'personal') {
+      withViewTransition(() => {
+        router.push({ path: '/browse/personal' });
+      })();
+      return;
+    }
     if(item.kind==='directory'){
       const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
       withViewTransition(() => {

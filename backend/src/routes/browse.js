@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs/promises');
 
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles, extensions } = require('../config/index');
 const { getSettings } = require('../services/settingsService');
@@ -21,8 +21,18 @@ const previewable = new Set([
 router.get('/browse/*', asyncHandler(async (req, res) => {
   const settings = await getSettings();
   const thumbsEnabled = settings?.thumbnails?.enabled !== false;
-  const relativePath = normalizeRelativePath(req.params[0]);
-  const directoryPath = resolveVolumePath(relativePath);
+  const rawPath = req.params[0] || '';
+  const inputRelativePath = normalizeRelativePath(rawPath);
+
+  let resolved;
+  try {
+    resolved = resolveLogicalPath(inputRelativePath, { user: req.user });
+  } catch (error) {
+    logger.warn({ path: rawPath, err: error }, 'Failed to resolve browse path');
+    throw new NotFoundError('Path not found.');
+  }
+
+  const { absolutePath: directoryPath, relativePath } = resolved;
 
   if (!(await pathExists(directoryPath))) {
     throw new NotFoundError('Path not found.');

@@ -78,6 +78,7 @@ Run it with `docker compose up -d`, then visit `http://localhost:3000` to finish
 - [Admin & Access](/admin/guide): user management, policies, and audit trails.
 - [Installation & Networking](/installation/deployment): compose deployment, backups, and runtime concerns; check the [Reverse Proxy guide](/installation/reverse-proxy) for PUBLIC_URL, trusted proxies, TLS, and CORS.
 - [Configuration & Settings](/configuration/environment): environment variables and defaults; [Runtime Settings](/configuration/settings) describes in-app toggles and admin panels.
+- [Personal user folders](/configuration/personal-folders): per-user “My Files” home directories with `USER_ROOT` and `USER_DIR_ENABLED`.
 - [Integrations](/integrations/oidc): OIDC, Authelia, and ONLYOFFICE examples for SSO and document editing.
 - [Reference](/reference/troubleshooting): troubleshooting notes, the screenshot catalog, and release changelog.
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const { promisify } = require('util');
 const { exec } = require('child_process');
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
 const execp = promisify(exec);
@@ -26,8 +26,9 @@ const dirSize = async (root) => {
 };
 
 router.get('/usage/*', asyncHandler(async (req, res) => {
-  const rel = normalizeRelativePath(req.params[0] || '');
-  const abs = resolveVolumePath(rel);
+  const raw = req.params[0] || '';
+  const inputRel = normalizeRelativePath(raw);
+  const { absolutePath: abs, relativePath: rel } = resolveLogicalPath(inputRel, { user: req.user });
 
   // Run both commands in parallel for maximum speed
   const [size, dfResult] = await Promise.all([

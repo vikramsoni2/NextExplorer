@@ -4,7 +4,7 @@ const fs = require('fs/promises');
 const { spawn } = require('child_process');
 const readline = require('readline');
 
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles, search: searchConfig } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
@@ -288,8 +288,17 @@ router.get('/search', asyncHandler(async (req, res) => {
     throw new ValidationError('Search term (q) is required.');
   }
 
-  const relBase = normalizeRelativePath(req.query.path || '');
-  const baseAbs = resolveVolumePath(relBase);
+  const relBaseInput = normalizeRelativePath(req.query.path || '');
+
+  let resolvedBase;
+  try {
+    resolvedBase = resolveLogicalPath(relBaseInput, { user: req.user });
+  } catch (error) {
+    throw new NotFoundError('Base path not found.');
+  }
+
+  const baseAbs = resolvedBase.absolutePath;
+  const relBase = resolvedBase.relativePath;
 
   if (!(await pathExists(baseAbs))) {
     throw new NotFoundError('Base path not found.');

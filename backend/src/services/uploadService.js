@@ -4,7 +4,7 @@ const fss = require('fs');
 const multer = require('multer');
 
 const { ensureDir, pathExists } = require('../utils/fsUtils');
-const { normalizeRelativePath, resolveVolumePath, findAvailableName } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath, findAvailableName } = require('../utils/pathUtils');
 const { readMetaField } = require('../utils/requestUtils');
 const { getPermissionForPath } = require('./accessControlService');
 const logger = require('../utils/logger');
@@ -16,13 +16,15 @@ const resolveUploadPaths = (req, file) => {
   const uploadTo = normalizeRelativePath(uploadToMeta);
   const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
 
-  const destinationRoot = resolveVolumePath(uploadTo);
+  const { absolutePath: destinationRoot, relativePath: logicalBase } = resolveLogicalPath(uploadTo, { user: req.user });
   const destinationPath = path.join(destinationRoot, relativePath);
   const destinationDir = path.dirname(destinationPath);
 
   return {
     destinationPath,
     destinationDir,
+    logicalBase,
+    logicalRelativePath: normalizeRelativePath(path.join(logicalBase, relativePath)),
   };
 };
 
@@ -36,15 +38,14 @@ function CustomStorage() {
 CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
   (async () => {
     try {
-      const { destinationPath, destinationDir } = resolveUploadPaths(req, file);
+      const { destinationPath, destinationDir, logicalRelativePath } = resolveUploadPaths(req, file);
 
       // Enforce access control: destination directory must be writable
-      const volumeRoot = resolveVolumePath('');
-      const relDestDir = normalizeRelativePath(path.relative(volumeRoot, destinationDir));
+      const relDestDir = normalizeRelativePath(path.dirname(logicalRelativePath));
 
-      // Prevent uploading directly to the volume root
+      // Prevent uploading directly to the root path (no space / volume selected)
       if (!relDestDir || relDestDir.trim() === '') {
-        throw new Error('Cannot upload files to the root volume path. Please select a specific volume first.');
+        throw new Error('Cannot upload files to the root path. Please select a specific volume or folder first.');
       }
 
       await ensureDir(destinationDir);
@@ -94,6 +95,7 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
             path: finalPath,
             size: outStream.bytesWritten,
             filename: path.basename(finalPath),
+            logicalPath: logicalRelativePath,
           });
         } catch (renameErr) {
           await cleanupTemporary();

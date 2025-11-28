@@ -1,7 +1,7 @@
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
 const DOCUMENT_EXTENSIONS = ['pdf'];
-const EXCLUDED_FILES = ['thumbs.db', '.DS_Store'];
+const EXCLUDED_FILES = ['thumbs.db', '.DS_Store', '_users'];
 
 const MIME_TYPES = {
   jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif',

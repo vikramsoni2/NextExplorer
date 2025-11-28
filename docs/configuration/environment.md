@@ -18,6 +18,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `VOLUME_ROOT` | `/mnt` | Root directory that houses all mounted volumes. |
 | `CONFIG_DIR` | `/config` | Location for SQLite, `app-config.json`, extensions, and settings. |
 | `CACHE_DIR` | `/cache` | Location for thumbnails, ripgrep indexes, and temporary data. |
+| `USER_ROOT` | `<VOLUME_ROOT>/_users` when unset | Root directory for **per-user personal folders**. Each authenticated user gets their own subdirectory under this path. |
 
 ## Authentication
 
@@ -50,6 +51,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SEARCH_RIPGREP` | _true_ | Prefer ripgrep for fast searches; fallback search is used when unavailable. |
 | `SEARCH_MAX_FILESIZE` | _unbounded_ | Skip ripgrep for files larger than this (e.g., `5MB`). |
 | `SHOW_VOLUME_USAGE` | `false` | Show volume usage badges in the sidebar. |
+| `USER_DIR_ENABLED` | `false` | When `true`, enables a **personal “My Files” space** for each authenticated user under `USER_ROOT`. The frontend shows a “My Files” entry when this flag is on. |
 
 ## Editor
 

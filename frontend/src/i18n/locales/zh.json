@@ -89,6 +89,9 @@
     "title": "卷",
     "loading": "正在加载卷…"
   },
+  "drives": {
+    "personal": "我的文件"
+  },
   "browser": {
     "resizeSidebar": "调整侧边栏宽度"
   },

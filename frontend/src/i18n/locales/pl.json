@@ -89,6 +89,9 @@
     "title": "Woluminy",
     "loading": "Ładowanie woluminów…"
   },
+  "drives": {
+    "personal": "Moje pliki"
+  },
   "browser": {
     "resizeSidebar": "Zmień rozmiar paska bocznego"
   },

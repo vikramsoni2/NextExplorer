@@ -89,6 +89,9 @@
     "title": "Volúmenes",
     "loading": "Cargando volúmenes…"
   },
+  "drives": {
+    "personal": "Mis archivos"
+  },
   "browser": {
     "resizeSidebar": "Redimensionar barra lateral"
   },

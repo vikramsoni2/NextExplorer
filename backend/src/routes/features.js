@@ -17,6 +17,9 @@ router.get('/features', (_req, res) => {
     volumeUsage: {
       enabled: Boolean(features?.volumeUsage),
     },
+    personal: {
+      enabled: Boolean(features?.personalFolders),
+    },
     version: {
       app: packageJson.version || '1.0.0',
       gitCommit: process.env.GIT_COMMIT || '',

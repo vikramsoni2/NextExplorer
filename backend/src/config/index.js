@@ -16,6 +16,9 @@ const parseScopes = (raw) => {
 const volumeDir = path.resolve(env.VOLUME_ROOT);
 const configDir = path.resolve(env.CONFIG_DIR);
 const cacheDir = path.resolve(env.CACHE_DIR);
+const userRootDir = env.USER_ROOT
+  ? path.resolve(env.USER_ROOT)
+  : path.join(volumeDir, '_users');
 
 const directories = {
   volume: volumeDir,
@@ -24,6 +27,8 @@ const directories = {
   cache: cacheDir,
   thumbnails: path.join(cacheDir, 'thumbnails'),
   extensions: path.join(configDir, 'extensions'),
+  userRoot: userRootDir,
+  userRootWithSep: userRootDir.endsWith(path.sep) ? userRootDir : `${userRootDir}${path.sep}`,
 };
 
 // --- Public URL ---
@@ -162,6 +167,7 @@ module.exports = {
 
   features: {
     volumeUsage: env.SHOW_VOLUME_USAGE,
+    personalFolders: env.USER_DIR_ENABLED,
   },
   
   logging: {

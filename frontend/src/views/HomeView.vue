@@ -18,6 +18,7 @@ const featuresStore = useFeaturesStore();
 const usage = ref({});
 const { openItem, openBreadcrumb } = useNavigation();
 const showVolumeUsage = computed(() => featuresStore.volumeUsageEnabled);
+const personalEnabled = computed(() => featuresStore.personalEnabled);
 
 onMounted(async () => {
   try {
@@ -75,6 +76,15 @@ const quickAccess = computed(() => favoritesStore.favorites.map((favorite) => {
 const handleOpenFavorite = (favorite) => {
   if (!favorite?.path) return;
   openBreadcrumb(favorite.path);
+};
+
+const PersonalIcon = OutlineIcons.UserCircleIcon
+  || OutlineIcons.UserIcon
+  || OutlineIcons.UserGroupIcon
+  || OutlineIcons.StarIcon;
+
+const openPersonal = () => {
+  openBreadcrumb('personal');
 };
 </script>
 
@@ -147,6 +157,28 @@ const handleOpenFavorite = (favorite) => {
                 </div>
               </template>
             </template>
+          </div>
+        </button>
+      </div>
+      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('volumes.loading') }}</div>
+    </section>
+
+    <!-- Personal -->
+    <section v-if="personalEnabled">
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        {{ $t('drives.personal') }}
+      </h3>
+      <div v-if="!loading">
+        <button
+          type="button"
+          @dblclick="openPersonal"
+          class="flex items-center gap-3 py-4 text-left"
+        >
+          <component :is="PersonalIcon" class="h-16 shrink-0" />
+          <div>
+            <div class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white">
+              {{ $t('drives.personal') }}
+            </div>
           </div>
         </button>
       </div>

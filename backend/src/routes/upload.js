@@ -4,7 +4,6 @@ const fs = require('fs/promises');
 
 const { createUploadMiddleware } = require('../services/uploadService');
 const { normalizeRelativePath } = require('../utils/pathUtils');
-const { directories } = require('../config/index');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
 const { ValidationError } = require('../errors/AppError');
@@ -23,9 +22,11 @@ router.post('/upload', upload.fields([{ name: 'filedata', maxCount: 50 }]), asyn
 
   for (const file of req.files.filedata) {
     const stats = await fs.stat(file.path);
-    const relativeFilePath = normalizeRelativePath(path.relative(directories.volume, file.path));
-    const parentPath = normalizeRelativePath(path.dirname(relativeFilePath));
-    const storedName = path.basename(relativeFilePath);
+
+    // Prefer logicalPath set by upload service; fall back to empty string
+    const logicalPath = normalizeRelativePath(file.logicalPath || '');
+    const parentPath = normalizeRelativePath(path.dirname(logicalPath));
+    const storedName = path.basename(logicalPath || file.filename || '');
     const extension = path.extname(storedName).toLowerCase().replace('.', '');
 
     fileData.push({

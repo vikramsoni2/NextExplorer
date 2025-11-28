@@ -11,6 +11,7 @@ services:
       - /Users/vikram/Pictures:/mnt/Pictures
       - /Users/vikram/Downloads/config:/config
       - /Users/vikram/Downloads/cache:/cache
+      - /Users/vikram/Downloads/user_vols:/srv/users
     # user: "${UID:-1000}:${GID:-1000}"
     environment:
       - PORT=3001
@@ -20,6 +21,7 @@ services:
       - CACHE_DIR=/cache
       - PUBLIC_URL=https://files.vsoni.com
       - SESSION_SECRET=dev-change-me
+      
       - OIDC_ENABLED=true
       - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/
       - OIDC_CLIENT_ID=6HBh3lMneUwWCAeutdEgwNZ6myXzFc93clojdfmQ
@@ -31,6 +33,9 @@ services:
       - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
       - ONLYOFFICE_LANG=en
       
+      - USER_DIR_ENABLED=true
+      - USER_ROOT=/srv/users
+
       # - OIDC_TOKEN_URL=https://auth.vsoni.com/application/o/token/
       # - OIDC_USERINFO_URL=https://auth.vsoni.com/application/o/userinfo/
       # - OIDC_AUTHORIZATION_URL=https://auth.vsoni.com/application/o/authorize/

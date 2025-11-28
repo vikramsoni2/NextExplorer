@@ -25,6 +25,7 @@ export default defineConfig({
           { text: 'Reverse Proxy & Networking', link: '/installation/reverse-proxy' },
           { text: 'Experience', link: '/experience/features' },
           { text: 'User Workflows', link: '/experience/workflows' },
+          { text: 'Personal user folders', link: '/configuration/personal-folders' },
           { text: 'Admin & Access', link: '/admin/guide' },
           { text: 'OIDC', link: '/integrations/oidc' },
           { text: 'Authelia', link: '/integrations/authelia' },
@@ -75,7 +76,8 @@ export default defineConfig({
         text: 'Experience',
         items: [
           { text: 'Features', link: '/experience/features' },
-          { text: 'User Workflows', link: '/experience/workflows' }
+          { text: 'User Workflows', link: '/experience/workflows' },
+          { text: 'Personal user folders', link: '/configuration/personal-folders' }
         ]
       },
       {

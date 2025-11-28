@@ -7,7 +7,7 @@ const archiver = require('archiver');
 const { transferItems, deleteItems } = require('../services/fileTransferService');
 const {
   normalizeRelativePath,
-  resolveVolumePath,
+  resolveLogicalPath,
   combineRelativePath,
   findAvailableFolderName,
   ensureValidName,
@@ -58,13 +58,14 @@ router.post('/files/folder', asyncHandler(async (req, res) => {
 
   const parentRelative = normalizeRelativePath(destination);
 
-  // Prevent creating folders directly in the volume root
+  // Prevent creating folders directly in the root path (no space / volume selected)
   if (!parentRelative || parentRelative.trim() === '') {
-    throw new ValidationError('Cannot create folders in the root volume path. Please select a specific volume first.');
+    throw new ValidationError('Cannot create folders in the root path. Please select a specific volume or folder first.');
   }
 
   await assertWritable(parentRelative);
-  const parentAbsolute = resolveVolumePath(parentRelative);
+
+  const { absolutePath: parentAbsolute } = resolveLogicalPath(parentRelative, { user: req.user });
 
   let parentStats;
   try {
@@ -103,10 +104,10 @@ router.post('/files/rename', asyncHandler(async (req, res) => {
   }
 
   const parentRelative = normalizeRelativePath(parentPath);
-  const parentAbsolute = resolveVolumePath(parentRelative);
+  const { absolutePath: parentAbsolute } = resolveLogicalPath(parentRelative, { user: req.user });
 
   const currentRelative = combineRelativePath(parentRelative, originalName);
-  const currentAbsolute = resolveVolumePath(currentRelative);
+  const { absolutePath: currentAbsolute } = resolveLogicalPath(currentRelative, { user: req.user });
 
   await assertWritable(parentRelative);
 
@@ -129,7 +130,7 @@ router.post('/files/rename', asyncHandler(async (req, res) => {
   }
 
   const targetRelative = combineRelativePath(parentRelative, validatedNewName);
-  const targetAbsolute = resolveVolumePath(targetRelative);
+  const { absolutePath: targetAbsolute } = resolveLogicalPath(targetRelative, { user: req.user });
 
   if (await pathExists(targetAbsolute)) {
     throw new ConflictError(`The name "${validatedNewName}" is already taken.`);
@@ -154,7 +155,7 @@ router.post('/files/copy', asyncHandler(async (req, res) => {
   }
   await assertWritable(normalizeRelativePath(destination));
 
-  const result = await transferItems(items, destination, 'copy');
+  const result = await transferItems(items, destination, 'copy', { user: req.user });
   res.json({ success: true, ...result });
 }));
 
@@ -166,7 +167,7 @@ router.post('/files/move', asyncHandler(async (req, res) => {
   }
   await assertWritable(normalizeRelativePath(destination));
 
-  const result = await transferItems(items, destination, 'move');
+  const result = await transferItems(items, destination, 'move', { user: req.user });
   res.json({ success: true, ...result });
 }));
 
@@ -176,7 +177,7 @@ router.delete('/files', asyncHandler(async (req, res) => {
     const parent = normalizeRelativePath(item?.path || '');
     await assertWritable(parent);
   }
-  const results = await deleteItems(items);
+  const results = await deleteItems(items, { user: req.user });
   res.json({ success: true, items: results });
 }));
 
@@ -266,7 +267,7 @@ const stripBasePath = (relativePath, basePath) => {
   return relPosix;
 };
 
-const handleDownloadRequest = async (paths, res, basePath = '') => {
+const handleDownloadRequest = async (paths, req, res, basePath = '') => {
   if (!Array.isArray(paths) || paths.length === 0) {
     throw new ValidationError('At least one path is required.');
   }
@@ -279,9 +280,9 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
   const baseNormalized = basePath ? normalizeRelativePath(basePath) : '';
 
   const targets = await Promise.all(normalizedPaths.map(async (relativePath) => {
-    const absolutePath = resolveVolumePath(relativePath);
+    const { absolutePath, relativePath: logicalPath } = resolveLogicalPath(relativePath, { user: req.user });
     const stats = await fs.stat(absolutePath);
-    return { relativePath, absolutePath, stats };
+    return { relativePath: logicalPath, absolutePath, stats };
   }));
 
   const hasDirectory = targets.some(({ stats }) => stats.isDirectory());
@@ -365,7 +366,7 @@ const handleDownloadRequest = async (paths, res, basePath = '') => {
 router.post('/download', asyncHandler(async (req, res) => {
   const basePath = req.body?.basePath || req.body?.currentPath || '';
   const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
-  await handleDownloadRequest(paths, res, basePath);
+  await handleDownloadRequest(paths, req, res, basePath);
 }));
 
 router.get('/preview', asyncHandler(async (req, res) => {
@@ -375,7 +376,7 @@ router.get('/preview', asyncHandler(async (req, res) => {
   }
 
   const relativePath = normalizeRelativePath(relative);
-  const absolutePath = resolveVolumePath(relativePath);
+  const { absolutePath } = resolveLogicalPath(relativePath, { user: req.user });
   const stats = await fs.stat(absolutePath);
 
   if (stats.isDirectory()) {

@@ -5,7 +5,7 @@ const sharp = require('sharp');
 const ffmpeg = require('fluent-ffmpeg');
 let exifr = null;
 
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { extensions } = require('../config/index');
 const { getPermissionForPath } = require('../services/accessControlService');
 const logger = require('../utils/logger');
@@ -87,13 +87,21 @@ router.get('/metadata/*', asyncHandler(async (req, res) => {
     throw new ForbiddenError('Path is not accessible.');
   }
 
-    const absolutePath = resolveVolumePath(relativePath);
+  let resolved;
+  try {
+    resolved = resolveLogicalPath(relativePath, { user: req.user });
+  } catch (error) {
+    throw new NotFoundError('Path not found.');
+  }
+
+    const absolutePath = resolved.absolutePath;
+    const logicalPath = resolved.relativePath;
     const stats = await fs.stat(absolutePath);
-    const name = path.basename(relativePath);
-    const ext = path.extname(relativePath).slice(1).toLowerCase();
+    const name = path.basename(logicalPath);
+    const ext = path.extname(logicalPath).slice(1).toLowerCase();
 
     const base = {
-      path: relativePath,
+      path: logicalPath,
       name,
       kind: stats.isDirectory() ? 'directory' : (ext || 'unknown'),
       size: stats.size,
@@ -152,4 +160,3 @@ router.get('/metadata/*', asyncHandler(async (req, res) => {
 }));
 
 module.exports = router;
-

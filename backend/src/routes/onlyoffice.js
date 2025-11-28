@@ -7,7 +7,7 @@ const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
 const { onlyoffice, public: publicConfig, mimeTypes } = require('../config/index');
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
@@ -60,70 +60,85 @@ router.post('/onlyoffice/config', asyncHandler(async (req, res) => {
   }
 
   const relativePath = normalizeRelativePath(relativeRaw);
-  const abs = resolveVolumePath(relativePath);
+  const resolved = resolveLogicalPath(relativePath, { user: req.user });
+  const abs = resolved.absolutePath;
   const stat = await fsp.stat(abs);
   if (stat.isDirectory()) {
     throw new ValidationError('Cannot open a directory in ONLYOFFICE.');
   }
 
-    const filename = path.basename(abs);
-    const ext = toExt(filename);
-    const documentType = getDocumentType(ext);
+  const filename = path.basename(abs);
+  const ext = toExt(filename);
+  const documentType = getDocumentType(ext);
 
-    const fileUrl = new URL(`/api/onlyoffice/file`, publicConfig.url);
-    fileUrl.searchParams.set('path', relativePath);
+  const fileUrl = new URL(`/api/onlyoffice/file`, publicConfig.url);
+  fileUrl.searchParams.set('path', relativePath);
 
-    const callbackUrl = new URL(`/api/onlyoffice/callback`, publicConfig.url);
-    callbackUrl.searchParams.set('path', relativePath);
+  const callbackUrl = new URL(`/api/onlyoffice/callback`, publicConfig.url);
+  callbackUrl.searchParams.set('path', relativePath);
 
-    // Unique key should change when file changes to bust DS cache
-    const key = crypto.createHash('sha256')
-      .update(relativePath)
-      .update(String(stat.mtimeMs))
-      .digest('hex');
-
-    const canEdit = mode !== 'view';
-
-    const config = {
-      documentType, // text | spreadsheet | presentation
-      type: 'desktop',
-      document: {
-        fileType: ext,
-        key,
-        title: filename,
-        url: fileUrl.toString(),
-        permissions: {
-          edit: canEdit,
-          download: true,
-          print: true,
-          review: true,
-        },
-      },
-      editorConfig: {
-        mode: canEdit ? 'edit' : 'view',
-        callbackUrl: callbackUrl.toString(),
-        customization: {
-          anonymous: { request: false },
-        },
-        lang: onlyoffice.lang || 'en',
-        // Optionally attach current user info if available
-        user: (req.user && req.user.id) ? {
-          id: String(req.user.id),
-          name: req.user.displayName || req.user.username || 'User',
-        } : undefined,
-      },
+  // Backend context for storage requests (signed separately and passed via query)
+  let backendToken = null;
+  if (onlyoffice.secret) {
+    const backendPayload = {
+      absolutePath: abs,
+      logicalPath: resolved.relativePath,
+      space: resolved.space,
+      userId: req.user && req.user.id ? String(req.user.id) : null,
     };
+    backendToken = jwt.sign(backendPayload, onlyoffice.secret, { algorithm: 'HS256' });
+    fileUrl.searchParams.set('backend', backendToken);
+    callbackUrl.searchParams.set('backend', backendToken);
+  }
 
-    // Sign config for Document Server when ONLYOFFICE JWT is enabled
-    if (onlyoffice.secret) {
-      try {
-        // Important: sign the final config as-is; do not mutate URLs afterwards
-        const token = jwt.sign(config, onlyoffice.secret, { algorithm: 'HS256' });
-        config.token = token;
-      } catch (e) {
-        logger.warn({ err: e }, 'ONLYOFFICE: failed to sign config token');
-      }
+  // Unique key should change when file changes to bust DS cache
+  const key = crypto.createHash('sha256')
+    .update(relativePath)
+    .update(String(stat.mtimeMs))
+    .digest('hex');
+
+  const canEdit = mode !== 'view';
+
+  const config = {
+    documentType, // text | spreadsheet | presentation
+    type: 'desktop',
+    document: {
+      fileType: ext,
+      key,
+      title: filename,
+      url: fileUrl.toString(),
+      permissions: {
+        edit: canEdit,
+        download: true,
+        print: true,
+        review: true,
+      },
+    },
+    editorConfig: {
+      mode: canEdit ? 'edit' : 'view',
+      callbackUrl: callbackUrl.toString(),
+      customization: {
+        anonymous: { request: false },
+      },
+      lang: onlyoffice.lang || 'en',
+      // Optionally attach current user info if available
+      user: (req.user && req.user.id) ? {
+        id: String(req.user.id),
+        name: req.user.displayName || req.user.username || 'User',
+      } : undefined,
+    },
+  };
+
+  // Sign config for Document Server when ONLYOFFICE JWT is enabled
+  if (onlyoffice.secret) {
+    try {
+      // Important: sign the final config as-is; do not mutate URLs afterwards
+      const token = jwt.sign(config, onlyoffice.secret, { algorithm: 'HS256' });
+      config.token = token;
+    } catch (e) {
+      logger.warn({ err: e }, 'ONLYOFFICE: failed to sign config token');
     }
+  }
 
   res.json({
     documentServerUrl: onlyoffice.serverUrl,
@@ -151,7 +166,31 @@ router.get('/onlyoffice/file', asyncHandler(async (req, res) => {
     }
   }
 
-  const abs = resolveVolumePath(relativePath);
+  // Optionally, resolve from backend token (supports personal paths)
+  let backendCtx = null;
+  const backendToken = typeof req.query?.backend === 'string' ? req.query.backend : null;
+  if (backendToken && onlyoffice.secret) {
+    try {
+      const payload = jwt.verify(backendToken, onlyoffice.secret, { algorithms: ['HS256'] });
+      if (payload && typeof payload === 'object' && payload.absolutePath) {
+        backendCtx = payload;
+      }
+    } catch (e) {
+      logger.warn({ err: e }, 'ONLYOFFICE backend token verification failed');
+    }
+  }
+
+  // Determine absolute path:
+  // - Prefer signed backend context when available (works for personal paths)
+  // - Fallback to resolving logical path without user for volume-only paths
+  let abs = null;
+  if (backendCtx && typeof backendCtx.absolutePath === 'string' && backendCtx.absolutePath) {
+    abs = backendCtx.absolutePath;
+  } else {
+    const resolved = resolveLogicalPath(relativePath);
+    abs = resolved.absolutePath;
+  }
+
   const stat = await fsp.stat(abs);
   if (stat.isDirectory()) {
     throw new ValidationError('Cannot fetch a directory.');
@@ -179,6 +218,7 @@ router.post('/onlyoffice/callback', asyncHandler(async (req, res) => {
       throw new ValidationError('Path is required.');
     }
     const relativePath = normalizeRelativePath(relativeRaw);
+    // Verify DS JWT if configured
     if (onlyoffice.secret) {
       const token = getDsJwtFromReq(req);
       if (!token) {
@@ -191,11 +231,31 @@ router.post('/onlyoffice/callback', asyncHandler(async (req, res) => {
       }
     }
 
+    // Optionally, resolve from backend token (supports personal paths)
+    let backendCtx = null;
+    const backendToken = typeof req.query?.backend === 'string' ? req.query.backend : null;
+    if (backendToken && onlyoffice.secret) {
+      try {
+        const payload = jwt.verify(backendToken, onlyoffice.secret, { algorithms: ['HS256'] });
+        if (payload && typeof payload === 'object' && payload.absolutePath) {
+          backendCtx = payload;
+        }
+      } catch (e) {
+        logger.warn({ err: e }, 'ONLYOFFICE backend token verification failed (callback)');
+      }
+    }
+
     const body = req.body || {};
     const status = Number(body.status);
     // See ONLYOFFICE callback statuses: 2 - Save, 6 - Force Save
     if ((status === 2 || status === 6) && body.url) {
-      const abs = resolveVolumePath(relativePath);
+      let abs = null;
+      if (backendCtx && typeof backendCtx.absolutePath === 'string' && backendCtx.absolutePath) {
+        abs = backendCtx.absolutePath;
+      } else {
+        const resolved = resolveLogicalPath(relativePath);
+        abs = resolved.absolutePath;
+      }
       await ensureDir(path.dirname(abs));
       // Download updated file from Document Server
       const response = await axios.get(body.url, { responseType: 'stream' });

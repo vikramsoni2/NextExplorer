@@ -89,6 +89,9 @@
     "title": "Volumes",
     "loading": "Loading volumes…"
   },
+  "drives": {
+    "personal": "My Files"
+  },
   "browser": {
     "resizeSidebar": "Resize sidebar"
   },

@@ -89,6 +89,9 @@
     "title": "Volumes",
     "loading": "Volumes laden…"
   },
+  "drives": {
+    "personal": "Meine Dateien"
+  },
   "browser": {
     "resizeSidebar": "Seitenleiste anpassen"
   },

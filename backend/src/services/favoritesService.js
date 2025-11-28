@@ -1,7 +1,7 @@
 const fs = require('fs/promises');
 const crypto = require('crypto');
 const { getDb } = require('./db');
-const { normalizeRelativePath, resolveVolumePath } = require('../utils/pathUtils');
+const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
 const config = require('../config');
 
 const DEFAULT_FAVORITE_ICON = config.favorites.defaultIcon;
@@ -74,8 +74,8 @@ const getNextFavoritePosition = (db, userId) => {
 /**
  * Ensure path exists and is a directory
  */
-const validatePath = async (relativePath) => {
-  const absolutePath = resolveVolumePath(relativePath);
+const validatePath = async (relativePath, user) => {
+  const { absolutePath } = resolveLogicalPath(relativePath, { user });
   const stats = await fs.stat(absolutePath);
 
   if (!stats.isDirectory()) {
@@ -115,7 +115,7 @@ const addFavorite = async (userId, { path, label, icon, color }) => {
     throw err;
   }
 
-  await validatePath(favorite.path);
+  await validatePath(favorite.path, { id: userId });
 
   const db = await getDb();
   const now = new Date().toISOString();
