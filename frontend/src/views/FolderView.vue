@@ -124,7 +124,7 @@ const showNoPhotosMessage = computed(() => {
 
           <FileObject
             v-for="item in fileStore.getCurrentPathItems"
-            :key="item.name"
+            :key="(item.path || '') + '::' + item.name"
             :item="item"
             :view="settings.view"
           />
