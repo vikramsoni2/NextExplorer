@@ -503,7 +503,7 @@ router.get('/:token/browse/*', asyncHandler(async (req, res) => {
 
     const items = (await Promise.all(itemsPromises)).filter(Boolean);
 
-    return res.json({
+    const response = {
       items,
       access: {
         canRead: accessInfo.canRead,
@@ -514,7 +514,19 @@ router.get('/:token/browse/*', asyncHandler(async (req, res) => {
         canDownload: accessInfo.canDownload,
       },
       path: resolved.relativePath,
-    });
+    };
+
+    // Add share metadata for breadcrumb display
+    if (resolved?.shareInfo) {
+      const share = resolved.shareInfo;
+      const pathParts = (share.sourcePath || '').split('/').filter(Boolean);
+      response.shareInfo = {
+        label: share.label,
+        sourceFolderName: pathParts[pathParts.length - 1] || '',
+      };
+    }
+
+    return res.json(response);
   }
 
   // File share (virtual one-item directory)
@@ -537,7 +549,7 @@ router.get('/:token/browse/*', asyncHandler(async (req, res) => {
     },
   };
 
-  return res.json({
+  const response = {
     items: [item],
     access: {
       canRead: accessInfo.canRead,
@@ -548,7 +560,19 @@ router.get('/:token/browse/*', asyncHandler(async (req, res) => {
       canDownload: accessInfo.canDownload,
     },
     path: resolved.relativePath,
-  });
+  };
+
+  // Add share metadata for breadcrumb display
+  if (resolved?.shareInfo) {
+    const share = resolved.shareInfo;
+    const pathParts = (share.sourcePath || '').split('/').filter(Boolean);
+    response.shareInfo = {
+      label: share.label,
+      sourceFolderName: pathParts[pathParts.length - 1] || '',
+    };
+  }
+
+  return res.json(response);
 }));
 
 module.exports = router;

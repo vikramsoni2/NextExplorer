@@ -396,6 +396,8 @@ export const useFileStore = defineStore('fileStore', () => {
         canDelete: response.access?.canDelete ?? false,
         canShare: response.access?.canShare ?? false,
         canDownload: response.access?.canDownload ?? true,
+        // Include share metadata if present
+        shareInfo: response.shareInfo || null,
       };
     } else {
       // Fallback for old response format (array of items)

@@ -170,6 +170,7 @@ const getShareAccess = async (context, shareToken, innerPath) => {
       isOwner,
       label: share.label,
     },
+    share, // Include full share object for path resolution (avoids duplicate DB query)
     effectivePermission: isReadWrite ? 'rw' : 'ro',
     denialReason: null,
   };
@@ -229,9 +230,11 @@ const resolvePathWithAccess = async (context, relativePath) => {
     return { accessInfo, resolved: null };
   }
 
+  // Pass pre-fetched share to avoid duplicate DB query
   const resolved = await resolveLogicalPath(relativePath, {
     user: context.user || null,
     guestSession: context.guestSession || null,
+    share: accessInfo.share || null,
   });
 
   return { accessInfo, resolved };

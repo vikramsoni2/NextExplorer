@@ -238,7 +238,8 @@
     }
   },
   "breadcrumb": {
-    "volumes": "Volumes"
+    "volumes": "Volumes",
+    "share": "Share"
   },
   "sort": {
     "title": "Sort options",

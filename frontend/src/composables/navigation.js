@@ -56,6 +56,10 @@ export function useNavigation() {
   
 
   const openBreadcrumb = withViewTransition((path)=>{
+    if (path === 'share') {
+      router.push({ name: 'SharedWithMe' });
+      return;
+    }
     router.push({ path: `/browse/${path}` });
   });
 

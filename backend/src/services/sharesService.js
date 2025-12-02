@@ -224,7 +224,22 @@ const getSharesForUser = async (userId) => {
     ORDER BY s.created_at DESC
   `).all(userId);
 
-  return rows.map(toClientShare);
+  // For recipients, do not expose the original source path or space.
+  // Instead, expose a derived sourceName (leaf folder/file name) for display.
+  return rows.map((row) => {
+    const share = toClientShare(row);
+
+    const parts = (share.sourcePath || '').split('/').filter(Boolean);
+    const sourceName = parts.length ? parts[parts.length - 1] : null;
+
+    delete share.sourcePath;
+    delete share.sourceSpace;
+
+    return {
+      ...share,
+      sourceName,
+    };
+  });
 };
 
 /**

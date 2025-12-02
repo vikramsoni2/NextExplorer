@@ -92,7 +92,7 @@ router.get('/browse/*', asyncHandler(async (req, res) => {
 
   const fileData = (await Promise.all(fileDataPromises)).filter(Boolean);
 
-  res.json({
+  const response = {
     items: fileData,
     access: {
       canRead: accessInfo.canRead,
@@ -103,7 +103,19 @@ router.get('/browse/*', asyncHandler(async (req, res) => {
       canDownload: accessInfo.canDownload,
     },
     path: relativePath,
-  });
+  };
+
+  // Add share metadata for breadcrumb display
+  if (resolved?.shareInfo) {
+    const share = resolved.shareInfo;
+    const pathParts = (share.sourcePath || '').split('/').filter(Boolean);
+    response.shareInfo = {
+      label: share.label,
+      sourceFolderName: pathParts[pathParts.length - 1] || '',
+    };
+  }
+
+  res.json(response);
 }));
 
 module.exports = router;
