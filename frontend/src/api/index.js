@@ -5,6 +5,7 @@ export { apiBase, buildUrl, normalizePath, encodePath } from './http';
 
 // Export all domain-specific functions
 export * from './files.api';
+export * from './shares.api';
 export * from './auth.api';
 export * from './users.api';
 export * from './favorites.api';

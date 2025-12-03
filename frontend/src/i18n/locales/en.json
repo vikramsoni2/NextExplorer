@@ -1,19 +1,153 @@
 {
   "common": {
     "or": "OR",
+    "in": "in",
+    "to": "to",
+    "all": "All",
+    "and": "and",
     "cancel": "Cancel",
-    "delete": "Delete",
-    "deleting": "Deleting...",
-    "loading": "Loading",
-    "saving": "Saving...",
+    "close": "Close",
     "open": "Open",
     "edit": "Edit",
     "save": "Save",
     "discard": "Discard",
+    "delete": "Delete",
+    "deleting": "Deleting...",
     "remove": "Remove",
     "create": "Create",
+    "creating": "Creating…",
+    "saving": "Saving...",
+    "loading": "Loading",
+    "loadingEllipsis": "Loading…",
+    "verifying": "Verifying…",
+    "updating": "Updating…",
+    "preparing": "Preparing",
     "dismiss": "Dismiss",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+    "enabled": "Enabled",
+    "refresh": "Refresh",
+    "tryAgain": "Try again",
+    "done": "Done",
+    "remaining": "remaining",
+    "unknown": "unknown",
+    "optional": "Optional",
+    "name": "Name",
+    "size": "Size",
+    "type": "Type",
+    "path": "Path",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
+    "label": "Label",
+    "actions": "Actions",
+    "permissions": "Permissions",
+    "details": "Details",
+    "location": "Location",
+    "modified": "Modified",
+    "expires": "Expires",
+    "expired": "Expired",
+    "active": "Active",
+    "protected": "Protected",
+    "passwordProtected": "Password protected",
+    "noExpiration": "No expiration",
+    "recent": "Recent",
+    "item": "item",
+    "items": "items",
+    "files": "files",
+    "folders": "folders",
+    "file": "File",
+    "folder": "Folder",
+    "image": "Image",
+    "video": "Video",
+    "user": "User",
+    "admin": "Admin",
+    "roles": "Roles",
+    "settings": "Settings",
+    "share": "Share",
+    "shares": "Shares",
+    "unsavedChanges": "You have unsaved changes"
+  },
+  "status": {
+    "updated": "Updated successfully",
+    "failed": "Failed",
+    "passwordUpdated": "Password updated",
+    "completePercent": "{percent}% complete"
+  },
+  "actions": {
+    "newFolder": "New Folder",
+    "newFile": "New File",
+    "fileUpload": "Upload File",
+    "folderUpload": "Upload Folder",
+    "copy": "Copy",
+    "cut": "Cut",
+    "paste": "Paste",
+    "rename": "Rename",
+    "download": "Download",
+    "search": "Search",
+    "sortBy": "Sort by",
+    "addRule": "Add rule",
+    "clearAll": "Clear all",
+    "cancelAll": "Cancel all"
+  },
+  "placeholders": {
+    "email": "user{'@'}example.com",
+    "emailCompany": "name{'@'}company.com",
+    "username": "Defaults to email prefix",
+    "password": "Choose a strong password",
+    "confirmPassword": "Re-type your password",
+    "label": "My Shared Files",
+    "path": "e.g. Pictures/Holidays",
+    "search": "Search files and folders…"
+  },
+  "loading": {
+    "default": "Loading…",
+    "users": "Loading users...",
+    "metadata": "Loading metadata…",
+    "share": "Loading share...",
+    "shares": "Loading shares…",
+    "volumes": "Loading volumes…"
+  },
+  "errors": {
+    "failed": "Failed",
+    "searchFailed": "Search failed",
+    "loadMetadata": "Failed to load metadata",
+    "loadUsers": "Failed to load users",
+    "loadShares": "Failed to load shared items",
+    "updateRoles": "Failed to update roles",
+    "createUser": "Failed to create user",
+    "updateUser": "Failed to update user",
+    "removeUser": "Failed to remove user",
+    "resetPassword": "Failed to reset password",
+    "changePassword": "Failed to change password",
+    "createShare": "Failed to create share",
+    "signIn": "Failed to sign in",
+    "createAccount": "Failed to create account",
+    "invalidSourcePath": "Invalid source path",
+    "invalidPassword": "Invalid password",
+    "selectAtLeastOneUser": "Please select at least one user",
+    "pleaseEnterPassword": "Please enter a password",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "passwordLength": "Password must be at least 6 characters long",
+    "passwordMin": "Password must be at least 6 characters",
+    "passwordMismatch": "Passwords do not match",
+    "localSignInDisabled": "Local sign-in is disabled"
+  },
+  "titles": {
+    "volumes": "Volumes",
+    "favorites": "Favorites",
+    "notifications": "Notifications",
+    "terminal": "Terminal",
+    "settings": "Settings",
+    "about": "About",
+    "thumbnails": "Thumbnails",
+    "authentication": "Authentication",
+    "folderRules": "Folder Rules",
+    "comingSoon": "Coming soon",
+    "changePassword": "Change Password",
+    "userManagement": "User Management",
+    "share": "Share",
+    "sortOptions": "Sort options"
   },
   "i18n": {
     "language": "Language",
@@ -26,19 +160,15 @@
     "polish": "Polish"
   },
   "search": {
-    "search": "Search",
     "openShortcutTitle": "Open Search (⌘/Ctrl + K)",
-    "resultsFor": "Results for “{q}”",
-    "in": "in",
+    "resultsFor": "Results for \"{q}\"",
     "searching": "Searching…",
-    "noMatches": "No matches found.",
-    "failed": "Search failed",
+    "noMatches": "No matches found",
     "openFolder": "Open folder",
     "line": "line"
   },
   "user": {
     "account": "Account",
-    "settings": "Settings",
     "signOut": "Sign out",
     "useLightTheme": "Use light theme",
     "useDarkTheme": "Use dark theme",
@@ -46,23 +176,12 @@
     "darkTheme": "Dark theme"
   },
   "create": {
-    "createNew": "Create New",
-    "newFolder": "New Folder",
-    "newFile": "New File",
-    "fileUpload": "Upload File",
-    "folderUpload": "Upload Folder"
+    "createNew": "New"
   },
   "context": {
     "getInfo": "Get Info",
     "addToFavorites": "Add to Favorites",
     "removeFromFavorites": "Remove from Favorites",
-    "newFolder": "New Folder",
-    "newFile": "New File",
-    "paste": "Paste",
-    "cut": "Cut",
-    "copy": "Copy",
-    "rename": "Rename",
-    "delete": "Delete",
     "deleteTitle": {
       "single": "Delete \"{name}\"?",
       "multiple": "Delete {count} items?",
@@ -75,19 +194,17 @@
     }
   },
   "folder": {
-    "name": "Name",
-    "size": "Size",
     "kind": "Kind",
     "dateModified": "Date Modified",
-    "loading": "Loading",
     "noPhotos": "No photos in this folder",
     "noPhotosHint": "Switch to another view mode to see all files"
   },
   "volumes": {
     "quickAccess": "Quick access",
-    "quickAccessEmpty": "Pin folders as favorites to access them quickly here.",
-    "title": "Volumes",
-    "loading": "Loading volumes…"
+    "quickAccessEmpty": "Pin folders as favorites to access them quickly here."
+  },
+  "drives": {
+    "personal": "My Files"
   },
   "browser": {
     "resizeSidebar": "Resize sidebar"
@@ -109,21 +226,15 @@
     "thumbnailSize": "Thumbnail size"
   },
   "favorites": {
-    "title": "Favorites",
     "emptyTitle": "No favorites yet",
     "emptyDescription": "Select a directory and tap the star in the main toolbar to pin it here.",
     "editTitle": "Edit favorite",
-    "path": "Path",
-    "name": "Name",
     "icon": "Icon"
   },
   "notifications": {
-    "title": "Notifications",
     "open": "Open notifications",
     "closePanel": "Close notifications panel",
-    "clearAll": "Clear all",
     "empty": "No notifications",
-    "dismiss": "Dismiss notification",
     "filters": {
       "error": "Errors",
       "warning": "Warnings",
@@ -132,12 +243,9 @@
     }
   },
   "spotlight": {
-    "placeholder": "Search files and folders…",
-    "close": "Close",
     "hintWithin": "Type to search within"
   },
   "download": {
-    "download": "Download",
     "preparing": "Preparing download..."
   },
   "upload": {
@@ -145,35 +253,18 @@
     "toggleDetailsHide": "Hide details",
     "pauseUploads": "Pause uploads",
     "resumeUploads": "Resume uploads",
-    "cancelAll": "Cancel all",
-    "uploads": "Uploading {count} {items}",
-    "item": "item",
-    "items": "items",
-    "to": "to",
-    "done": "Done",
-    "remaining": "remaining",
-    "completePercent": "{percent}% complete"
+    "uploads": "Uploading {count} {items}"
   },
   "info": {
     "aria": "Info panel",
-    "details": "Details",
     "fileName": "File Name",
-    "type": "Type",
-    "size": "Size",
-    "modified": "Modified",
-    "location": "Location",
-    "folder": "Folder",
     "folderSize": "Size: {size}",
-    "items": "Items: {files} files, {folders} folders",
-    "image": "Image",
-    "video": "Video",
+    "itemsCount": "Items: {files} files, {folders} folders",
     "dimensions": "Dimensions: {w} × {h}",
     "dateTaken": "Date Taken: {date}",
     "camera": "Camera: {makeModel}",
     "lens": "Lens: {lens}",
-    "duration": "Duration: {seconds}s",
-    "loading": "Loading metadata…",
-    "failed": "Failed to load metadata"
+    "duration": "Duration: {seconds}s"
   },
   "auth": {
     "preparing": "Preparing your explorer…",
@@ -200,7 +291,7 @@
       }
     },
     "setup": {
-      "headline": "Let’s get set up",
+      "headline": "Let's get set up",
       "subtitle": "Create your administrator account to secure and manage your files.",
       "formTitle": "Create your account",
       "formSubtitle": "Provide an email and secure password to finish setup.",
@@ -211,34 +302,18 @@
         "sso": "Seamless Single Sign-On support."
       }
     },
-    "email": "Email address",
-    "emailPlaceholder": "name{'@'}company.com",
+    "emailAddress": "Email address",
     "usernameOptional": "Username (optional)",
-    "usernamePlaceholder": "Defaults to email prefix",
-    "password": "Password",
-    "passwordPlaceholder": "Choose a strong password",
     "confirmPassword": "Confirm password",
-    "confirmPasswordPlaceholder": "Re-type your password",
-    "verifying": "Verifying…",
-    "creating": "Creating…",
     "sso": {
       "continue": "Continue with Single Sign-On"
-    },
-    "errors": {
-      "localSignInDisabled": "Local sign-in is disabled.",
-      "emailRequired": "Email is required.",
-      "passwordRequired": "Password is required.",
-      "passwordLength": "Password must be at least 6 characters long.",
-      "passwordMismatch": "Passwords do not match.",
-      "signInFailed": "Failed to sign in.",
-      "createAccountFailed": "Failed to create account."
     }
   },
   "breadcrumb": {
-    "volumes": "Volumes"
+    "volumes": "Volumes",
+    "share": "Share"
   },
   "sort": {
-    "title": "Sort options",
     "nameAToZ": "Name A to Z",
     "nameZToA": "Name Z to A",
     "smallToLarge": "Small to large",
@@ -247,38 +322,28 @@
     "newToOld": "New to old"
   },
   "terminal": {
-    "title": "Terminal",
-    "close": "Close terminal",
     "menuHeading": "Tools",
     "menuOpen": "Terminal"
   },
   "settings": {
-    "user": "User",
-    "admin": "Admin",
-    "title": "Settings",
-    "close": "Close settings",
     "categories": {
-      "account-password": "Change Password",
+      "accountPassword": "Change Password",
       "about": "About",
-      "files-thumbnails": "Files & Thumbnails",
+      "filesThumbnails": "Files & Thumbnails",
       "security": "Security",
-      "access-control": "Access Control",
-      "admin-users": "User Management"
+      "accessControl": "Access Control",
+      "adminUsers": "User Management"
     },
     "about": {
-      "title": "About",
       "subtitle": "View build information for this application.",
       "appVersion": "App version",
       "appVersionHelp": "The build version currently running.",
       "gitCommit": "Git commit",
       "gitCommitHelp": "Source revision embedded at build time.",
       "branch": "Branch",
-      "branchHelp": "Git branch at build time.",
-      "unknown": "unknown"
+      "branchHelp": "Git branch at build time."
     },
-    "common": { "unsavedChanges": "You have unsaved changes" },
     "thumbs": {
-      "title": "Thumbnails",
       "subtitle": "Customize preview thumbnails for images and videos.",
       "enable": "Enable thumbnails",
       "enableHelp": "Turn off to speed up browsing without generating previews.",
@@ -290,66 +355,79 @@
       "concurrencyHelp": "Number of thumbnails to generate simultaneously (1–50). Default is 10."
     },
     "security": {
-      "title": "Authentication",
       "subtitle": "Control access to the app.",
       "enable": "Enable authentication",
       "enableHelp": "When off, anyone can access your files.",
       "confirmDisable": "Disabling authentication will make your files publicly accessible. Continue?"
     },
     "access": {
-      "title": "Folder Rules",
       "subtitle": "Set per-folder permissions: read-write, read-only, or hidden.",
-      "addRule": "Add rule",
-      "path": "Path",
       "recursive": "Recursive",
-      "permissions": "Permissions",
-      "pathPlaceholder": "e.g. Pictures/Holidays",
       "readWrite": "Read & Write",
       "readOnly": "Read Only",
       "hidden": "Hidden"
     },
-    "comingSoon": { "title": "Coming soon", "subtitle": "This settings section is being built. Stay tuned!" },
+    "comingSoon": {
+      "subtitle": "This settings section is being built. Stay tuned!"
+    },
     "password": {
-      "title": "Change Password",
       "notLocalUser": "Password can only be changed for local users. Your account is managed by your identity provider.",
       "current": "Current password",
       "new": "New password",
       "confirm": "Confirm new password",
       "update": "Update Password",
-      "updating": "Updating…",
-      "updated": "Password updated successfully.",
-      "failed": "Failed to change password",
+      "success": "Password updated successfully.",
       "validation": "Please fill all fields; new password must be at least 6 characters and match confirmation."
     },
     "users": {
-      "title": "User Management",
-      "failedLoad": "Failed to load users",
-      "failedUpdateRoles": "Failed to update roles",
-      "failedCreate": "Failed to create user",
-      "passwordMin": "Password must be at least 6 characters.",
-      "passwordUpdated": "Password updated",
-      "failedReset": "Failed to reset password",
       "cannotDeleteSelf": "You cannot delete your own account.",
       "confirmRemove": "Remove user {user}? This cannot be undone.",
-      "failedRemove": "Failed to remove user",
       "createUser": "Create User",
-      "email": "Email",
-      "emailPlaceholder": "user{'@'}example.com",
-      "username": "Username",
-      "usernameOptional": "Optional",
-      "password": "Password",
       "grantAdmin": "Grant admin",
-      "creating": "Creating…",
       "displayName": "Display Name",
-      "roles": "Roles",
-      "actions": "Actions",
       "makeAdmin": "Make admin",
       "resetPassword": "Set/Reset password",
       "removeUser": "Remove user",
       "promptNewPassword": "Enter a new password for {user} (min 6 chars):",
-      "failedUpdate": "Failed to update user",
-      "editUser": "Edit user",
-      "updating": "Updating…"
+      "editUser": "Edit user"
     }
+  },
+  "share": {
+    "sharedWithMe": "Shared With Me",
+    "sharedWithMeDescription": "Files and folders other people have shared with your account.",
+    "shareCreated": "Share Created",
+    "createShareLink": "Create Share Link",
+    "shareLink": "Share Link",
+    "shareLinkCreatedSuccess": "Share link created successfully!",
+    "shareSelectedItem": "Share selected item",
+    "selectItemToShare": "Select an item to share",
+    "sharing": "Sharing:",
+    "sharedItem": "Shared Item",
+    "sharedFolder": "Shared Folder",
+    "sharedFile": "Shared File",
+    "accessMode": "Access Mode",
+    "whoCanAccess": "Who can access",
+    "anyoneWithLink": "Anyone with link",
+    "specificUsers": "Specific users",
+    "selectUsers": "Select Users",
+    "noUsersAvailable": "No users available",
+    "passwordProtect": "Password protect",
+    "enterPassword": "Enter password",
+    "setExpirationDate": "Set expiration date",
+    "expiresAt": "Expires",
+    "shareExpired": "Share Expired",
+    "shareNotFound": "Share Not Found",
+    "shareExpiredMessage": "This share link has expired and is no longer accessible.",
+    "goToHome": "Go to Home",
+    "accessShare": "Access Share",
+    "signInToAccess": "Sign In to Access",
+    "requiresAuthentication": "This share requires authentication.",
+    "noSharedItemsToShow": "No shared items to show",
+    "noSharedItemsYet": "When someone shares files or folders with you, they will appear here.",
+    "adjustFilters": "Adjust your filters or clear the search to see more items.",
+    "filterByNameOrPath": "Filter by name or path",
+    "sharedBy": "Shared by owner",
+    "lastAccessed": "Last accessed",
+    "created": "Created"
   }
 }

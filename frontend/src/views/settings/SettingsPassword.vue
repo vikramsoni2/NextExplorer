@@ -29,12 +29,12 @@ const submit = async () => {
   busy.value = true;
   try {
     await changePassword({ currentPassword: currentPassword.value, newPassword: newPassword.value });
-    successMsg.value = t('settings.password.updated');
+    successMsg.value = t('settings.password.success');
     currentPassword.value = '';
     newPassword.value = '';
     confirmPassword.value = '';
   } catch (e) {
-    errorMsg.value = e?.message || t('settings.password.failed');
+    errorMsg.value = e?.message || t('errors.changePassword');
   } finally {
     busy.value = false;
   }
@@ -43,7 +43,7 @@ const submit = async () => {
 
 <template>
   <div class="space-y-4">
-    <h2 class="text-lg font-semibold">{{ t('settings.password.title') }}</h2>
+    <h2 class="text-lg font-semibold">{{ t('titles.changePassword') }}</h2>
     <p v-if="auth.currentUser?.provider !== 'local'" class="text-sm opacity-75">
       {{ t('settings.password.notLocalUser') }}
     </p>
@@ -62,7 +62,7 @@ const submit = async () => {
       </div>
       <div class="flex gap-3 items-center">
         <button type="submit" class="rounded-sm bg-accent text-black px-4 py-2 disabled:opacity-50" :disabled="busy || !canSubmit()">
-          {{ busy ? t('settings.password.updating') : t('settings.password.update') }}
+          {{ busy ? t('common.updating') : t('settings.password.update') }}
         </button>
         <span v-if="successMsg" class="text-green-500 text-sm">{{ successMsg }}</span>
         <span v-else-if="errorMsg" class="text-red-500 text-sm">{{ errorMsg }}</span>

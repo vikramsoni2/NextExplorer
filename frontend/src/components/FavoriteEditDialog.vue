@@ -112,7 +112,7 @@ const favoriteIconOptions = computed(() =>
     <div class="space-y-4">
       <div>
         <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-          {{ t('favorites.path')}}
+          {{ t('common.path')}}
         </label>
         <input
           v-model="editorPath"
@@ -123,7 +123,7 @@ const favoriteIconOptions = computed(() =>
       </div>
       <div>
         <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-          {{ t('favorites.name')}}
+          {{ t('common.name')}}
         </label>
         <input
           v-model="editorName"

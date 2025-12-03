@@ -78,7 +78,7 @@ const isPreviewable = computed(() => {
   return isPreviewableImage(ext.value) || isPreviewableVideo(ext.value);
 });
 
-// Track if we've already requested the thumbnail
+// Track if we've already requested the thumbnail in this component instance
 const hasRequestedThumbnail = ref(false);
 
 // Automatically request thumbnail when all conditions are met

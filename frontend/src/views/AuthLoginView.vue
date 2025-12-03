@@ -3,16 +3,14 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import AuthLayout from '@/layouts/AuthLayout.vue';
-import { LockClosedIcon, KeyIcon, InformationCircleIcon, XMarkIcon } from '@heroicons/vue/24/outline';
-import { useStorage } from '@vueuse/core';
+import { LockClosedIcon, KeyIcon } from '@heroicons/vue/24/outline';
 import { apiBase } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { useFeaturesStore } from '@/stores/features';
 
-const version = __APP_VERSION__
-
 const auth = useAuthStore();
+const featuresStore = useFeaturesStore();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -34,39 +32,9 @@ const redirectTarget = computed(() => {
 });
 
 const inputBaseClasses =
-  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-neutral-800/70 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-blue-500/60 focus:outline-hidden transition';
-
-const buttonBaseClasses =
-  'w-full h-12 rounded-lg bg-blue-500 px-4 font-semibold text-neutral-100 transition hover:bg-blue-500/90 disabled:cursor-not-allowed disabled:opacity-60';
+  'mt-2 w-full h-12 rounded-xl ring-1 ring-inset ring-white/10 bg-neutral-800/70 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-white/60 focus:outline-hidden transition';
 
 const helperTextClasses = 'text-sm text-red-400';
-
-// Announcements pulled from public features endpoint
-const announcement = ref(null);
-const hasAnnouncement = computed(() => Boolean(announcement.value));
-
-// Announcement callout styles, tailored for dark login background
-const LEVEL_BORDER = Object.freeze({
-  info: 'border-blue-400/70',
-  success: 'border-emerald-400/70',
-  warning: 'border-amber-400/70',
-  error: 'border-rose-400/70',
-});
-const LEVEL_ICON = Object.freeze({
-  info: 'text-blue-300',
-  success: 'text-emerald-300',
-  warning: 'text-amber-300',
-  error: 'text-rose-300',
-});
-
-// Persist dismissal locally for the login route only
-const dismissedOnLogin = useStorage('auth-login:announcements:dismissed', {});
-const currentAnnouncementId = computed(() => String(announcement.value?.id || '__generic'));
-const showAnnouncement = computed(() => hasAnnouncement.value && !dismissedOnLogin.value[currentAnnouncementId.value]);
-const dismissAnnouncement = () => {
-  const id = currentAnnouncementId.value;
-  dismissedOnLogin.value = { ...(dismissedOnLogin.value || {}), [id]: true };
-};
 
 const redirectToDestination = () => {
   const target = redirectTarget.value;
@@ -99,14 +67,9 @@ onMounted(async () => {
     auth.initialize();
   }
   try {
-    const featuresStore = useFeaturesStore();
     await featuresStore.ensureLoaded();
-    const anns = featuresStore.announcements || [];
-    // Prefer the migration announcement if present; else show the first
-    const mig = anns.find(a => a?.id === 'v3-user-migration');
-    announcement.value = mig || anns[0] || null;
   } catch (_) {
-    // Non-fatal; announcements are optional
+    // Non-fatal; version info is optional
   }
 });
 
@@ -119,17 +82,17 @@ const handleLoginSubmit = async () => {
   resetErrors();
 
   if (!supportsLocal.value) {
-    loginError.value = t('auth.errors.localSignInDisabled');
+    loginError.value = t('errors.localSignInDisabled');
     return;
   }
 
   if (!loginEmailValue.value.trim()) {
-    loginError.value = t('auth.errors.emailRequired');
+    loginError.value = t('errors.emailRequired');
     return;
   }
 
   if (!loginPasswordValue.value) {
-    loginError.value = t('auth.errors.passwordRequired');
+    loginError.value = t('errors.passwordRequired');
     return;
   }
 
@@ -144,7 +107,7 @@ const handleLoginSubmit = async () => {
     loginPasswordValue.value = '';
     redirectToDestination();
   } catch (error) {
-    loginError.value = error instanceof Error ? error.message : t('auth.errors.signInFailed');
+    loginError.value = error instanceof Error ? error.message : t('errors.signIn');
   } finally {
     isSubmittingLogin.value = false;
   }
@@ -164,7 +127,7 @@ const handleOidcLogin = () => {
 </script>
 
 <template>
-  <AuthLayout :version="version" :is-loading="auth.isLoading">
+  <AuthLayout :version="featuresStore.version" :is-loading="auth.isLoading">
     <template #heading>
       <p class="text-3xl font-black leading-tight tracking-tight text-white">
         {{ $t('auth.login.welcome') }}
@@ -175,82 +138,22 @@ const handleOidcLogin = () => {
       <p class="mt-2 text-sm text-white/60">{{ $t('auth.login.subtitle') }}</p>
     </template>
 
-    <template #announcement>
-      <div v-if="showAnnouncement" class="mb-6">
-        <div
-          class="relative rounded-xl border-l-4 bg-white/5 px-4 py-4 shadow-lg shadow-black/30 ring-1 ring-inset ring-white/10"
-          :class="LEVEL_BORDER[announcement.level] || LEVEL_BORDER.info"
-          aria-live="polite"
-        >
-          <button
-            type="button"
-            class="absolute right-2 top-2 rounded-md p-1 text-white/60 hover:bg-white/10 hover:text-white/90"
-            :aria-label="$t('common.dismiss')"
-            @click="dismissAnnouncement"
-          >
-            <XMarkIcon class="h-4 w-4" />
-          </button>
-          <div class="flex items-start gap-3">
-            <InformationCircleIcon
-              class="mt-0.5 h-6 w-6 shrink-0"
-              :class="LEVEL_ICON[announcement.level] || LEVEL_ICON.info"
-            />
-            <div class="flex-1">
-              <h3 v-if="announcement.title" class="mb-2 font-semibold text-blue-300">
-                <span v-if="announcement.id === 'v3-user-migration'">
-                  {{ $t('auth.login.announcementMigration.title') }}
-                </span>
-                <span v-else>
-                  {{ announcement.title }}
-                </span>
-              </h3>
-              <div class="whitespace-pre-line text-sm leading-relaxed text-white/80">
-                <template v-if="announcement.id === 'v3-user-migration'">
-                  <p class="-ml-6">
-                    {{ $t('auth.login.announcementMigration.intro') }}
-                  </p>
-                  <ul class="list-disc">
-                    <li>
-                      <span
-                        v-html="$t('auth.login.announcementMigration.bulletAddSuffix', { suffix: '<span class=&quot;px-2 font-bold text-blue-300&quot;>@example.local</span>' })"
-                      />
-                    </li>
-                    <li>
-                      {{ $t('auth.login.announcementMigration.bulletPasswordSame') }}
-                    </li>
-                    <li>
-                      {{ $t('auth.login.announcementMigration.bulletUpdateUsers') }}
-                    </li>
-                  </ul>
-                </template>
-                <template v-else>
-                  <p>
-                    {{ announcement.message }}
-                  </p>
-                </template>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
-
     <form v-if="supportsLocal" class="space-y-5" @submit.prevent="handleLoginSubmit">
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{ $t('auth.email') }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('auth.emailAddress') }}</span>
         <input
           id="login-email"
           v-model="loginEmailValue"
           type="email"
           autocomplete="email"
           :class="inputBaseClasses"
-          :placeholder="$t('auth.emailPlaceholder')"
+          :placeholder="$t('placeholders.emailCompany')"
           :disabled="isSubmittingLogin"
         />
       </label>
 
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{ $t('auth.password') }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('common.password') }}</span>
         <input
           id="login-password"
           v-model="loginPasswordValue"
@@ -274,8 +177,13 @@ const handleOidcLogin = () => {
       <p v-if="loginError" :class="helperTextClasses">{{ loginError }}</p>
       <p v-else-if="statusError" :class="helperTextClasses">{{ statusError }}</p>
 
-      <button type="submit" :class="buttonBaseClasses" :disabled="isSubmittingLogin">
-        <span v-if="isSubmittingLogin">{{ $t('auth.verifying') }}</span>
+      <button type="submit" 
+      class="w-full h-12 px-4 rounded-xl 
+      bg-neutral-100 hover:bg-neutral-100/90 active:bg-neutral-100/70  
+      font-semibold text-neutral-900 
+      disabled:cursor-not-allowed disabled:opacity-60" 
+      :disabled="isSubmittingLogin">
+        <span v-if="isSubmittingLogin">{{ $t('common.verifying') }}</span>
         <span v-else class="inline-flex items-center gap-2">
           <LockClosedIcon class="h-5 w-5" />
           {{ $t('auth.login.submit') }}
@@ -291,7 +199,9 @@ const handleOidcLogin = () => {
 
     <div v-if="supportsOidc" class="mb-2">
       <button
-        class="flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-neutral-500/20 px-4 text-sm font-medium text-white ring-1 ring-inset ring-white/10 hover:bg-white/10"
+        class="flex h-12 w-full items-center justify-center gap-2 rounded-xl 
+        bg-neutral-700/50 hover:bg-neutral-700/70 active:bg-neutral-700/90 
+        px-4 text-sm font-medium text-white ring-1 ring-inset ring-white/10 "
         type="button"
         @click="handleOidcLogin"
       >

@@ -9,8 +9,6 @@ import * as SolidIcons from '@heroicons/vue/24/solid';
 const ProgressBar = defineAsyncComponent(() => import('@/components/ProgressBar.vue'));
 import IconDrive from '@/icons/IconDrive.vue';
 import { formatBytes } from '@/utils';
-
-
 const volumes = ref([]);
 const loading = ref(true);
 const favoritesStore = useFavoritesStore();
@@ -18,6 +16,7 @@ const featuresStore = useFeaturesStore();
 const usage = ref({});
 const { openItem, openBreadcrumb } = useNavigation();
 const showVolumeUsage = computed(() => featuresStore.volumeUsageEnabled);
+const personalEnabled = computed(() => featuresStore.personalEnabled);
 
 onMounted(async () => {
   try {
@@ -76,6 +75,12 @@ const handleOpenFavorite = (favorite) => {
   if (!favorite?.path) return;
   openBreadcrumb(favorite.path);
 };
+
+const PersonalIcon = SolidIcons.FolderIcon || OutlineIcons.FolderIcon;
+
+const openPersonal = () => {
+  openBreadcrumb('personal');
+};
 </script>
 
 <template>
@@ -110,7 +115,7 @@ const handleOpenFavorite = (favorite) => {
 
     <!-- Volumes -->
     <section>
-      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('volumes.title') }}</h3>
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('titles.volumes') }}</h3>
       <div v-if="!loading" class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         
         <button
@@ -150,7 +155,29 @@ const handleOpenFavorite = (favorite) => {
           </div>
         </button>
       </div>
-      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('volumes.loading') }}</div>
+      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('loading.volumes') }}</div>
+    </section>
+
+    <!-- Personal -->
+    <section v-if="personalEnabled">
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        {{ $t('drives.personal') }}
+      </h3>
+      <div v-if="!loading">
+        <button
+          type="button"
+          @dblclick="openPersonal"
+          class="flex items-center gap-3 py-4 text-left"
+        >
+          <component :is="PersonalIcon" class="h-14 w-16 shrink-0 " />
+          <div>
+            <div class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white">
+              {{ $t('drives.personal') }}
+            </div>
+          </div>
+        </button>
+      </div>
+      <div v-else class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('loading.volumes') }}</div>
     </section>
   </div>
 </template>

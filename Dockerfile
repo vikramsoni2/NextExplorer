@@ -1,4 +1,26 @@
-FROM public.ecr.aws/docker/library/node:24-bookworm-slim
+FROM public.ecr.aws/docker/library/node:24-bookworm-slim AS base
+
+WORKDIR /app
+
+# Backend dependencies (production only)
+FROM base AS backend_deps
+ENV NODE_ENV=production
+WORKDIR /app
+COPY backend/package*.json ./
+RUN npm ci --omit=dev
+
+# Frontend build (needs dev dependencies)
+FROM base AS frontend_build
+ENV NODE_ENV=development
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build -- --sourcemap false
+
+# Final runtime image
+FROM base AS runtime
+ENV NODE_ENV=production
 
 # Create the baseline app user; UID/GID may be mutated at runtime via entrypoint.sh.
 RUN groupadd --system appuser && \
@@ -11,39 +33,22 @@ RUN apt-get update \
 
 WORKDIR /app
 
-# Build-time git metadata (passed from CI via --build-arg)
+# Make git metadata available at runtime for backend /api/features endpoint
 ARG GIT_COMMIT=""
 ARG GIT_BRANCH=""
 ARG REPO_URL=""
+ENV GIT_COMMIT=${GIT_COMMIT}
+ENV GIT_BRANCH=${GIT_BRANCH}
+ENV REPO_URL=${REPO_URL}
 
-# Install backend dependencies first to take advantage of Docker layer caching.
-COPY backend/package*.json ./
-RUN npm ci --omit=dev
+# Bring in the backend source and production dependencies.
+COPY --from=backend_deps /app/node_modules ./node_modules
+COPY --from=backend_deps /app/package.json ./
+COPY backend/src ./src
 
-# Bring in the backend source and ensure only production dependencies remain.
-COPY backend/ ./
-RUN npm prune --omit=dev
-
-# Prepare the frontend build; retain only the generated dist assets.
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-# Build the frontend with the backend's package.json version baked in
-# Vite reads VITE_APP_VERSION in vite.config.js to inject __APP_VERSION__
-RUN VITE_APP_VERSION=$(node -p "require('/app/package.json').version") \
-  VITE_GIT_COMMIT=${GIT_COMMIT} \
-  VITE_GIT_BRANCH=${GIT_BRANCH} \
-  VITE_REPO_URL=${REPO_URL} \
-  npm run build -- --sourcemap false \
-  && rm -rf node_modules \
-  && npm cache clean --force
-
-WORKDIR /app
-RUN mkdir -p public \
-  && cp -r frontend/dist/. public \
-  && rm -rf frontend \
-  && npm cache clean --force
+# Copy the built frontend assets only.
+RUN mkdir -p src/public
+COPY --from=frontend_build /app/frontend/dist/ ./src/public/
 
 # Bootstrap entrypoint script responsible for dynamic user mapping.
 COPY entrypoint.sh /usr/local/bin/
@@ -51,8 +56,6 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 VOLUME ["/config", "/cache"]
 
-ENV NODE_ENV=production
-
 EXPOSE 3000
 ENTRYPOINT ["entrypoint.sh"]
-CMD ["node", "app.js"]
+CMD ["node", "src/app.js"]

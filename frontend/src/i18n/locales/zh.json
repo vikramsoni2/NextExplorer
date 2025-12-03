@@ -1,163 +1,240 @@
 {
   "common": {
     "or": "或",
+    "in": "在",
+    "to": "到",
+    "all": "全部",
+    "and": "和",
     "cancel": "取消",
-    "delete": "删除",
-    "deleting": "正在删除...",
-    "loading": "加载中",
-    "saving": "正在保存...",
+    "close": "关闭",
     "open": "打开",
     "edit": "编辑",
     "save": "保存",
     "discard": "放弃",
+    "delete": "删除",
+    "deleting": "正在删除...",
     "remove": "移除",
     "create": "创建",
+    "creating": "正在创建…",
+    "saving": "正在保存...",
+    "loading": "加载中",
+    "loadingEllipsis": "加载中…",
+    "verifying": "正在验证…",
+    "updating": "正在更新…",
+    "preparing": "正在准备",
     "dismiss": "关闭",
-    "disabled": "已禁用"
+    "disabled": "已禁用",
+    "enabled": "已启用",
+    "refresh": "刷新",
+    "tryAgain": "重试",
+    "done": "完成",
+    "remaining": "剩余",
+    "unknown": "未知",
+    "optional": "可选",
+    "name": "名称",
+    "size": "大小",
+    "type": "类型",
+    "path": "路径",
+    "email": "邮箱",
+    "username": "用户名",
+    "password": "密码",
+    "label": "标签",
+    "actions": "操作",
+    "permissions": "权限",
+    "details": "详情",
+    "location": "位置",
+    "modified": "已修改",
+    "expires": "到期",
+    "expired": "已到期",
+    "active": "活动",
+    "protected": "已保护",
+    "passwordProtected": "密码保护",
+    "noExpiration": "无到期时间",
+    "recent": "最近",
+    "item": "项",
+    "items": "项",
+    "files": "文件",
+    "folders": "文件夹",
+    "file": "文件",
+    "folder": "文件夹",
+    "image": "图片",
+    "video": "视频",
+    "user": "用户",
+    "admin": "管理员",
+    "roles": "角色",
+    "settings": "设置",
+    "share": "共享",
+    "shares": "共享",
+    "unsavedChanges": "您有未保存的更改"
+  },
+  "status": {
+    "updated": "更新成功",
+    "failed": "失败",
+    "passwordUpdated": "密码已更新",
+    "completePercent": "已完成 {percent}%"
+  },
+  "actions": {
+    "newFolder": "新建文件夹",
+    "newFile": "新建文件",
+    "fileUpload": "上传文件",
+    "folderUpload": "上传文件夹",
+    "copy": "复制",
+    "cut": "剪切",
+    "paste": "粘贴",
+    "rename": "重命名",
+    "download": "下载",
+    "search": "搜索",
+    "sortBy": "排序方式",
+    "addRule": "添加规则",
+    "clearAll": "清除全部",
+    "cancelAll": "全部取消"
+  },
+  "placeholders": {
+    "email": "user{'@'}example.com",
+    "emailCompany": "name{'@'}company.com",
+    "username": "默认为邮箱前缀",
+    "password": "选择一个强密码",
+    "confirmPassword": "再次输入密码",
+    "label": "我的共享文件",
+    "path": "例如：Pictures/Holidays",
+    "search": "搜索文件和文件夹…"
+  },
+  "loading": {
+    "default": "加载中…",
+    "users": "正在加载用户...",
+    "metadata": "正在加载元数据…",
+    "share": "正在加载共享...",
+    "shares": "正在加载共享…",
+    "volumes": "正在加载卷…"
+  },
+  "errors": {
+    "failed": "失败",
+    "searchFailed": "搜索失败",
+    "loadMetadata": "加载元数据失败",
+    "loadUsers": "加载用户失败",
+    "loadShares": "加载共享项失败",
+    "updateRoles": "更新角色失败",
+    "createUser": "创建用户失败",
+    "updateUser": "更新用户失败",
+    "removeUser": "移除用户失败",
+    "resetPassword": "重置密码失败",
+    "changePassword": "修改密码失败",
+    "createShare": "创建共享失败",
+    "signIn": "登录失败",
+    "createAccount": "创建账户失败",
+    "invalidSourcePath": "无效的源路径",
+    "invalidPassword": "无效的密码",
+    "selectAtLeastOneUser": "请至少选择一位用户",
+    "pleaseEnterPassword": "请输入密码",
+    "emailRequired": "邮箱为必填项",
+    "passwordRequired": "密码为必填项",
+    "passwordLength": "密码至少需要 6 个字符",
+    "passwordMin": "密码至少需要 6 个字符",
+    "passwordMismatch": "两次输入的密码不一致",
+    "localSignInDisabled": "本地登录已禁用"
+  },
+  "titles": {
+    "volumes": "卷",
+    "favorites": "收藏夹",
+    "notifications": "通知",
+    "terminal": "终端",
+    "settings": "设置",
+    "about": "关于",
+    "thumbnails": "缩略图",
+    "authentication": "身份验证",
+    "folderRules": "文件夹规则",
+    "comingSoon": "即将推出",
+    "changePassword": "修改密码",
+    "userManagement": "用户管理",
+    "share": "共享",
+    "sortOptions": "排序选项"
   },
   "i18n": {
     "language": "语言",
-    "english": "English",
-    "spanish": "Español",
-    "french": "Français",
-    "german": "Deutsch",
+    "english": "英语",
+    "spanish": "西班牙语",
+    "french": "法语",
+    "german": "德语",
     "chinese": "中文",
     "hindi": "印地语",
     "polish": "波兰语"
   },
   "search": {
-    "search": "搜索",
     "openShortcutTitle": "打开搜索 (⌘/Ctrl + K)",
-    "resultsFor": "“{q}” 的结果",
-    "in": "在",
-    "searching": "搜索中…",
-    "noMatches": "未找到匹配项。",
+    "resultsFor": "“{q}” 的搜索结果",
+    "searching": "正在搜索…",
+    "noMatches": "未找到匹配结果",
     "openFolder": "打开文件夹",
-    "line": "行",
-    "failed": "搜索失败"
+    "line": "行"
   },
   "user": {
-    "account": "帐户",
-    "settings": "设置",
-    "signOut": "登出",
+    "account": "账户",
+    "signOut": "退出登录",
     "useLightTheme": "使用浅色主题",
     "useDarkTheme": "使用深色主题",
-    "lightTheme": "浅色",
-    "darkTheme": "深色"
+    "lightTheme": "浅色主题",
+    "darkTheme": "深色主题"
   },
   "create": {
-    "createNew": "新建",
-    "newFolder": "新建文件夹",
-    "newFile": "新建文件",
-    "fileUpload": "上传文件",
-    "folderUpload": "上传文件夹"
+    "createNew": "新建"
   },
   "context": {
-    "getInfo": "查看信息",
-    "addToFavorites": "添加到收藏",
-    "removeFromFavorites": "从收藏移除",
-    "newFolder": "新建文件夹",
-    "newFile": "新建文件",
-    "paste": "粘贴",
-    "cut": "剪切",
-    "copy": "复制",
-    "rename": "重命名",
-    "delete": "删除",
+    "getInfo": "获取信息",
+    "addToFavorites": "添加到收藏夹",
+    "removeFromFavorites": "从收藏夹移除",
     "deleteTitle": {
-      "single": "确认删除 \"{name}\"？",
-      "multiple": "确认删除 {count} 个项目？",
+      "single": "删除 \"{name}\"？",
+      "multiple": "删除 {count} 个项目？",
       "generic": "删除项目"
     },
     "deleteMessage": {
-      "single": "确认删除 \"{name}\"？此操作不可撤销。",
-      "multiple": "确认删除这 {count} 个项目？此操作不可撤销。",
+      "single": "确定要删除 \"{name}\" 吗？此操作无法撤销。",
+      "multiple": "确定要删除这 {count} 个项目吗？此操作无法撤销。",
       "generic": "未选择任何项目。"
     }
   },
   "folder": {
-    "name": "名称",
-    "size": "大小",
     "kind": "类型",
-    "dateModified": "修改时间",
-    "loading": "加载中",
+    "dateModified": "修改日期",
     "noPhotos": "此文件夹中没有照片",
     "noPhotosHint": "切换到其他视图模式以查看所有文件"
   },
   "volumes": {
     "quickAccess": "快速访问",
-    "quickAccessEmpty": "将文件夹加入收藏以便快速访问。",
-    "title": "卷",
-    "loading": "正在加载卷…"
+    "quickAccessEmpty": "将文件夹固定为收藏夹，以便在此快速访问。"
+  },
+  "drives": {
+    "personal": "我的文件"
   },
   "browser": {
-    "resizeSidebar": "调整侧边栏宽度"
+    "resizeSidebar": "调整侧边栏大小"
   },
   "nav": {
     "back": "后退",
     "forward": "前进",
-    "upOneFolder": "上一级"
+    "upOneFolder": "上一级文件夹"
   },
   "view": {
     "list": "列表视图",
-    "column": "列视图",
+    "column": "分栏视图",
     "grid": "网格视图",
     "photos": "照片视图"
   },
-  "download": {
-    "download": "下载",
-    "preparing": "准备下载..."
-  },
-  "upload": {
-    "toggleDetailsShow": "显示详情",
-    "toggleDetailsHide": "隐藏详情",
-    "pauseUploads": "暂停",
-    "resumeUploads": "继续",
-    "cancelAll": "取消全部",
-    "uploads": "正在上传 {count} 个 {items}",
-    "item": "项目",
-    "items": "项目",
-    "to": "到",
-    "done": "已完成",
-    "remaining": "剩余",
-    "completePercent": "{percent}% 完成"
-  },
-  "info": {
-    "aria": "信息面板",
-    "details": "详情",
-    "fileName": "文件名",
-    "type": "类型",
-    "size": "大小",
-    "modified": "修改时间",
-    "location": "位置",
-    "folder": "文件夹",
-    "folderSize": "大小：{size}",
-    "items": "项目：{files} 个文件，{folders} 个文件夹",
-    "image": "图片",
-    "video": "视频",
-    "dimensions": "尺寸：{w} × {h}",
-    "dateTaken": "拍摄日期：{date}",
-    "camera": "相机：{makeModel}",
-    "lens": "镜头：{lens}",
-    "duration": "时长：{seconds}s",
-    "loading": "正在加载元数据…",
-    "failed": "加载元数据失败"
+  "photos": {
+    "menuTitle": "照片大小",
+    "menuAria": "打开照片大小控制",
+    "thumbnailSize": "缩略图大小"
   },
   "favorites": {
-    "title": "收藏",
-    "emptyTitle": "还没有收藏",
-    "emptyDescription": "选择一个目录并点击星标即可固定到这里。",
+    "emptyTitle": "尚无收藏",
+    "emptyDescription": "选择一个目录并点击主工具栏中的星标，将其固定在此处。",
     "editTitle": "编辑收藏",
-    "path": "路径",
-    "name": "名称",
     "icon": "图标"
   },
   "notifications": {
-    "title": "通知",
     "open": "打开通知",
     "closePanel": "关闭通知面板",
-    "clearAll": "清除全部",
     "empty": "暂无通知",
-    "dismiss": "关闭通知",
     "filters": {
       "error": "错误",
       "warning": "警告",
@@ -165,191 +242,192 @@
       "info": "信息"
     }
   },
-  "photos": {
-    "menuTitle": "照片尺寸",
-    "menuAria": "打开照片尺寸控制",
-    "thumbnailSize": "缩略图尺寸"
-  },
   "spotlight": {
-    "placeholder": "搜索文件和文件夹…",
-    "close": "关闭",
-    "hintWithin": "在以下位置搜索"
+    "hintWithin": "键入以在其中搜索"
+  },
+  "download": {
+    "preparing": "正在准备下载..."
+  },
+  "upload": {
+    "toggleDetailsShow": "显示详细信息",
+    "toggleDetailsHide": "隐藏详细信息",
+    "pauseUploads": "暂停上传",
+    "resumeUploads": "继续上传",
+    "uploads": "正在上传 {count} 个{items}"
+  },
+  "info": {
+    "aria": "信息面板",
+    "fileName": "文件名",
+    "folderSize": "大小：{size}",
+    "itemsCount": "项目：{files} 个文件，{folders} 个文件夹",
+    "dimensions": "尺寸：{w} × {h}",
+    "dateTaken": "拍摄日期：{date}",
+    "camera": "相机：{makeModel}",
+    "lens": "镜头：{lens}",
+    "duration": "时长：{seconds}s"
   },
   "auth": {
-    "preparing": "正在准备 Explorer…",
+    "preparing": "正在为您准备 Explorer…",
     "marketing": {
-      "headline": "文件管理的未来已在此刻展开",
-      "subtitle": "随时随地安全访问、整理并协作处理您的所有文件",
+      "headline": "文件管理的未来已到来",
+      "subtitle": "随时随地安全访问、整理并协作处理所有文件",
       "bullets": {
-        "keyboard": "以键盘为中心的导航与极速搜索体验。",
-        "access": "细粒度访问控制配合可审计操作。",
-        "sso": "与身份提供商无缝的单点登录。"
+        "keyboard": "键盘优先导航和极速搜索。",
+        "access": "细粒度访问控制与审计友好操作。",
+        "sso": "与您的 IdP 无缝单点登录。"
       }
     },
     "login": {
       "welcome": "欢迎回来",
       "subtitle": "登录以访问 NextExplorer。",
-      "announcementConfirm": "标记为已阅读",
+      "announcementConfirm": "标记为已读",
       "submit": "登录",
       "announcementMigration": {
         "title": "我们更新了登录方式",
-        "intro": "现在需要使用新的邮箱格式用户名登录。",
+        "intro": "您现在需要使用新的邮箱格式用户名。",
         "bulletAddSuffix": "在用户名后添加 {suffix}",
         "bulletPasswordSame": "您的密码保持不变。",
-        "bulletUpdateUsers": "您可以在管理菜单中更新现有用户。"
+        "bulletUpdateUsers": "您可以在管理菜单中更新现有用户"
       }
     },
     "setup": {
       "headline": "开始设置",
-      "subtitle": "创建管理员帐户以保护文件。",
-      "formTitle": "创建您的帐户",
-      "formSubtitle": "输入电子邮件和安全密码即可完成设置。",
+      "subtitle": "创建管理员账户以保护并管理您的文件。",
+      "formTitle": "创建账户",
+      "formSubtitle": "提供邮箱和安全密码以完成设置。",
       "submit": "完成设置",
       "bullets": {
-        "encryption": "强加密与可审计操作。",
-        "permissions": "细粒度权限与用户管理。",
-        "sso": "无缝单点登录支持。"
+        "encryption": "强加密和审计友好操作。",
+        "permissions": "细粒度权限和用户管理。",
+        "sso": "无缝支持单点登录。"
       }
     },
-    "email": "电子邮箱",
-    "emailPlaceholder": "name{'@'}company.com",
+    "emailAddress": "邮箱地址",
     "usernameOptional": "用户名（可选）",
-    "usernamePlaceholder": "默认使用邮箱前缀",
-    "password": "密码",
-    "passwordPlaceholder": "设置一个安全密码",
     "confirmPassword": "确认密码",
-    "confirmPasswordPlaceholder": "再次输入密码",
-    "verifying": "验证中…",
-    "creating": "创建中…",
     "sso": {
-      "continue": "继续使用单点登录"
-    },
-    "errors": {
-      "localSignInDisabled": "本地登录已被禁用。",
-      "emailRequired": "邮箱为必填项。",
-      "passwordRequired": "密码为必填项。",
-      "passwordLength": "密码至少需要 6 个字符。",
-      "passwordMismatch": "两次输入的密码不一致。",
-      "signInFailed": "登录失败。",
-      "createAccountFailed": "创建账户失败。"
+      "continue": "使用单点登录继续"
     }
   },
   "breadcrumb": {
-    "volumes": "卷"
+    "volumes": "卷",
+    "share": "共享"
   },
   "sort": {
-    "title": "排序选项",
-    "nameAToZ": "名称 A 到 Z",
-    "nameZToA": "名称 Z 到 A",
+    "nameAToZ": "名称从 A 到 Z",
+    "nameZToA": "名称从 Z 到 A",
     "smallToLarge": "从小到大",
     "largeToSmall": "从大到小",
-    "oldToNew": "旧到新",
-    "newToOld": "新到旧"
+    "oldToNew": "从旧到新",
+    "newToOld": "从新到旧"
   },
   "terminal": {
-    "title": "终端",
-    "close": "关闭终端",
     "menuHeading": "工具",
     "menuOpen": "终端"
   },
   "settings": {
-    "user": "用户",
-    "admin": "管理员",
-    "title": "设置",
-    "close": "关闭设置",
     "categories": {
-      "account-password": "更改密码",
+      "accountPassword": "修改密码",
       "about": "关于",
-      "files-thumbnails": "文件 & 缩略图",
+      "filesThumbnails": "文件和缩略图",
       "security": "安全",
-      "access-control": "访问控制",
-      "admin-users": "用户管理"
+      "accessControl": "访问控制",
+      "adminUsers": "用户管理"
     },
     "about": {
-      "title": "关于",
-      "subtitle": "查看应用的构建信息。",
+      "subtitle": "查看此应用的构建信息。",
       "appVersion": "应用版本",
       "appVersionHelp": "当前运行的构建版本。",
       "gitCommit": "Git 提交",
-      "gitCommitHelp": "构建时嵌入的源代码版本。",
+      "gitCommitHelp": "构建时嵌入的源代码修订版本。",
       "branch": "分支",
-      "branchHelp": "构建时的 Git 分支。",
-      "unknown": "未知"
+      "branchHelp": "构建时的 Git 分支。"
     },
-    "common": { "unsavedChanges": "您有未保存的更改" },
     "thumbs": {
-      "title": "缩略图",
-      "subtitle": "自定义图片和视频预览。",
+      "subtitle": "自定义图片和视频的预览缩略图。",
       "enable": "启用缩略图",
-      "enableHelp": "关闭则浏览速度更快且不生成预览。",
+      "enableHelp": "关闭以在不生成预览的情况下加快浏览速度。",
       "quality": "缩略图质量",
-      "qualityHelp": "控制输出质量 (1–100)，默认 70。",
+      "qualityHelp": "控制输出质量 (1–100)。默认值为 70。",
       "maxDim": "最大尺寸",
-      "maxDimHelp": "最长边的像素数，默认 200。",
+      "maxDimHelp": "最长边的像素数。默认值为 200。",
       "concurrency": "并行生成",
-      "concurrencyHelp": "同时生成的缩略图数量 (1–50)，默认 10。"
+      "concurrencyHelp": "同时生成的缩略图数量 (1–50)。默认值为 10。"
     },
     "security": {
-      "title": "身份验证",
       "subtitle": "控制对应用的访问。",
       "enable": "启用身份验证",
-      "enableHelp": "关闭后，任何人都可以访问文件。",
-      "confirmDisable": "禁用身份验证将使您的文件公开，是否继续？"
+      "enableHelp": "关闭时，任何人都可以访问您的文件。",
+      "confirmDisable": "禁用身份验证将使您的文件公开可访问。继续？"
     },
     "access": {
-      "title": "文件夹规则",
       "subtitle": "为每个文件夹设置权限：读写、只读或隐藏。",
-      "addRule": "添加规则",
-      "path": "路径",
       "recursive": "递归",
-      "permissions": "权限",
-      "pathPlaceholder": "例如 Pictures/Holidays",
       "readWrite": "读写",
       "readOnly": "只读",
       "hidden": "隐藏"
     },
-    "comingSoon": { "title": "敬请期待", "subtitle": "该设置模块正在开发中。" },
+    "comingSoon": {
+      "subtitle": "此设置部分正在构建中，敬请期待！"
+    },
     "password": {
-      "title": "修改密码",
-      "notLocalUser": "只有本地用户可以修改密码。",
+      "notLocalUser": "只能为本地用户修改密码。您的账户由身份提供商管理。",
       "current": "当前密码",
       "new": "新密码",
       "confirm": "确认新密码",
       "update": "更新密码",
-      "updating": "更新中…",
-      "updated": "密码更新成功。",
-      "failed": "更新密码失败",
-      "validation": "请填写所有字段；新密码至少 6 位且需确认一致。"
+      "success": "密码更新成功。",
+      "validation": "请填写所有字段；新密码至少 6 个字符，并且需要与确认密码一致。"
     },
     "users": {
-      "title": "用户管理",
-      "failedLoad": "加载用户失败",
-      "failedUpdateRoles": "更新角色失败",
-      "failedCreate": "创建用户失败",
-      "passwordMin": "密码至少需要 6 个字符。",
-      "passwordUpdated": "密码已更新",
-      "failedReset": "重置密码失败",
-      "cannotDeleteSelf": "不能删除自己的账户。",
-      "confirmRemove": "确认删除用户 {user}？此操作不可撤销。",
-      "failedRemove": "删除用户失败",
+      "cannotDeleteSelf": "无法删除您自己的账户。",
+      "confirmRemove": "删除用户 {user}? 此操作无法撤销。",
       "createUser": "创建用户",
-      "email": "邮箱",
-      "emailPlaceholder": "user{'@'}example.com",
-      "username": "用户名",
-      "usernameOptional": "可选",
-      "password": "密码",
-      "grantAdmin": "授予管理员",
-      "creating": "创建中…",
-      "displayName": "显示名",
-      "roles": "角色",
-      "actions": "操作",
+      "grantAdmin": "授予管理员权限",
+      "displayName": "显示名称",
       "makeAdmin": "设为管理员",
       "resetPassword": "设置/重置密码",
       "removeUser": "删除用户",
       "promptNewPassword": "为 {user} 输入新密码（至少 6 个字符）：",
-      "failedUpdate": "更新用户失败",
-      "editUser": "编辑用户",
-      "updating": "更新中…"
+      "editUser": "编辑用户"
     }
+  },
+  "share": {
+    "sharedWithMe": "与我共享",
+    "sharedWithMeDescription": "其他人与你的账户共享的文件和文件夹。",
+    "shareCreated": "共享已创建",
+    "createShareLink": "创建共享链接",
+    "shareLink": "共享链接",
+    "shareLinkCreatedSuccess": "共享链接创建成功！",
+    "shareSelectedItem": "共享所选项目",
+    "selectItemToShare": "选择要共享的项目",
+    "sharing": "正在共享：",
+    "sharedItem": "已共享项目",
+    "sharedFolder": "已共享文件夹",
+    "sharedFile": "已共享文件",
+    "accessMode": "访问模式",
+    "whoCanAccess": "可访问的用户",
+    "anyoneWithLink": "拥有链接的任何人",
+    "specificUsers": "特定用户",
+    "selectUsers": "选择用户",
+    "noUsersAvailable": "没有可用用户",
+    "passwordProtect": "密码保护",
+    "enterPassword": "输入密码",
+    "setExpirationDate": "设置到期日期",
+    "expiresAt": "到期",
+    "shareExpired": "共享已过期",
+    "shareNotFound": "未找到共享",
+    "shareExpiredMessage": "此共享链接已过期，不再可访问。",
+    "goToHome": "返回首页",
+    "accessShare": "访问共享",
+    "signInToAccess": "登录以访问",
+    "requiresAuthentication": "此共享需要身份验证。",
+    "noSharedItemsToShow": "没有可显示的共享项目",
+    "noSharedItemsYet": "当有人与您共享文件或文件夹时，它们会显示在此处。",
+    "adjustFilters": "调整筛选条件或清除搜索以查看更多项目。",
+    "filterByNameOrPath": "按名称或路径筛选",
+    "sharedBy": "由所有者共享",
+    "lastAccessed": "上次访问",
+    "created": "创建时间"
   }
 }

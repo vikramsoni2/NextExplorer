@@ -10,6 +10,7 @@ import {
   renameItem as renameItemApi,
   saveFileContent as saveFileContentApi,
   fetchThumbnail as fetchThumbnailApi,
+  browseShare,
 } from '@/api';
 import { useSettingsStore } from '@/stores/settings';
 import { useAppSettings } from '@/stores/appSettings';
@@ -18,6 +19,7 @@ export const useFileStore = defineStore('fileStore', () => {
   // State
   const currentPath = ref('');
   const currentPathItems = ref([]);
+  const currentPathData = ref(null);
   const selectedItems = ref([]);
   const renameState = ref(null);
 
@@ -324,10 +326,85 @@ export const useFileStore = defineStore('fileStore', () => {
   }
 
   async function fetchPathItems(path) {
+    const previousItems = Array.isArray(currentPathItems.value)
+      ? currentPathItems.value
+      : [];
+
     const normalizedPath = normalizePath(typeof path === 'string' ? path : currentPath.value);
     currentPath.value = normalizedPath;
     selectedItems.value = [];
-    currentPathItems.value = await browse(normalizedPath);
+
+    let response;
+
+    // For share paths, use the dedicated share browse endpoint so that
+    // file shares can be treated as virtual one-item directories.
+    if (normalizedPath && normalizedPath.startsWith('share/')) {
+      const segments = normalizedPath.split('/');
+      const shareToken = segments[1];
+      const innerPath = segments.slice(2).join('/');
+      response = await browseShare(shareToken, innerPath);
+    } else {
+      response = await browse(normalizedPath);
+    }
+
+    // Merge new items into existing list by stable key so that
+    // unchanged entries keep their object identity (and any local
+    // UI fields such as thumbnails), while still updating metadata
+    // and adding/removing items as needed.
+    const mergeItems = (items) => {
+      if (!Array.isArray(items)) return [];
+
+      const existingByKey = new Map(
+        previousItems
+          .filter((it) => it && it.name)
+          .map((it) => [itemKey(it), it]),
+      );
+
+      const merged = [];
+
+      for (const incoming of items) {
+        if (!incoming || !incoming.name) continue;
+
+        const key = itemKey(incoming);
+        const existing = existingByKey.get(key);
+
+        if (existing) {
+          // Preserve any locally-added thumbnail if the backend
+          // does not send one, but refresh all other metadata.
+          const prevThumbnail = existing.thumbnail;
+          Object.assign(existing, incoming);
+          if (!incoming.thumbnail && prevThumbnail) {
+            existing.thumbnail = prevThumbnail;
+          }
+          merged.push(existing);
+        } else {
+          merged.push(incoming);
+        }
+      }
+
+      return merged;
+    };
+
+    // Handle new response format with items and access metadata
+    if (response && typeof response === 'object' && Array.isArray(response.items)) {
+      currentPathItems.value = mergeItems(response.items);
+      currentPathData.value = {
+        path: response.path || normalizedPath,
+        canRead: response.access?.canRead ?? true,
+        canWrite: response.access?.canWrite ?? false,
+        canUpload: response.access?.canUpload ?? false,
+        canDelete: response.access?.canDelete ?? false,
+        canShare: response.access?.canShare ?? false,
+        canDownload: response.access?.canDownload ?? true,
+        // Include share metadata if present
+        shareInfo: response.shareInfo || null,
+      };
+    } else {
+      // Fallback for old response format (array of items)
+      currentPathItems.value = mergeItems(Array.isArray(response) ? response : []);
+      currentPathData.value = null;
+    }
+
     return currentPathItems.value;
   }
 
@@ -336,6 +413,7 @@ export const useFileStore = defineStore('fileStore', () => {
     getCurrentPath,
     setCurrentPath,
     currentPathItems,
+    currentPathData,
     getCurrentPathItems,
     fetchPathItems,
     selectedItems,
@@ -343,7 +421,7 @@ export const useFileStore = defineStore('fileStore', () => {
     cutItems,
     hasSelection,
     hasClipboardItems,
-    copy, 
+    copy,
     cut,
     paste,
     del,

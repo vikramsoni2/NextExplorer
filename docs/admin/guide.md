@@ -24,6 +24,12 @@ Administrators control users, folders, and security policies through Settings. T
 - Rules use the logical root (e.g., `Projects/Team`) and evaluate in defined order, so place more specific rules above general ones.
 - Recursive rules apply to subfolders when the recursion checkbox is enabled.
 
+## Sharing & guest access
+
+- Users with access to a folder or file can create **share links** from the toolbar Share button; shares respect Access Control rules and can be read-only or read/write.
+- **Anyone-with-link shares** can be opened by guests via `/share/:token` URLs; guests are confined to the shared path and cannot see other volumes or personal folders.
+- **User-specific shares** require authentication and are visible from the **Shares → Shared with me** view; revoking a user’s access to the underlying path (via Access Control or account removal) effectively revokes their ability to use the link.
+
 ## Security & logging
 
 - Authentication can be fully disabled for trusted networks via **Settings → Security**, but enabling protects all API routes.

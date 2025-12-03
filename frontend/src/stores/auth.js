@@ -30,6 +30,12 @@ export const useAuthStore = defineStore('auth', () => {
     return Boolean(currentUser.value);
   });
 
+  const isGuest = computed(() => {
+    // Guest if we have a guest session but no authenticated user
+    const guestSessionId = sessionStorage.getItem('guestSessionId');
+    return Boolean(guestSessionId && !currentUser.value);
+  });
+
   const initialize = async () => {
     if (initPromise) {
       return initPromise;
@@ -47,6 +53,11 @@ export const useAuthStore = defineStore('auth', () => {
         authMode.value = typeof status?.authMode === 'string' ? status.authMode : 'local';
         strategies.value = status?.strategies || { local: true, oidc: false };
         currentUser.value = status?.user || null;
+
+        // Clear guest session if user is now authenticated
+        if (currentUser.value) {
+          sessionStorage.removeItem('guestSessionId');
+        }
 
         // Cookies hold session; no token adjustments needed
       } catch (error) {
@@ -67,6 +78,9 @@ export const useAuthStore = defineStore('auth', () => {
     requiresSetup.value = false;
     hasStatus.value = true;
     currentUser.value = response?.user || null;
+
+    // Clear guest session when user sets up account
+    sessionStorage.removeItem('guestSessionId');
   };
 
   const login = async ({ email, password }) => {
@@ -74,6 +88,9 @@ export const useAuthStore = defineStore('auth', () => {
     const response = await loginApi({ email, password });
     hasStatus.value = true;
     currentUser.value = response?.user || null;
+
+    // Clear guest session when user logs in
+    sessionStorage.removeItem('guestSessionId');
   };
 
   const logout = async () => {
@@ -103,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     isLoading,
     hasStatus,
     isAuthenticated,
+    isGuest,
     authEnabled,
     authMode,
     strategies,

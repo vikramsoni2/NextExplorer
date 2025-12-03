@@ -143,7 +143,7 @@ function toggleDetailsKey(e) {
     <div class="p-5">
       <div class="flex items-center gap-3">
         <h3 class="text-lg font-semibold tracking-tight">
-          {{ t('upload.completePercent', { percent: roundedProgress }) }}
+          {{ t('status.completePercent', { percent: roundedProgress }) }}
         </h3>
 
         <div class="ml-auto flex items-center gap-1.5">
@@ -171,8 +171,8 @@ function toggleDetailsKey(e) {
 
           <button
             type="button"
-            :title="t('upload.cancelAll')"
-            :aria-label="t('upload.cancelAll')"
+            :title="t('actions.cancelAll')"
+            :aria-label="t('actions.cancelAll')"
             @click="onCancelAll"
             class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-rose-500"
           >
@@ -182,9 +182,9 @@ function toggleDetailsKey(e) {
       </div>
 
       <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
-        {{ t('upload.uploads', { count: fileStats.totalCount, items: fileStats.totalCount === 1 ? t('upload.item') : t('upload.items') }) }}
+        {{ t('upload.uploads', { count: fileStats.totalCount, items: fileStats.totalCount === 1 ? t('common.item') : t('common.items') }) }}
         <template v-if="destinationFolder">
-          {{ t('upload.to') }} <span class="text-sky-600 dark:text-sky-300 font-medium">{{ destinationFolder }}</span>
+          {{ t('common.to') }} <span class="text-sky-600 dark:text-sky-300 font-medium">{{ destinationFolder }}</span>
         </template>
       </div>
 
@@ -203,11 +203,11 @@ function toggleDetailsKey(e) {
       </div>
 
       <!-- Overall stats -->
-      <div class="mt-2 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
-        <div class="flex items-center gap-2">
-          <span v-if="fileStats.completedCount">{{ fileStats.completedCount }} {{ t('upload.done') }}</span>
+        <div class="mt-2 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
+          <div class="flex items-center gap-2">
+          <span v-if="fileStats.completedCount">{{ fileStats.completedCount }} {{ t('common.done') }}</span>
           <span v-if="fileStats.completedCount && fileStats.activeCount" aria-hidden="true">·</span>
-          <span v-if="fileStats.activeCount">{{ fileStats.activeCount }} {{ t('upload.remaining') }}</span>
+          <span v-if="fileStats.activeCount">{{ fileStats.activeCount }} {{ t('common.remaining') }}</span>
         </div>
         <div class="tabular-nums">{{ formatBytes(uploadedBytes) }} / {{ formatBytes(totalBytes) }}</div>
       </div>
@@ -239,7 +239,7 @@ function toggleDetailsKey(e) {
                 class="text-xs shrink-0"
                 :class="file._progress.uploadComplete ? 'text-emerald-600' : 'text-zinc-500'"
               >
-                {{ file._progress.uploadComplete ? t('upload.done') : file._progress.indeterminate ? '...' : (file._progress.percentage + '%') }}
+                {{ file._progress.uploadComplete ? t('common.done') : file._progress.indeterminate ? '...' : (file._progress.percentage + '%') }}
               </span>
             </div>
 

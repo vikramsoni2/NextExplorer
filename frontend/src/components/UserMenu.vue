@@ -106,7 +106,7 @@ const handleLogout = async () => {
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
               type="button" @click="handleSettings">
               <Cog8ToothIcon class="h-5 w-5" />
-              <span>{{ $t('user.settings') }}</span>
+              <span>{{ $t('common.settings') }}</span>
             </button>
 
             <button

@@ -7,7 +7,11 @@ export const useFeaturesStore = defineStore('features', () => {
   const onlyofficeEnabled = ref(false);
   const onlyofficeExtensions = ref([]);
   const volumeUsageEnabled = ref(false);
-  const announcements = ref([]);
+   const personalEnabled = ref(false);
+  const version = ref('');
+  const gitCommit = ref('');
+  const gitBranch = ref('');
+  const repoUrl = ref('');
   const isLoading = ref(false);
   const hasLoaded = ref(false);
   let initPromise = null;
@@ -41,10 +45,14 @@ export const useFeaturesStore = defineStore('features', () => {
         // Volume usage
         volumeUsageEnabled.value = Boolean(features?.volumeUsage?.enabled);
 
-        // Announcements
-        announcements.value = Array.isArray(features?.announcements)
-          ? features.announcements
-          : [];
+        // Personal folders
+        personalEnabled.value = Boolean(features?.personal?.enabled);
+
+        // Version information
+        version.value = features?.version?.app || '';
+        gitCommit.value = features?.version?.gitCommit || '';
+        gitBranch.value = features?.version?.gitBranch || '';
+        repoUrl.value = features?.version?.repoUrl || '';
 
         hasLoaded.value = true;
       } catch (error) {
@@ -54,7 +62,7 @@ export const useFeaturesStore = defineStore('features', () => {
         onlyofficeEnabled.value = false;
         onlyofficeExtensions.value = [];
         volumeUsageEnabled.value = false;
-        announcements.value = [];
+        personalEnabled.value = false;
       } finally {
         isLoading.value = false;
       }
@@ -77,7 +85,11 @@ export const useFeaturesStore = defineStore('features', () => {
     onlyofficeEnabled,
     onlyofficeExtensions,
     volumeUsageEnabled,
-    announcements,
+    personalEnabled,
+    version,
+    gitCommit,
+    gitBranch,
+    repoUrl,
     isLoading,
     hasLoaded,
     initialize,

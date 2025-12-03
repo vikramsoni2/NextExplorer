@@ -283,11 +283,11 @@ const menuSections = computed(() => {
         ),
       ],
       [
-        mk('new-folder', t('context.newFolder'), CreateNewFolderRound, runCreateFolder),
-        mk('new-file', t('context.newFile'), InsertDriveFileRound, runCreateFile),
+        mk('new-folder', t('actions.newFolder'), CreateNewFolderRound, runCreateFolder),
+        mk('new-file', t('actions.newFile'), InsertDriveFileRound, runCreateFile),
       ],
       [
-        mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoCurrent, {
+        mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoCurrent, {
           disabled: !actions.canPaste.value,
           shortcut: `${modKeyLabel}V`,
         }),
@@ -301,18 +301,18 @@ const menuSections = computed(() => {
   ]);
 
   const clipboardSection = [
-    mk('cut', t('context.cut'), ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
-    mk('copy', t('context.copy'), ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
+    mk('cut', t('actions.cut'), ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
+    mk('copy', t('actions.copy'), ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
   ];
   if (contextKind.value === 'directory') {
     clipboardSection.push(
-      mk('paste', t('context.paste'), ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
+      mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
     );
   }
   sections.push(clipboardSection);
 
   sections.push([
-    mk('rename', t('context.rename'), DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
+    mk('rename', t('actions.rename'), DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
   ]);
 
   if (contextKind.value === 'directory') {
@@ -328,7 +328,7 @@ const menuSections = computed(() => {
   }
 
   sections.push([
-  mk('delete', t('context.delete'), DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
+  mk('delete', t('common.delete'), DeleteRound, requestDelete, { disabled: !hasSelection.value, danger: true, shortcut: deleteKeyLabel }),
   ]);
 
   return sections;

@@ -66,7 +66,7 @@ onClickOutside(panelRef, () => {
                     <div class="px-4 py-6 border-b border-gray-200 dark:border-gray-700">
                       <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                          {{ $t('notifications.title') }}
+                          {{ $t('titles.notifications') }}
                         </h2>
                         <div class="flex items-center gap-3">
                           <button
@@ -75,7 +75,7 @@ onClickOutside(panelRef, () => {
                             class="text-sm text-gray-500 dark:text-gray-400
                                    hover:text-gray-700 dark:hover:text-gray-300
                                    focus:outline-hidden transition-colors duration-200">
-                            {{ $t('notifications.clearAll') }}
+                            {{ $t('actions.clearAll') }}
                           </button>
                           <button
                             @click="closePanel"

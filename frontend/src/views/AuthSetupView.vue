@@ -4,11 +4,11 @@ import { useRoute, useRouter } from 'vue-router';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { LockClosedIcon } from '@heroicons/vue/24/outline';
 import { useAuthStore } from '@/stores/auth';
+import { useFeaturesStore } from '@/stores/features';
 import { useI18n } from 'vue-i18n';
 
-const version = __APP_VERSION__
-
 const auth = useAuthStore();
+const featuresStore = useFeaturesStore();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -30,8 +30,7 @@ const redirectTarget = computed(() => {
 });
 
 const inputBaseClasses =
-  'mt-2 w-full h-12 rounded-lg ring-1 ring-inset ring-white/10 bg-zinc-800/30 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-yellow-500/60 focus:outline-hidden transition';
-
+  'mt-2 w-full h-12 rounded-xl ring-1 ring-inset ring-white/10 bg-neutral-800/70 px-4 text-neutral-100 placeholder-neutral-500 focus:ring-white/60 focus:outline-hidden transition';
 
 const helperTextClasses = 'text-sm text-red-400';
 
@@ -50,9 +49,14 @@ watch(
   { immediate: true },
 );
 
-onMounted(() => {
+onMounted(async () => {
   if (!auth.hasStatus && !auth.isLoading) {
     auth.initialize();
+  }
+  try {
+    await featuresStore.ensureLoaded();
+  } catch (_) {
+    // Non-fatal; version is optional
   }
 });
 
@@ -65,17 +69,17 @@ const handleSetupSubmit = async () => {
   resetErrors();
 
   if (!setupEmailValue.value.trim()) {
-    setupError.value = t('auth.errors.emailRequired');
+    setupError.value = t('errors.emailRequired');
     return;
   }
 
   if (setupPasswordValue.value.length < 6) {
-    setupError.value = t('auth.errors.passwordLength');
+    setupError.value = t('errors.passwordLength');
     return;
   }
 
   if (setupPasswordValue.value !== setupConfirmValue.value) {
-    setupError.value = t('auth.errors.passwordMismatch');
+    setupError.value = t('errors.passwordMismatch');
     return;
   }
 
@@ -93,7 +97,7 @@ const handleSetupSubmit = async () => {
     setupConfirmValue.value = '';
     redirectToDestination();
   } catch (error) {
-    setupError.value = error instanceof Error ? error.message : t('auth.errors.createAccountFailed');
+    setupError.value = error instanceof Error ? error.message : t('errors.createAccount');
   } finally {
     isSubmittingSetup.value = false;
   }
@@ -101,7 +105,7 @@ const handleSetupSubmit = async () => {
 </script>
 
 <template>
-  <AuthLayout :version="version" :is-loading="auth.isLoading">
+  <AuthLayout :version="featuresStore.version" :is-loading="auth.isLoading">
     <template #heading>
       <p class="text-3xl font-black leading-tight tracking-tight text-white">
         {{ $t('auth.setup.headline') }}
@@ -115,14 +119,14 @@ const handleSetupSubmit = async () => {
 
     <form class="space-y-5" @submit.prevent="handleSetupSubmit">
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{ $t('auth.email') }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('auth.emailAddress') }}</span>
         <input
           id="setup-email"
           v-model="setupEmailValue"
           type="email"
           autocomplete="email"
           :class="inputBaseClasses"
-          :placeholder="$t('auth.emailPlaceholder')"
+          :placeholder="$t('placeholders.emailCompany')"
           :disabled="isSubmittingSetup"
         />
       </label>
@@ -135,20 +139,20 @@ const handleSetupSubmit = async () => {
           type="text"
           autocomplete="username"
           :class="inputBaseClasses"
-          :placeholder="$t('auth.usernamePlaceholder')"
+          :placeholder="$t('placeholders.username')"
           :disabled="isSubmittingSetup"
         />
       </label>
 
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{ $t('auth.password') }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('common.password') }}</span>
         <input
           id="setup-password"
           v-model="setupPasswordValue"
           type="password"
           autocomplete="new-password"
           :class="inputBaseClasses"
-          :placeholder="$t('auth.passwordPlaceholder')"
+          :placeholder="$t('placeholders.password')"
           :disabled="isSubmittingSetup"
         />
       </label>
@@ -161,7 +165,7 @@ const handleSetupSubmit = async () => {
           type="password"
           autocomplete="new-password"
           :class="inputBaseClasses"
-          :placeholder="$t('auth.confirmPasswordPlaceholder')"
+          :placeholder="$t('placeholders.confirmPassword')"
           :disabled="isSubmittingSetup"
         />
       </label>
@@ -169,12 +173,17 @@ const handleSetupSubmit = async () => {
       <p v-if="setupError" :class="helperTextClasses">{{ setupError }}</p>
       <p v-else-if="statusError" :class="helperTextClasses">{{ statusError }}</p>
 
-      <button type="submit" class=
-      "w-full h-12 rounded-lg bg-accent px-4 font-semibold text-neutral-900 transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-60"
-      :disabled="isSubmittingSetup">
-        <span v-if="isSubmittingSetup">{{ $t('auth.creating') }}</span>
-        <span v-else class="inline-flex gap-2 items-center">
-          <LockClosedIcon class="w-5 h-5" />
+      <button
+        type="submit"
+        class="w-full h-12 px-4 rounded-xl 
+        bg-neutral-100 hover:bg-neutral-100/90 active:bg-neutral-100/70  
+        font-semibold text-neutral-900 
+        disabled:cursor-not-allowed disabled:opacity-60"
+        :disabled="isSubmittingSetup"
+      >
+        <span v-if="isSubmittingSetup">{{ $t('common.creating') }}</span>
+        <span v-else class="inline-flex items-center gap-2">
+          <LockClosedIcon class="h-5 w-5" />
           {{ $t('auth.setup.submit') }}
         </span>
       </button>

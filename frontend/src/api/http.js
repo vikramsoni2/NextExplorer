@@ -33,6 +33,12 @@ const requestRaw = async (endpoint, options = {}) => {
     headers['Content-Type'] = 'application/json';
   }
 
+  // Add guest session header if present
+  const guestSessionId = sessionStorage.getItem('guestSessionId');
+  if (guestSessionId) {
+    headers['X-Guest-Session'] = guestSessionId;
+  }
+
   try {
     const response = await fetch(buildUrl(endpoint), {
       credentials: options.credentials || 'include', // All requests rely on cookies

@@ -1,11 +1,22 @@
 <template>
   <teleport to="body">
     <!-- Standalone plugins render directly -->
-    <component
-      v-if="isStandalone && component"
-      :is="component"
-      v-bind="activeItem"
-    />
+    <div v-if="isStandalone">
+      <component
+        v-if="component"
+        :is="component"
+        v-bind="activeItem"
+      />
+      <!-- Lightweight fallback while standalone plugin component loads -->
+      <div
+        v-else
+        class="fixed inset-0 z-2000 flex items-center justify-center text-sm text-neutral-200"
+      >
+        <div class="flex  items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
+        <LoadingIcon/> {{ $t('common.loading') }}
+      </div>
+      </div>
+    </div>
 
     <!-- Regular plugins render in modal -->
     <transition v-else name="preview-fade">
@@ -95,6 +106,7 @@ import { computed, shallowRef, watch } from 'vue';
 import { storeToRefs } from 'pinia';
 import { XMarkIcon, ArrowDownTrayIcon, PencilSquareIcon, ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline';
 import { usePreviewManager } from '@/plugins/preview/manager';
+import LoadingIcon from '@/icons/LoadingIcon.vue';
 
 const manager = usePreviewManager();
 const { isOpen, activeItem, activePlugin } = storeToRefs(manager);

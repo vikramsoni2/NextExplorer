@@ -8,8 +8,15 @@ nextExplorer mixes a modern browser experience with secure access controls and f
 - **Drag-and-drop:** Move files or folders directly inside the UI and upload from your desktop via drag-and-drop.
 - **Context menus:** Right-click the background or individual items for quick shortcuts (New Folder/File, Paste, Rename, Get Info, download, delete).
 
-## Editing & document workflows
+## Editing, sharing & document workflows
 - **Built-in editor:** Double-click any text or code file to edit it inline with syntax highlighting, line numbers, and Save/Cancel actions. Supports 50+ file types by default (txt, md, json, js, ts, py, yml, html, css, and many more). Extend support for additional formats at runtime using the `EDITOR_EXTENSIONS` environment variable—no rebuild required.
+- **Link-based sharing:** Use the **Share** button in the toolbar to create share links for any folder or file you can access (including items under **My Files** when personal folders are enabled). Shares can be:
+  - **Read-only** or **read/write**.
+  - **Anyone with the link** or **specific users**.
+  - Optionally **password-protected** and **time-limited** with an expiration date.
+  After creation, the dialog shows a friendly label, final URL (based on `PUBLIC_URL` when set), and a one-click **Copy link** button.
+- **Guest access to shares:** Public “anyone with the link” shares use short tokens (for example, `/share/aBc123XyZ`) and create a limited **guest session** so visitors can browse just the shared item. Password-protected shares prompt for the password first; user-specific shares redirect to the login screen and apply normal access checks after authentication.
+- **“Shared with me” view:** The **Shares** section in the sidebar links to a **Shared with me** page showing items other people have shared with you, including status (active/expired), access mode, and last accessed time.
 - **ONLYOFFICE integration:** When `ONLYOFFICE_URL` and the JWT `ONLYOFFICE_SECRET` are configured, docx/xlsx/pptx/odt/ods/odp files open with co-editing capabilities via `/api/onlyoffice/*` endpoints.
 - **Favorites:** Pin folders to the sidebar with a star so critical paths stay in reach across sessions.
 

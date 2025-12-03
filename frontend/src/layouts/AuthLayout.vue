@@ -108,7 +108,7 @@ onClickOutside(languageSwitcherRef, () => {
           </span>
         </header>
 
-        <main class="flex flex-1 items-center justify-center px-6 pb-8 sm:px-12">
+        <main class="flex flex-1 items-center justify-center px-6 sm:px-12">
           <div class="relative z-10 w-full max-w-md">
             <div
               class="relative w-full rounded-2xl 
@@ -132,19 +132,32 @@ onClickOutside(languageSwitcherRef, () => {
         <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/60">
           <div>© {{ new Date().getFullYear() }} NextExplorer</div>
 
-          <div class="flex items-center text-white/70 sm:hidden">
-            <div ref="languageSwitcherRef" class="relative inline-block text-left">
+          <div class="flex items-center gap-4 text-white/70">
+            <a
+              href="https://explorer.nxz.ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-xs font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+            >
+              Help &amp; docs
+            </a>
+
+            <div ref="languageSwitcherRef" class="relative inline-flex items-center">
               <button
                 type="button"
                 class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10 focus:outline-hidden"
                 :aria-label="t('i18n.language')"
                 @click="languageMenuOpen = !languageMenuOpen"
               >
-                <span class="uppercase tracking-wide text-[0.7rem]">
-                  {{ currentLanguage.code }}
-                </span>
-                <span class="hidden text-xs">
-                  {{ currentLanguage.label }}
+                <span class="flex items-center gap-2">
+                  <span
+                    class="rounded-full bg-white/10 px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide"
+                  >
+                    {{ currentLanguage.code }}
+                  </span>
+                  <span class="hidden text-xs sm:inline">
+                    {{ currentLanguage.label }}
+                  </span>
                 </span>
                 <ChevronUpDownIcon class="h-4 w-4 text-white/60" />
               </button>
@@ -165,21 +178,6 @@ onClickOutside(languageSwitcherRef, () => {
                 </button>
               </div>
             </div>
-          </div>
-
-          <div class="hidden items-center text-white/70 sm:flex">
-            <span class="mr-2">{{ t('i18n.language') }}:</span>
-            <template v-for="(lang, idx) in languages" :key="lang.code">
-              <button
-                type="button"
-                class="rounded-sm px-2 py-1 hover:bg-white/10"
-                :class="{ 'bg-white/10 font-semibold': locale === lang.code }"
-                @click="setLocale(lang.code)"
-              >
-                {{ lang.label }}
-              </button>
-              <span v-if="idx < languages.length - 1" class="mx-2">•</span>
-            </template>
           </div>
         </footer>
       </div>

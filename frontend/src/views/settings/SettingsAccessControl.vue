@@ -35,7 +35,7 @@ const save = async () => {
 <template>
   <div class="space-y-6">
     <div v-if="dirty" class="sticky top-0 z-10 flex items-center justify-between rounded-md border border-yellow-400/30 bg-yellow-100/40 p-3 text-yellow-900 dark:border-yellow-400/20 dark:bg-yellow-500/10 dark:text-yellow-200">
-      <div class="text-sm">{{ t('settings.common.unsavedChanges') }}</div>
+      <div class="text-sm">{{ t('common.unsavedChanges') }}</div>
       <div class="flex gap-2">
         <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">{{ t('common.save') }}</button>
         <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">{{ t('common.discard') }}</button>
@@ -43,27 +43,27 @@ const save = async () => {
     </div>
 
     <section class="rounded-lg p-4">
-      <h2 class="mb-2 text-base font-semibold">{{ t('settings.access.title') }}</h2>
+      <h2 class="mb-2 text-base font-semibold">{{ t('titles.folderRules') }}</h2>
       <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.access.subtitle') }}</p>
 
       <div class="mb-3 flex justify-end">
-        <button class="rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-400" @click="addRule">{{ t('settings.access.addRule') }}</button>
+        <button class="rounded-md bg-blue-500 px-3 py-1 text-white hover:bg-blue-400" @click="addRule">{{ t('actions.addRule') }}</button>
       </div>
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead class="text-xs uppercase text-neutral-500 dark:text-neutral-400">
             <tr>
-              <th class="p-2">{{ t('settings.access.path') }}</th>
+              <th class="p-2">{{ t('common.path') }}</th>
               <th class="p-2">{{ t('settings.access.recursive') }}</th>
-              <th class="p-2">{{ t('settings.access.permissions') }}</th>
+              <th class="p-2">{{ t('common.permissions') }}</th>
               <th class="p-2 w-10"></th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(rule, idx) in local.rules" :key="rule.id" class="border-t border-white/5">
               <td class="p-2">
-                <input v-model="rule.path" :placeholder="t('settings.access.pathPlaceholder')" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
+                <input v-model="rule.path" :placeholder="t('placeholders.path')" class="w-full rounded-md border border-white/10 bg-transparent px-2 py-1" />
               </td>
               <td class="p-2">
                 <input type="checkbox" v-model="rule.recursive" />

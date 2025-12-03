@@ -55,7 +55,7 @@ const save = async () => {
 <template>
   <div class="space-y-6">
     <div v-if="dirty" class="sticky top-0 z-10 flex items-center justify-between rounded-md border border-yellow-400/30 bg-yellow-100/40 p-3 text-yellow-900 dark:border-yellow-400/20 dark:bg-yellow-500/10 dark:text-yellow-200">
-      <div class="text-sm">{{ t('settings.common.unsavedChanges') }}</div>
+      <div class="text-sm">{{ t('common.unsavedChanges') }}</div>
       <div class="flex gap-2">
         <button class="rounded-md bg-yellow-500 px-3 py-1 text-black hover:bg-yellow-400" @click="save">{{ t('common.save') }}</button>
         <button class="rounded-md border border-white/10 px-3 py-1 hover:bg-white/10" @click="reset">{{ t('common.discard') }}</button>
@@ -63,7 +63,7 @@ const save = async () => {
     </div>
 
     <section class="rounded-lg  p-4">
-      <h2 class="mb-2 text-base font-semibold">{{ t('settings.thumbs.title') }}</h2>
+      <h2 class="mb-2 text-base font-semibold">{{ t('titles.thumbnails') }}</h2>
       <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.thumbs.subtitle') }}</p>
 
       <div class="flex items-center justify-between py-2">

@@ -17,7 +17,7 @@ const item = computed(() => store.item);
 const relativePath = computed(() => store.relativePath);
 
 const { t } = useI18n();
-const title = computed(() => item.value?.name || t('info.details'));
+const title = computed(() => item.value?.name || t('common.details'));
 const kindLabel = computed(() => (item.value ? getKindLabel(item.value) : ''));
 
 const sizeLabel = computed(() => {
@@ -54,7 +54,7 @@ const loadDetails = async () => {
   try {
     details.value = await fetchMetadata(relativePath.value);
   } catch (e) {
-    errorMsg.value = e?.message || t('info.failed');
+    errorMsg.value = e?.message || t('errors.loadMetadata');
   } finally {
     loading.value = false;
   }
@@ -174,7 +174,7 @@ onBeforeUnmount(() => {
       <aside ref="panelRef" class="flex h-full flex-col border-l bg-white/90 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80">
         <header class="flex items-start gap-3 border-b px-5 py-4 dark:border-white/5">
           <div class="min-w-0">
-            <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.details') }}</p>
+            <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.details') }}</p>
             <h2 class="truncate text-lg font-semibold text-neutral-900 dark:text-white">{{ title }}</h2>
           </div>
           <button
@@ -204,35 +204,35 @@ onBeforeUnmount(() => {
             </div>
 
             <div>
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.type') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.type') }}</p>
               <p class="text-neutral-900 dark:text-neutral-100">{{ kindLabel }}</p>
             </div>
 
             <div>
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.size') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.size') }}</p>
               <p class="text-neutral-900 dark:text-neutral-100">{{ sizeLabel }}</p>
             </div>
 
             <div>
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.modified') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.modified') }}</p>
               <p class="text-neutral-900 dark:text-neutral-100">{{ modifiedLabel }}</p>
             </div>
 
             <div v-if="locationLabel">
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.location') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.location') }}</p>
               <p class="break-all text-neutral-900 dark:text-neutral-100">{{ locationLabel }}</p>
             </div>
 
             <!-- Folder specific metadata -->
             <div v-if="details?.directory" class="pt-2 border-t border-neutral-200 dark:border-white/5">
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">{{ t('info.folder') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-1">{{ t('common.folder') }}</p>
               <p class="text-neutral-900 dark:text-neutral-100">{{ t('info.folderSize', { size: formatBytes(details.directory.totalSize || 0) }) }}</p>
-              <p class="text-neutral-900 dark:text-neutral-100">{{ t('info.items', { files: details.directory.fileCount || 0, folders: details.directory.dirCount || 0 }) }}</p>
+              <p class="text-neutral-900 dark:text-neutral-100">{{ t('info.itemsCount', { files: details.directory.fileCount || 0, folders: details.directory.dirCount || 0 }) }}</p>
             </div>
 
             <!-- Image specific metadata -->
             <div v-if="details?.image" class="pt-2 border-t border-neutral-200 dark:border-white/5 space-y-2">
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.image') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.image') }}</p>
               <p v-if="details.image.width && details.image.height" class="text-neutral-900 dark:text-neutral-100">{{ t('info.dimensions', { w: details.image.width, h: details.image.height }) }}</p>
               <p v-if="details.image.dateTaken" class="text-neutral-900 dark:text-neutral-100">{{ t('info.dateTaken', { date: formatDate(details.image.dateTaken) }) }}</p>
               <p v-if="details.image.cameraMake || details.image.cameraModel" class="text-neutral-900 dark:text-neutral-100">{{ t('info.camera', { makeModel: [details.image.cameraMake, details.image.cameraModel].filter(Boolean).join(' ') }) }}</p>
@@ -246,13 +246,13 @@ onBeforeUnmount(() => {
 
             <!-- Video specific metadata -->
             <div v-if="details?.video" class="pt-2 border-t border-neutral-200 dark:border-white/5 space-y-1">
-              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('info.video') }}</p>
+              <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ t('common.video') }}</p>
               <p v-if="details.video.width && details.video.height" class="text-neutral-900 dark:text-neutral-100">{{ t('info.dimensions', { w: details.video.width, h: details.video.height }) }}</p>
               <p v-if="Number.isFinite(details.video.duration)" class="text-neutral-900 dark:text-neutral-100">{{ t('info.duration', { seconds: Math.round(details.video.duration) }) }}</p>
             </div>
 
             <!-- Loading / error states -->
-            <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('info.loading') }}</div>
+            <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('loading.metadata') }}</div>
             <div v-else-if="errorMsg" class="text-sm text-red-600 dark:text-red-400">{{ errorMsg }}</div>
 
             <!-- Permissions Panel -->

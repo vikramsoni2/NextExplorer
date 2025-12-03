@@ -47,8 +47,8 @@ environment:
   - OIDC_ISSUER=https://auth.example.com
   - OIDC_CLIENT_ID=nextexplorer
   - OIDC_CLIENT_SECRET=CHANGE_ME_STRONG_SECRET
-  - OIDC_SCOPES=openid profile email groups
-  - OIDC_ADMIN_GROUPS=next-admin admins
+  - OIDC_SCOPES=openid,profile,email,groups
+  - OIDC_ADMIN_GROUPS=next-admin,admins
 ```
 
 The backend discovers `/login`, `/callback`, `/logout` automatically once OIDC is on. Admin elevation occurs when the user’s group claim intersects `OIDC_ADMIN_GROUPS`.

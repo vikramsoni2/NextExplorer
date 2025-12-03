@@ -47,7 +47,7 @@ const loadUsers = async () => {
       }
     }
   } catch (e) {
-    errorMsg.value = e?.message || t('settings.users.failedLoad');
+    errorMsg.value = e?.message || t('errors.loadUsers');
   } finally {
     loading.value = false;
   }
@@ -77,7 +77,7 @@ const handleUpdateUser = async (userData) => {
       selectedUser.value = { ...selectedUser.value, ...res.user };
     }
   } catch (e) {
-    alert(e?.message || t('settings.users.failedUpdate'));
+    alert(e?.message || t('errors.updateUser'));
   } finally {
     saving.value = false;
   }
@@ -95,7 +95,7 @@ const handleMakeAdmin = async (u) => {
       }
     }
   } catch (e) {
-    alert(e?.message || t('settings.users.failedUpdateRoles'));
+    alert(e?.message || t('errors.updateRoles'));
   }
 };
 
@@ -111,7 +111,7 @@ const handleRevokeAdmin = async (u) => {
       }
     }
   } catch (e) {
-    alert(e?.message || t('settings.users.failedUpdateRoles'));
+    alert(e?.message || t('errors.updateRoles'));
   }
 };
 
@@ -119,17 +119,17 @@ const handleResetPassword = async (u) => {
   const pwd = window.prompt(t('settings.users.promptNewPassword', { user: u.username }));
   if (pwd == null) return; // cancelled
   if (pwd.length < 6) {
-    alert(t('settings.users.passwordMin'));
+    alert(t('errors.passwordMin'));
     return;
   }
   try {
     await adminSetUserPassword(u.id, pwd);
-    alert(t('settings.users.passwordUpdated'));
+    alert(t('status.passwordUpdated'));
     // Ideally we should refresh the user to update "hasLocalAuth" status if we had that info in the API response
     // But for now, we assume it worked.
     loadUsers(); 
   } catch (e) {
-    alert(e?.message || t('settings.users.failedReset'));
+    alert(e?.message || t('errors.resetPassword'));
   }
 };
 
@@ -145,7 +145,7 @@ const handleDeleteUser = async (u) => {
     users.value = users.value.filter((it) => it.id !== u.id);
     selectedUser.value = null;
   } catch (e) {
-    alert(e?.message || t('settings.users.failedRemove'));
+    alert(e?.message || t('errors.removeUser'));
   }
 };
 
@@ -164,11 +164,11 @@ const closeCreateModal = () => {
 
 const handleCreate = async () => {
   if (!newEmail.value.trim()) {
-    alert(t('auth.errors.emailRequired'));
+    alert(t('errors.emailRequired'));
     return;
   }
   if (newPassword.value.length < 6) {
-    alert(t('settings.users.passwordMin'));
+    alert(t('errors.passwordMin'));
     return;
   }
   creating.value = true;
@@ -186,7 +186,7 @@ const handleCreate = async () => {
       // selectedUser.value = res.user;
     }
   } catch (e) {
-    alert(e?.message || t('settings.users.failedCreate'));
+    alert(e?.message || t('errors.createUser'));
   } finally {
     creating.value = false;
   }
@@ -248,26 +248,26 @@ onMounted(() => { loadUsers(); });
         
         <form class="space-y-4" @submit.prevent="handleCreate">
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.email') }} <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.email') }} <span class="text-red-500">*</span></label>
             <input
               v-model.trim="newEmail"
               type="email"
               required
-              :placeholder="t('settings.users.emailPlaceholder')"
+              :placeholder="t('placeholders.email')"
               class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.username') }}</label>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.username') }}</label>
             <input
               v-model.trim="newUsername"
               type="text"
-              :placeholder="t('settings.users.usernameOptional')"
+              :placeholder="t('placeholders.username')"
               class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('settings.users.password') }} <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.password') }} <span class="text-red-500">*</span></label>
             <input
               v-model="newPassword"
               type="password"
@@ -275,7 +275,7 @@ onMounted(() => { loadUsers(); });
               placeholder="••••••"
               class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('settings.users.passwordMin') }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('errors.passwordMin') }}</p>
           </div>
           
           <div class="flex items-start pt-2">
@@ -306,7 +306,7 @@ onMounted(() => { loadUsers(); });
               :disabled="creating"
               class="inline-flex justify-center rounded-md border border-transparent bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50"
             >
-              {{ creating ? t('settings.users.creating') : t('common.create') }}
+              {{ creating ? t('common.creating') : t('common.create') }}
             </button>
           </div>
         </form>

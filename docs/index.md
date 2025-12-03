@@ -74,10 +74,11 @@ Run it with `docker compose up -d`, then visit `http://localhost:3000` to finish
 
 - [Quick Launch Overview](/quick-launch/overview): prerequisites, first run, and volume configuration.
 - [Visual Tour](/quick-launch/visual-tour): login, workspace, favorites, previews, and the screenshot inventory.
-- [Experience](/experience/features): features and user workflows for browsing, uploads, search, previews, and the inline editor.
+- [Experience](/experience/features): features and user workflows for browsing, uploads, search, previews, inline editing, and link-based sharing.
 - [Admin & Access](/admin/guide): user management, policies, and audit trails.
 - [Installation & Networking](/installation/deployment): compose deployment, backups, and runtime concerns; check the [Reverse Proxy guide](/installation/reverse-proxy) for PUBLIC_URL, trusted proxies, TLS, and CORS.
 - [Configuration & Settings](/configuration/environment): environment variables and defaults; [Runtime Settings](/configuration/settings) describes in-app toggles and admin panels.
+- [Personal user folders](/configuration/personal-folders): per-user “My Files” home directories with `USER_ROOT` and `USER_DIR_ENABLED`.
 - [Integrations](/integrations/oidc): OIDC, Authelia, and ONLYOFFICE examples for SSO and document editing.
 - [Reference](/reference/troubleshooting): troubleshooting notes, the screenshot catalog, and release changelog.
 

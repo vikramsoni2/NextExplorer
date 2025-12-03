@@ -145,7 +145,7 @@ onBeforeUnmount(() => {
     <h4
       class="group flex items-center justify-between py-2 pt-2 text-sm text-neutral-400 dark:text-neutral-500 font-medium"
     >
-      {{ t('favorites.title') }}
+      {{ t('titles.favorites') }}
       <div class="flex items-center gap-1">
         <button
           type="button"

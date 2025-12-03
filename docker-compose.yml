@@ -21,6 +21,7 @@ services:
       # Centralized public URL (frontend + backend behind proxy)
       - PUBLIC_URL=https://files.vsoni.com
       
+      
       # OIDC configuration (fill with your identity provider details)
       - OIDC_ENABLED=true
       - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/

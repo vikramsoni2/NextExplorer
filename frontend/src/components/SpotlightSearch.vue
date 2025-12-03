@@ -48,7 +48,7 @@ const performSearch = useDebounceFn(async () => {
     const limitedItems = Array.isArray(items) ? items : [];
     results.value = Object.freeze(limitedItems);
   } catch (e) {
-    errorMsg.value = e?.message || t('search.failed');
+    errorMsg.value = e?.message || t('errors.searchFailed');
     results.value = [];
   } finally {
     loading.value = false;
@@ -210,12 +210,12 @@ onKeyStroke('Enter', (e) => {
             v-model="query"
             type="text"
             spellcheck="false"
-            :placeholder="t('spotlight.placeholder')"
+            :placeholder="t('placeholders.search')"
             class="flex-1 bg-transparent outline-hidden text-[15px] placeholder-neutral-400 dark:placeholder-neutral-500 text-neutral-900 dark:text-neutral-100"
           />
           <div class="hidden sm:flex items-center gap-2 text-[11px] text-neutral-500 dark:text-neutral-400">
             <span class="px-1.5 py-[2px] rounded-sm border text-white border-neutral-500 dark:border-neutral-700 bg-neutral-500 dark:bg-neutral-900">Esc</span>
-            <span>{{ t('spotlight.close') }}</span>
+            <span>{{ t('common.close') }}</span>
           </div>
         </div>
 

@@ -36,7 +36,7 @@ const getAuthLabel = (auth) => {
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{{ t('settings.users.title') }}</h2>
+        <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{{ t('titles.userManagement') }}</h2>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
           Manage users, roles, and access credentials.
         </p>

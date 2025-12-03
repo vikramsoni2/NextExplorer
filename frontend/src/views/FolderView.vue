@@ -12,6 +12,7 @@ import { ImagesOutline } from '@vicons/ionicons5';
 import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 import { useViewConfig } from '@/composables/useViewConfig';
 import { DragSelect, DragSelectOption } from '@coleqiu/vue-drag-select';
+import { useUppyDropTarget } from '@/composables/fileUploader';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
@@ -21,6 +22,8 @@ const loading = ref(true)
 const selectedItems = ref([]);
 const { clearSelection } = useSelection();
 const contextMenu = useExplorerContextMenu();
+const dropTargetRef = ref(null);
+useUppyDropTarget(dropTargetRef);
 
 const applySelectionFromQuery = () => {
   const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
@@ -83,75 +86,81 @@ const showNoPhotosMessage = computed(() => {
 
 <template>
   <div
-    v-if="!loading"
-    class="h-full relative flex flex-col max-h-screen"
+    ref="dropTargetRef"
+    class="upload-drop-target h-full relative flex flex-col max-h-screen"
     @click.self="clearSelection()"
-    >
-
-      <!-- Toolbar -->
+  >
+    <!-- Toolbar is always mounted so it doesn't re-render on each navigation -->
     <FolderViewToolbar />
 
-    <DragSelect
-      v-model="selectionModel"
-      :click-option-to-select="false"
-      class="grow overflow-y-scroll px-2"
-      @click.self="clearSelection()"
-      @contextmenu.prevent="handleBackgroundContextMenu"
-    >
-      <div
-        :class="[gridClasses, 'min-h-full']"
-        :style="gridStyle"
+    <template v-if="!loading">
+      <DragSelect
+        v-model="selectionModel"
+        :click-option-to-select="false"
+        class="grow overflow-y-scroll px-2"
+        @click.self="clearSelection()"
+        @contextmenu.prevent="handleBackgroundContextMenu"
       >
-        <!-- Detail view header -->
         <div
-          v-if="settings.view === 'list'"
-          :class="['grid items-center', LIST_VIEW_GRID_COLS,
-          'px-4 py-2 text-xs',
-          'text-neutral-600 dark:text-neutral-300',
-          'uppercase tracking-wide select-none sticky top-0',
-          'bg-white dark:bg-base',
-          'backdrop-blur-sm']"
+          :class="[gridClasses, 'min-h-full']"
+          :style="gridStyle"
         >
-          <div></div>
-          <div>{{ $t('folder.name') }}</div>
-          <div>{{ $t('folder.size') }}</div>
-          <div>{{ $t('folder.kind') }}</div>
-          <div>{{ $t('folder.dateModified') }}</div>
-        </div>
+          <!-- Detail view header -->
+          <div
+            v-if="settings.view === 'list'"
+            :class="['grid items-center', LIST_VIEW_GRID_COLS,
+            'px-4 py-2 text-xs',
+            'text-neutral-600 dark:text-neutral-300',
+            'uppercase tracking-wide select-none sticky top-0',
+            'bg-white dark:bg-base',
+            'backdrop-blur-sm']"
+          >
+            <div></div>
+            <div>{{ $t('common.name') }}</div>
+            <div>{{ $t('common.size') }}</div>
+            <div>{{ $t('folder.kind') }}</div>
+            <div>{{ $t('folder.dateModified') }}</div>
+          </div>
 
-        <!-- <DragSelectOption
-          v-for="item in fileStore.getCurrentPathItems"
-          :key="item.name"
-          :value="item"
-          class="h-full"
-        > -->
           <FileObject
             v-for="item in fileStore.getCurrentPathItems"
-            :key="item.name"
+            :key="(item.path || '') + '::' + item.name"
             :item="item"
             :view="settings.view"
           />
-        <!-- </DragSelectOption> -->
 
-        <!-- No photos message -->
-        <div v-if="showNoPhotosMessage" class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4">
-          <div class="text-neutral-400 dark:text-neutral-500 mb-2">
-            <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+          <!-- No photos message -->
+          <div
+            v-if="showNoPhotosMessage"
+            class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4"
+          >
+            <div class="text-neutral-400 dark:text-neutral-500 mb-2">
+              <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+            </div>
+            <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+              {{ $t('folder.noPhotos') }}
+            </h3>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400">
+              {{ $t('folder.noPhotosHint') }}
+            </p>
           </div>
-          <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ $t('folder.noPhotos') }}</h3>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('folder.noPhotosHint') }}</p>
+        </div>
+      </DragSelect>
+    </template>
+
+    <template v-else>
+      <div class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
+        <div class="flex items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
+          <LoadingIcon /> {{ $t('common.loading') }}
         </div>
       </div>
-    </DragSelect>
-
-    
-
-    </div>
-
-    <div v-else class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
-      <div class="flex  items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
-        <LoadingIcon/> {{ $t('folder.loading') }}
-      </div>
+    </template>
   </div>
-
 </template>
+
+<style scoped>
+.upload-drop-target.uppy-is-drag-over {
+  outline: 2px dashed rgba(59, 130, 246, 0.6);
+  outline-offset: -2px;
+}
+</style>

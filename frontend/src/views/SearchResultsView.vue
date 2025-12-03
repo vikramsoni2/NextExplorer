@@ -26,7 +26,7 @@ async function load() {
     const { items: list = [] } = await searchApi(basePath.value, term);
     items.value = Array.isArray(list) ? list : [];
   } catch (e) {
-    errorMsg.value = e?.message || t('search.failed');
+    errorMsg.value = e?.message || t('errors.searchFailed');
   } finally {
     loading.value = false;
   }
@@ -72,7 +72,7 @@ function toIconItem(it) {
   <div class="flex flex-col gap-3">
     <div class="text-sm text-neutral-600 dark:text-neutral-300">
       <span v-if="q">{{ $t('search.resultsFor', { q }) }}</span>
-      <span v-if="basePath"> {{ $t('search.in') }} <span class="font-mono">/{{ basePath }}</span></span>
+      <span v-if="basePath"> {{ $t('common.in') }} <span class="font-mono">/{{ basePath }}</span></span>
     </div>
 
     <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">{{ $t('search.searching') }}</div>

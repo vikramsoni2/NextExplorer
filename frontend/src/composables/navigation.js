@@ -11,7 +11,7 @@ export function useNavigation() {
   const previewManager = usePreviewManager();
 
 
-  const openItem = withViewTransition((item)=>{
+  const openItem = (item)=>{
     if (!item) return;
 
     const extensionFromKind = typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
@@ -20,14 +20,26 @@ export function useNavigation() {
       : '';
 
     if(item.kind==='volume'){
-      router.push({ path: `/browse/${item.name}` });
+      withViewTransition(() => {
+        router.push({ path: `/browse/${item.name}` });
+      })();
+      return;
+    }
+    if (item.kind === 'personal') {
+      withViewTransition(() => {
+        router.push({ path: '/browse/personal' });
+      })();
       return;
     }
     if(item.kind==='directory'){
-        const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
+      const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
+      withViewTransition(() => {
         router.push({ path: `/browse/${newPath}` });
-        return;
+      })();
+      return;
     }
+
+    // Files: try preview first (no view transition – avoids double animations)
     if (previewManager.open(item)) {
       return;
     }
@@ -35,13 +47,19 @@ export function useNavigation() {
     if(isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)){
       const basePath = item.path ? `${item.path}/${item.name}` : item.name;
       const fileToEdit = basePath.replace(/^\/+/, '');
-      router.push({ path: `/editor/${fileToEdit}` });
+      withViewTransition(() => {
+        router.push({ path: `/editor/${fileToEdit}` });
+      })();
       return;
     }
-  });
+  };
   
 
   const openBreadcrumb = withViewTransition((path)=>{
+    if (path === 'share') {
+      router.push({ name: 'SharedWithMe' });
+      return;
+    }
     router.push({ path: `/browse/${path}` });
   });
 
