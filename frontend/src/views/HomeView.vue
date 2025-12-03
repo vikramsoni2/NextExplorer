@@ -76,10 +76,7 @@ const handleOpenFavorite = (favorite) => {
   openBreadcrumb(favorite.path);
 };
 
-const PersonalIcon = OutlineIcons.UserCircleIcon
-  || OutlineIcons.UserIcon
-  || OutlineIcons.UserGroupIcon
-  || OutlineIcons.StarIcon;
+const PersonalIcon = SolidIcons.FolderIcon || OutlineIcons.FolderIcon;
 
 const openPersonal = () => {
   openBreadcrumb('personal');
@@ -172,7 +169,7 @@ const openPersonal = () => {
           @dblclick="openPersonal"
           class="flex items-center gap-3 py-4 text-left"
         >
-          <component :is="PersonalIcon" class="h-16 shrink-0" />
+          <component :is="PersonalIcon" class="h-14 w-16 shrink-0 " />
           <div>
             <div class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white">
               {{ $t('drives.personal') }}
