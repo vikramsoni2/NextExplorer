@@ -90,10 +90,10 @@ const showNoPhotosMessage = computed(() => {
     class="upload-drop-target h-full relative flex flex-col max-h-screen"
     @click.self="clearSelection()"
   >
-    <template v-if="!loading">
-      <!-- Toolbar -->
-      <FolderViewToolbar />
+    <!-- Toolbar is always mounted so it doesn't re-render on each navigation -->
+    <FolderViewToolbar />
 
+    <template v-if="!loading">
       <DragSelect
         v-model="selectionModel"
         :click-option-to-select="false"

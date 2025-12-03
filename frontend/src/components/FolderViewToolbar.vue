@@ -46,8 +46,7 @@ const canCreate = computed(() => {
 <template>
   <div class="z-10  p-3">
     <div class="flex items-center shrink-0 sticky top-0">
-      <CreateNew v-if="canCreate" />
-      <div v-if="canCreate" class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+      <CreateNew v-if="canCreate" class="mr-3"/>
       <NavButtons />
       <BreadCrumb class="ml-2"/>
 

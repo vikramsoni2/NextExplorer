@@ -73,13 +73,19 @@ const createFile = async () => {
 <template>
   <div class="relative">
     <button
-    @click="toggle()"
-    class="flex items-center justify-center p-2 rounded-lg
-    hover:bg-neutral-100 active:bg-neutral-200
-    dark:hover:bg-neutral-700 dark:active:bg-neutral-600
-    transition-colors"
-    :title="$t('create.createNew')">
-      <PlusIcon class="w-5 h-5"/>
+      @click="toggle()"
+      class="inline-flex items-center justify-center rounded-lg 
+      bg-neutral-900
+      dark:bg-neutral-600/60 hover:bg-neutral-600 active:bg-neutral-700
+      px-2 py-1.5 text-xs font-medium text-white
+      shadow-sm transition
+      md:px-3 md:pl-2 md:py-2 md:text-sm"
+      :title="$t('create.createNew')"
+    >
+      <PlusIcon class="w-4 h-4 md:mr-1" />
+      <span class="hidden md:inline">
+        {{ $t('create.createNew') }}
+      </span>
     </button>
 
     <div
