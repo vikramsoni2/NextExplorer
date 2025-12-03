@@ -395,6 +395,8 @@
   "share": {
     "sharedWithMe": "Partagé avec moi",
     "sharedWithMeDescription": "Fichiers et dossiers que d'autres personnes ont partagés avec votre compte.",
+    "sharedByMe": "Partagé par moi",
+    "sharedByMeDescription": "Liens et dossiers que vous avez partagés avec d'autres personnes.",
     "shareCreated": "Partage créé",
     "createShareLink": "Créer un lien de partage",
     "shareLink": "Lien de partage",
@@ -428,6 +430,13 @@
     "filterByNameOrPath": "Filtrer par nom ou chemin",
     "sharedBy": "Partagé par le propriétaire",
     "lastAccessed": "Dernier accès",
-    "created": "Créé"
+    "created": "Créé",
+    "noMyShares": "Vous n'avez pas encore créé de partage.",
+    "noMySharesDescription": "Créez un partage à partir de n'importe quel fichier ou dossier pour le voir apparaître ici.",
+    "mySharesCount": "{count} liens de partage actifs",
+    "confirmDeleteShare": "Supprimer ce partage ? Les personnes disposant du lien n'y auront plus accès.",
+    "removeShare": "Supprimer le partage",
+    "sharedWithAnyone": "Partagé avec tout le monde",
+    "sharedWithUsers": "{count} utilisateur | {count} utilisateurs"
   }
 }

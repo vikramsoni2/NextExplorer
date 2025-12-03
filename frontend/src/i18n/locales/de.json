@@ -395,6 +395,8 @@
   "share": {
     "sharedWithMe": "Mit mir geteilt",
     "sharedWithMeDescription": "Dateien und Ordner, die andere Personen mit Ihrem Konto geteilt haben.",
+    "sharedByMe": "Von mir geteilt",
+    "sharedByMeDescription": "Links und Ordner, die Sie mit anderen Personen geteilt haben.",
     "shareCreated": "Freigabe erstellt",
     "createShareLink": "Freigabelink erstellen",
     "shareLink": "Freigabelink",
@@ -428,6 +430,13 @@
     "filterByNameOrPath": "Nach Name oder Pfad filtern",
     "sharedBy": "Geteilt vom Besitzer",
     "lastAccessed": "Zuletzt aufgerufen",
-    "created": "Erstellt"
+    "created": "Erstellt",
+    "noMyShares": "Sie haben noch keine Freigaben erstellt.",
+    "noMySharesDescription": "Erstellen Sie eine Freigabe für eine Datei oder einen Ordner, um sie hier zu sehen.",
+    "mySharesCount": "{count} aktive Freigabelinks",
+    "confirmDeleteShare": "Diese Freigabe entfernen? Personen mit dem Link haben danach keinen Zugriff mehr.",
+    "removeShare": "Freigabe entfernen",
+    "sharedWithAnyone": "Für alle freigegeben",
+    "sharedWithUsers": "{count} Benutzer"
   }
 }

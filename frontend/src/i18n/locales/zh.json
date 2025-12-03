@@ -395,6 +395,8 @@
   "share": {
     "sharedWithMe": "与我共享",
     "sharedWithMeDescription": "其他人与你的账户共享的文件和文件夹。",
+    "sharedByMe": "我共享的内容",
+    "sharedByMeDescription": "你与其他人共享的链接和文件夹。",
     "shareCreated": "共享已创建",
     "createShareLink": "创建共享链接",
     "shareLink": "共享链接",
@@ -428,6 +430,13 @@
     "filterByNameOrPath": "按名称或路径筛选",
     "sharedBy": "由所有者共享",
     "lastAccessed": "上次访问",
-    "created": "创建时间"
+    "created": "创建时间",
+    "noMyShares": "你还没有创建任何共享。",
+    "noMySharesDescription": "从任意文件或文件夹创建共享链接后，会在此处显示。",
+    "mySharesCount": "{count} 个有效共享链接",
+    "confirmDeleteShare": "确定要移除此共享吗？拥有该链接的人将不再能够访问。",
+    "removeShare": "移除共享",
+    "sharedWithAnyone": "与所有人共享",
+    "sharedWithUsers": "{count} 位用户"
   }
 }

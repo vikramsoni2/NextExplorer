@@ -131,7 +131,8 @@
     "passwordLength": "Password must be at least 6 characters long",
     "passwordMin": "Password must be at least 6 characters",
     "passwordMismatch": "Passwords do not match",
-    "localSignInDisabled": "Local sign-in is disabled"
+    "localSignInDisabled": "Local sign-in is disabled",
+    "deleteShare": "Failed to delete share"
   },
   "titles": {
     "volumes": "Volumes",
@@ -395,6 +396,8 @@
   "share": {
     "sharedWithMe": "Shared With Me",
     "sharedWithMeDescription": "Files and folders other people have shared with your account.",
+    "sharedByMe": "Shared By Me",
+    "sharedByMeDescription": "Links and folders you have shared with other people.",
     "shareCreated": "Share Created",
     "createShareLink": "Create Share Link",
     "shareLink": "Share Link",
@@ -428,6 +431,13 @@
     "filterByNameOrPath": "Filter by name or path",
     "sharedBy": "Shared by owner",
     "lastAccessed": "Last accessed",
-    "created": "Created"
+    "created": "Created",
+    "noMyShares": "You haven't created any shares yet.",
+    "noMySharesDescription": "Create a share from any file or folder to see it listed here.",
+    "mySharesCount": "{count} active share links",
+    "confirmDeleteShare": "Remove this share? People with the link will no longer have access.",
+    "removeShare": "Remove share",
+    "sharedWithAnyone": "Shared with anyone",
+    "sharedWithUsers": "{count} user | {count} users"
   }
 }

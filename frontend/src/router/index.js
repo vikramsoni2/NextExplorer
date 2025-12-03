@@ -17,6 +17,7 @@ import AuthSetupView from '@/views/AuthSetupView.vue'
 import AuthLoginView from '@/views/AuthLoginView.vue'
 import ShareLoginView from '@/views/ShareLoginView.vue'
 import SharedWithMeView from '@/views/SharedWithMeView.vue'
+import SharedByMeView from '@/views/SharedByMeView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -85,6 +86,11 @@ const router = createRouter({
           path: 'shared-with-me',
           name: 'SharedWithMe',
           component: SharedWithMeView,
+        },
+        {
+          path: 'shared-by-me',
+          name: 'SharedByMe',
+          component: SharedByMeView,
         },
       ],
     },

@@ -3,19 +3,21 @@ import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { ChevronDownIcon, ShareIcon } from '@heroicons/vue/24/outline';
-import { normalizePath } from '@/api';
 
 const { t } = useI18n();
 const open = ref(true);
 const route = useRoute();
 const router = useRouter();
 
-const isActive = computed(() => {
-  return route.name === 'SharedWithMe';
-});
+const isSharedWithMeActive = computed(() => route.name === 'SharedWithMe');
+const isSharedByMeActive = computed(() => route.name === 'SharedByMe');
 
 const handleOpenSharedWithMe = () => {
   router.push({ name: 'SharedWithMe' });
+};
+
+const handleOpenSharedByMe = () => {
+  router.push({ name: 'SharedByMe' });
 };
 </script>
 
@@ -52,13 +54,28 @@ const handleOpenSharedWithMe = () => {
               @click="handleOpenSharedWithMe"
               class="cursor-pointer flex w-full items-center gap-3 rounded-lg text-sm truncate"
               :class="[
-                isActive
+                isSharedWithMeActive
                   ? 'text-neutral-950 dark:text-white'
                   : 'text-neutral-950 dark:text-neutral-300/90'
               ]"
             >
               <ShareIcon class="h-5 shrink-0" />
               <span class="truncate">{{ t('share.sharedWithMe') }}</span>
+            </button>
+          </div>
+          <div class="mb-3">
+            <button
+              type="button"
+              @click="handleOpenSharedByMe"
+              class="cursor-pointer flex w-full items-center gap-3 rounded-lg text-sm truncate"
+              :class="[
+                isSharedByMeActive
+                  ? 'text-neutral-950 dark:text-white'
+                  : 'text-neutral-950 dark:text-neutral-300/90'
+              ]"
+            >
+              <ShareIcon class="h-5 shrink-0" />
+              <span class="truncate">{{ t('share.sharedByMe') }}</span>
             </button>
           </div>
         </div>

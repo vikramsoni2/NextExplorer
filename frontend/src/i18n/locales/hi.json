@@ -395,6 +395,8 @@
   "share": {
     "sharedWithMe": "मेरे साथ साझा किया गया",
     "sharedWithMeDescription": "फ़ाइलें और फ़ोल्डर जो अन्य लोगों ने आपके खाते के साथ साझा किए हैं।",
+    "sharedByMe": "मेरे द्वारा साझा किया गया",
+    "sharedByMeDescription": "लिंक और फ़ोल्डर जिन्हें आपने दूसरों के साथ साझा किया है।",
     "shareCreated": "शेयर बनाया गया",
     "createShareLink": "शेयर लिंक बनाएँ",
     "shareLink": "शेयर लिंक",
@@ -428,6 +430,13 @@
     "filterByNameOrPath": "नाम या पथ के अनुसार फ़िल्टर करें",
     "sharedBy": "मालिक द्वारा साझा",
     "lastAccessed": "अंतिम बार एक्सेस किया गया",
-    "created": "बनाया गया"
+    "created": "बनाया गया",
+    "noMyShares": "आपने अभी तक कोई शेयर नहीं बनाया है।",
+    "noMySharesDescription": "किसी भी फ़ाइल या फ़ोल्डर से शेयर बनाएं ताकि वह यहाँ दिखाई दे।",
+    "mySharesCount": "{count} सक्रिय शेयर लिंक",
+    "confirmDeleteShare": "क्या आप इस शेयर को हटाना चाहते हैं? लिंक वाले लोगों को अब एक्सेस नहीं मिलेगा।",
+    "removeShare": "शेयर हटाएं",
+    "sharedWithAnyone": "किसी के साथ भी साझा किया गया",
+    "sharedWithUsers": "{count} उपयोगकर्ता"
   }
 }

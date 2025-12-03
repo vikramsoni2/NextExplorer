@@ -395,6 +395,8 @@
   "share": {
     "sharedWithMe": "Udostępnione dla mnie",
     "sharedWithMeDescription": "Pliki i foldery, które inni udostępnili Twojemu kontu.",
+    "sharedByMe": "Udostępnione przeze mnie",
+    "sharedByMeDescription": "Linki i foldery, które udostępniłeś innym osobom.",
     "shareCreated": "Udostępnienie utworzone",
     "createShareLink": "Utwórz link udostępniania",
     "shareLink": "Link udostępniania",
@@ -428,6 +430,13 @@
     "filterByNameOrPath": "Filtruj według nazwy lub ścieżki",
     "sharedBy": "Udostępnione przez właściciela",
     "lastAccessed": "Ostatni dostęp",
-    "created": "Utworzono"
+    "created": "Utworzono",
+    "noMyShares": "Nie utworzyłeś jeszcze żadnych udostępnień.",
+    "noMySharesDescription": "Utwórz udostępnienie z dowolnego pliku lub folderu, aby pojawiło się na tej liście.",
+    "mySharesCount": "{count} aktywne linki udostępnień",
+    "confirmDeleteShare": "Usunąć to udostępnienie? Osoby posiadające link stracą dostęp.",
+    "removeShare": "Usuń udostępnienie",
+    "sharedWithAnyone": "Udostępnione dla wszystkich",
+    "sharedWithUsers": "{count} użytkownik | {count} użytkownicy | {count} użytkowników"
   }
 }

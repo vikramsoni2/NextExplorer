@@ -131,7 +131,8 @@
     "passwordLength": "La contraseña debe tener al menos 6 caracteres",
     "passwordMin": "La contraseña debe tener al menos 6 caracteres",
     "passwordMismatch": "Las contraseñas no coinciden",
-    "localSignInDisabled": "El inicio de sesión local está desactivado"
+    "localSignInDisabled": "El inicio de sesión local está desactivado",
+    "deleteShare": "Error al eliminar la compartición"
   },
   "titles": {
     "volumes": "Volúmenes",
@@ -395,6 +396,8 @@
   "share": {
     "sharedWithMe": "Compartido conmigo",
     "sharedWithMeDescription": "Archivos y carpetas que otras personas han compartido con tu cuenta.",
+    "sharedByMe": "Compartido por mí",
+    "sharedByMeDescription": "Enlaces y carpetas que has compartido con otras personas.",
     "shareCreated": "Recurso compartido creado",
     "createShareLink": "Crear enlace para compartir",
     "shareLink": "Enlace para compartir",
@@ -428,6 +431,13 @@
     "filterByNameOrPath": "Filtrar por nombre o ruta",
     "sharedBy": "Compartido por el propietario",
     "lastAccessed": "Último acceso",
-    "created": "Creado"
+    "created": "Creado",
+    "noMyShares": "Todavía no has creado ninguna compartición.",
+    "noMySharesDescription": "Crea una compartición desde cualquier archivo o carpeta para verla aquí.",
+    "mySharesCount": "{count} enlaces de compartición activos",
+    "confirmDeleteShare": "¿Eliminar esta compartición? Las personas con el enlace ya no tendrán acceso.",
+    "removeShare": "Eliminar compartición",
+    "sharedWithAnyone": "Compartido con cualquiera",
+    "sharedWithUsers": "{count} usuario | {count} usuarios"
   }
 }
