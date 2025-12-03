@@ -29,6 +29,11 @@ These are the day-to-day actions your team will take in nextExplorer. Every work
 - **Editor:** Double-click text/code files to open the inline editor with syntax highlighting, line numbers, and Save/Cancel actions. The editor supports 50+ file types by default including common text formats (txt, md, log), data files (json, yaml, xml, csv), programming languages (js, ts, py, java, go, rust, etc.), config files (ini, env, properties), shell scripts (sh, bash, ps1), and web formats (html, css, scss, vue). Add support for custom file types (e.g., `.toml`, `.proto`, `.graphql`) at runtime using the `EDITOR_EXTENSIONS` environment variable—no rebuild needed, changes apply on container restart.
 - **ONLYOFFICE:** When configured, office documents (DOCX, XLSX, PPTX, ODT, ODS, ODP) launch in the embedded ONLYOFFICE editor; nextExplorer signs requests with `ONLYOFFICE_SECRET` and calls `/api/onlyoffice/config`, `/api/onlyoffice/file`, and `/api/onlyoffice/callback` to orchestrate editing.
 
+## Sharing items
+- **Create a share link:** Select a single file or folder in any browse view (including **My Files** when personal folders are enabled) and click the **Share** button in the toolbar. Configure access mode (read-only vs read/write), choose whether the link is open to **anyone with the link** or restricted to **specific users**, optionally set a password and expiration date, then create the link and copy it from the success screen.
+- **Open a share link as a guest:** Visitors open URLs like `https://files.example.com/share/aBc123XyZ`. The Share access page shows basic information (label, type, expiration) and either auto-opens the shared item, prompts for a password, or redirects to the login page for user-specific shares. Guest sessions are limited so they can only browse within the shared item.
+- **Review items shared with you:** Use the **Shares → Shared with me** entry in the sidebar to see folders/files other users have shared with your account, filter by status (active/expired), and click into a share to open it in the normal browser view.
+
 ## Favorites & quick access
 - Highlight a folder and click the star toolbar icon (or use the context menu) to pin it as a Favorite.
 - Favorites appear above Volumes in the sidebar for instant navigation; you can customize icons to reflect project types.

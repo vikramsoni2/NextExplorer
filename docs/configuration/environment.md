@@ -11,6 +11,14 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `TRUST_PROXY` | `loopback,uniquelocal` when `PUBLIC_URL` is set | Express trust proxy configuration. Accepts `false`, numbers, CIDRs, or lists. |
 | `CORS_ORIGIN`, `CORS_ORIGINS`, `ALLOWED_ORIGINS` | _empty_ | Comma-separated list of allowed CORS origins. Defaults to `PUBLIC_URL` origin when set. |
 
+## Logging & debugging
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `LOG_LEVEL` | `info` (or `debug` when `DEBUG=true`) | Application log level: `trace`, `debug`, `info`, `warn`, or `error`. |
+| `DEBUG` | `false` | When `true`, forces `LOG_LEVEL=debug` and shows more verbose diagnostics (including more detailed error output in development). |
+| `ENABLE_HTTP_LOGGING` | `false` | When `true`, enables HTTP request logging in the backend (use with centralized log collection in production). |
+
 ## Paths & volumes
 
 | Variable | Default | Description |
@@ -53,6 +61,8 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SHOW_VOLUME_USAGE` | `false` | Show volume usage badges in the sidebar. |
 | `USER_DIR_ENABLED` | `false` | When `true`, enables a **personal “My Files” space** for each authenticated user under `USER_ROOT`. The frontend shows a “My Files” entry when this flag is on. |
 
+The sharing system (toolbar **Share** button, guest links such as `/share/:token`, and the **Shared with me** page) works out of the box with the feature flags above. Advanced share tuning knobs are documented under **Sharing (advanced)** below.
+
 ## Editor
 
 | Variable | Default | Description |
@@ -70,8 +80,25 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `ONLYOFFICE_FILE_EXTENSIONS` | _default list_ | Extra file extensions to surface to the Document Server. |
 | `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn't suit your needs. |
 
+<!-- 
+## Sharing (advanced)
+
+These variables are available for tuning the share system. The defaults are suitable for most deployments; many are primarily useful in large or highly regulated environments.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `SHARES_ENABLED` | `true` | Master toggle for the share feature. When disabled, share-related features are considered off. |
+| `SHARES_TOKEN_LENGTH` | `10` | Length of generated share tokens (affects `/share/:token` URL length). |
+| `SHARES_MAX_PER_USER` | `100` | Soft cap on the number of shares a single user can create. |
+| `SHARES_DEFAULT_EXPIRY_DAYS` | `30` | Default expiration (in days) used when a share is created without an explicit expiry. |
+| `SHARES_GUEST_SESSION_HOURS` | `24` | Intended lifetime (in hours) for guest sessions created when visitors open “anyone with link” shares. |
+| `SHARES_ALLOW_PASSWORD` | `true` | Whether password-protected shares are allowed. |
+| `SHARES_ALLOW_ANONYMOUS` | `true` | Whether “anyone with the link” shares are allowed (as opposed to user-specific shares only). | -->
+
 ## Container user mapping
 
 | Variable | Description |
 | --- | --- |
 | `PUID`, `PGID` | Map container processes to host user/group IDs so created files have consistent ownership. Defaults to `1000`. The entrypoint adjusts ownership of `/app`, `/config`, and `/cache` accordingly.
+
+

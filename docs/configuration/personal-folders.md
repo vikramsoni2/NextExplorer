@@ -20,6 +20,7 @@ On the frontend:
 
 - When the feature is enabled the sidebar and Home screen show a translated **“My Files”** entry (`drives.personal` in i18n).
 - Clicking it navigates to `/browse/personal`, which uses the existing Folder View UI and APIs.
+- The standard **Share** workflow also works from within **My Files**: when you share items under `personal/...`, links resolve back to the owner’s personal folder while still respecting Access Control and share settings (read-only/read-write, password, expiration).
 
 ## Enabling personal folders
 
@@ -120,4 +121,3 @@ If `USER_DIR_ENABLED` is `false` (or unset):
 - The `/api/features` endpoint reports `personal.enabled=false`, so:
   - The sidebar and Home view do not show the “My Files” entry.
   - All existing volume behavior remains unchanged.
-
