@@ -334,7 +334,8 @@ const handleDownloadRequest = async (paths, req, res, basePath = '') => {
       const basename = relativePosix.split('/').pop();
       return basename || path.basename(absolutePath);
     })();
-    res.download(absolutePath, filename, (err) => {
+    // Allow dotfiles to be downloaded (by default Express blocks them)
+    res.download(absolutePath, filename, { dotfiles: 'allow' }, (err) => {
       if (err) {
         logger.error({ err }, 'Download failed');
         if (!res.headersSent) {

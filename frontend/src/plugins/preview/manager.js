@@ -41,7 +41,11 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     getSiblings: (target) => getSiblings(target || item),
     openEditor: () => {
       const path = getFullPath(item);
-      if (path) router.push({ path: `/editor/${path}` });
+      if (path) {
+        // Encode each segment to handle special characters like #
+        const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+        router.push({ path: `/editor/${encodedPath}` });
+      }
     },
     download: async () => {
       const path = getFullPath(item);

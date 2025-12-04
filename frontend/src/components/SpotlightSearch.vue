@@ -95,18 +95,18 @@ function selectResult() {
 
 function openResult(item) {
   if (!item) return;
-  
+
   const isDirectory = item.kind === 'dir';
   const targetPath = isDirectory
     ? [item.path, item.name].filter(Boolean).join('/')
     : item.path || '';
-  
+
   const normalizedPath = normalizePath(targetPath);
-  
+
   if (!isDirectory && item.name) {
-    router.push({ path: `/browse/${normalizedPath}`, query: { select: item.name } });
+    router.push({ name: 'FolderView', params: { path: normalizedPath }, query: { select: item.name } });
   } else {
-    router.push({ path: `/browse/${normalizedPath}` });
+    router.push({ name: 'FolderView', params: { path: normalizedPath } });
   }
   spotlight.close();
 }

@@ -21,20 +21,20 @@ export function useNavigation() {
 
     if(item.kind==='volume'){
       withViewTransition(() => {
-        router.push({ path: `/browse/${item.name}` });
+        router.push({ name: 'FolderView', params: { path: item.name } });
       })();
       return;
     }
     if (item.kind === 'personal') {
       withViewTransition(() => {
-        router.push({ path: '/browse/personal' });
+        router.push({ name: 'FolderView', params: { path: 'personal' } });
       })();
       return;
     }
     if(item.kind==='directory'){
       const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
       withViewTransition(() => {
-        router.push({ path: `/browse/${newPath}` });
+        router.push({ name: 'FolderView', params: { path: newPath } });
       })();
       return;
     }
@@ -47,8 +47,10 @@ export function useNavigation() {
     if(isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)){
       const basePath = item.path ? `${item.path}/${item.name}` : item.name;
       const fileToEdit = basePath.replace(/^\/+/, '');
+      // Encode each segment for editor path
+      const encodedPath = fileToEdit.split('/').map(encodeURIComponent).join('/');
       withViewTransition(() => {
-        router.push({ path: `/editor/${fileToEdit}` });
+        router.push({ path: `/editor/${encodedPath}` });
       })();
       return;
     }
@@ -60,7 +62,7 @@ export function useNavigation() {
       router.push({ name: 'SharedWithMe' });
       return;
     }
-    router.push({ path: `/browse/${path}` });
+    router.push({ name: 'FolderView', params: { path } });
   });
 
   const goNext = withViewTransition(()=>router.go(1));
@@ -68,12 +70,16 @@ export function useNavigation() {
   const goPrev = withViewTransition(()=>router.go(-1));
 
   const goUp = withViewTransition(() => {
-    const path = decodeURIComponent(router.currentRoute.value.path);
-    const segments = path.split('/').slice(2);
-    // console.log(segments);
+    const currentPath = route.params.path || '';
+    const segments = currentPath.split('/').filter(Boolean);
     if (segments.length > 0) {
       segments.pop();
-      router.push({ path: `/browse/${segments.join('/')}` });
+      const newPath = segments.join('/');
+      if (newPath) {
+        router.push({ name: 'FolderView', params: { path: newPath } });
+      } else {
+        router.push({ name: 'HomeView' });
+      }
     }
   });
 

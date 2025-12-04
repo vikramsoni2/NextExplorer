@@ -43,7 +43,7 @@ function openResult(it) {
     ? [it.path, it.name].filter(Boolean).join('/')
     : (it.path || '');
   const normalized = normalizePath(target || '');
-  router.push({ path: `/browse/${normalized}` });
+  router.push({ name: 'FolderView', params: { path: normalized } });
 }
 
 function toIconItem(it) {

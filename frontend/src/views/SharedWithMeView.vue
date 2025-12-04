@@ -132,6 +132,7 @@ const visibleShares = computed(() => {
 const handleOpenShare = (share) => {
   if (isExpired(share)) return;
 
+  // Using named route with params ensures proper URL encoding
   router.push({
     name: 'FolderView',
     params: { path: `share/${share.shareToken}` }
