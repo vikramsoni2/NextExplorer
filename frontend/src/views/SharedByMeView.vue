@@ -1,19 +1,22 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getMyShares, deleteShare } from '@/api/shares.api';
+import { getMyShares, deleteShare, copyShareUrl } from '@/api/shares.api';
 import { fetchUsers } from '@/api/users.api';
 import {
   ShareIcon,
-  FolderIcon,
-  DocumentIcon,
   ClockIcon,
   LockClosedIcon,
   LockOpenIcon,
   TrashIcon,
   GlobeAltIcon,
   UsersIcon,
+  ClipboardDocumentIcon,
+  CheckIcon,
+  MagnifyingGlassIcon,
+  ArrowsUpDownIcon
 } from '@heroicons/vue/24/outline';
+import FileIcon from '@/icons/FileIcon.vue';
 
 const { t } = useI18n();
 
@@ -22,6 +25,14 @@ const users = ref([]);
 const loading = ref(false);
 const error = ref('');
 const deletingId = ref(null);
+const copyingId = ref(null);
+const copiedId = ref(null);
+const searchQuery = ref('');
+const filterMode = ref('active'); // 'active' | 'expired' | 'all'
+const sortMode = ref('recent'); // 'recent' | 'label'
+
+// Grid columns configuration
+const GRID_COLS = 'grid-cols-[30px_minmax(0,3fr)_1.5fr_1fr_1.5fr_100px]';
 
 // Create a map of userId -> user for quick lookup
 const usersMap = computed(() => {
@@ -61,8 +72,6 @@ const getPermittedUsers = (share) => {
     .filter(Boolean); // Filter out any undefined users
 };
 
-const hasShares = computed(() => shares.value.length > 0);
-
 const isExpired = (share) => {
   if (!share?.expiresAt) return false;
   return new Date(share.expiresAt) < new Date();
@@ -75,6 +84,52 @@ const formatDate = (dateString) => {
   return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 };
 
+const getRecentTimestamp = (share) => {
+  if (!share) return 0;
+  const fields = ['updatedAt', 'createdAt'];
+  for (const key of fields) {
+    const raw = share[key];
+    if (!raw) continue;
+    const time = new Date(raw).getTime();
+    if (!Number.isNaN(time)) return time;
+  }
+  return 0;
+};
+
+const visibleShares = computed(() => {
+  let list = shares.value.slice();
+
+  // Filter by active / expired
+  if (filterMode.value === 'active') {
+    list = list.filter((s) => !isExpired(s));
+  } else if (filterMode.value === 'expired') {
+    list = list.filter((s) => isExpired(s));
+  }
+
+  // Text search
+  const term = searchQuery.value.trim().toLowerCase();
+  if (term) {
+    list = list.filter((share) => {
+      const label = (getShareLabel(share) || '').toLowerCase();
+      const sourcePath = (share.sourcePath || '').toLowerCase();
+      return label.includes(term) || sourcePath.includes(term);
+    });
+  }
+
+  // Sorting
+  list.sort((a, b) => {
+    if (sortMode.value === 'label') {
+      return getShareLabel(a).localeCompare(getShareLabel(b));
+    }
+
+    const timeA = getRecentTimestamp(a);
+    const timeB = getRecentTimestamp(b);
+    return timeB - timeA;
+  });
+
+  return list;
+});
+
 const getShareLabel = (share) => {
   if (share.label) return share.label;
   if (share.sourcePath) {
@@ -82,6 +137,25 @@ const getShareLabel = (share) => {
     if (parts.length) return parts[parts.length - 1];
   }
   return t('share.sharedItem');
+};
+
+const getIconItem = (share) => {
+  let kind = 'file';
+  if (share.isDirectory) {
+    kind = 'directory';
+  } else {
+    const name = share.sourcePath || '';
+    const parts = name.split('.');
+    if (parts.length > 1) {
+      kind = parts.pop().toLowerCase();
+    }
+  }
+  return {
+    kind,
+    name: getShareLabel(share),
+    thumbnail: null,
+    supportsThumbnail: false
+  };
 };
 
 const handleDeleteShare = async (share) => {
@@ -102,279 +176,205 @@ const handleDeleteShare = async (share) => {
   }
 };
 
+const handleCopyLink = async (share) => {
+  if (!share?.id || !share?.shareToken) return;
+
+  try {
+    copyingId.value = share.id;
+    await copyShareUrl(share.shareToken);
+    copiedId.value = share.id;
+    setTimeout(() => {
+      if (copiedId.value === share.id) {
+        copiedId.value = null;
+      }
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy link:', err);
+  } finally {
+    copyingId.value = null;
+  }
+};
+
 onMounted(async () => {
   await loadShares();
 });
 </script>
 
 <template>
-  <div class="flex h-full flex-col gap-4 px-4 py-4 md:px-6 md:py-5">
-    <!-- Header -->
-    <header class="flex items-center justify-between gap-3">
+  <div class="h-full relative flex flex-col max-h-screen">
+    <!-- Toolbar -->
+    <div class="z-10 p-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-base">
       <div class="flex items-center gap-3">
-        <span
-          class="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600
-          dark:bg-blue-500/20 dark:text-blue-300"
-        >
-          <ShareIcon class="h-5 w-5" />
-        </span>
-        <div>
-          <h1 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">
+        <!-- Title/Icon -->
+        <div class="flex items-center gap-2 mr-4">
+          <div class="p-1.5 rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+            <ShareIcon class="w-5 h-5" />
+          </div>
+          <h1 class="font-medium text-neutral-800 dark:text-neutral-200 hidden sm:block">
             {{ t('share.sharedByMe') }}
           </h1>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">
-            {{ t('share.sharedByMeDescription') }}
-          </p>
         </div>
-      </div>
 
-      <div
-        v-if="hasShares"
-        class="hidden items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400 sm:flex"
-      >
-        <span
-          class="inline-flex items-center gap-1 rounded-full bg-neutral-100 px-2.5 py-1
-          text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
-        >
-          <span class="h-1.5 w-1.5 rounded-full bg-blue-500" />
-          <span class="font-medium">{{ shares.length }}</span>
-          <span class="text-neutral-500 dark:text-neutral-400">
-            {{ shares.length === 1 ? t('common.item') : t('common.items') }}
-          </span>
-        </span>
-      </div>
-    </header>
-
-    <!-- Content Card -->
-    <section
-      class="flex min-h-0 flex-1 flex-col rounded-xl border border-neutral-200 bg-white/80 shadow-sm backdrop-blur
-      dark:border-neutral-800 dark:bg-neutral-900/60"
-    >
-      <!-- Toolbar -->
-      <div
-        class="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs
-        dark:border-neutral-800"
-      >
-        <span class="text-neutral-500 dark:text-neutral-400">
-          {{ hasShares ? t('share.mySharesCount', { count: shares.length }) : t('share.noMyShares') }}
-        </span>
-
-        <div class="ml-auto flex items-center gap-2">
+        <!-- Filters -->
+        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-md p-0.5">
           <button
-            type="button"
-            class="inline-flex items-center gap-1 rounded-md border border-neutral-200 px-2.5 py-1.5 text-xs
-            text-neutral-700 hover:bg-neutral-100
-            dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"
-            @click="loadShares"
+            v-for="mode in ['active', 'expired', 'all']"
+            :key="mode"
+            @click="filterMode = mode"
+            class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
+            :class="filterMode === mode 
+              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm' 
+              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'"
           >
-            <span class="inline-block h-1.5 w-1.5 rounded-full bg-green-500" />
-            <span>{{ t('common.refresh') }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Body -->
-      <div class="flex-1 overflow-y-auto">
-        <!-- Loading State -->
-        <div v-if="loading" class="flex h-full items-center justify-center py-12">
-          <div class="text-center">
-            <div
-              class="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-blue-500 border-b-transparent"
-            />
-            <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ t('loading.shares') }}</p>
-          </div>
-        </div>
-
-        <!-- Error State -->
-        <div
-          v-else-if="error"
-          class="flex h-full flex-col items-center justify-center px-6 py-10 text-center"
-        >
-          <div
-            class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50
-            text-red-600 dark:bg-red-900/20 dark:text-red-300"
-          >
-            <ShareIcon class="h-7 w-7" />
-          </div>
-          <h3 class="mb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-50">
-            {{ t('errors.loadShares') }}
-          </h3>
-          <p class="mb-4 max-w-md text-xs text-neutral-600 dark:text-neutral-400">
-            {{ error }}
-          </p>
-          <button
-            type="button"
-            class="rounded-md bg-blue-600 px-4 py-2 text-xs font-medium text-white transition hover:bg-blue-700"
-            @click="loadShares"
-          >
-            {{ t('common.tryAgain') }}
+            {{ t(`common.${mode}`) }}
           </button>
         </div>
 
-        <!-- Empty State -->
-        <div
-          v-else-if="!hasShares"
-          class="flex h-full flex-col items-center justify-center px-6 py-10 text-center"
-        >
-          <div
-            class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100
-            text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500"
+        <div class="h-6 w-px bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
+
+        <!-- Sort -->
+        <div class="flex items-center gap-2">
+          <button
+            @click="sortMode = sortMode === 'recent' ? 'label' : 'recent'"
+            class="p-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400"
+            :title="t('actions.sortBy')"
           >
-            <ShareIcon class="h-8 w-8" />
-          </div>
-          <h3 class="mb-2 text-base font-medium text-neutral-900 dark:text-neutral-50">
-            {{ t('share.noMyShares') }}
-          </h3>
-          <p class="max-w-md text-xs text-neutral-600 dark:text-neutral-400">
-            {{ t('share.noMySharesDescription') }}
-          </p>
+            <ArrowsUpDownIcon class="w-5 h-5" />
+          </button>
         </div>
 
-        <!-- Shares List -->
+        <div class="flex-1"></div>
+
+        <!-- Search -->
+        <div class="relative">
+          <MagnifyingGlassIcon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            :placeholder="t('share.filterByNameOrPath')"
+            class="pl-9 pr-3 py-1.5 text-sm bg-neutral-100 dark:bg-neutral-800 rounded-md border-none focus:ring-2 focus:ring-blue-500 w-48 transition-all focus:w-64"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto px-2">
+      <!-- Loading -->
+      <div v-if="loading" class="flex h-full items-center justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="error" class="flex h-full flex-col items-center justify-center text-red-500">
+        <p>{{ error }}</p>
+        <button @click="loadShares" class="mt-2 text-blue-500 hover:underline">{{ t('common.tryAgain') }}</button>
+      </div>
+
+      <!-- Empty -->
+      <div v-else-if="visibleShares.length === 0" class="flex h-full flex-col items-center justify-center text-neutral-400">
+        <ShareIcon class="w-16 h-16 mb-4 opacity-20" />
+        <p>{{ t('share.noSharedItemsToShow') }}</p>
+      </div>
+
+      <!-- List -->
+      <div v-else class="min-w-[800px]">
+        <!-- Header Row -->
         <div
-          v-else
-          class="divide-y divide-neutral-200 dark:divide-neutral-800"
+          :class="['grid items-center gap-4 px-4 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-800 sticky top-0 bg-white dark:bg-base z-10', GRID_COLS]"
         >
+          <div></div>
+          <div>{{ t('common.name') }}</div>
+          <div>{{ t('share.sharedWith') }}</div>
+          <div>{{ t('settings.access.title') }}</div>
+          <div>{{ t('share.expiresAt') }}</div>
+          <div class="text-right">{{ t('common.actions') }}</div>
+        </div>
+
+        <!-- Items -->
+        <div class="flex flex-col gap-0.5 pb-4">
           <div
-            v-for="share in shares"
+            v-for="share in visibleShares"
             :key="share.id"
-            class="flex w-full items-center gap-4 px-4 py-3 text-left"
+            :class="['grid items-center gap-4 px-4 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors group', GRID_COLS]"
           >
             <!-- Icon -->
-            <div
-              class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg"
-              :class="share.isDirectory
-                ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300'
-                : 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'"
-            >
-              <component
-                :is="share.isDirectory ? FolderIcon : DocumentIcon"
-                class="h-5 w-5"
-              />
+            <div class="flex justify-center items-center">
+              <FileIcon :item="getIconItem(share)" class="w-12 h-12 shrink-0" :disable-thumbnails="true" />
             </div>
 
-            <!-- Main content -->
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2">
-                <p class="truncate text-sm font-medium text-neutral-900 dark:text-neutral-50">
-                  {{ getShareLabel(share) }}
-                </p>
-                <span
-                  v-if="isExpired(share)"
-                  class="inline-flex items-center rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700
-                  dark:bg-red-900/50 dark:text-red-200"
-                >
-                  {{ t('share.expired') }}
-                </span>
-                <span
-                  v-else
-                  class="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-green-700
-                  dark:bg-green-900/40 dark:text-green-200"
-                >
-                  {{ t('share.active') }}
-                </span>
+            <!-- Name & Path -->
+            <div class="min-w-0">
+              <div class="font-medium text-neutral-900 dark:text-neutral-100 truncate">
+                {{ getShareLabel(share) }}
               </div>
-
-              <div
-                class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]
-                text-neutral-500 dark:text-neutral-400"
-              >
-                <span class="inline-flex items-center gap-1">
-                  <span class="font-mono truncate max-w-[220px]">
-                    {{ share.sourcePath }}
-                  </span>
-                </span>
-
-                <!-- Sharing Type -->
-                <span class="inline-flex items-center gap-1">
-                  <component
-                    :is="share.sharingType === 'anyone' ? GlobeAltIcon : UsersIcon"
-                    class="h-3.5 w-3.5"
-                  />
-                  <span v-if="share.sharingType === 'anyone'">
-                    {{ t('share.sharedWithAnyone') }}
-                  </span>
-                  <span v-else-if="share.sharingType === 'users'">
-                    {{ t('share.sharedWithUsers', { count: share.permittedUserIds?.length || 0 }) }}
-                  </span>
-                </span>
-
-                <span class="inline-flex items-center gap-1">
-                  <component
-                    :is="share.accessMode === 'readonly' ? LockClosedIcon : LockOpenIcon"
-                    class="h-3.5 w-3.5"
-                  />
-                  <span>
-                    {{ share.accessMode === 'readonly' ? t('settings.access.readOnly') : t('settings.access.readWrite') }}
-                  </span>
-                </span>
-
-                <span class="inline-flex items-center gap-1">
-                  <span class="h-1 w-1 rounded-full bg-neutral-400 dark:bg-neutral-500" />
-                  <span>{{ share.isDirectory ? t('common.folder') : t('folder.kind') }}</span>
-                </span>
-
-                <span
-                  class="inline-flex items-center gap-1"
-                >
-                  <ClockIcon class="h-3.5 w-3.5" />
-                  <span>
-                    <template v-if="share.expiresAt">
-                      {{ t('share.expiresAt') }} {{ formatDate(share.expiresAt) }}
-                    </template>
-                    <template v-else>
-                      {{ t('common.noExpiration') }}
-                    </template>
-                  </span>
-                </span>
-
-                <span
-                  v-if="share.createdAt"
-                  class="inline-flex items-center gap-1"
-                >
-                  <span class="h-1 w-1 rounded-full bg-neutral-400 dark:bg-neutral-500" />
-                  <span>
-                    {{ t('share.created') }} {{ formatDate(share.createdAt) }}
-                  </span>
-                </span>
+              <div class="text-xs text-neutral-400 truncate font-mono mt-0.5">
+                {{ share.sourcePath }}
               </div>
+            </div>
 
-              <!-- Permitted Users List (for user-specific shares) -->
-              <div
-                v-if="share.sharingType === 'users' && getPermittedUsers(share).length > 0"
-                class="mt-2 flex flex-wrap items-center gap-1.5"
-              >
-                <span
-                  v-for="user in getPermittedUsers(share)"
+            <!-- Shared With -->
+            <div class="min-w-0">
+              <div v-if="share.sharingType === 'anyone'" class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300">
+                <GlobeAltIcon class="w-4 h-4" />
+                <span>{{ t('share.sharedWithAnyone') }}</span>
+              </div>
+              <div v-else class="flex flex-wrap gap-1">
+                <div
+                  v-for="user in getPermittedUsers(share).slice(0, 3)"
                   :key="user.id"
-                  class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5
-                  text-[10px] text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                 >
-                  <UsersIcon class="h-3 w-3" />
-                  <span>{{ user.displayName || user.username || user.email }}</span>
+                  {{ user.displayName || user.username }}
+                </div>
+                <span v-if="getPermittedUsers(share).length > 3" class="text-xs text-neutral-400">
+                  +{{ getPermittedUsers(share).length - 3 }}
                 </span>
               </div>
+            </div>
+
+            <!-- Access -->
+            <div class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300">
+              <component
+                :is="share.accessMode === 'readonly' ? LockClosedIcon : LockOpenIcon"
+                class="w-4 h-4"
+              />
+              <span>
+                {{ share.accessMode === 'readonly' ? t('settings.access.readOnly') : t('settings.access.readWrite') }}
+              </span>
+            </div>
+
+            <!-- Expires -->
+            <div class="text-neutral-600 dark:text-neutral-300">
+              <span :class="{ 'text-red-500': isExpired(share) }">
+                {{ share.expiresAt ? formatDate(share.expiresAt) : t('common.noExpiration') }}
+              </span>
             </div>
 
             <!-- Actions -->
-            <div class="ml-4 flex flex-col items-end gap-1 text-xs">
+            <div class="flex items-center justify-end gap-1">
               <button
-                type="button"
-                class="inline-flex items-center gap-1 rounded-md border border-red-200 px-2.5 py-1.5 text-xs
-                text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-300 dark:hover:bg-red-900/20"
-                :disabled="deletingId === share.id"
-                @click="handleDeleteShare(share)"
+                @click.stop="handleCopyLink(share)"
+                class="p-1.5 rounded hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-500 dark:text-neutral-400"
+                :title="t('actions.copy')"
               >
-                <TrashIcon class="h-3.5 w-3.5" />
-                <span>
-                  {{ deletingId === share.id ? t('common.deleting') : t('share.removeShare') }}
-                </span>
+                <component
+                  :is="copiedId === share.id ? CheckIcon : ClipboardDocumentIcon"
+                  class="w-4 h-4"
+                  :class="{ 'text-green-500': copiedId === share.id }"
+                />
+              </button>
+              <button
+                @click.stop="handleDeleteShare(share)"
+                class="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-neutral-500 hover:text-red-600 dark:text-neutral-400 dark:hover:text-red-400"
+                :title="t('share.removeShare')"
+              >
+                <TrashIcon class="w-4 h-4" />
               </button>
             </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   </div>
 </template>
-
