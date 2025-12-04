@@ -44,23 +44,29 @@ const canCreate = computed(() => {
 </script>
 
 <template>
-  <div class="z-10  p-3">
-    <div class="flex items-center shrink-0 sticky top-0">
-      <CreateNew v-if="canCreate" class="mr-3"/>
-      <NavButtons />
-      <BreadCrumb class="ml-2"/>
-
-      <MenuItemInfo class="ml-auto"/>
-      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-      <MenuShare />
-      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-      <MenuSortBy />
-      <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-      <ViewMode />
-      <PhotoSizeControl v-if="settings.view === 'photos'" />
-      <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-      <NotificationBell class="max-md:hidden"/>
-      <SearchBar class="max-md:hidden"/>
+  <div class="z-10 p-3">
+    <div class="flex flex-wrap items-center shrink-0 sticky top-0">
+      <CreateNew v-if="canCreate" class="mr-3  max-lg:ml-12"/>
+      
+      <div class="flex items-center max-sm:order-2 max-sm:basis-full max-sm:bg-black max-sm:p-1 max-sm:my-1 max-sm:rounded-xl">
+        <NavButtons />
+        <BreadCrumb class="ml-2"/>
+      </div>
+      
+      <div class="flex items-center ml-auto">
+        <MenuItemInfo class="ml-auto"/>
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <MenuShare />
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <MenuSortBy />
+        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <ViewMode />
+        <PhotoSizeControl v-if="settings.view === 'photos'" />
+        <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <NotificationBell/>
+        <SearchBar/>
+      </div>
+      
     </div>
 
   </div>

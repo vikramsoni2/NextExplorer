@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue';
+import { onLongPress } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import FileIcon from '@/icons/FileIcon.vue';
 import { formatBytes, formatDate } from '@/utils';
@@ -25,6 +26,7 @@ const { renameState } = storeToRefs(fileStore);
 const contextMenu = useExplorerContextMenu();
 
 const renameInputRef = ref(null);
+const rootRef = ref(null);
 const baseRenameInputClass = 'w-full rounded-sm border border-blue-500 bg-white/90 px-1 py-0.5 text-sm text-zinc-900 focus:outline-hidden focus:ring-2 focus:ring-blue-400 dark:bg-zinc-700 dark:text-white dark:border-blue-300 dark:focus:ring-blue-300';
 
 const isRenaming = computed(() => fileStore.isItemBeingRenamed(props.item));
@@ -47,9 +49,44 @@ const isCut = computed(() => fileStore.cutItems.some(
   (cutItem) => cutItem.name === props.item.name && (cutItem.path || '') === (props.item.path || '')
 ));
 
+const isTouchDevice = computed(() => {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const hasCoarsePointer = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(pointer: coarse)').matches
+    : false;
+  const hasTouchEvent = 'ontouchstart' in window;
+  return hasTouchPoints || hasCoarsePointer || hasTouchEvent;
+});
+
+const longPressActive = ref(false);
+
 const handleClick = (event) => {
   if (isRenaming.value) return;
-  handleSelection(props.item, event);
+  if (!isTouchDevice.value) {
+    handleSelection(props.item, event);
+    return;
+  }
+
+  if (longPressActive.value) {
+    longPressActive.value = false;
+    return;
+  }
+
+  const alreadySelected = isSelected(props.item);
+  const hasAnySelection = Array.isArray(fileStore.selectedItems) && fileStore.selectedItems.length > 0;
+
+  // Mobile behavior:
+  // - If nothing is selected yet, a tap opens the item.
+  // - If there is an active selection and the tapped item is not selected, treat it as a selection tap.
+  // - If the tapped item is already selected, open it.
+  if (!hasAnySelection) {
+    openItem(props.item);
+  } else if (!alreadySelected) {
+    handleSelection(props.item, event);
+  } else {
+    openItem(props.item);
+  }
 };
 
 const handleDblClick = () => {
@@ -139,6 +176,17 @@ const isPhotoItem = computed(() => {
   return isPreviewableImage(kind);
 });
 
+if (isTouchDevice.value) {
+  onLongPress(rootRef, (ev) => {
+    if (!ev || isRenaming.value) return;
+    longPressActive.value = true;
+    handleContextMenu(ev);
+  }, {
+    delay: 500,
+    distanceThreshold: 10,
+  });
+}
+
 </script>
 
 <template>
@@ -152,6 +200,7 @@ const isPhotoItem = computed(() => {
     <div
     v-if="view==='photos' && isPhotoItem"
     :title="item.name"
+    ref="rootRef"
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent.stop="handleContextMenu"
@@ -165,6 +214,7 @@ const isPhotoItem = computed(() => {
     <div
     :title="item.name"
     v-if="view==='grid'"
+    ref="rootRef"
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent.stop="handleContextMenu"
@@ -200,6 +250,7 @@ const isPhotoItem = computed(() => {
     <div
     :title="item.name"
     v-if="view==='tab'"
+    ref="rootRef"
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent.stop="handleContextMenu"
@@ -240,6 +291,7 @@ const isPhotoItem = computed(() => {
 
     <div
     v-if="view==='list'"
+    ref="rootRef"
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent.stop="handleContextMenu"

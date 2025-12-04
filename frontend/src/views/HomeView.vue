@@ -94,7 +94,7 @@ const openPersonal = () => {
           :key="fav.path"
           type="button"
           :title="fav.label"
-          @dblclick="handleOpenFavorite(fav)"
+          @click="handleOpenFavorite(fav)"
           class="flex items-center gap-3 py-4 rounded-md cursor-pointer select-none
           text-neutral-700 dark:text-neutral-300"
         >
@@ -122,7 +122,7 @@ const openPersonal = () => {
           v-for="vol in volumes"
           :key="vol.name"
           type="button"
-          @dblclick="openItem(vol)"
+          @click="openItem(vol)"
           class="flex items-center gap-3 py-4 text-left  "
         >
           <IconDrive class="h-16 shrink-0"/>
@@ -166,7 +166,7 @@ const openPersonal = () => {
       <div v-if="!loading">
         <button
           type="button"
-          @dblclick="openPersonal"
+          @click="openPersonal"
           class="flex items-center gap-3 py-4 text-left"
         >
           <component :is="PersonalIcon" class="h-14 w-16 shrink-0 " />

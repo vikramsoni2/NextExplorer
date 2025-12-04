@@ -25,6 +25,16 @@ const contextMenu = useExplorerContextMenu();
 const dropTargetRef = ref(null);
 useUppyDropTarget(dropTargetRef);
 
+const isTouchDevice = computed(() => {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const hasCoarsePointer = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(pointer: coarse)').matches
+    : false;
+  const hasTouchEvent = 'ontouchstart' in window;
+  return hasTouchPoints || hasCoarsePointer || hasTouchEvent;
+});
+
 const applySelectionFromQuery = () => {
   const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
   if (!selectName) return;
@@ -97,6 +107,7 @@ const showNoPhotosMessage = computed(() => {
       <DragSelect
         v-model="selectionModel"
         :click-option-to-select="false"
+        :disabled="isTouchDevice"
         class="grow overflow-y-scroll px-2"
         @click.self="clearSelection()"
         @contextmenu.prevent="handleBackgroundContextMenu"

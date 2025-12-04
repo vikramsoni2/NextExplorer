@@ -101,7 +101,7 @@ const handleGuestLogin = () => {
 
     <aside
       class="flex flex-col bg-base-muted dark:bg-base-muted pt-4 pb-2 px-6 shrink-0
-      fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-40
+      fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-50
       peer-checked:translate-x-0 lg:static lg:translate-x-0"
       :style="{ width: asideWidth + 'px' }"
     >
@@ -152,25 +152,17 @@ const handleGuestLogin = () => {
       <div class="flex flex-col h-full">
         <!-- Mobile top bar -->
         <header
-          class="lg:hidden grid grid-cols-3 items-center gap-2 px-3 py-2 border-b border-neutral-200 dark:border-neutral-800"
+          class="absolute z-40 lg:hidden grid grid-cols-3 items-center gap-2 px-3 py-2 "
         >
           <div class="flex justify-start">
             <label
               for="sidebar-toggle"
-              class="-ml-1 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center"
+              class="-ml-1 mt-0.5 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center"
             >
               <Bars3Icon class="h-6 w-6" />
             </label>
           </div>
 
-          <div class="flex justify-center">
-            <HeaderLogo appname="Explorer" />
-          </div>
-
-          <div class="flex items-center justify-end">
-            <NotificationBell/>
-            <SearchBar/>
-          </div>
         </header>
 
         <ExplorerContextMenu>
