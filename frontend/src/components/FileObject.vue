@@ -232,7 +232,7 @@ if (isTouchDevice.value) {
               ref="renameInputRef"
               v-model="renameDraft"
               type="text"
-              :class="[baseRenameInputClass, 'text-center']"
+              :class="[baseRenameInputClass, 'text-center select-text']"
               @keydown.stop="handleRenameKeydown"
               @blur="handleRenameBlur"
               @click.stop
@@ -271,7 +271,7 @@ if (isTouchDevice.value) {
                   ref="renameInputRef"
                   v-model="renameDraft"
                   type="text"
-                  :class="baseRenameInputClass"
+                  :class="[baseRenameInputClass, 'select-text']"
                   @keydown.stop="handleRenameKeydown"
                   @blur="handleRenameBlur"
                   @click.stop
@@ -313,7 +313,7 @@ if (isTouchDevice.value) {
               ref="renameInputRef"
               v-model="renameDraft"
               type="text"
-              :class="[baseRenameInputClass, 'py-1']"
+              :class="[baseRenameInputClass, 'py-1 select-text']"
               @keydown.stop="handleRenameKeydown"
               @blur="handleRenameBlur"
               @click.stop
