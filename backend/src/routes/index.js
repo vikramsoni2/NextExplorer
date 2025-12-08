@@ -16,9 +16,13 @@ const featuresRoutes = require('./features');
 const terminalRoutes = require('./terminal');
 const permissionsRoutes = require('./permissions');
 const sharesRoutes = require('./shares');
+const healthRoutes = require('./health');
 const { onlyoffice } = require('../config/index');
 
 const registerRoutes = (app) => {
+  // Health endpoints (no /api prefix, unauthenticated)
+  app.use('/', healthRoutes);
+
   app.use('/api/auth', authRoutes);
   app.use('/api', uploadRoutes);
   app.use('/api', fileRoutes);
