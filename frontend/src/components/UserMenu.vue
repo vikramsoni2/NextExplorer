@@ -21,6 +21,7 @@ const { t } = useI18n();
 const isExpanded = ref(false);
 
 const displayName = computed(() => auth.currentUser?.displayName || auth.currentUser?.username || t('user.account'));
+const avatarUrl = computed(() => auth.currentUser?.avatarUrl || null);
 const secondaryLabel = computed(() => {
   if (auth.currentUser?.email) {
     return auth.currentUser.email;
@@ -124,7 +125,14 @@ const handleLogout = async () => {
         :aria-expanded="isExpanded">
         <span
           class="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20">
-          <template v-if="avatarLetter">{{ avatarLetter }}</template>
+          <template v-if="avatarUrl">
+            <img
+              :src="avatarUrl"
+              alt="User avatar"
+              class="h-9 w-9 rounded-full object-cover"
+            />
+          </template>
+          <template v-else-if="avatarLetter">{{ avatarLetter }}</template>
           <UserCircleIcon v-else class="h-6 w-6" />
         </span>
         <div class="flex min-w-0 flex-1 flex-col">
