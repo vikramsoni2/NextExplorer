@@ -371,7 +371,16 @@ const deriveRolesFromClaims = (claims = {}, adminGroups = []) => {
 };
 
 // Get or create user from OIDC claims (with auto-linking via email)
-const getOrCreateOidcUser = async ({ issuer, sub, email, emailVerified, username, displayName, roles, requireEmailVerified = false }) => {
+const getOrCreateOidcUser = async ({
+  issuer,
+  sub,
+  email,
+  emailVerified,
+  username,
+  displayName,
+  roles,
+  requireEmailVerified = false,
+}) => {
   const db = await getDb();
   const normEmail = normalizeEmail(email);
 
@@ -470,7 +479,11 @@ const getRequestUser = async (req) => {
   if (req?.session?.localUserId) {
     const db = await getDb();
     const row = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.localUserId);
-    return toClientUser(row);
+    const user = toClientUser(row);
+    if (user) {
+      user.provider = 'local';
+    }
+    return user;
   }
 
   // OIDC mapped user
@@ -486,7 +499,18 @@ const getRequestUser = async (req) => {
 
     if (authMethod) {
       const row = db.prepare('SELECT * FROM users WHERE id = ?').get(authMethod.user_id);
-      return toClientUser(row);
+      const user = toClientUser(row);
+      if (user) {
+        user.provider = 'oidc';
+        user.oidcIssuer = issuer;
+        if (!user.avatarUrl && typeof req.oidc.user.picture === 'string') {
+          const trimmed = req.oidc.user.picture.trim();
+          if (trimmed) {
+            user.avatarUrl = trimmed;
+          }
+        }
+      }
+      return user;
     }
 
     // Fallback: derive a minimal user object from OIDC claims when DB sync hasn't happened yet
@@ -496,6 +520,9 @@ const getRequestUser = async (req) => {
       const preferredUsername = claims.preferred_username || claims.username || email || claims.sub;
       const displayName = claims.name || preferredUsername || null;
       const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
+      const avatarUrl = typeof claims.picture === 'string' && claims.picture.trim()
+        ? claims.picture.trim()
+        : null;
 
       return {
         id: `oidc:${claims.sub}`,
@@ -503,6 +530,8 @@ const getRequestUser = async (req) => {
         emailVerified: claims.email_verified || false,
         username: preferredUsername,
         displayName,
+        avatarUrl,
+        provider: 'oidc',
         roles,
         createdAt: null,
         updatedAt: null,

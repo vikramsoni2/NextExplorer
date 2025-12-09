@@ -53,6 +53,49 @@ export function useFileActions() {
     await fileStore.del();
   };
 
+  const runDownload = () => {
+    if (!hasSelection.value) return;
+
+    const paths = selectedItems.value
+      .map((item) => {
+        const parent = normalizePath(item.path || '');
+        const combined = parent ? `${parent}/${item.name}` : item.name;
+        return normalizePath(combined);
+      })
+      .filter(Boolean);
+
+    if (!paths.length) return;
+
+    const currentPath = normalizePath(fileStore.getCurrentPath || '');
+
+    // Create a hidden form to submit the download request
+    // This triggers the browser's native download with progress bar
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/download';
+    form.style.display = 'none';
+
+    // Add each path as a separate 'paths' field (form arrays)
+    paths.forEach((path) => {
+      const pathInput = document.createElement('input');
+      pathInput.type = 'hidden';
+      pathInput.name = 'paths';
+      pathInput.value = path;
+      form.appendChild(pathInput);
+    });
+
+    // Add basePath
+    const basePathInput = document.createElement('input');
+    basePathInput.type = 'hidden';
+    basePathInput.name = 'basePath';
+    basePathInput.value = currentPath;
+    form.appendChild(basePathInput);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+  };
+
   return {
     // state
     selectedItems,
@@ -77,6 +120,7 @@ export function useFileActions() {
     runPasteIntoCurrent,
     runRename,
     deleteNow,
+    runDownload,
   };
 }
 

@@ -42,6 +42,7 @@ npm start
   - Runtime features (loaded via centralized features store):
     - `EDITOR_EXTENSIONS` – comma-separated list of additional file extensions to support in the inline editor (e.g. `toml,proto,graphql`). These are added to the default list of supported extensions.
     - `SHOW_VOLUME_USAGE` – `true` to enable volume usage progress bar and used/total labels on the Volumes page. Defaults to `false`.
+    - `SKIP_HOME` – when `true`, visits to the home view (`/browse/`) automatically redirect into the first volume instead, avoiding an extra click for single-volume setups.
     - `ONLYOFFICE_URL`, `ONLYOFFICE_FILE_EXTENSIONS` – OnlyOffice integration is also loaded via the features store.
 
 When EOC is enabled, the backend exposes default OIDC routes:
@@ -108,7 +109,8 @@ const extensions = computed(() => featuresStore.editorExtensions)
 - `onlyofficeEnabled` – boolean from `ONLYOFFICE_URL`
 - `onlyofficeExtensions` – array from `ONLYOFFICE_FILE_EXTENSIONS`
 - `volumeUsageEnabled` – boolean from `SHOW_VOLUME_USAGE`
-- `announcements` – array of system announcements (from DB metadata)
+- `personalEnabled` – boolean from `USER_DIR_ENABLED`
+- `skipHome` – boolean from `SKIP_HOME`
 
 **Backend API**: Features are served by `GET /api/features` which consolidates all runtime configuration from environment variables.
 

@@ -20,6 +20,9 @@ router.get('/features', (_req, res) => {
     personal: {
       enabled: Boolean(features?.personalFolders),
     },
+    navigation: {
+      skipHome: Boolean(features?.skipHome),
+    },
     version: {
       app: packageJson.version || '1.0.0',
       gitCommit: process.env.GIT_COMMIT || '',

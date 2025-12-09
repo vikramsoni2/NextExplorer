@@ -181,6 +181,7 @@
   },
   "context": {
     "getInfo": "Obtener información",
+    "openWithEditor": "Abrir con el editor",
     "addToFavorites": "Agregar a favoritos",
     "removeFromFavorites": "Quitar de favoritos",
     "deleteTitle": {

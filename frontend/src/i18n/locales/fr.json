@@ -180,6 +180,7 @@
   },
   "context": {
     "getInfo": "Obtenir des informations",
+    "openWithEditor": "Ouvrir avec l’éditeur",
     "addToFavorites": "Ajouter aux favoris",
     "removeFromFavorites": "Retirer des favoris",
     "deleteTitle": {

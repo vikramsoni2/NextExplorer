@@ -34,7 +34,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | --- | --- | --- |
 | `AUTH_ENABLED` | `true` (in prod) | Toggles authentication; disabling makes all APIs public. **Deprecated:** use `AUTH_MODE=disabled` instead. |
 | `AUTH_MODE` | `both` (or `local` if OIDC not configured) | Controls which authentication methods are available: `local` (username/password only), `oidc` (SSO only), `both` (both methods), or `disabled` (skip login entirely, same as `AUTH_ENABLED=false`). |
-| `SESSION_SECRET`, `AUTH_SESSION_SECRET` | _auto-generated_ | Session secret used by Express; set it explicitly to keep sessions across restarts or replicas. |
+| `SESSION_SECRET`, `AUTH_SESSION_SECRET` | _auto-generated_ | Cryptographic secret used by Express to sign and encrypt session cookies and related tokens. In production, set this to a long, random, **stable** value (at least 32 characters) so sessions remain valid across restarts and multiple replicas; if left unset, a new random secret is generated on each start and all users will be logged out after every restart. |
 | `AUTH_MAX_FAILED` | `5` | Failed login attempts before temporary lockout. |
 | `AUTH_LOCK_MINUTES` | `15` | Lockout duration in minutes when max failures reached. |
 
@@ -60,6 +60,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SEARCH_MAX_FILESIZE` | _unbounded_ | Skip ripgrep for files larger than this (e.g., `5MB`). |
 | `SHOW_VOLUME_USAGE` | `false` | Show volume usage badges in the sidebar. |
 | `USER_DIR_ENABLED` | `false` | When `true`, enables a **personal “My Files” space** for each authenticated user under `USER_ROOT`. The frontend shows a “My Files” entry when this flag is on. |
+| `SKIP_HOME` | `false` | When `true`, visits to the home view (`/browse/`) automatically redirect into the first volume instead. |
 
 The sharing system (toolbar **Share** button, guest links such as `/share/:token`, and the **Shared with me** page) works out of the box with the feature flags above. Advanced share tuning knobs are documented under **Sharing (advanced)** below.
 
@@ -100,5 +101,3 @@ These variables are available for tuning the share system. The defaults are suit
 | Variable | Description |
 | --- | --- |
 | `PUID`, `PGID` | Map container processes to host user/group IDs so created files have consistent ownership. Defaults to `1000`. The entrypoint adjusts ownership of `/app`, `/config`, and `/cache` accordingly.
-
-

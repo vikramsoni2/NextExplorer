@@ -28,7 +28,7 @@ RUN groupadd --system appuser && \
 
 # Install runtime tooling (ffmpeg, gosu for UID remapping, ripgrep for searches, imagemagick for HEIC thumbnails).
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick \
+  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick curl \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -57,5 +57,8 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 VOLUME ["/config", "/cache"]
 
 EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS "http://localhost:${PORT:-3000}/healthz" || exit 1
+
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["node", "src/app.js"]

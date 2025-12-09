@@ -180,6 +180,7 @@
   },
   "context": {
     "getInfo": "获取信息",
+    "openWithEditor": "使用编辑器打开",
     "addToFavorites": "添加到收藏夹",
     "removeFromFavorites": "从收藏夹移除",
     "deleteTitle": {

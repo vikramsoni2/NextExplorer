@@ -181,6 +181,7 @@
   },
   "context": {
     "getInfo": "Get Info",
+    "openWithEditor": "Open with Editor",
     "addToFavorites": "Add to Favorites",
     "removeFromFavorites": "Remove from Favorites",
     "deleteTitle": {

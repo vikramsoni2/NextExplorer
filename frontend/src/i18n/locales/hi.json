@@ -180,6 +180,7 @@
   },
   "context": {
     "getInfo": "जानकारी प्राप्त करें",
+    "openWithEditor": "संपादक में खोलें",
     "addToFavorites": "पसंदीदा में जोड़ें",
     "removeFromFavorites": "पसंदीदा से हटाएँ",
     "deleteTitle": {

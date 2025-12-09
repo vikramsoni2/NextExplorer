@@ -120,8 +120,15 @@ const onlyoffice = {
 };
 
 // --- Editor ---
+const editorMaxFileSizeBytes = (() => {
+  const parsed = parseByteSize(env.EDITOR_MAX_FILESIZE);
+  // Default: 1 MiB if not configured or invalid
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 1 * 1024 * 1024;
+})();
+
 const editor = {
   extensions: env.EDITOR_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+  maxFileSizeBytes: editorMaxFileSizeBytes,
 };
 
 // --- Favorites ---
@@ -181,6 +188,7 @@ module.exports = {
     volumeUsage: env.SHOW_VOLUME_USAGE,
     personalFolders: env.USER_DIR_ENABLED,
     shares: env.SHARES_ENABLED,
+    skipHome: env.SKIP_HOME,
   },
   
   logging: {

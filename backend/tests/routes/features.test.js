@@ -23,6 +23,7 @@ test('features route exposes default feature flags and version metadata', async 
     ONLYOFFICE_FILE_EXTENSIONS: undefined,
     EDITOR_EXTENSIONS: undefined,
     SHOW_VOLUME_USAGE: undefined,
+    SKIP_HOME: undefined,
     GIT_COMMIT: undefined,
     GIT_BRANCH: undefined,
     REPO_URL: undefined,
@@ -36,6 +37,7 @@ test('features route exposes default feature flags and version metadata', async 
     assert.deepEqual(response.body.onlyoffice.extensions, []);
     assert.deepEqual(response.body.editor.extensions, []);
     assert.strictEqual(response.body.volumeUsage.enabled, false);
+    assert.strictEqual(response.body.navigation.skipHome, false);
     assert.strictEqual(response.body.version.app, backendPackage.version);
     assert.strictEqual(response.body.version.gitCommit, '');
     assert.strictEqual(response.body.version.gitBranch, '');
@@ -51,6 +53,7 @@ test('features route reflects enabled editors, onlyoffice, and volume usage', as
     ONLYOFFICE_FILE_EXTENSIONS: '.docx, .XLSX',
     EDITOR_EXTENSIONS: '.MD,.txt',
     SHOW_VOLUME_USAGE: 'true',
+    SKIP_HOME: 'true',
     GIT_COMMIT: 'abc123',
     GIT_BRANCH: 'main',
     REPO_URL: 'https://example.com/repo',
@@ -64,6 +67,7 @@ test('features route reflects enabled editors, onlyoffice, and volume usage', as
     assert.deepEqual(response.body.onlyoffice.extensions, ['.docx', '.xlsx']);
     assert.deepEqual(response.body.editor.extensions, ['.md', '.txt']);
     assert.strictEqual(response.body.volumeUsage.enabled, true);
+    assert.strictEqual(response.body.navigation.skipHome, true);
     assert.strictEqual(response.body.version.gitCommit, 'abc123');
     assert.strictEqual(response.body.version.gitBranch, 'main');
     assert.strictEqual(response.body.version.repoUrl, 'https://example.com/repo');

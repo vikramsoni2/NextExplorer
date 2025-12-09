@@ -11,9 +11,10 @@ import { useFileStore } from '@/stores/fileStore';
 import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { useSettingsStore } from '@/stores/settings';
-import { ellipses } from '@/utils/ellipses';
 import { useViewConfig } from '@/composables/useViewConfig';
 import { DragSelectOption } from '@coleqiu/vue-drag-select';
+import MiddleEllipsis from '@/components/MiddleEllipsis.vue';
+import { ellipses } from '@/utils/ellipses';
 
 const props = defineProps(['item', 'view'])
 const settings = useSettingsStore();
@@ -232,7 +233,7 @@ if (isTouchDevice.value) {
               ref="renameInputRef"
               v-model="renameDraft"
               type="text"
-              :class="[baseRenameInputClass, 'text-center']"
+              :class="[baseRenameInputClass, 'text-center select-text']"
               @keydown.stop="handleRenameKeydown"
               @blur="handleRenameBlur"
               @click.stop
@@ -271,7 +272,7 @@ if (isTouchDevice.value) {
                   ref="renameInputRef"
                   v-model="renameDraft"
                   type="text"
-                  :class="baseRenameInputClass"
+                  :class="[baseRenameInputClass, 'select-text']"
                   @keydown.stop="handleRenameKeydown"
                   @blur="handleRenameBlur"
                   @click.stop
@@ -313,7 +314,7 @@ if (isTouchDevice.value) {
               ref="renameInputRef"
               v-model="renameDraft"
               type="text"
-              :class="[baseRenameInputClass, 'py-1']"
+              :class="[baseRenameInputClass, 'py-1 select-text']"
               @keydown.stop="handleRenameKeydown"
               @blur="handleRenameBlur"
               @click.stop
@@ -322,7 +323,7 @@ if (isTouchDevice.value) {
             />
           </template>
           <template v-else>
-            {{ ellipses(item.name, maxl=40) }}
+            <MiddleEllipsis :text="item.name" :end-chars="10" />
           </template>
         </div>
         <div class="text-sm">

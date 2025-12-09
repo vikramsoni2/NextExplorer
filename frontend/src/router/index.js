@@ -19,6 +19,8 @@ import ShareLoginView from '@/views/ShareLoginView.vue'
 import SharedWithMeView from '@/views/SharedWithMeView.vue'
 import SharedByMeView from '@/views/SharedByMeView.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useFeaturesStore } from '@/stores/features'
+import { getVolumes } from '@/api'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -221,6 +223,31 @@ router.beforeEach(async (to) => {
   if (to.name === 'auth-login' && auth.isAuthenticated) {
     const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     return { path: redirect };
+  }
+
+  // Optional UX: when configured, skip the home dashboard and
+  // jump straight into the only available volume (single-volume setups).
+  if (to.name === 'HomeView') {
+    const featuresStore = useFeaturesStore();
+    try {
+      await featuresStore.ensureLoaded();
+    } catch (_) {
+      // Ignore feature loading errors; fall back to normal home view.
+    }
+
+    if (featuresStore.skipHome) {
+      try {
+        const volumes = await getVolumes();
+        if (Array.isArray(volumes)) {
+          const first = volumes[0];
+          if (first && first.path) {
+            return { name: 'FolderView', params: { path: first.path } };
+          }
+        }
+      } catch (_) {
+        // Ignore volume loading errors; fall through to home view.
+      }
+    }
   }
 
   // Enforce admin-only routes if flagged

@@ -180,6 +180,7 @@
   },
   "context": {
     "getInfo": "Informationen",
+    "openWithEditor": "Im Editor öffnen",
     "addToFavorites": "Zu Favoriten hinzufügen",
     "removeFromFavorites": "Aus Favoriten entfernen",
     "deleteTitle": {

@@ -107,7 +107,7 @@ const showNoPhotosMessage = computed(() => {
       <DragSelect
         v-model="selectionModel"
         :click-option-to-select="false"
-        :disabled="isTouchDevice"
+        :disabled="isTouchDevice || !!fileStore.renameState"
         class="grow overflow-y-scroll px-2"
         @click.self="clearSelection()"
         @contextmenu.prevent="handleBackgroundContextMenu"

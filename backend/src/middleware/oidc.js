@@ -132,7 +132,7 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
           displayName, 
           email, 
           emailVerified, 
-          roles 
+          roles,
         }, 
         'afterCallback: derived user info'
       );

@@ -1,115 +1,13 @@
 <script setup>
-import { computed, ref } from 'vue';
-import { ArrowDownTrayIcon, TrashIcon } from '@heroicons/vue/24/outline';
-import { useFileStore } from '@/stores/fileStore';
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
 import { useFileActions } from '@/composables/fileActions';
-import { normalizePath } from '@/api';
-import ModalDialog from '@/components/ModalDialog.vue';
-import { Rename20Regular } from '@vicons/fluent';
 
-const fileStore = useFileStore();
 const actions = useFileActions();
 
-const selectedItems = actions.selectedItems;
-const selectedItem = actions.primaryItem;
 const hasSelection = actions.hasSelection;
-const isSingleItemSelected = actions.isSingleItemSelected;
-const isSingleFileSelected = computed(() => isSingleItemSelected.value && selectedItem.value?.kind !== 'directory');
-const canRename = actions.canRename;
-const currentPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
-const isDeleteConfirmOpen = ref(false);
-const isDeleting = ref(false);
 
-const deleteDialogTitle = computed(() => {
-  const count = selectedItems.value.length;
-  if (count === 1) {
-    return 'Delete Item';
-  }
-  if (count > 1) {
-    return `Delete ${count} Items`;
-  }
-  return 'Delete Items';
-});
-
-const deleteDialogMessage = computed(() => {
-  const count = selectedItems.value.length;
-  if (count === 1 && selectedItem.value) {
-    return `Are you sure you want to delete "${selectedItem.value.name}"? This action cannot be undone.`;
-  }
-  if (count > 1) {
-    return `Are you sure you want to delete these ${count} items? This action cannot be undone.`;
-  }
-  return 'No items selected.';
-});
-
-const getResolvedPaths = () => selectedItems.value
-  .map((item) => {
-    const parent = normalizePath(item.path || '');
-    const combined = parent ? `${parent}/${item.name}` : item.name;
-    return normalizePath(combined);
-  })
-  .filter(Boolean);
-
-const handleDownload = async () => {
-  if (!hasSelection.value) return;
-
-  const paths = getResolvedPaths();
-  if (!paths.length) return;
-
-  // Create a hidden form to submit the download request
-  // This triggers the browser's native download with progress bar
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = '/api/download';
-  form.style.display = 'none';
-
-  // Add each path as a separate 'paths' field (form arrays)
-  paths.forEach((path) => {
-    const pathInput = document.createElement('input');
-    pathInput.type = 'hidden';
-    pathInput.name = 'paths';
-    pathInput.value = path;
-    form.appendChild(pathInput);
-  });
-
-  // Add basePath
-  const basePathInput = document.createElement('input');
-  basePathInput.type = 'hidden';
-  basePathInput.name = 'basePath';
-  basePathInput.value = currentPath.value;
-  form.appendChild(basePathInput);
-
-  document.body.appendChild(form);
-  form.submit();
-  document.body.removeChild(form);
-};
-
-const handleDelete = () => {
-  if (!selectedItems.value.length) return;
-  isDeleteConfirmOpen.value = true;
-};
-
-const confirmDelete = async () => {
-  if (!selectedItems.value.length || isDeleting.value) {
-    return;
-  }
-
-  isDeleting.value = true;
-  try {
-    await actions.deleteNow();
-    isDeleteConfirmOpen.value = false;
-  } catch (error) {
-    console.error('Delete operation failed', error);
-  } finally {
-    isDeleting.value = false;
-  }
-};
-
-const handleRename = () => {
-  if (!canRename.value) return;
-  const target = selectedItems.value[0];
-  if (!target) return;
-  fileStore.beginRename(target);
+const handleDownload = () => {
+  actions.runDownload();
 };
 </script>
 
