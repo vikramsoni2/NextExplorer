@@ -4,7 +4,7 @@
     <transition name="tp-fade">
       <div
         v-if="isOpen"
-        class="fixed inset-0 z-1450 bg-black/30"
+        class="fixed inset-0 z-1450 bg-black/30 dark:bg-black/50"
         @click="close"
       />
     </transition>
@@ -14,7 +14,7 @@
       class="fixed inset-y-0 right-0 z-1500 w-full sm:w-[600px] md:w-[700px] lg:w-[800px] transform transition-transform duration-200 ease-out"
       :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
     >
-      <aside ref="panelRef" class="flex h-full flex-col border-l dark:bg-zinc-950 shadow-2xl dark:border-white/10">
+      <aside ref="panelRef" class="flex h-full flex-col border-l bg-zinc-900 dark:bg-zinc-950 shadow-2xl dark:border-white/10">
         <header class="flex items-center justify-between border-b border-white/10 px-5 py-3">
           <h2 class="text-lg font-semibold text-white">{{ $t('titles.terminal') }}</h2>
           <button
