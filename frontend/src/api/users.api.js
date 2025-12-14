@@ -6,6 +6,10 @@ export async function fetchUsers() {
   return requestJson('/api/users', { method: 'GET' });
 }
 
+export async function fetchShareableUsers() {
+  return requestJson('/api/users/shareable', { method: 'GET' });
+}
+
 export async function updateUserRoles(userId, roles) {
   return requestJson(`/api/users/${encodeURIComponent(userId)}`, {
     method: 'PATCH',

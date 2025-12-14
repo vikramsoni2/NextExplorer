@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { createShare, copyShareUrl } from '@/api/shares.api';
-import { fetchUsers } from '@/api/users.api';
+import { fetchShareableUsers } from '@/api/users.api';
 import {
   ShareIcon,
   ClipboardDocumentIcon,
@@ -90,7 +90,7 @@ function resetForm() {
 async function loadUsers() {
   try {
     loadingUsers.value = true;
-    const response = await fetchUsers();
+    const response = await fetchShareableUsers();
     availableUsers.value = response.users || [];
   } catch (err) {
     console.error('Failed to load users:', err);

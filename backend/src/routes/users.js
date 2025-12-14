@@ -1,7 +1,7 @@
 const express = require('express');
-const { listUsers, updateUserRoles, updateUserProfile, createLocalUser, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
+const { listUsers, listShareableUsers, updateUserRoles, updateUserProfile, createLocalUser, setLocalPasswordAdmin, deleteUser, getById, countAdmins } = require('../services/users');
 const asyncHandler = require('../utils/asyncHandler');
-const { ForbiddenError, NotFoundError, ValidationError } = require('../errors/AppError');
+const { ForbiddenError, NotFoundError, ValidationError, UnauthorizedError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -12,6 +12,15 @@ const ensureAdmin = (req, res, next) => {
   }
   next();
 };
+
+// GET /api/users/shareable - list users for sharing (authenticated)
+router.get('/users/shareable', asyncHandler(async (req, res) => {
+  if (!req.user || !req.user.id) {
+    throw new UnauthorizedError('Authentication required');
+  }
+  const users = await listShareableUsers({ excludeUserId: req.user.id });
+  res.json({ users });
+}));
 
 // GET /api/users - list all users (admin only)
 router.get('/users', ensureAdmin, asyncHandler(async (req, res) => {

@@ -1,7 +1,8 @@
 const fs = require('fs/promises');
 const crypto = require('crypto');
 const { getDb } = require('./db');
-const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
+const { normalizeRelativePath } = require('../utils/pathUtils');
+const { resolvePathWithAccess } = require('./accessManager');
 const config = require('../config');
 
 const DEFAULT_FAVORITE_ICON = config.favorites.defaultIcon;
@@ -75,8 +76,21 @@ const getNextFavoritePosition = (db, userId) => {
  * Ensure path exists and is a directory
  */
 const validatePath = async (relativePath, user) => {
-  const { absolutePath } = await resolveLogicalPath(relativePath, { user });
-  const stats = await fs.stat(absolutePath);
+  const ctxUser = user && typeof user === 'object' ? user : null;
+  if (!ctxUser || !ctxUser.id) {
+    const err = new Error('User context is required');
+    err.status = 400;
+    throw err;
+  }
+
+  const { accessInfo, resolved } = await resolvePathWithAccess({ user: ctxUser, guestSession: null }, relativePath);
+  if (!accessInfo?.canAccess || !resolved) {
+    const err = new Error(accessInfo?.denialReason || 'Path is not accessible');
+    err.status = 403;
+    throw err;
+  }
+
+  const stats = await fs.stat(resolved.absolutePath);
 
   if (!stats.isDirectory()) {
     const err = new Error('Path must be a directory');
@@ -105,8 +119,9 @@ const getFavorites = async (userId) => {
 /**
  * Add or update a favorite for a user
  */
-const addFavorite = async (userId, { path, label, icon, color }) => {
-  ensureUserId(userId);
+const addFavorite = async (userOrId, { path, label, icon, color }) => {
+  const user = userOrId && typeof userOrId === 'object' ? userOrId : { id: userOrId };
+  const userId = ensureUserId(user?.id);
 
   const favorite = sanitize({ path, label, icon, color });
   if (!favorite) {
@@ -115,7 +130,7 @@ const addFavorite = async (userId, { path, label, icon, color }) => {
     throw err;
   }
 
-  await validatePath(favorite.path, { id: userId });
+  await validatePath(favorite.path, user);
 
   const db = await getDb();
   const now = new Date().toISOString();

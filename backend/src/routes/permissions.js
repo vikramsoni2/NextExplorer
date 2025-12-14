@@ -4,21 +4,14 @@ const path = require('path');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 
-const { normalizeRelativePath, resolveLogicalPath } = require('../utils/pathUtils');
-const { getPermissionForPath } = require('../services/accessControlService');
+const { normalizeRelativePath } = require('../utils/pathUtils');
+const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const { ValidationError, ForbiddenError, NotFoundError } = require('../errors/AppError');
+const { ValidationError, ForbiddenError, NotFoundError, UnauthorizedError } = require('../errors/AppError');
 
 const router = express.Router();
 const execAsync = promisify(exec);
-
-const assertWritable = async (relativePath) => {
-  const perm = await getPermissionForPath(relativePath);
-  if (perm !== 'rw') {
-    throw new ForbiddenError('Path is read-only.');
-  }
-};
 
 /**
  * Get file permissions, owner, and group information
@@ -31,15 +24,13 @@ router.get('/permissions/*', asyncHandler(async (req, res) => {
     throw new ValidationError('A file path is required.');
   }
 
-  const perm = await getPermissionForPath(relativePath);
-  if (perm === 'hidden') {
-    throw new ForbiddenError('Path is not accessible.');
+  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
+  if (!accessInfo?.canAccess || !resolved) {
+    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
   }
 
-  const { absolutePath } = await resolveLogicalPath(relativePath, { user: req.user });
-
   try {
-    const stats = await fs.stat(absolutePath);
+    const stats = await fs.stat(resolved.absolutePath);
 
     // Get owner and group information
     // On Unix systems, we can use uid/gid, but we need the names
@@ -96,27 +87,38 @@ router.post('/permissions/chmod', asyncHandler(async (req, res) => {
     throw new ValidationError('Mode must be a 3-digit octal string (e.g., "755").');
   }
 
-  const relativePath = normalizeRelativePath(rawPath);
-  await assertWritable(relativePath);
+  if (!req.user || !req.user.id) {
+    throw new UnauthorizedError('Authentication required');
+  }
+  if (req.guestSession) {
+    throw new ForbiddenError('Guests cannot change permissions.');
+  }
 
-  const { absolutePath } = await resolveLogicalPath(relativePath, { user: req.user });
+  const relativePath = normalizeRelativePath(rawPath);
+  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
+  if (!accessInfo?.canAccess || !resolved) {
+    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
+  }
+  if (!accessInfo.canWrite) {
+    throw new ForbiddenError('Path is read-only.');
+  }
 
   try {
     // Check if path exists
-    await fs.stat(absolutePath);
+    await fs.stat(resolved.absolutePath);
 
     // Use chmod via Node.js built-in
     const modeInt = parseInt(mode, 8);
-    await fs.chmod(absolutePath, modeInt);
+    await fs.chmod(resolved.absolutePath, modeInt);
 
     // If recursive and directory, apply to all children
     if (recursive) {
-      const stats = await fs.stat(absolutePath);
+      const stats = await fs.stat(resolved.absolutePath);
       if (stats.isDirectory()) {
         // Use chmod -R for recursive on Unix systems
         if (process.platform !== 'win32') {
           try {
-            await execAsync(`chmod -R ${mode} "${absolutePath}"`);
+            await execAsync(`chmod -R ${mode} "${resolved.absolutePath}"`);
           } catch (e) {
             logger.error({ err: e }, 'Failed to apply recursive chmod');
             throw new Error('Failed to apply permissions recursively.');
@@ -161,14 +163,25 @@ router.post('/permissions/chown', asyncHandler(async (req, res) => {
     throw new ValidationError('Either owner or group must be specified.');
   }
 
-  const relativePath = normalizeRelativePath(rawPath);
-  await assertWritable(relativePath);
+  if (!req.user || !req.user.id) {
+    throw new UnauthorizedError('Authentication required');
+  }
+  if (req.guestSession) {
+    throw new ForbiddenError('Guests cannot change ownership.');
+  }
 
-  const { absolutePath } = await resolveLogicalPath(relativePath, { user: req.user });
+  const relativePath = normalizeRelativePath(rawPath);
+  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
+  if (!accessInfo?.canAccess || !resolved) {
+    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
+  }
+  if (!accessInfo.canWrite) {
+    throw new ForbiddenError('Path is read-only.');
+  }
 
   try {
     // Check if path exists
-    await fs.stat(absolutePath);
+    await fs.stat(resolved.absolutePath);
 
     // chown requires shell execution as Node.js doesn't have built-in owner/group change
     // This requires elevated privileges on most systems
@@ -176,11 +189,11 @@ router.post('/permissions/chown', asyncHandler(async (req, res) => {
       let chownCmd = '';
 
       if (owner && group) {
-        chownCmd = `chown "${owner}:${group}" "${absolutePath}"`;
+        chownCmd = `chown "${owner}:${group}" "${resolved.absolutePath}"`;
       } else if (owner) {
-        chownCmd = `chown "${owner}" "${absolutePath}"`;
+        chownCmd = `chown "${owner}" "${resolved.absolutePath}"`;
       } else if (group) {
-        chownCmd = `chgrp "${group}" "${absolutePath}"`;
+        chownCmd = `chgrp "${group}" "${resolved.absolutePath}"`;
       }
 
       try {

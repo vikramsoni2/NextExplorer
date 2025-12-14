@@ -37,7 +37,7 @@ router.get('/favorites', asyncHandler(async (req, res) => {
  */
 router.post('/favorites', asyncHandler(async (req, res) => {
   const { path, label, icon, color } = req.body || {};
-  const favorite = await addFavorite(req.user.id, { path, label, icon, color });
+  const favorite = await addFavorite(req.user, { path, label, icon, color });
   res.json(favorite);
 }));
 

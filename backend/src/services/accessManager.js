@@ -1,11 +1,11 @@
-const { parsePathSpace, resolveLogicalPath } = require('../utils/pathUtils');
+const { parsePathSpace, resolveLogicalPath, combineRelativePath } = require('../utils/pathUtils');
 const { getPermissionForPath } = require('./accessControlService');
 const {
   getShareByToken,
   hasUserPermission,
   isShareExpired,
 } = require('./sharesService');
-const { getUserVolumeForPath } = require('./userVolumesService');
+const { getUserVolumeForPath, getVolumeById } = require('./userVolumesService');
 const { features } = require('../config/index');
 
 /**
@@ -15,7 +15,7 @@ const { features } = require('../config/index');
  * @returns {Object} Access metadata
  */
 const getAccessInfo = async (context, relativePath) => {
-  const { space, rel, shareToken } = parsePathSpace(relativePath);
+  const { space, rel, shareToken, innerPath } = parsePathSpace(relativePath);
 
   // Determine access based on space
   switch (space) {
@@ -24,7 +24,7 @@ const getAccessInfo = async (context, relativePath) => {
     case 'personal':
       return await getPersonalAccess(context, rel);
     case 'share':
-      return await getShareAccess(context, shareToken, rel);
+      return await getShareAccess(context, shareToken, innerPath);
     default:
       return createDeniedAccess('Unknown path space');
   }
@@ -189,7 +189,50 @@ const getShareAccess = async (context, shareToken, innerPath) => {
   }
 
   const isOwner = user && user.id === share.ownerId;
-  const isReadWrite = share.accessMode === 'readwrite';
+  const shareReadWrite = share.accessMode === 'readwrite';
+
+  // Cap share write permissions by the underlying source permission.
+  // This allows admin changes (hide/ro/user-volume readonly) to take effect immediately.
+  const isDirShare = Boolean(share.isDirectory);
+  const safeInnerPath = typeof innerPath === 'string' ? innerPath : '';
+  let underlyingPermission = 'rw';
+  let underlyingReadOnly = false;
+
+  if (share.sourceSpace === 'volume') {
+    const combined = isDirShare && safeInnerPath
+      ? combineRelativePath(share.sourcePath, safeInnerPath)
+      : share.sourcePath;
+    underlyingPermission = await getPermissionForPath(combined);
+    if (underlyingPermission === 'hidden') {
+      return createDeniedAccess('Path is hidden');
+    }
+    underlyingReadOnly = underlyingPermission === 'ro';
+  } else if (share.sourceSpace === 'user_volume') {
+    const [volumeId, ...rest] = String(share.sourcePath || '').split('/').filter(Boolean);
+    if (!volumeId) {
+      return createDeniedAccess('Share source volume is invalid');
+    }
+    const userVolume = await getVolumeById(volumeId);
+    if (!userVolume) {
+      return createDeniedAccess('Share source volume not found');
+    }
+    if (String(userVolume.userId) !== String(share.ownerId)) {
+      return createDeniedAccess('Share source volume mismatch');
+    }
+
+    const baseWithinVolume = rest.join('/');
+    const combinedWithinVolume = isDirShare && safeInnerPath
+      ? combineRelativePath(baseWithinVolume, safeInnerPath)
+      : baseWithinVolume;
+    const logicalForRules = `${userVolume.label}${combinedWithinVolume ? `/${combinedWithinVolume}` : ''}`;
+    underlyingPermission = await getPermissionForPath(logicalForRules);
+    if (underlyingPermission === 'hidden') {
+      return createDeniedAccess('Path is hidden');
+    }
+    underlyingReadOnly = userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
+  }
+
+  const isReadWrite = shareReadWrite && !underlyingReadOnly;
 
   return {
     canAccess: true,
@@ -204,7 +247,7 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     shareInfo: {
       shareId: share.id,
       shareToken: share.shareToken,
-      accessMode: share.accessMode,
+      accessMode: isReadWrite ? 'readwrite' : 'readonly',
       expiresAt: share.expiresAt,
       isOwner,
       label: share.label,

@@ -65,7 +65,7 @@ const createShare = async ({
     throw e;
   }
 
-  if (!sourceSpace || !['volume', 'personal'].includes(sourceSpace)) {
+  if (!sourceSpace || !['volume', 'personal', 'user_volume'].includes(sourceSpace)) {
     const e = new Error('Invalid source space');
     e.status = 400;
     throw e;
