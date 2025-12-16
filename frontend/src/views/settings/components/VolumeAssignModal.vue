@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { XMarkIcon, FolderIcon, ChevronRightIcon, ArrowUpIcon } from '@heroicons/vue/24/outline';
+import { XMarkIcon, FolderIcon, ChevronRightIcon, ArrowUpIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import { browseAdminDirectories, addUserVolume, updateUserVolume } from '@/api';
 
 const props = defineProps({
@@ -176,20 +176,41 @@ onMounted(() => {
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5">
-          <!-- Label -->
-          <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-              {{ t('settings.users.volumeLabel') }} <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="label"
-              type="text"
-              :placeholder="t('placeholders.volumeLabel')"
-              class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
-            />
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              {{ t('settings.users.volumeLabelHint') }}
-            </p>
+          <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_12rem] gap-5 items-start">
+            <!-- Label -->
+            <div>
+              <label for="volume-label" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                {{ t('settings.users.volumeLabel') }} <span class="text-red-500">*</span>
+              </label>
+              <input
+                id="volume-label"
+                v-model="label"
+                type="text"
+                :placeholder="t('placeholders.volumeLabel')"
+                class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
+              />
+              <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {{ t('settings.users.volumeLabelHint') }}
+              </p>
+            </div>
+
+            <!-- Access Mode -->
+            <div>
+              <label for="access-mode" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                {{ t('settings.users.accessMode') }}
+              </label>
+              <div class="relative">
+                <select
+                  id="access-mode"
+                  v-model="accessMode"
+                  class="block w-full appearance-none rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 pr-9 border"
+                >
+                  <option value="readwrite">{{ t('common.readwrite') }}</option>
+                  <option value="readonly">{{ t('common.readonly') }}</option>
+                </select>
+                <ChevronDownIcon class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+              </div>
+            </div>
           </div>
 
           <!-- Directory Browser (only when adding) -->
@@ -289,33 +310,6 @@ onMounted(() => {
             <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {{ t('settings.users.pathCannotChange') }}
             </p>
-          </div>
-
-          <!-- Access Mode -->
-          <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              {{ t('settings.users.accessMode') }}
-            </label>
-            <div class="flex gap-4">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  v-model="accessMode"
-                  type="radio"
-                  value="readwrite"
-                  class="text-zinc-900 focus:ring-zinc-500"
-                />
-                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ t('common.readwrite') }}</span>
-              </label>
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  v-model="accessMode"
-                  type="radio"
-                  value="readonly"
-                  class="text-zinc-900 focus:ring-zinc-500"
-                />
-                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ t('common.readonly') }}</span>
-              </label>
-            </div>
           </div>
         </form>
       </div>
