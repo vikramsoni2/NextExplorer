@@ -17,7 +17,7 @@ export function useViewConfig() {
   const gridClasses = computed(() => {
     switch (settings.view) {
       case 'grid':
-        return 'grid content-start items-start grid-cols-[repeat(auto-fill,6rem)] gap-2';
+        return 'grid content-start items-start grid-cols-[repeat(auto-fit,minmax(6rem,1fr))] gap-2';
       case 'tab':
         return 'grid content-start items-start grid-cols-[repeat(auto-fill,20rem)] gap-2';
       case 'photos':

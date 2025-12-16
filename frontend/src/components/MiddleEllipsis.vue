@@ -35,7 +35,7 @@ const endText = computed(() => {
     </span>
     <span
       v-if="endText"
-      class="shrink-0 whitespace-nowrap -ml-1"
+      class="shrink-0 whitespace-nowrap"
     >
       {{ endText }}
     </span>
