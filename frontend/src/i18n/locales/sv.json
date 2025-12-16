@@ -1,0 +1,445 @@
+{
+  "common": {
+    "or": "ELLER",
+    "in": "i",
+    "to": "till",
+    "all": "Alla",
+    "and": "och",
+    "cancel": "Avbryt",
+    "close": "Stäng",
+    "open": "Öppna",
+    "edit": "Redigera",
+    "save": "Spara",
+    "discard": "Förkasta",
+    "delete": "Radera",
+    "deleting": "Raderar...",
+    "remove": "Ta bort",
+    "create": "Skapa",
+    "creating": "Skapar…",
+    "saving": "Sparar...",
+    "loading": "Läser in",
+    "loadingEllipsis": "Läser in…",
+    "verifying": "Verifierar…",
+    "updating": "Uppdaterar…",
+    "preparing": "Förbereder",
+    "dismiss": "Avfärda",
+    "disabled": "Inaktiverad",
+    "enabled": "Aktiverad",
+    "refresh": "Uppdatera",
+    "tryAgain": "Försök igen",
+    "done": "Klar",
+    "remaining": "återstår",
+    "unknown": "okänd",
+    "optional": "Valfritt",
+    "name": "Namn",
+    "size": "Storlek",
+    "type": "Typ",
+    "path": "Sökväg",
+    "email": "E-post",
+    "username": "Användarnamn",
+    "password": "Lösenord",
+    "label": "Etikett",
+    "actions": "Åtgärder",
+    "permissions": "Behörigheter",
+    "details": "Detaljer",
+    "location": "Plats",
+    "modified": "Ändrad",
+    "expires": "Går ut",
+    "expired": "Gått ut",
+    "active": "Aktiv",
+    "protected": "Skyddad",
+    "passwordProtected": "Lösenordsskyddad",
+    "noExpiration": "Ingen utgångstid",
+    "recent": "Senaste",
+    "item": "objekt",
+    "items": "objekt",
+    "files": "filer",
+    "folders": "mappar",
+    "file": "Fil",
+    "folder": "Mapp",
+    "image": "Bild",
+    "video": "Video",
+    "user": "Användare",
+    "admin": "Admin",
+    "roles": "Roller",
+    "settings": "Inställningar",
+    "share": "Utdelning",
+    "shares": "Utdelningar",
+    "unsavedChanges": "Du har osparade ändringar"
+  },
+  "status": {
+    "updated": "Uppdaterades",
+    "failed": "Misslyckades",
+    "passwordUpdated": "Lösenordet uppdaterades",
+    "completePercent": "{percent}% färdig"
+  },
+  "actions": {
+    "newFolder": "Ny mapp",
+    "newFile": "Ny fil",
+    "fileUpload": "Ladda upp fil",
+    "folderUpload": "Ladda upp mapp",
+    "copy": "Kopiera",
+    "cut": "Klipp ut",
+    "paste": "Klistra in",
+    "rename": "Byt namn",
+    "download": "Ladda ner",
+    "search": "Sök",
+    "sortBy": "Sortera efter",
+    "addRule": "Lägg till regel",
+    "clearAll": "Töm allt",
+    "cancelAll": "Avbryt allt"
+  },
+  "placeholders": {
+    "email": "användare{'@'}exempel.se",
+    "emailCompany": "namn{'@'}företag.se",
+    "username": "E-postprefix är standardvärde",
+    "password": "Välj ett starkt lösenord",
+    "confirmPassword": "Skriv ditt lösenord igen",
+    "label": "Mina utdelade filer",
+    "path": "t.ex. Bilder/Semestrar",
+    "search": "Sök efter filer och mappar…"
+  },
+  "loading": {
+    "default": "Läser in…",
+    "users": "Läser in användare...",
+    "metadata": "Läser in metadata…",
+    "share": "Läser in utdelning...",
+    "shares": "Läser in utdelningar…",
+    "volumes": "Läser in volymer…"
+  },
+  "errors": {
+    "failed": "Misslyckades",
+    "searchFailed": "Sökningen misslyckades",
+    "loadMetadata": "Misslyckades med att läsa in metadata",
+    "loadUsers": "Misslyckades med att läsa in användare",
+    "loadShares": "Misslyckades med att läsa in utdelade objekt",
+    "updateRoles": "Misslyckades med att uppdatera roller",
+    "createUser": "Misslyckades med att skapa användare",
+    "updateUser": "Misslyckades med att uppdatera användare",
+    "removeUser": "Misslyckades med att ta bort användare",
+    "resetPassword": "Misslyckades med att återställa lösenord",
+    "changePassword": "Misslyckades med att ändra lösenord",
+    "createShare": "Misslyckades med att skapa utdelning",
+    "signIn": "Misslyckades med att logga in",
+    "createAccount": "Misslyckades med att skapa konto",
+    "invalidSourcePath": "Ogiltig källsökväg",
+    "invalidPassword": "Ogiltigt lösenord",
+    "selectAtLeastOneUser": "Välj minst en användare",
+    "pleaseEnterPassword": "Ange ett lösenord",
+    "emailRequired": "E-postadress krävs",
+    "passwordRequired": "Lösenord krävs",
+    "passwordLength": "Lösenordet måste bestå av minst 6 tecken",
+    "passwordMin": "Lösenordet måste bestå av minst 6 tecken",
+    "passwordMismatch": "Lösenorden stämmer inte överens",
+    "localSignInDisabled": "Lokal inlogging är inaktiverad",
+    "deleteShare": "Misslyckades med att ta bort utdelning"
+  },
+  "titles": {
+    "volumes": "Volymer",
+    "favorites": "Favorites",
+    "notifications": "Aviseringar",
+    "terminal": "Terminal",
+    "settings": "Inställningar",
+    "about": "Om",
+    "thumbnails": "Miniatyrbilder",
+    "authentication": "Autentisering",
+    "folderRules": "Mappregler",
+    "comingSoon": "Kommer snart",
+    "changePassword": "Ändra lösenord",
+    "userManagement": "Användarhantering",
+    "share": "Utdelning",
+    "sortOptions": "Sorteringsalternativ"
+  },
+  "i18n": {
+    "language": "Språk",
+    "english": "Engelska",
+    "spanish": "Spanska",
+    "french": "Franska",
+    "german": "Tyska",
+    "chinese": "Kinesiska",
+    "hindi": "Hindi",
+    "polish": "Polska",
+    "swedish": "Svenska"
+  },
+  "search": {
+    "openShortcutTitle": "Öppna sökning (⌘/Ctrl + K)",
+    "resultsFor": "Resultat för \"{q}\"",
+    "searching": "Söker…",
+    "noMatches": "Inga träffar hittades",
+    "openFolder": "Öppna mapp",
+    "line": "rad"
+  },
+  "user": {
+    "account": "Konto",
+    "signOut": "Logga ut",
+    "useLightTheme": "Använd ljust tema",
+    "useDarkTheme": "Använd mörkt tema",
+    "lightTheme": "Ljust tema",
+    "darkTheme": "Mörkt tema"
+  },
+  "create": {
+    "createNew": "Ny"
+  },
+  "context": {
+    "getInfo": "Hämta info",
+    "openWithEditor": "Öppna med redigerare",
+    "addToFavorites": "Lägg till i favoriter",
+    "removeFromFavorites": "Ta bort från favoriter",
+    "deleteTitle": {
+      "single": "Radera \"{name}\"?",
+      "multiple": "Radera {count} items?",
+      "generic": "Radera objekt"
+    },
+    "deleteMessage": {
+      "single": "Är du säker på att du vill radera \"{name}\"? Denna åtgärd går inte att ångra.",
+      "multiple": "Är du säker på att du vill radera dessa {count} objekt? Denna åtgärd går inte att ångra.",
+      "generic": "Inga objekt valda."
+    }
+  },
+  "folder": {
+    "kind": "Typ",
+    "dateModified": "Ändringsdatum",
+    "noPhotos": "Inga bilder i denna mapp",
+    "noPhotosHint": "Växla till en annan vy för att se alla filer"
+  },
+  "volumes": {
+    "quickAccess": "Snabbåtkomst",
+    "quickAccessEmpty": "Fäst mappar som favoriter för att snabbt komma åt dem här."
+  },
+  "drives": {
+    "personal": "Mina filer"
+  },
+  "browser": {
+    "resizeSidebar": "Storleksändra sidofält"
+  },
+  "nav": {
+    "back": "Bakåt",
+    "forward": "Framåt",
+    "upOneFolder": "Upp en mapp"
+  },
+  "view": {
+    "list": "Listvy",
+    "column": "Kolumnvy",
+    "grid": "Rutnätsvy",
+    "photos": "Bildvy"
+  },
+  "photos": {
+    "menuTitle": "Bildstorlek",
+    "menuAria": "Öppna kontroller för bildstorlek",
+    "thumbnailSize": "Miniatyrstorlek"
+  },
+  "favorites": {
+    "emptyTitle": "Inga favoriter ännu",
+    "emptyDescription": "Välj en katalog och tryck på stjärnan i huvudverktygsfältet för att fästa den här.",
+    "editTitle": "Redigera favorit",
+    "icon": "Ikon"
+  },
+  "notifications": {
+    "open": "Öppna aviseringar",
+    "closePanel": "Stäng aviseringspanelen",
+    "empty": "Inga aviseringar",
+    "filters": {
+      "error": "Fel",
+      "warning": "Varningar",
+      "success": "Lyckade",
+      "info": "Info"
+    }
+  },
+  "spotlight": {
+    "hintWithin": "Skriv för att söka inom"
+  },
+  "download": {
+    "preparing": "Förbereder nerladdning..."
+  },
+  "upload": {
+    "toggleDetailsShow": "Visa detaljer",
+    "toggleDetailsHide": "Dölj detaljer",
+    "pauseUploads": "Pausa uppladdningar",
+    "resumeUploads": "Återuppta uppladdningar",
+    "uploads": "Laddar upp {count} {items}"
+  },
+  "info": {
+    "aria": "Infopanel",
+    "fileName": "Filnamn",
+    "folderSize": "Storlek: {size}",
+    "itemsCount": "Objekt: {files} filer, {folders} mappar",
+    "dimensions": "Mått: {w} × {h}",
+    "dateTaken": "Datum: {date}",
+    "camera": "Kamera: {makeModel}",
+    "lens": "Lins: {lens}",
+    "duration": "Speltid: {seconds}s"
+  },
+  "auth": {
+    "preparing": "Förbereder din utforskare…",
+    "marketing": {
+      "headline": "Framtiden för filhantering är här",
+      "subtitle": "Säker åtkomst, organisering och samarbete för alla dina filer var du än befinner dig",
+      "bullets": {
+        "keyboard": "Navigering med tangentbordet i första hand och blixtsnabb sökning.",
+        "access": "Detaljerade åtkomstkontroller med revisionsvänliga åtgärder.",
+        "sso": "Sömlös enkel inloggning med din IdP."
+      }
+    },
+    "login": {
+      "welcome": "Välkommen tillbaka",
+      "subtitle": "Logga in för att komma åt NextExplorer.",
+      "announcementConfirm": "Markera som läst",
+      "submit": "Logga in",
+      "announcementMigration": {
+        "title": "Vi har uppdaterat hur du loggar in",
+        "intro": "Du behöver nu använda ditt nya användarnamn liknande e-postadress.",
+        "bulletAddSuffix": "Lägg till {suffix} till ditt användarnamn",
+        "bulletPasswordSame": "Ditt lösenord är det samma.",
+        "bulletUpdateUsers": "Du kan uppdatera befintliga användare från Adminmenyn"
+      }
+    },
+    "setup": {
+      "headline": "Låt oss komma igång",
+      "subtitle": "Skapa ditt administratörskonto för att säkra och hantera dina filer.",
+      "formTitle": "Skapa ditt konto",
+      "formSubtitle": "Ange en e-postadress och säkert lösenord för att färdigställa konfigurationen.",
+      "submit": "Färdigställ konfiguration",
+      "bullets": {
+        "encryption": "Stark kryptering och revisionsvänliga åtgärder.",
+        "permissions": "Granulära behörigheter och användarhantering.",
+        "sso": "Sömlöst stöd för enkel inloggning."
+      }
+    },
+    "emailAddress": "E-postadress",
+    "usernameOptional": "Användarnamn (valfritt)",
+    "confirmPassword": "Bekräfta lösenordet",
+    "sso": {
+      "continue": "Fortsätt med enkel inloggning"
+    }
+  },
+  "breadcrumb": {
+    "volumes": "Volymer",
+    "share": "Utdelning"
+  },
+  "sort": {
+    "nameAToZ": "Namn A till Ö",
+    "nameZToA": "Namn Ö till A",
+    "smallToLarge": "Liten till stor",
+    "largeToSmall": "Stor till liten",
+    "oldToNew": "Gammal till ny",
+    "newToOld": "Ny till gammal"
+  },
+  "terminal": {
+    "menuHeading": "Verktyg",
+    "menuOpen": "Terminal"
+  },
+  "settings": {
+    "categories": {
+      "accountPassword": "Ändra lösenord",
+      "about": "Om",
+      "filesThumbnails": "Filer och miniatyrbilder",
+      "security": "Säkerhet",
+      "accessControl": "Åtkomstkontroll",
+      "adminUsers": "Användarhantering"
+    },
+    "about": {
+      "subtitle": "Visa bygginformation för denna applikation.",
+      "appVersion": "Appversion",
+      "appVersionHelp": "Byggversionen som körs just nu.",
+      "gitCommit": "Git commit",
+      "gitCommitHelp": "Källkodsrevision inbäddad vid byggtid.",
+      "branch": "Gren",
+      "branchHelp": "Git-gren vid byggtid."
+    },
+    "thumbs": {
+      "subtitle": "Anpassa förhandsvisningsminiatyrer för bilder och videor.",
+      "enable": "Aktivera miniatyrbilder",
+      "enableHelp": "Stäng av för att snabba upp bläddringen utan att generera förhandsvisningar.",
+      "quality": "Kvalitet för miniatyrbilder",
+      "qualityHelp": "Kontrollerar kvalitet för utdata (1–100). Standard är 70.",
+      "maxDim": "Max mått",
+      "maxDimHelp": "Längsta sidan i bildpunkter. Standard är 200.",
+      "concurrency": "Samtidig generering",
+      "concurrencyHelp": "Antal miniatyrbilder som ska genereras samtidigt (1–50). Standard är 10."
+    },
+    "security": {
+      "subtitle": "Kontrollera åtkomst till appen.",
+      "enable": "Aktivera autentisering",
+      "enableHelp": "När den är avstängd kan vem som helst komma åt dina filer.",
+      "confirmDisable": "Om du inaktiverar autentisering blir dina filer offentligt tillgängliga. Fortsätt?"
+    },
+    "access": {
+      "subtitle": "Ställ in behörigheter per mapp: läs-skriv, skrivskyddad eller dold.",
+      "recursive": "Rekursiv",
+      "readWrite": "Läs-skriv",
+      "readOnly": "Skrivskyddad",
+      "hidden": "Dold"
+    },
+    "comingSoon": {
+      "subtitle": "Denna inställningssektion håller på att byggas. Vänta och se!"
+    },
+    "password": {
+      "notLocalUser": "Lösenordet kan endast ändras för lokala användare. Ditt konto hanteras av din identitetsleverantör.",
+      "current": "Aktuellt lösenord",
+      "new": "Nytt lösenord",
+      "confirm": "Bekräfta nytt lösenord",
+      "update": "Uppdatera lösenordet",
+      "success": "Lösenordet har uppdaterats.",
+      "validation": "Fyll i alla fält; nytt lösenord måste vara minst 6 tecken och stämma överens."
+    },
+    "users": {
+      "cannotDeleteSelf": "Du kan inte ta bort ditt egna konto.",
+      "confirmRemove": "Ta bort användaren {user}? Detta går inte att ångra.",
+      "createUser": "Skapa användare",
+      "grantAdmin": "Gör till admin",
+      "displayName": "Visningsnamn",
+      "makeAdmin": "Gör till admin",
+      "resetPassword": "Ställ in/återställ lösenord",
+      "removeUser": "Ta bort användare",
+      "promptNewPassword": "Ange ett nytt lösenord för {user} (min 6 tecken):",
+      "editUser": "Redigera användare"
+    }
+  },
+  "share": {
+    "sharedWithMe": "Utdelade till mig",
+    "sharedWithMeDescription": "Filer och mappar som andra personer har delat med ditt konto.",
+    "sharedByMe": "Utdelade av mig",
+    "sharedByMeDescription": "Länkar och mappar som du har delat med andra personer.",
+    "shareCreated": "Utdelning skapad",
+    "createShareLink": "Skapa utdelningslänk",
+    "shareLink": "Delningslänk",
+    "shareLinkCreatedSuccess": "Delningslänk skapades!",
+    "shareSelectedItem": "Dela ut valt objekt",
+    "selectItemToShare": "Välj ett objekt att dela ut",
+    "sharing": "Utdelning:",
+    "sharedItem": "Utdelat objekt",
+    "sharedFolder": "Utdelad mapp",
+    "sharedFile": "Utdelad fil",
+    "accessMode": "Åtkomstläge",
+    "whoCanAccess": "Vem har åtkomst",
+    "anyoneWithLink": "Alla med länken",
+    "specificUsers": "Specifika användare",
+    "selectUsers": "Välj användare",
+    "noUsersAvailable": "Inga användare tillgängliga",
+    "passwordProtect": "Lösenordsskyddad",
+    "enterPassword": "Ange lösenordet",
+    "setExpirationDate": "Ställ ut utgångsdatum",
+    "expiresAt": "Går ut",
+    "shareExpired": "Utdelning har gått ut",
+    "shareNotFound": "Utdelningen hittades inte",
+    "shareExpiredMessage": "Denna utdelningslänk har gått ut och är inte längre tillgänglig.",
+    "goToHome": "Gå hem",
+    "accessShare": "Åtkomst till utdelning",
+    "signInToAccess": "Logga in för åtkomst",
+    "requiresAuthentication": "Denna utdelning kräver autentisering.",
+    "noSharedItemsToShow": "Inga utdelade objekt att visa",
+    "noSharedItemsYet": "När någon delar filer eller mappar med dig visas de här.",
+    "adjustFilters": "Justera dina filter eller töm sökningen för att se fler objekt.",
+    "filterByNameOrPath": "Filtrera efter namn eller sökväg",
+    "sharedBy": "Utdelad av ägaren",
+    "lastAccessed": "Senaste åtkomst",
+    "created": "Skspad",
+    "noMyShares": "Du har inte skapat några utdelningar än.",
+    "noMySharesDescription": "Skapa en delning från valfri fil eller mapp för att se den listad här.",
+    "mySharesCount": "{count} aktiva utdelningslänkar",
+    "confirmDeleteShare": "Ta bort denna utdelning? Personer som har länken kommer inte längre ha åtkomst.",
+    "removeShare": "Ta bort utdelning",
+    "sharedWithAnyone": "Delad med någon",
+    "sharedWithUsers": "{count} användare | {count} användare"
+  }
+}
