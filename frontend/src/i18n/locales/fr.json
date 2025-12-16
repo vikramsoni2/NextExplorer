@@ -199,7 +199,9 @@
     "kind": "Type",
     "dateModified": "Date de modification",
     "noPhotos": "Aucune photo dans ce dossier",
-    "noPhotosHint": "Passez à un autre mode d'affichage pour voir tous les fichiers"
+    "noPhotosHint": "Passez à un autre mode d’affichage pour voir tous les fichiers",
+    "empty": "Ce dossier est vide",
+    "emptyHint": "Importez ou créez des fichiers pour commencer."
   },
   "volumes": {
     "quickAccess": "Accès rapide",

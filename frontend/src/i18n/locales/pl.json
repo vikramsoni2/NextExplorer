@@ -199,7 +199,9 @@
     "kind": "Rodzaj",
     "dateModified": "Data modyfikacji",
     "noPhotos": "Brak zdjęć w tym folderze",
-    "noPhotosHint": "Zmień tryb widoku, aby zobaczyć wszystkie pliki"
+    "noPhotosHint": "Zmień tryb widoku, aby zobaczyć wszystkie pliki",
+    "empty": "Ten folder jest pusty",
+    "emptyHint": "Prześlij lub utwórz pliki, aby rozpocząć."
   },
   "volumes": {
     "quickAccess": "Szybki dostęp",

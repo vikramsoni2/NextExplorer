@@ -199,7 +199,9 @@
     "kind": "Art",
     "dateModified": "Änderungsdatum",
     "noPhotos": "Keine Fotos in diesem Ordner",
-    "noPhotosHint": "Wechseln Sie in einen anderen Ansichtsmodus, um alle Dateien zu sehen"
+    "noPhotosHint": "Wechseln Sie in einen anderen Ansichtsmodus, um alle Dateien zu sehen",
+    "empty": "Dieser Ordner ist leer",
+    "emptyHint": "Laden Sie Dateien hoch oder erstellen Sie neue, um loszulegen."
   },
   "volumes": {
     "quickAccess": "Schnellzugriff",

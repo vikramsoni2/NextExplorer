@@ -200,7 +200,9 @@
     "kind": "Tipo",
     "dateModified": "Fecha de modificación",
     "noPhotos": "No hay fotos en esta carpeta",
-    "noPhotosHint": "Cambia a otro modo de vista para ver todos los archivos"
+    "noPhotosHint": "Cambia a otro modo de vista para ver todos los archivos",
+    "empty": "Esta carpeta está vacía",
+    "emptyHint": "Sube o crea archivos para comenzar."
   },
   "volumes": {
     "quickAccess": "Acceso rápido",

@@ -208,7 +208,9 @@
     "kind": "Kind",
     "dateModified": "Date Modified",
     "noPhotos": "No photos in this folder",
-    "noPhotosHint": "Switch to another view mode to see all files"
+    "noPhotosHint": "Switch to another view mode to see all files",
+    "empty": "This folder is empty",
+    "emptyHint": "Upload or create files to get started."
   },
   "volumes": {
     "quickAccess": "Quick access",

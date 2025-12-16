@@ -199,7 +199,9 @@
     "kind": "类型",
     "dateModified": "修改日期",
     "noPhotos": "此文件夹中没有照片",
-    "noPhotosHint": "切换到其他视图模式以查看所有文件"
+    "noPhotosHint": "切换到其他视图模式以查看所有文件",
+    "empty": "此文件夹为空",
+    "emptyHint": "上传或创建文件以开始。"
   },
   "volumes": {
     "quickAccess": "快速访问",
