@@ -5,6 +5,12 @@ const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
   const apiRoute = requestPath.startsWith('/api');
   const isAuthRoute = requestPath.startsWith('/api/auth');
+  // Allow public share access routes (single share with token: /api/share/:token/*)
+  // Note: /api/shares/* are management endpoints and require authentication.
+  // Important: exclude /api/share/:token/browse/* so browse requests still require
+  // an authenticated user and/or a valid guest session.
+  const isPublicShareRoute = requestPath.startsWith('/api/share/')
+    && !requestPath.includes('/browse/');
 
   if (!apiRoute) {
     next();
@@ -72,7 +78,7 @@ const authMiddleware = async (req, res, next) => {
 
         console.log('[DEBUG] Guest session validated:', {
           sessionId: guestSessionId,
-          shareToken: session.shareToken,
+          shareId: session.shareId,
           path: requestPath
         });
       } else {
@@ -90,17 +96,6 @@ const authMiddleware = async (req, res, next) => {
     });
   }
 
-  // Allow public share access routes (single share with token: /api/share/:token/*)
-  // Note: /api/shares/* are management endpoints and require authentication
-  // Important: exclude /api/share/:token/browse/* so that browse requests
-  // still attach authenticated users and/or guest sessions via the logic below.
-  const isPublicShareRoute = requestPath.startsWith('/api/share/')
-    && !requestPath.includes('/browse/');
-  if (isPublicShareRoute) {
-    next();
-    return;
-  }
-
   if (isAuthRoute) {
     next();
     return;
@@ -114,6 +109,21 @@ const authMiddleware = async (req, res, next) => {
       const user = await getRequestUser(req);
       if (user) req.user = user;
     } catch (_) { /* ignore */ }
+
+    // If the user is authenticated, prefer user access over any guest session.
+    // This prevents stale guest sessions from blocking access to volumes/personal paths.
+    if (req.user && req.guestSession) {
+      delete req.guestSession;
+    }
+
+    next();
+    return;
+  }
+
+  // Public share routes should be accessible without authentication, but we still
+  // tried to attach an authenticated user above (if present) to support
+  // user-specific shares opened via share links.
+  if (isPublicShareRoute) {
     next();
     return;
   }

@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useAuthStore } from '@/stores/auth';
 import {
   getShareInfo,
   verifySharePassword,
@@ -21,6 +22,7 @@ import LoadingIcon from '@/icons/LoadingIcon.vue';
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const auth = useAuthStore();
 
 const shareToken = computed(() => route.params.token || '');
 
@@ -34,7 +36,7 @@ const verificationError = ref('');
 
 // Computed
 const isExpired = computed(() => shareInfo.value?.isExpired || false);
-const requiresPassword = computed(() => shareInfo.value?.hasPassword || false);
+const requiresPassword = computed(() => Boolean(shareInfo.value?.hasPassword && shareInfo.value?.sharingType === 'anyone'));
 const expiryDate = computed(() => {
   if (!shareInfo.value?.expiresAt) return null;
   return new Date(shareInfo.value.expiresAt);
@@ -60,11 +62,38 @@ async function loadShareInfo() {
       console.log('[DEBUG] Auto-accessing share (no password required)');
       await handleAutoAccess();
     }
+
+    // If this is a user-specific share and the user is already authenticated,
+    // auto-access so share links work end-to-end.
+    if (info.sharingType === 'users' && !info.isExpired) {
+      if (!auth.hasStatus && !auth.isLoading) {
+        await auth.initialize();
+      } else if (auth.isLoading) {
+        await auth.initialize();
+      }
+
+      if (auth.isAuthenticated) {
+        await handleUserAccess();
+      }
+    }
   } catch (err) {
     console.error('[DEBUG] Failed to load share info:', err);
     error.value = err.message || 'Failed to load share information';
   } finally {
     loading.value = false;
+  }
+}
+
+async function handleUserAccess() {
+  try {
+    await accessShare(shareToken.value);
+    router.push({
+      name: 'FolderView',
+      params: { path: `share/${shareToken.value}` },
+    });
+  } catch (err) {
+    console.error('[DEBUG] User access failed:', err);
+    error.value = err.message || 'Failed to access share';
   }
 }
 
@@ -257,6 +286,14 @@ async function handlePasswordSubmit() {
             {{ t('share.requiresAuthentication') }}
           </p>
           <button
+            v-if="auth.isAuthenticated"
+            @click="handleUserAccess"
+            class="w-full px-6 py-3 font-medium text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
+          >
+            {{ t('share.accessShare') }}
+          </button>
+          <button
+            v-else
             @click="router.push({ name: 'auth-login', query: { redirect: `/share/${shareToken}` } })"
             class="w-full px-6 py-3 font-medium text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
           >

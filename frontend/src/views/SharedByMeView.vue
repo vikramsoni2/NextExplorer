@@ -74,7 +74,7 @@ const getPermittedUsers = (share) => {
 
 const isExpired = (share) => {
   if (!share?.expiresAt) return false;
-  return new Date(share.expiresAt) < new Date();
+  return new Date(share.expiresAt) <= new Date();
 };
 
 const formatDate = (dateString) => {

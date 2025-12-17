@@ -36,8 +36,9 @@ const getAccessInfo = async (context, relativePath) => {
 const getVolumeAccess = async (context, relativePath) => {
   const { user, guestSession } = context;
 
-  // Guests cannot access volumes directly (only through shares)
-  if (guestSession) {
+  // Guests cannot access volumes directly (only through shares).
+  // If an authenticated user is present, prefer the user context over any stale guest session.
+  if (guestSession && !user) {
     return createDeniedAccess('Guests cannot access volumes');
   }
 
@@ -115,7 +116,7 @@ const getPersonalAccess = async (context, relativePath) => {
   const { user, guestSession } = context;
 
   // Guests cannot access personal folders
-  if (guestSession) {
+  if (guestSession && !user) {
     return createDeniedAccess('Guests cannot access personal folders');
   }
 
@@ -183,7 +184,7 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     }
 
     // If guest session exists, verify it belongs to this share
-    if (guestSession && guestSession.shareId !== share.id) {
+    if (guestSession && !user && guestSession.shareId !== share.id) {
       return createDeniedAccess('Invalid guest session for this share');
     }
   }
