@@ -1,10 +1,12 @@
-const { parsePathSpace, resolveLogicalPath } = require('../utils/pathUtils');
+const { parsePathSpace, resolveLogicalPath, combineRelativePath } = require('../utils/pathUtils');
 const { getPermissionForPath } = require('./accessControlService');
 const {
   getShareByToken,
   hasUserPermission,
   isShareExpired,
 } = require('./sharesService');
+const { getUserVolumeForPath, getVolumeById } = require('./userVolumesService');
+const { features } = require('../config/index');
 
 /**
  * Get comprehensive access information for a path
@@ -13,7 +15,7 @@ const {
  * @returns {Object} Access metadata
  */
 const getAccessInfo = async (context, relativePath) => {
-  const { space, rel, shareToken } = parsePathSpace(relativePath);
+  const { space, rel, shareToken, innerPath } = parsePathSpace(relativePath);
 
   // Determine access based on space
   switch (space) {
@@ -22,7 +24,7 @@ const getAccessInfo = async (context, relativePath) => {
     case 'personal':
       return await getPersonalAccess(context, rel);
     case 'share':
-      return await getShareAccess(context, shareToken, rel);
+      return await getShareAccess(context, shareToken, innerPath);
     default:
       return createDeniedAccess('Unknown path space');
   }
@@ -34,8 +36,9 @@ const getAccessInfo = async (context, relativePath) => {
 const getVolumeAccess = async (context, relativePath) => {
   const { user, guestSession } = context;
 
-  // Guests cannot access volumes directly (only through shares)
-  if (guestSession) {
+  // Guests cannot access volumes directly (only through shares).
+  // If an authenticated user is present, prefer the user context over any stale guest session.
+  if (guestSession && !user) {
     return createDeniedAccess('Guests cannot access volumes');
   }
 
@@ -44,6 +47,44 @@ const getVolumeAccess = async (context, relativePath) => {
     return createDeniedAccess('Authentication required');
   }
 
+  const isAdmin = user.roles && user.roles.includes('admin');
+
+  // Check user volume restrictions when USER_VOLUMES is enabled
+  if (features.userVolumes && !isAdmin) {
+    const userVolume = await getUserVolumeForPath(user.id, relativePath);
+    if (!userVolume) {
+      return createDeniedAccess('You do not have access to this volume');
+    }
+
+    // Use the volume's access mode
+    const isReadOnly = userVolume.accessMode === 'readonly';
+
+    // Also check path-level access control rules
+    const permission = await getPermissionForPath(relativePath);
+    if (permission === 'hidden') {
+      return createDeniedAccess('Path is hidden');
+    }
+
+    const effectiveReadOnly = isReadOnly || permission === 'ro';
+
+    return {
+      canAccess: true,
+      canRead: true,
+      canWrite: !effectiveReadOnly,
+      canDelete: !effectiveReadOnly,
+      canUpload: !effectiveReadOnly,
+      canCreateFolder: !effectiveReadOnly,
+      canShare: true,
+      canDownload: true,
+      isShared: false,
+      shareInfo: null,
+      userVolume, // Include user volume info for path resolution
+      effectivePermission: effectiveReadOnly ? 'ro' : 'rw',
+      denialReason: null,
+    };
+  }
+
+  // Standard access for admins or when USER_VOLUMES is disabled
   // Check access control rules
   const permission = await getPermissionForPath(relativePath);
   if (permission === 'hidden') {
@@ -51,7 +92,6 @@ const getVolumeAccess = async (context, relativePath) => {
   }
 
   const isReadOnly = permission === 'ro';
-  const isAdmin = user.roles && user.roles.includes('admin');
 
   return {
     canAccess: true,
@@ -76,7 +116,7 @@ const getPersonalAccess = async (context, relativePath) => {
   const { user, guestSession } = context;
 
   // Guests cannot access personal folders
-  if (guestSession) {
+  if (guestSession && !user) {
     return createDeniedAccess('Guests cannot access personal folders');
   }
 
@@ -144,13 +184,56 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     }
 
     // If guest session exists, verify it belongs to this share
-    if (guestSession && guestSession.shareId !== share.id) {
+    if (guestSession && !user && guestSession.shareId !== share.id) {
       return createDeniedAccess('Invalid guest session for this share');
     }
   }
 
   const isOwner = user && user.id === share.ownerId;
-  const isReadWrite = share.accessMode === 'readwrite';
+  const shareReadWrite = share.accessMode === 'readwrite';
+
+  // Cap share write permissions by the underlying source permission.
+  // This allows admin changes (hide/ro/user-volume readonly) to take effect immediately.
+  const isDirShare = Boolean(share.isDirectory);
+  const safeInnerPath = typeof innerPath === 'string' ? innerPath : '';
+  let underlyingPermission = 'rw';
+  let underlyingReadOnly = false;
+
+  if (share.sourceSpace === 'volume') {
+    const combined = isDirShare && safeInnerPath
+      ? combineRelativePath(share.sourcePath, safeInnerPath)
+      : share.sourcePath;
+    underlyingPermission = await getPermissionForPath(combined);
+    if (underlyingPermission === 'hidden') {
+      return createDeniedAccess('Path is hidden');
+    }
+    underlyingReadOnly = underlyingPermission === 'ro';
+  } else if (share.sourceSpace === 'user_volume') {
+    const [volumeId, ...rest] = String(share.sourcePath || '').split('/').filter(Boolean);
+    if (!volumeId) {
+      return createDeniedAccess('Share source volume is invalid');
+    }
+    const userVolume = await getVolumeById(volumeId);
+    if (!userVolume) {
+      return createDeniedAccess('Share source volume not found');
+    }
+    if (String(userVolume.userId) !== String(share.ownerId)) {
+      return createDeniedAccess('Share source volume mismatch');
+    }
+
+    const baseWithinVolume = rest.join('/');
+    const combinedWithinVolume = isDirShare && safeInnerPath
+      ? combineRelativePath(baseWithinVolume, safeInnerPath)
+      : baseWithinVolume;
+    const logicalForRules = `${userVolume.label}${combinedWithinVolume ? `/${combinedWithinVolume}` : ''}`;
+    underlyingPermission = await getPermissionForPath(logicalForRules);
+    if (underlyingPermission === 'hidden') {
+      return createDeniedAccess('Path is hidden');
+    }
+    underlyingReadOnly = userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
+  }
+
+  const isReadWrite = shareReadWrite && !underlyingReadOnly;
 
   return {
     canAccess: true,
@@ -165,7 +248,7 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     shareInfo: {
       shareId: share.id,
       shareToken: share.shareToken,
-      accessMode: share.accessMode,
+      accessMode: isReadWrite ? 'readwrite' : 'readonly',
       expiresAt: share.expiresAt,
       isOwner,
       label: share.label,
@@ -230,11 +313,12 @@ const resolvePathWithAccess = async (context, relativePath) => {
     return { accessInfo, resolved: null };
   }
 
-  // Pass pre-fetched share to avoid duplicate DB query
+  // Pass pre-fetched share and user volume to avoid duplicate DB queries
   const resolved = await resolveLogicalPath(relativePath, {
     user: context.user || null,
     guestSession: context.guestSession || null,
     share: accessInfo.share || null,
+    userVolume: accessInfo.userVolume || null,
   });
 
   return { accessInfo, resolved };

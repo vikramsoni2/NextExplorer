@@ -11,6 +11,7 @@ Administrators control users, folders, and security policies through Settings. T
 ## User management
 
 - Navigate to **Settings → Admin → Users** to add local users, assign roles, and reset passwords.
+- When `USER_VOLUMES=true`, each user profile includes a **Volumes** tab for assigning per-user volumes. See [User volumes](/admin/user-volumes).
 - Local users store credentials in the SQLite database inside your `/config` mount (see `backend/config/env.js`).
 - Promote trusted accounts to admin inside the UI—note that demotions are blocked when it would remove the last admin.
 - When OIDC is enabled, users are created automatically on first login and elevated to admin if their `groups`, `roles`, or `entitlements` claims match any of the names inside `OIDC_ADMIN_GROUPS`.

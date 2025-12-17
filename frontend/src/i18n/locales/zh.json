@@ -147,7 +147,8 @@
     "changePassword": "修改密码",
     "userManagement": "用户管理",
     "share": "共享",
-    "sortOptions": "排序选项"
+    "sortOptions": "排序选项",
+    "locations": "位置"
   },
   "i18n": {
     "language": "语言",
@@ -157,7 +158,8 @@
     "german": "德语",
     "chinese": "中文",
     "hindi": "印地语",
-    "polish": "波兰语"
+    "polish": "波兰语",
+    "swedish":"瑞典"
   },
   "search": {
     "openShortcutTitle": "打开搜索 (⌘/Ctrl + K)",
@@ -198,7 +200,9 @@
     "kind": "类型",
     "dateModified": "修改日期",
     "noPhotos": "此文件夹中没有照片",
-    "noPhotosHint": "切换到其他视图模式以查看所有文件"
+    "noPhotosHint": "切换到其他视图模式以查看所有文件",
+    "empty": "此文件夹为空",
+    "emptyHint": "上传或创建文件以开始。"
   },
   "volumes": {
     "quickAccess": "快速访问",
@@ -417,7 +421,15 @@
     "passwordProtect": "密码保护",
     "enterPassword": "输入密码",
     "setExpirationDate": "设置到期日期",
+    "expirationPlaceholder": "YYYY-MM-DD HH:MM",
     "expiresAt": "到期",
+    "errors": {
+      "invalidSourcePath": "无法确定要共享的项目路径。",
+      "selectAtLeastOneUser": "请至少选择一位用户。",
+      "failedToCreateShare": "创建共享链接失败。",
+      "expirationRequired": "请选择有效的过期日期。",
+      "expirationMustBeFuture": "过期时间必须晚于当前时间。"
+    },
     "shareExpired": "共享已过期",
     "shareNotFound": "未找到共享",
     "shareExpiredMessage": "此共享链接已过期，不再可访问。",

@@ -13,6 +13,7 @@ import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 import { useViewConfig } from '@/composables/useViewConfig';
 import { DragSelect, DragSelectOption } from '@coleqiu/vue-drag-select';
 import { useUppyDropTarget } from '@/composables/fileUploader';
+import { FolderOpenIcon } from '@heroicons/vue/24/outline';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
@@ -91,6 +92,10 @@ const showNoPhotosMessage = computed(() => {
   return !hasPhotos;
 });
 
+const showEmptyFolderMessage = computed(() => {
+  if (loading.value) return false;
+  return fileStore.getCurrentPathItems.length === 0;
+});
 
 </script>
 
@@ -142,19 +147,22 @@ const showNoPhotosMessage = computed(() => {
 
           <!-- No photos message -->
           <div
-            v-if="showNoPhotosMessage"
+            v-if="showNoPhotosMessage || showEmptyFolderMessage"
             class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4"
           >
             <div class="text-neutral-400 dark:text-neutral-500 mb-2">
-              <ImagesOutline class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+              
+              <FolderOpenIcon v-if="showEmptyFolderMessage" class="w-16 h-16 mb-4 opacity-30" />
+              <ImagesOutline v-else class="w-20 h-20 mx-auto mb-4 opacity-50"/>
             </div>
             <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              {{ $t('folder.noPhotos') }}
+              {{ showEmptyFolderMessage ? $t('folder.empty')  : $t('folder.noPhotos') }}
             </h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">
-              {{ $t('folder.noPhotosHint') }}
+              {{ showEmptyFolderMessage ? $t('folder.emptyHint') : $t('folder.noPhotosHint') }}
             </p>
           </div>
+
         </div>
       </DragSelect>
     </template>

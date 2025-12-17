@@ -187,6 +187,7 @@ module.exports = {
   features: {
     volumeUsage: env.SHOW_VOLUME_USAGE,
     personalFolders: env.USER_DIR_ENABLED,
+    userVolumes: env.USER_VOLUMES,
     shares: env.SHARES_ENABLED,
     skipHome: env.SKIP_HOME,
   },

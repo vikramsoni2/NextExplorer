@@ -45,13 +45,6 @@ services:
       # - OIDC_SCOPES=openid profile email
       # - OIDC_ADMIN_GROUPS=next-admin admins
 
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:3001/healthz || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-      
   frontend:
     build:
       context: ./frontend

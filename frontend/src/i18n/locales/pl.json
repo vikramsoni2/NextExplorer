@@ -147,7 +147,8 @@
     "changePassword": "Zmień hasło",
     "userManagement": "Zarządzanie użytkownikami",
     "share": "Udostępnianie",
-    "sortOptions": "Opcje sortowania"
+    "sortOptions": "Opcje sortowania",
+    "locations": "Lokalizacje"
   },
   "i18n": {
     "language": "Język",
@@ -157,7 +158,8 @@
     "german": "Niemiecki",
     "chinese": "Chiński",
     "hindi": "Hindi",
-    "polish": "Polski"
+    "polish": "Polski",
+    "swedish":"szwedzki"
   },
   "search": {
     "openShortcutTitle": "Otwórz wyszukiwanie (⌘/Ctrl + K)",
@@ -198,7 +200,9 @@
     "kind": "Rodzaj",
     "dateModified": "Data modyfikacji",
     "noPhotos": "Brak zdjęć w tym folderze",
-    "noPhotosHint": "Zmień tryb widoku, aby zobaczyć wszystkie pliki"
+    "noPhotosHint": "Zmień tryb widoku, aby zobaczyć wszystkie pliki",
+    "empty": "Ten folder jest pusty",
+    "emptyHint": "Prześlij lub utwórz pliki, aby rozpocząć."
   },
   "volumes": {
     "quickAccess": "Szybki dostęp",
@@ -417,7 +421,15 @@
     "passwordProtect": "Chroń hasłem",
     "enterPassword": "Wprowadź hasło",
     "setExpirationDate": "Ustaw datę wygaśnięcia",
+    "expirationPlaceholder": "RRRR-MM-DD GG:MM",
     "expiresAt": "Wygasa",
+    "errors": {
+      "invalidSourcePath": "Nie można ustalić ścieżki elementu do udostępnienia.",
+      "selectAtLeastOneUser": "Wybierz co najmniej jednego użytkownika.",
+      "failedToCreateShare": "Nie udało się utworzyć linku udostępniania.",
+      "expirationRequired": "Wybierz prawidłową datę wygaśnięcia.",
+      "expirationMustBeFuture": "Data wygaśnięcia musi być w przyszłości."
+    },
     "shareExpired": "Udostępnienie wygasło",
     "shareNotFound": "Nie znaleziono udostępnienia",
     "shareExpiredMessage": "Ten link udostępniania wygasł i nie jest już dostępny.",

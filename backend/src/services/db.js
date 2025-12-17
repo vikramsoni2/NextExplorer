@@ -265,6 +265,29 @@ const migrate = (db) => {
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run('schema_version', String(5));
       version = 5;
     }
+    if (version < 6) {
+      console.log('[DB Migration] Migrating to v6: Adding user volumes functionality...');
+
+      db.exec(`
+        CREATE TABLE user_volumes (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          label TEXT NOT NULL,
+          path TEXT NOT NULL,
+          access_mode TEXT NOT NULL CHECK(access_mode IN ('readonly', 'readwrite')),
+          created_at TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX idx_user_volumes_user ON user_volumes(user_id);
+        CREATE UNIQUE INDEX idx_user_volumes_user_path ON user_volumes(user_id, path);
+      `);
+
+      console.log('[DB Migration] Migration to v6 completed successfully!');
+      db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run('schema_version', String(6));
+      version = 6;
+    }
   })();
 };
 

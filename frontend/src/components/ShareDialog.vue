@@ -1,9 +1,11 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { createShare, copyShareUrl } from '@/api/shares.api';
-import { fetchUsers } from '@/api/users.api';
+import { fetchShareableUsers } from '@/api/users.api';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 import {
   ShareIcon,
   ClipboardDocumentIcon,
@@ -34,7 +36,7 @@ const sharingType = ref('anyone');
 const password = ref('');
 const enablePassword = ref(false);
 const selectedUserIds = ref([]);
-const expiresAt = ref('');
+const expiresAtDate = ref(null);
 const enableExpiry = ref(false);
 const label = ref('');
 
@@ -45,6 +47,8 @@ const shareResult = ref(null);
 const linkCopied = ref(false);
 const availableUsers = ref([]);
 const loadingUsers = ref(false);
+const expiresAtInputRef = ref(null);
+let expiresPicker = null;
 
 // Computed
 const isDirectory = computed(() => props.item?.kind === 'directory');
@@ -63,6 +67,9 @@ watch(isOpen, (opened) => {
     }
   } else {
     shareResult.value = null;
+    enableExpiry.value = false;
+    expiresAtDate.value = null;
+    destroyExpiresPicker();
   }
 });
 
@@ -79,7 +86,7 @@ function resetForm() {
   password.value = '';
   enablePassword.value = false;
   selectedUserIds.value = [];
-  expiresAt.value = '';
+  expiresAtDate.value = null;
   enableExpiry.value = false;
   label.value = '';
   error.value = '';
@@ -87,10 +94,49 @@ function resetForm() {
   linkCopied.value = false;
 }
 
+function destroyExpiresPicker() {
+  if (!expiresPicker) return;
+  try {
+    expiresPicker.destroy();
+  } finally {
+    expiresPicker = null;
+  }
+}
+
+async function initExpiresPicker() {
+  await nextTick();
+  const el = expiresAtInputRef.value;
+  if (!el || expiresPicker) return;
+
+  expiresPicker = flatpickr(el, {
+    enableTime: true,
+    time_24hr: true,
+    allowInput: true,
+    dateFormat: 'Y-m-d H:i',
+    defaultDate: expiresAtDate.value || null,
+    onChange: (selectedDates) => {
+      expiresAtDate.value = selectedDates?.[0] || null;
+    },
+  });
+}
+
+watch(enableExpiry, async (enabled) => {
+  if (enabled) {
+    await initExpiresPicker();
+    return;
+  }
+  destroyExpiresPicker();
+  expiresAtDate.value = null;
+});
+
+onBeforeUnmount(() => {
+  destroyExpiresPicker();
+});
+
 async function loadUsers() {
   try {
     loadingUsers.value = true;
-    const response = await fetchUsers();
+    const response = await fetchShareableUsers();
     availableUsers.value = response.users || [];
   } catch (err) {
     console.error('Failed to load users:', err);
@@ -110,13 +156,25 @@ function toggleUserSelection(userId) {
 
 async function createShareLink() {
   if (!sourcePath.value) {
-    error.value = t('share.errors.invalidSourcePath');
+    error.value = t('share.errors.invalidSourcePath', 'Unable to determine the item path to share.');
     return;
   }
 
   if (sharingType.value === 'users' && selectedUserIds.value.length === 0) {
-    error.value = t('share.errors.selectAtLeastOneUser');
+    error.value = t('share.errors.selectAtLeastOneUser', 'Select at least one user.');
     return;
+  }
+
+  if (enableExpiry.value) {
+    const date = expiresAtDate.value;
+    if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
+      error.value = t('share.errors.expirationRequired', 'Choose a valid expiration date.');
+      return;
+    }
+    if (date.getTime() <= Date.now()) {
+      error.value = t('share.errors.expirationMustBeFuture', 'Expiration must be in the future.');
+      return;
+    }
   }
 
   try {
@@ -129,7 +187,7 @@ async function createShareLink() {
       sharingType: sharingType.value,
       password: enablePassword.value ? password.value : null,
       userIds: sharingType.value === 'users' ? selectedUserIds.value : [],
-      expiresAt: enableExpiry.value && expiresAt.value ? new Date(expiresAt.value).toISOString() : null,
+      expiresAt: enableExpiry.value && expiresAtDate.value ? expiresAtDate.value.toISOString() : null,
       label: label.value || null,
     };
 
@@ -360,8 +418,10 @@ function closeDialog() {
         </label>
         <input
           v-if="enableExpiry"
-          v-model="expiresAt"
-          type="datetime-local"
+          ref="expiresAtInputRef"
+          type="text"
+          autocomplete="off"
+          :placeholder="t('share.expirationPlaceholder', 'YYYY-MM-DD HH:MM')"
           class="w-full px-3 py-2 text-sm border rounded-lg border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -386,3 +446,37 @@ function closeDialog() {
     </div>
   </ModalDialog>
 </template>
+
+<style>
+.dark .flatpickr-calendar {
+  background: rgb(24 24 27 / 0.98);
+  border-color: rgb(63 63 70);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 10px 10px -5px rgb(0 0 0 / 0.25);
+}
+.dark .flatpickr-months .flatpickr-month,
+.dark .flatpickr-current-month,
+.dark .flatpickr-weekday,
+.dark .flatpickr-time input,
+.dark .flatpickr-time .flatpickr-am-pm,
+.dark .flatpickr-day {
+  color: rgb(228 228 231);
+}
+.dark .flatpickr-day:hover,
+.dark .flatpickr-day:focus {
+  background: rgb(39 39 42);
+  border-color: rgb(39 39 42);
+}
+.dark .flatpickr-day.selected,
+.dark .flatpickr-day.startRange,
+.dark .flatpickr-day.endRange,
+.dark .flatpickr-day.selected:hover,
+.dark .flatpickr-day.startRange:hover,
+.dark .flatpickr-day.endRange:hover {
+  background: rgb(37 99 235);
+  border-color: rgb(37 99 235);
+}
+.dark .flatpickr-time input,
+.dark .flatpickr-time .flatpickr-am-pm {
+  background: transparent;
+}
+</style>

@@ -562,6 +562,24 @@ const listUsers = async () => {
   });
 };
 
+const toShareableUser = (row) => {
+  if (!row) return null;
+  return {
+    id: row.id,
+    email: row.email,
+    username: row.username,
+    displayName: row.display_name || null,
+  };
+};
+
+const listShareableUsers = async ({ excludeUserId } = {}) => {
+  const db = await getDb();
+  const rows = typeof excludeUserId === 'string' && excludeUserId.trim()
+    ? db.prepare('SELECT id, email, username, display_name FROM users WHERE id != ? ORDER BY display_name ASC, email ASC').all(excludeUserId)
+    : db.prepare('SELECT id, email, username, display_name FROM users ORDER BY display_name ASC, email ASC').all();
+  return rows.map(toShareableUser).filter(Boolean);
+};
+
 const updateUserProfile = async ({ userId, email, username, displayName }) => {
   const db = await getDb();
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
@@ -667,6 +685,7 @@ module.exports = {
   getOrCreateOidcUser,
   getRequestUser,
   listUsers,
+  listShareableUsers,
   updateUserRoles,
   updateUserProfile,
   deriveRolesFromClaims,

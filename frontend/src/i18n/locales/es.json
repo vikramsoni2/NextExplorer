@@ -148,7 +148,8 @@
     "changePassword": "Cambiar contraseña",
     "userManagement": "Gestión de usuarios",
     "share": "Compartir",
-    "sortOptions": "Opciones de ordenación"
+    "sortOptions": "Opciones de ordenación",
+    "locations": "Ubicaciones"
   },
   "i18n": {
     "language": "Idioma",
@@ -158,7 +159,8 @@
     "german": "Alemán",
     "chinese": "Chino",
     "hindi": "Hindi",
-    "polish": "Polaco"
+    "polish": "Polaco",
+    "swedish":"Sueco"
   },
   "search": {
     "openShortcutTitle": "Abrir búsqueda (⌘/Ctrl + K)",
@@ -199,7 +201,9 @@
     "kind": "Tipo",
     "dateModified": "Fecha de modificación",
     "noPhotos": "No hay fotos en esta carpeta",
-    "noPhotosHint": "Cambia a otro modo de vista para ver todos los archivos"
+    "noPhotosHint": "Cambia a otro modo de vista para ver todos los archivos",
+    "empty": "Esta carpeta está vacía",
+    "emptyHint": "Sube o crea archivos para comenzar."
   },
   "volumes": {
     "quickAccess": "Acceso rápido",
@@ -418,7 +422,15 @@
     "passwordProtect": "Proteger con contraseña",
     "enterPassword": "Introduce la contraseña",
     "setExpirationDate": "Establecer fecha de vencimiento",
+    "expirationPlaceholder": "AAAA-MM-DD HH:MM",
     "expiresAt": "Expira",
+    "errors": {
+      "invalidSourcePath": "No se puede determinar la ruta del elemento para compartir.",
+      "selectAtLeastOneUser": "Seleccione al menos un usuario.",
+      "failedToCreateShare": "No se pudo crear el enlace para compartir.",
+      "expirationRequired": "Elija una fecha de caducidad válida.",
+      "expirationMustBeFuture": "La caducidad debe estar en el futuro."
+    },
     "shareExpired": "Compartición vencida",
     "shareNotFound": "Compartición no encontrada",
     "shareExpiredMessage": "Este enlace de compartición ha vencido y ya no es accesible.",

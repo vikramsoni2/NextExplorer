@@ -28,7 +28,7 @@ RUN groupadd --system appuser && \
 
 # Install runtime tooling (ffmpeg, gosu for UID remapping, ripgrep for searches, imagemagick for HEIC thumbnails).
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick curl \
+  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -45,10 +45,15 @@ ENV REPO_URL=${REPO_URL}
 COPY --from=backend_deps /app/node_modules ./node_modules
 COPY --from=backend_deps /app/package.json ./
 COPY backend/src ./src
+COPY healthcheck.js ./healthcheck.js
 
 # Copy the built frontend assets only.
 RUN mkdir -p src/public
 COPY --from=frontend_build /app/frontend/dist/ ./src/public/
+
+# Host checkouts can have restrictive umasks (e.g. 077) resulting in 0600 source files.
+# Ensure the runtime user can always read/traverse the app source tree.
+RUN chmod -R a+rX /app/src
 
 # Bootstrap entrypoint script responsible for dynamic user mapping.
 COPY entrypoint.sh /usr/local/bin/
@@ -56,9 +61,9 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 
 VOLUME ["/config", "/cache"]
 
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -fsS "http://localhost:${PORT:-3000}/healthz" || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD [ "node", "healthcheck.js" ]
 
+EXPOSE 3000
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["node", "src/app.js"]

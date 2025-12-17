@@ -60,6 +60,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SEARCH_MAX_FILESIZE` | _unbounded_ | Skip ripgrep for files larger than this (e.g., `5MB`). |
 | `SHOW_VOLUME_USAGE` | `false` | Show volume usage badges in the sidebar. |
 | `USER_DIR_ENABLED` | `false` | When `true`, enables a **personal “My Files” space** for each authenticated user under `USER_ROOT`. The frontend shows a “My Files” entry when this flag is on. |
+| `USER_VOLUMES` | `false` | When `true`, non-admin users only see volumes assigned to them by an admin. See [User volumes](/admin/user-volumes). |
 | `SKIP_HOME` | `false` | When `true`, visits to the home view (`/browse/`) automatically redirect into the first volume instead. |
 
 The sharing system (toolbar **Share** button, guest links such as `/share/:token`, and the **Shared with me** page) works out of the box with the feature flags above. Advanced share tuning knobs are documented under **Sharing (advanced)** below.

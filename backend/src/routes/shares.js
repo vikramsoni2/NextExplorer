@@ -61,8 +61,16 @@ router.post('/', asyncHandler(async (req, res) => {
   // Resolve the path to check if it exists
   let resolved;
   try {
-    resolved = await resolveLogicalPath(sourcePath, { user: req.user });
+    const { accessInfo, resolved: resolvedWithAccess } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, sourcePath);
+    if (!accessInfo?.canAccess || !resolvedWithAccess) {
+      throw new ForbiddenError(accessInfo?.denialReason || 'Access denied');
+    }
+    if (accessMode === 'readwrite' && !accessInfo.canWrite) {
+      throw new ValidationError('Cannot create a read-write share for a read-only path');
+    }
+    resolved = resolvedWithAccess;
   } catch (error) {
+    if (error?.statusCode) throw error;
     throw new ValidationError('Invalid source path');
   }
 
@@ -89,10 +97,15 @@ router.post('/', asyncHandler(async (req, res) => {
   }
 
   // Create the share
+  const sourceSpaceForDb = resolved?.userVolume ? 'user_volume' : space;
+  const sourcePathForDb = resolved?.userVolume
+    ? `${resolved.userVolume.id}${resolved.innerRelativePath ? `/${resolved.innerRelativePath}` : ''}`
+    : (rel || resolved.innerRelativePath);
+
   const share = await createShare({
     ownerId: req.user.id,
-    sourceSpace: space,
-    sourcePath: rel || resolved.innerRelativePath,
+    sourceSpace: sourceSpaceForDb,
+    sourcePath: sourcePathForDb,
     isDirectory,
     accessMode,
     sharingType,

@@ -37,6 +37,7 @@
     "dayjs": "^1.11.11",
     "dompurify": "^3.0.8",
     "dropzone": "^6.0.0-beta.2",
+    "flatpickr": "^4.6.13",
     "marked": "^12.0.2",
     "nanoid": "^5.0.7",
     "pinia": "^2.1.7",

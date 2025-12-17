@@ -20,6 +20,9 @@ router.get('/features', (_req, res) => {
     personal: {
       enabled: Boolean(features?.personalFolders),
     },
+    userVolumes: {
+      enabled: Boolean(features?.userVolumes),
+    },
     navigation: {
       skipHome: Boolean(features?.skipHome),
     },

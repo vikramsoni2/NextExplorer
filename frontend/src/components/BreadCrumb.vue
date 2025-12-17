@@ -8,7 +8,7 @@ import { useFileStore } from '@/stores/fileStore';
 import { ellipses } from '@/utils/ellipses';
 
 const { openBreadcrumb } = useNavigation();
-const { t } = useI18n();
+const { t, te } = useI18n();
 const route = useRoute();
 const fileStore = useFileStore();
 
@@ -49,8 +49,12 @@ const paths = computed(() => {
     // Default handling for non-share paths
     const start = Math.max(0, segments.length - 3);
     return segments.slice(start).map((segment, index) => {
+      const absoluteIndex = start + index;
+      const displayName =
+        absoluteIndex === 0 && te(`drives.${segment}`) ? t(`drives.${segment}`) : segment;
+
       return {
-        name: ellipses(segment, 28),
+        name: ellipses(displayName, 28),
         path: segments.slice(0, start + index + 1).join('/')
       };
     });

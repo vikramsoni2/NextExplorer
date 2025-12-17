@@ -147,7 +147,8 @@
     "changePassword": "Passwort ändern",
     "userManagement": "Benutzerverwaltung",
     "share": "Freigabe",
-    "sortOptions": "Sortieroptionen"
+    "sortOptions": "Sortieroptionen",
+    "locations": "Standorte"
   },
   "i18n": {
     "language": "Sprache",
@@ -157,7 +158,8 @@
     "german": "Deutsch",
     "chinese": "Chinesisch",
     "hindi": "Hindi",
-    "polish": "Polnisch"
+    "polish": "Polnisch",
+    "swedish": "Schwedisch"
   },
   "search": {
     "openShortcutTitle": "Suche öffnen (⌘/Ctrl + K)",
@@ -198,7 +200,9 @@
     "kind": "Art",
     "dateModified": "Änderungsdatum",
     "noPhotos": "Keine Fotos in diesem Ordner",
-    "noPhotosHint": "Wechseln Sie in einen anderen Ansichtsmodus, um alle Dateien zu sehen"
+    "noPhotosHint": "Wechseln Sie in einen anderen Ansichtsmodus, um alle Dateien zu sehen",
+    "empty": "Dieser Ordner ist leer",
+    "emptyHint": "Laden Sie Dateien hoch oder erstellen Sie neue, um loszulegen."
   },
   "volumes": {
     "quickAccess": "Schnellzugriff",
@@ -417,7 +421,15 @@
     "passwordProtect": "Mit Passwort schützen",
     "enterPassword": "Passwort eingeben",
     "setExpirationDate": "Ablaufdatum festlegen",
+    "expirationPlaceholder": "JJJJ-MM-TT HH:MM",
     "expiresAt": "Läuft ab",
+    "errors": {
+      "invalidSourcePath": "Der zu teilende Elementpfad kann nicht ermittelt werden.",
+      "selectAtLeastOneUser": "Wählen Sie mindestens einen Benutzer aus.",
+      "failedToCreateShare": "Freigabelink konnte nicht erstellt werden.",
+      "expirationRequired": "Wählen Sie ein gültiges Ablaufdatum.",
+      "expirationMustBeFuture": "Das Ablaufdatum muss in der Zukunft liegen."
+    },
     "shareExpired": "Freigabe abgelaufen",
     "shareNotFound": "Freigabe nicht gefunden",
     "shareExpiredMessage": "Dieser Freigabelink ist abgelaufen und nicht mehr zugänglich.",

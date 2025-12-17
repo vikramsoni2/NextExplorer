@@ -61,6 +61,7 @@ module.exports = {
   // Features
   SHOW_VOLUME_USAGE: normalizeBoolean(process.env.SHOW_VOLUME_USAGE) || false,
   USER_DIR_ENABLED: normalizeBoolean(process.env.USER_DIR_ENABLED) || false,
+  USER_VOLUMES: normalizeBoolean(process.env.USER_VOLUMES) || false,
   SKIP_HOME: normalizeBoolean(process.env.SKIP_HOME) || false,
 
   // Editor

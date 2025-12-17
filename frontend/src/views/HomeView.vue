@@ -115,7 +115,7 @@ const openPersonal = () => {
 
     <!-- Volumes -->
     <section>
-      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('titles.volumes') }}</h3>
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">{{ $t('titles.locations') }}</h3>
       <div v-if="!loading" class="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         
         <button

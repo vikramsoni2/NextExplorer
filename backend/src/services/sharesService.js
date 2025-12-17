@@ -65,7 +65,7 @@ const createShare = async ({
     throw e;
   }
 
-  if (!sourceSpace || !['volume', 'personal'].includes(sourceSpace)) {
+  if (!sourceSpace || !['volume', 'personal', 'user_volume'].includes(sourceSpace)) {
     const e = new Error('Invalid source space');
     e.status = 400;
     throw e;
@@ -393,7 +393,11 @@ const isShareExpired = (share) => {
   }
 
   const expiryDate = new Date(share.expiresAt);
-  return expiryDate < new Date();
+  if (Number.isNaN(expiryDate.getTime())) {
+    // Fail closed: malformed expiry is treated as expired.
+    return true;
+  }
+  return expiryDate <= new Date();
 };
 
 /**
@@ -434,7 +438,7 @@ const getShareStats = async (shareId) => {
 const cleanupExpiredShares = async () => {
   const db = await getDb();
   const result = db.prepare(`
-    DELETE FROM shares WHERE expires_at IS NOT NULL AND expires_at < ?
+    DELETE FROM shares WHERE expires_at IS NOT NULL AND expires_at <= ?
   `).run(nowIso());
 
   return result.changes;

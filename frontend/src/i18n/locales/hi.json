@@ -147,7 +147,8 @@
     "changePassword": "पासवर्ड बदलें",
     "userManagement": "उपयोगकर्ता प्रबंधन",
     "share": "शेयर",
-    "sortOptions": "क्रमबद्ध विकल्प"
+    "sortOptions": "क्रमबद्ध विकल्प",
+    "locations": "स्थान"
   },
   "i18n": {
     "language": "भाषा",
@@ -157,7 +158,8 @@
     "german": "जर्मन",
     "chinese": "चीनी",
     "hindi": "हिन्दी",
-    "polish": "पोलिश"
+    "polish": "पोलिश",
+    "swedish":"स्वीडिश"
   },
   "search": {
     "openShortcutTitle": "खोज खोलें (⌘/Ctrl + K)",
@@ -198,7 +200,9 @@
     "kind": "प्रकार",
     "dateModified": "संशोधित तिथि",
     "noPhotos": "इस फ़ोल्डर में कोई फ़ोटो नहीं है",
-    "noPhotosHint": "सभी फ़ाइलें देखने के लिए दृश्य मोड बदलें"
+    "noPhotosHint": "सभी फ़ाइलें देखने के लिए दृश्य मोड बदलें",
+    "empty": "यह फ़ोल्डर खाली है",
+    "emptyHint": "शुरू करने के लिए फ़ाइलें अपलोड करें या बनाएं।"
   },
   "volumes": {
     "quickAccess": "त्वरित पहुँच",
@@ -417,7 +421,15 @@
     "passwordProtect": "पासवर्ड से सुरक्षित करें",
     "enterPassword": "पासवर्ड दर्ज करें",
     "setExpirationDate": "समाप्ति तिथि सेट करें",
+    "expirationPlaceholder": "YYYY-MM-DD HH:MM",
     "expiresAt": "समाप्त होगा",
+    "errors": {
+      "invalidSourcePath": "आइटम का साझा करने योग्य पथ निर्धारित नहीं किया जा सका।",
+      "selectAtLeastOneUser": "कम से कम एक उपयोगकर्ता चुनें।",
+      "failedToCreateShare": "शेयर लिंक नहीं बना सके।",
+      "expirationRequired": "कृपया मान्य समाप्ति तिथि चुनें।",
+      "expirationMustBeFuture": "समाप्ति तिथि भविष्य में होनी चाहिए।"
+    },
     "shareExpired": "शेयर की अवधि समाप्त",
     "shareNotFound": "शेयर नहीं मिला",
     "shareExpiredMessage": "यह शेयर लिंक समाप्त हो गया है और अब उपलब्ध नहीं है।",

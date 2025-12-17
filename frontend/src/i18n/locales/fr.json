@@ -147,7 +147,8 @@
     "changePassword": "Changer le mot de passe",
     "userManagement": "Gestion des utilisateurs",
     "share": "Partage",
-    "sortOptions": "Options de tri"
+    "sortOptions": "Options de tri",
+    "locations": "Emplacements"
   },
   "i18n": {
     "language": "Langue",
@@ -157,7 +158,8 @@
     "german": "Allemand",
     "chinese": "Chinois",
     "hindi": "Hindi",
-    "polish": "Polonais"
+    "polish": "Polonais",
+    "swedish":"suédoise"
   },
   "search": {
     "openShortcutTitle": "Ouvrir la recherche (⌘/Ctrl + K)",
@@ -198,7 +200,9 @@
     "kind": "Type",
     "dateModified": "Date de modification",
     "noPhotos": "Aucune photo dans ce dossier",
-    "noPhotosHint": "Passez à un autre mode d'affichage pour voir tous les fichiers"
+    "noPhotosHint": "Passez à un autre mode d’affichage pour voir tous les fichiers",
+    "empty": "Ce dossier est vide",
+    "emptyHint": "Importez ou créez des fichiers pour commencer."
   },
   "volumes": {
     "quickAccess": "Accès rapide",
@@ -417,7 +421,15 @@
     "passwordProtect": "Protéger par mot de passe",
     "enterPassword": "Entrer le mot de passe",
     "setExpirationDate": "Définir une date d'expiration",
+    "expirationPlaceholder": "AAAA-MM-JJ HH:MM",
     "expiresAt": "Expire",
+    "errors": {
+      "invalidSourcePath": "Impossible de déterminer le chemin de l'élément à partager.",
+      "selectAtLeastOneUser": "Sélectionnez au moins un utilisateur.",
+      "failedToCreateShare": "Échec de la création du lien de partage.",
+      "expirationRequired": "Choisissez une date d'expiration valide.",
+      "expirationMustBeFuture": "La date d'expiration doit être dans le futur."
+    },
     "shareExpired": "Partage expiré",
     "shareNotFound": "Partage introuvable",
     "shareExpiredMessage": "Ce lien de partage a expiré et n'est plus accessible.",

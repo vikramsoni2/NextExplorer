@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { onClickOutside } from '@vueuse/core';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import { ChevronUpDownIcon } from '@heroicons/vue/24/outline';
+import { supportedLocaleOptions } from '@/i18n';
 
 const props = defineProps({
   version: { type: String, required: true },
@@ -12,20 +13,10 @@ const props = defineProps({
 
 const { t, locale } = useI18n();
 
-const availableLocaleOptions = [
-  { code: 'en', label: 'i18n.english' },
-  { code: 'es', label: 'i18n.spanish' },
-  { code: 'fr', label: 'i18n.french' },
-  { code: 'de', label: 'i18n.german' },
-  { code: 'zh', label: 'i18n.chinese' },
-  { code: 'hi', label: 'i18n.hindi' },
-  { code: 'pl', label: 'i18n.polish' },
-];
-
 const languages = computed(() =>
-  availableLocaleOptions.map(({ code, label }) => ({
+  supportedLocaleOptions.map(({ code, labelKey }) => ({
     code,
-    label: t(label),
+    label: t(labelKey),
   })),
 );
 

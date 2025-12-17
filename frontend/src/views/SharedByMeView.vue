@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { getMyShares, deleteShare, copyShareUrl } from '@/api/shares.api';
-import { fetchUsers } from '@/api/users.api';
+import { fetchShareableUsers } from '@/api/users.api';
 import {
   ShareIcon,
   ClockIcon,
@@ -50,7 +50,7 @@ const loadShares = async () => {
   try {
     const [sharesResponse, usersResponse] = await Promise.all([
       getMyShares(),
-      fetchUsers().catch(() => ({ users: [] })) // Non-admin users can't fetch users, so we'll handle it gracefully
+      fetchShareableUsers().catch(() => ({ users: [] }))
     ]);
     shares.value = sharesResponse?.shares || [];
     users.value = usersResponse?.users || [];
@@ -74,7 +74,7 @@ const getPermittedUsers = (share) => {
 
 const isExpired = (share) => {
   if (!share?.expiresAt) return false;
-  return new Date(share.expiresAt) < new Date();
+  return new Date(share.expiresAt) <= new Date();
 };
 
 const formatDate = (dateString) => {

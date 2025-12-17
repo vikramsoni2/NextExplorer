@@ -46,11 +46,4 @@ services:
       # Legacy auth toggle (deprecated, use AUTH_MODE=disabled instead)
       # - AUTH_ENABLED=false
 
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/healthz || exit 1"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-
     restart: unless-stopped

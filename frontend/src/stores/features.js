@@ -8,6 +8,7 @@ export const useFeaturesStore = defineStore('features', () => {
   const onlyofficeExtensions = ref([]);
   const volumeUsageEnabled = ref(false);
   const personalEnabled = ref(false);
+  const userVolumesEnabled = ref(false);
   const skipHome = ref(false);
   const version = ref('');
   const gitCommit = ref('');
@@ -49,6 +50,9 @@ export const useFeaturesStore = defineStore('features', () => {
         // Personal folders
         personalEnabled.value = Boolean(features?.personal?.enabled);
 
+        // User volumes (per-user volume assignments)
+        userVolumesEnabled.value = Boolean(features?.userVolumes?.enabled);
+
         // Navigation behavior
         skipHome.value = Boolean(features?.navigation?.skipHome);
 
@@ -67,6 +71,7 @@ export const useFeaturesStore = defineStore('features', () => {
         onlyofficeExtensions.value = [];
         volumeUsageEnabled.value = false;
         personalEnabled.value = false;
+        userVolumesEnabled.value = false;
         skipHome.value = false;
       } finally {
         isLoading.value = false;
@@ -91,6 +96,7 @@ export const useFeaturesStore = defineStore('features', () => {
     onlyofficeExtensions,
     volumeUsageEnabled,
     personalEnabled,
+    userVolumesEnabled,
     skipHome,
     version,
     gitCommit,
