@@ -92,11 +92,42 @@ onClickOutside(languageSwitcherRef, () => {
           <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">
             <HeaderLogo appname="NextExplorer" />
           </h1>
-          <span
-            class="inline-flex h-9 items-center rounded-full bg-white/5 px-3 text-xs font-semibold uppercase tracking-widest text-white/70"
-          >
-            v{{ props.version }}
-          </span>
+          <div ref="languageSwitcherRef" class="relative inline-flex items-center">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10 focus:outline-hidden"
+              :aria-label="t('i18n.language')"
+              @click="languageMenuOpen = !languageMenuOpen"
+            >
+              <span class="flex items-center gap-2">
+                <span
+                  class="rounded-full bg-white/10 px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide"
+                >
+                  {{ currentLanguage.code }}
+                </span>
+                <span class="hidden text-xs sm:inline">
+                  {{ currentLanguage.label }}
+                </span>
+              </span>
+              <ChevronUpDownIcon class="h-4 w-4 text-white/60" />
+            </button>
+
+            <div
+              v-if="languageMenuOpen"
+              class="absolute right-0 top-full mt-2 z-20 w-44 rounded-lg border border-white/10 bg-neutral-900/95 py-1 text-xs shadow-lg backdrop-blur-sm"
+            >
+              <button
+                v-for="lang in languages"
+                :key="lang.code"
+                type="button"
+                class="flex w-full items-center justify-between px-3 py-1.5 hover:bg-white/10"
+                :class="{ 'font-semibold text-white': locale === lang.code }"
+                @click="setLocale(lang.code); languageMenuOpen = false"
+              >
+                <span>{{ lang.label }}</span>
+              </button>
+            </div>
+          </div>
         </header>
 
         <main class="flex flex-1 items-center justify-center px-6 sm:px-12">
@@ -120,55 +151,21 @@ onClickOutside(languageSwitcherRef, () => {
           </div>
         </main>
 
-        <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/60">
-          <div>© {{ new Date().getFullYear() }} NextExplorer</div>
+        <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/80">
+          <div class="flex items-center gap-2">
+            <div>© {{ new Date().getFullYear() }} NextExplorer</div>
+            <span class="text-white">v{{ props.version }}</span>
+          </div>
 
           <div class="flex items-center gap-4 text-white/70">
             <a
               href="https://explorer.nxz.ai"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-xs font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+              class="text-xs font-medium text-white/80 underline-offset-4 hover:text-white hover:underline"
             >
               Help &amp; docs
             </a>
-
-            <div ref="languageSwitcherRef" class="relative inline-flex items-center">
-              <button
-                type="button"
-                class="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 hover:bg-white/10 focus:outline-hidden"
-                :aria-label="t('i18n.language')"
-                @click="languageMenuOpen = !languageMenuOpen"
-              >
-                <span class="flex items-center gap-2">
-                  <span
-                    class="rounded-full bg-white/10 px-2 py-0.5 text-[0.7rem] font-semibold uppercase tracking-wide"
-                  >
-                    {{ currentLanguage.code }}
-                  </span>
-                  <span class="hidden text-xs sm:inline">
-                    {{ currentLanguage.label }}
-                  </span>
-                </span>
-                <ChevronUpDownIcon class="h-4 w-4 text-white/60" />
-              </button>
-
-              <div
-                v-if="languageMenuOpen"
-                class="absolute right-0 bottom-full mb-2 z-20 w-44 rounded-lg border border-white/10 bg-neutral-900/95 py-1 text-xs shadow-lg backdrop-blur-sm"
-              >
-                <button
-                  v-for="lang in languages"
-                  :key="lang.code"
-                  type="button"
-                  class="flex w-full items-center justify-between px-3 py-1.5 hover:bg-white/10"
-                  :class="{ 'font-semibold text-white': locale === lang.code }"
-                  @click="setLocale(lang.code); languageMenuOpen = false"
-                >
-                  <span>{{ lang.label }}</span>
-                </button>
-              </div>
-            </div>
           </div>
         </footer>
       </div>
