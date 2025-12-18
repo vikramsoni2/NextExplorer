@@ -14,11 +14,14 @@ import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
 import { useFileStore } from '@/stores/fileStore';
 import { useRoute } from 'vue-router';
+import { Bars3Icon } from '@heroicons/vue/24/outline';
 
 const settings = useSettingsStore();
 const auth = useAuthStore();
 const fileStore = useFileStore();
 const route = useRoute();
+
+defineEmits(['toggle-sidebar']);
 
 // Check if we're at the volumes home view (no path selected)
 const isVolumesView = computed(() => {
@@ -44,9 +47,21 @@ const canCreate = computed(() => {
 </script>
 
 <template>
-  <div class="z-10 p-3">
-    <div class="flex flex-wrap items-center shrink-0 sticky top-0">
-      <CreateNew v-if="canCreate" class="mr-3  max-lg:ml-12"/>
+  <div
+    class="sticky top-0 z-40 border-b border-neutral-200/90 bg-white/90 p-3 backdrop-blur
+    dark:border-white/10 dark:bg-base/90"
+  >
+    <div class="flex flex-wrap items-center shrink-0">
+      <button
+        type="button"
+        class="-ml-1 mr-1.5 rounded-md p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700 lg:hidden"
+        :aria-label="$t('browser.openSidebar')"
+        @click="$emit('toggle-sidebar')"
+      >
+        <Bars3Icon class="h-6 w-6" />
+      </button>
+
+      <CreateNew v-if="canCreate" class="mr-3"/>
       
       <div class="flex items-center max-sm:order-2 max-sm:basis-full max-sm:bg-zinc-800 max-sm:p-1 max-sm:my-1 max-sm:rounded-xl">
         <NavButtons />
@@ -54,15 +69,17 @@ const canCreate = computed(() => {
       </div>
       
       <div class="flex items-center ml-auto">
-        <MenuItemInfo class="ml-auto"/>
-        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-        <MenuShare />
-        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-        <MenuSortBy />
-        <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
-        <ViewMode />
-        <PhotoSizeControl v-if="settings.view === 'photos'" />
-        <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        <template v-if="!isVolumesView">
+          <MenuItemInfo class="ml-auto"/>
+          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <MenuShare />
+          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <MenuSortBy />
+          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <ViewMode />
+          <PhotoSizeControl v-if="settings.view === 'photos'" />
+          <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+        </template>
         <NotificationBell/>
         <SearchBar/>
       </div>

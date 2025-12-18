@@ -32,6 +32,8 @@ module.exports = {
   SESSION_SECRET: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || null,
   AUTH_MAX_FAILED: Number(process.env.AUTH_MAX_FAILED) || 5,
   AUTH_LOCK_MINUTES: Number(process.env.AUTH_LOCK_MINUTES) || 15,
+  AUTH_ADMIN_EMAIL: process.env.AUTH_ADMIN_EMAIL?.trim() || process.env.ADMIN_EMAIL?.trim() || null,
+  AUTH_ADMIN_PASSWORD: process.env.AUTH_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || null,
   
   // OIDC
   OIDC_ENABLED: normalizeBoolean(process.env.OIDC_ENABLED),

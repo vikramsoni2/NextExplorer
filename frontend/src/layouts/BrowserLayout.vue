@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { computed, ref, watch } from 'vue';
 import HeaderLogo from '@/components/HeaderLogo.vue';
 import FavMenu from '@/components/FavMenu.vue';
 import VolMenu from '@/components/VolMenu.vue';
@@ -10,27 +10,23 @@ import UserMenu from '@/components/UserMenu.vue';
 import NotificationToastContainer from '@/components/NotificationToastContainer.vue';
 import NotificationPanel from '@/components/NotificationPanel.vue';
 import { RouterView, useRoute, useRouter } from 'vue-router'
-import { useTitle, useStorage, useEventListener } from '@vueuse/core'
+import { useTitle, useStorage, useEventListener, useMediaQuery } from '@vueuse/core'
 
-import MenuSortBy from '@/components/MenuSortBy.vue'
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 import TerminalPanel from '@/components/TerminalPanel.vue';
-import { useSettingsStore } from '@/stores/settings';
 import { useAuthStore } from '@/stores/auth';
 import InfoPanel from '@/components/InfoPanel.vue';
 import { useFileUploader } from '@/composables/fileUploader';
 import { useClipboardShortcuts } from '@/composables/clipboardShortcuts';
-import NotificationBell from '@/components/NotificationBell.vue';
-import SearchBar from '@/components/SearchBar.vue';
 import SpotlightSearch from '@/components/SpotlightSearch.vue';
 import FavoriteEditDialog from '@/components/FavoriteEditDialog.vue';
 import { Bars3Icon, ArrowRightOnRectangleIcon, InformationCircleIcon } from '@heroicons/vue/24/outline';
+import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 
 
 const route = useRoute()
 const router = useRouter()
-const settings = useSettingsStore()
 const auth = useAuthStore()
 
 // Resizable aside state
@@ -63,6 +59,39 @@ useEventListener(window, 'pointerup', () => {
   document.body.classList.remove('select-none')
 })
 
+const isDesktop = useMediaQuery('(min-width: 1024px)')
+const isSidebarOpen = ref(false)
+
+function openSidebar() {
+  isSidebarOpen.value = true
+}
+
+function closeSidebar() {
+  isSidebarOpen.value = false
+}
+
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+watch(isDesktop, (desktop) => {
+  if (desktop) closeSidebar()
+})
+
+watch(() => route.fullPath, () => {
+  closeSidebar()
+})
+
+watch(isSidebarOpen, (open) => {
+  document.body.classList.toggle('overflow-hidden', open && !isDesktop.value)
+})
+
+useEventListener(window, 'keydown', (e) => {
+  if (e.key === 'Escape' && isSidebarOpen.value) {
+    closeSidebar()
+  }
+})
+
 const currentPathName = computed(() => {
 const p = route.params.path;
 const s = Array.isArray(p) ? p.join('/') : (p || '');
@@ -70,12 +99,7 @@ return s.split('/').filter(Boolean).pop() || 'Volumes';
 });
 useTitle(currentPathName)
 
-// Check if we're at the volumes home view (no path selected)
-const isVolumesView = computed(() => {
-  const p = route.params.path;
-  const s = Array.isArray(p) ? p.join('/') : (p || '');
-  return !s || s.trim() === '';
-});
+const showBrowseToolbar = computed(() => String(route.path || '').startsWith('/browse'))
 
 // Ensure Uppy is initialized app-wide and bound to current path
 useFileUploader();
@@ -95,14 +119,12 @@ const handleGuestLogin = () => {
 
 <template>
 
-  <div class="relative flex w-full h-full">
-    <!-- Tailwind-only toggle via hidden peer checkbox (must be sibling of sidebar) -->
-    <input id="sidebar-toggle" type="checkbox" class="peer hidden" />
-
+  <div class="relative flex w-full min-h-dvh">
     <aside
       class="flex flex-col bg-base-muted dark:bg-base-muted pt-4 pb-2 px-6 shrink-0
-      fixed inset-y-0 left-0 -translate-x-full transition-transform duration-200 ease-in-out z-50
-      peer-checked:translate-x-0 lg:static lg:translate-x-0"
+      fixed inset-y-0 left-0 transition-transform duration-200 ease-in-out z-50
+      lg:sticky lg:top-0 lg:h-dvh lg:translate-x-0"
+      :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       :style="{ width: asideWidth + 'px' }"
     >
       <HeaderLogo appname="Explorer"/>
@@ -127,7 +149,7 @@ const handleGuestLogin = () => {
         </button>
       </div>
 
-      <div class="overflow-y-scroll -mx-6 px-6 mt-6 scroll-on-hover">
+      <div class="overflow-y-auto -mx-6 px-6 mt-6 scroll-on-hover">
         <FavMenu v-if="!auth.isGuest" />
         <SharesMenu v-if="!auth.isGuest" />
         <VolMenu v-if="!auth.isGuest" />
@@ -147,35 +169,41 @@ const handleGuestLogin = () => {
     </div>
 
     <main
-      class="flex flex-col grow relative bg-base shadow-lg"
+      class="flex min-w-0 flex-col grow relative bg-base shadow-lg"
     >
-      <div class="flex flex-col h-full">
-        <!-- Mobile top bar -->
-        <header
-          class="absolute z-40 lg:hidden  px-3 py-2 "
-        >
-          <div class="flex justify-start">
-            <label
-              for="sidebar-toggle"
-              class="-ml-1 mt-0.5 p-2 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 inline-flex items-center justify-center"
-            >
-              <Bars3Icon class="h-6 w-6" />
-            </label>
-          </div>
+      <FolderViewToolbar
+        v-if="showBrowseToolbar"
+        @toggle-sidebar="toggleSidebar"
+      />
 
-        </header>
+      <!-- Mobile-only toggle for non-browse views (keeps existing view layouts unchanged) -->
+      <button
+        v-else-if="!isDesktop && !isSidebarOpen"
+        type="button"
+        class="fixed left-2 top-2 z-40 rounded-md p-2 hover:bg-neutral-100 dark:hover:bg-neutral-700"
+        :aria-label="$t('browser.openSidebar')"
+        @click="openSidebar"
+      >
+        <Bars3Icon class="h-6 w-6" />
+      </button>
 
-        <ExplorerContextMenu>
-          <div class="overflow-y-auto grow pb-0.5">
-            <router-view :key="route.fullPath">
-            </router-view>
-          </div>
-        </ExplorerContextMenu>
-      </div>
+      <ExplorerContextMenu>
+        <div class="flex min-h-0 flex-1 flex-col">
+          <RouterView v-slot="{ Component, route: viewRoute }">
+            <component :is="Component" :key="viewRoute.fullPath" class="min-h-0 flex-1" />
+          </RouterView>
+        </div>
+      </ExplorerContextMenu>
     </main>
   
   <!-- Backdrop to close sidebar on small screens -->
-  <label for="sidebar-toggle" class="fixed inset-0 bg-black/20 z-30 hidden lg:hidden peer-checked:block"></label>
+  <button
+    v-if="isSidebarOpen && !isDesktop"
+    type="button"
+    class="fixed inset-0 bg-black/20 z-40 lg:hidden"
+    :aria-label="$t('browser.closeSidebar')"
+    @click="closeSidebar"
+  ></button>
   <UploadProgress class="z-550"/>
   <PreviewHost/>
   <InfoPanel/>
@@ -189,11 +217,6 @@ const handleGuestLogin = () => {
 </template>
 
 <style scoped>
-
-.upload-drop-target.uppy-is-drag-over {
-  outline: 2px dashed rgba(59, 130, 246, 0.6); 
-  outline-offset: -2px;
-}
 
 .scroll-on-hover {
   overflow-y: hidden;

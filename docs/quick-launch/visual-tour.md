@@ -4,7 +4,7 @@ nextExplorer keeps the essentials—authentication, volumes, previews, and setti
 
 ## Sign in and unlock
 
-- The login screen shows your workspace branding, workspace name, and the “Log In” button. On first launch you create a workspace password and admin account; subsequent unlocks rely on that password, with optional OIDC if enabled via `OIDC_ENABLED`.
+- The login screen shows your workspace branding, workspace name, and the “Log In” button. On first launch you either complete the setup wizard to create the first admin account, or pre-seed it via `AUTH_ADMIN_EMAIL`/`AUTH_ADMIN_PASSWORD`; subsequent unlocks rely on that password, with optional OIDC if enabled via `OIDC_ENABLED`.
 - Trusted sessions reappear quickly thanks to the unlock modal, which prompts for the workspace password only when needed.
 
 ## The dashboard after authentication

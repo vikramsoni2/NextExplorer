@@ -6,7 +6,7 @@
 - Optional environment variables for your preferred authentication, reverse proxy, and feature toggles; see the [Environment Reference](../configuration/environment) for the full list.
 
 ## How do I unlock the workspace after first setup?
-The Setup screen creates the first admin. Once the workspace password is set, use that login to add local users or configure OIDC. Admin-only settings live under Settings → Admin.
+The Setup screen creates the first admin (unless you bootstrap one via `AUTH_ADMIN_EMAIL`/`AUTH_ADMIN_PASSWORD`). Once the workspace password is set, use that login to add local users or configure OIDC. Admin-only settings live under Settings → Admin.
 
 ## Where do I troubleshoot deployment issues?
 Check the [Troubleshooting](./troubleshooting) page for proxy/CORS tips, session secret advice, volume permissions, and thumbnail/search behavior.

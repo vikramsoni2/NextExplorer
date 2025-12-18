@@ -1,6 +1,6 @@
 import { ref, computed, reactive } from 'vue'
 import { defineStore } from 'pinia'
-import { useDark, useMediaQuery, useStorage, useToggle } from '@vueuse/core';
+import { useColorMode, useStorage } from '@vueuse/core';
 
 export const useSettingsStore = defineStore('settings', () => {
   
@@ -15,8 +15,21 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const terminalHeight = ref(10);
   
-  const isDark = useDark({ disableTransition: false });
-  const toggleDark = useToggle(isDark);
+  const themeMode = useColorMode({
+    selector: 'html',
+    attribute: 'class',
+    storageKey: 'settings:theme',
+    initialValue: 'auto', // 'auto' | 'light' | 'dark'
+    emitAuto: true,
+    modes: { dark: 'dark', light: '' }, // only toggle .dark
+  });
+
+  const isDark = computed(() => themeMode.state.value === 'dark');
+
+  const cycleTheme = () => {
+    themeMode.value =
+      themeMode.value === 'auto' ? 'light' : themeMode.value === 'light' ? 'dark' : 'auto';
+  };
 
 
   const sortOptions = reactive([
@@ -41,8 +54,9 @@ export const useSettingsStore = defineStore('settings', () => {
     tabView,
     photosView,
     photoSize,
+    themeMode,
     isDark,
-    toggleDark,
+    cycleTheme,
     sortBy,
     setSortBy,
     sortOptions,

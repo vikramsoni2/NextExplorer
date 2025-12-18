@@ -172,8 +172,10 @@
   "user": {
     "account": "Compte",
     "signOut": "Se déconnecter",
+    "useSystemTheme": "Utiliser le thème du système",
     "useLightTheme": "Utiliser le thème clair",
     "useDarkTheme": "Utiliser le thème sombre",
+    "systemTheme": "Thème du système",
     "lightTheme": "Thème clair",
     "darkTheme": "Thème sombre"
   },
@@ -212,7 +214,9 @@
     "personal": "Mes fichiers"
   },
   "browser": {
-    "resizeSidebar": "Redimensionner la barre latérale"
+    "resizeSidebar": "Redimensionner la barre latérale",
+    "openSidebar": "Ouvrir la barre latérale",
+    "closeSidebar": "Fermer la barre latérale"
   },
   "nav": {
     "back": "Retour",

@@ -45,5 +45,9 @@ services:
 
       # Legacy auth toggle (deprecated, use AUTH_MODE=disabled instead)
       # - AUTH_ENABLED=false
+      
+      # Optional: bootstrap the first local admin (skips setup wizard)
+      # - AUTH_ADMIN_EMAIL=admin@example.com
+      # - AUTH_ADMIN_PASSWORD=please-change-me
 
     restart: unless-stopped

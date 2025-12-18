@@ -172,8 +172,10 @@
   "user": {
     "account": "खाता",
     "signOut": "साइन आउट",
+    "useSystemTheme": "सिस्टम थीम का उपयोग करें",
     "useLightTheme": "लाइट थीम का उपयोग करें",
     "useDarkTheme": "डार्क थीम का उपयोग करें",
+    "systemTheme": "सिस्टम थीम",
     "lightTheme": "लाइट थीम",
     "darkTheme": "डार्क थीम"
   },
@@ -212,7 +214,9 @@
     "personal": "मेरी फ़ाइलें"
   },
   "browser": {
-    "resizeSidebar": "साइडबार का आकार बदलें"
+    "resizeSidebar": "साइडबार का आकार बदलें",
+    "openSidebar": "साइडबार खोलें",
+    "closeSidebar": "साइडबार बंद करें"
   },
   "nav": {
     "back": "पीछे",

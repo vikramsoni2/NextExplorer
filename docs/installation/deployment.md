@@ -45,14 +45,15 @@ services:
       - /srv/nextexplorer/users:/srv/nextexplorer/users
 ```
 
-- `PUBLIC_URL` informs the backend's cookie settings, CORS, and default OIDC callback (see `backend/config/env.js`).
+- `PUBLIC_URL` informs the backend's cookie settings, CORS, and default OIDC callback (see `backend/src/config/env.js`).
 - `SESSION_SECRET` ensures sessions persist across restarts; without it, the app generates a random secret each time.
+- Optional first-run bootstrap: set `AUTH_ADMIN_EMAIL` and `AUTH_ADMIN_PASSWORD` to auto-create the first local admin on startup (skips the setup wizard).
 
 ## Launching and validating
 
 1. Run `docker compose up -d` from the folder containing your Compose file.
-2. Visit `http://localhost:3000` (or your `PUBLIC_URL`) and finish the setup wizard.
-3. Create a local admin/workspace password, then revisit Settings to adjust thumbnails, access control, and users.
+2. Visit `http://localhost:3000` (or your `PUBLIC_URL`) and sign in (or, if you didn’t set `AUTH_ADMIN_*`, finish the setup wizard to create the first local admin).
+3. Revisit Settings to adjust thumbnails, access control, and users.
 4. Confirm each `Label` shows up in the sidebar and that you can browse/upload files.
 
 ## Managing updates
@@ -67,5 +68,5 @@ docker compose up -d
 
 ## Monitoring & logs
 
-- Use `LOG_LEVEL`, `DEBUG`, and `ENABLE_HTTP_LOGGING` (from `backend/config/env.js`) to tune logging verbosity.
+- Use `LOG_LEVEL`, `DEBUG`, and `ENABLE_HTTP_LOGGING` (from `backend/src/config/env.js`) to tune logging verbosity.
 - The container writes logs to stdout/stderr; stitch them together with your orchestrator (Docker logs, systemd, etc.).

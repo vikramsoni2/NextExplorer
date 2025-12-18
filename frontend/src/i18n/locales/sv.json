@@ -172,8 +172,10 @@
   "user": {
     "account": "Konto",
     "signOut": "Logga ut",
+    "useSystemTheme": "Använd systemtema",
     "useLightTheme": "Använd ljust tema",
     "useDarkTheme": "Använd mörkt tema",
+    "systemTheme": "Systemtema",
     "lightTheme": "Ljust tema",
     "darkTheme": "Mörkt tema"
   },
@@ -212,7 +214,9 @@
     "personal": "Mina filer"
   },
   "browser": {
-    "resizeSidebar": "Storleksändra sidofält"
+    "resizeSidebar": "Storleksändra sidofält",
+    "openSidebar": "Öppna sidofält",
+    "closeSidebar": "Stäng sidofält"
   },
   "nav": {
     "back": "Bakåt",

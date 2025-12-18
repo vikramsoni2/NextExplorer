@@ -172,8 +172,10 @@
   "user": {
     "account": "Konto",
     "signOut": "Abmelden",
+    "useSystemTheme": "Systemdesign verwenden",
     "useLightTheme": "Helles Design verwenden",
     "useDarkTheme": "Dunkles Design verwenden",
+    "systemTheme": "Systemdesign",
     "lightTheme": "Helles Design",
     "darkTheme": "Dunkles Design"
   },
@@ -212,7 +214,9 @@
     "personal": "Meine Dateien"
   },
   "browser": {
-    "resizeSidebar": "Seitenleiste anpassen"
+    "resizeSidebar": "Seitenleiste anpassen",
+    "openSidebar": "Seitenleiste öffnen",
+    "closeSidebar": "Seitenleiste schließen"
   },
   "nav": {
     "back": "Zurück",

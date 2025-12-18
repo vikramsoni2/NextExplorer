@@ -39,15 +39,15 @@ services:
 ## Volume strategy
 
 - **Each `/mnt/Label` mount becomes a sidebar volume.** Give folders human-friendly labels to avoid confusion, e.g., `/mnt/Projects`, `/mnt/Media`.
-- **`/config`:** Stores the SQLite database, `app-config.json`, and any installed extensions/themes (see `backend/config/env.js` for how `CONFIG_DIR` can be overridden). Back this folder up before upgrades.
+- **`/config`:** Stores the SQLite database, `app-config.json`, and any installed extensions/themes (see `backend/src/config/env.js` for how `CONFIG_DIR` can be overridden). Back this folder up before upgrades.
 - **`/cache`:** Holds thumbnails, ripgrep indexes, and other ephemeral state; deleting it is safe but will trigger regrowth.
 - **Permission tip:** The entrypoint chown’s `/config` and `/cache` to the container user (default `1000:1000`). Override with `PUID`/`PGID` for custom ownership.
 
 ## First run checklist
 
 1. Apply `docker compose up -d` from the directory with your Compose file.
-2. Visit `http://localhost:3000` (or your `PUBLIC_URL`) to reach the setup wizard.
-3. Create the first local admin account and workspace password. This account gets access to Settings and admin-level actions.
+2. (Optional) Set `AUTH_ADMIN_EMAIL` + `AUTH_ADMIN_PASSWORD` to auto-create the first local admin on startup and skip the setup wizard.
+3. Visit `http://localhost:3000` (or your `PUBLIC_URL`) to sign in.
 4. Browse the Volumes sidebar and ensure each host mount is visible and readable.
 5. (Optional) Toggle OIDC via environment variables if your organization uses an identity provider (see the Integrations section for Keycloak, Authentik, and Authelia guides).
 

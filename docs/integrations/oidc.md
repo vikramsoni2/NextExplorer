@@ -2,7 +2,7 @@
 
 nextExplorer uses Express OpenID Connect (EOC) to federate authentication with external providers. Configure these variables and your IdP once, and the app exposes `/login`, `/callback`, and `/logout` to manage the flow.
 
-## Environment variables (see `backend/config/env.js`)
+## Environment variables (see `backend/src/config/env.js`)
 
 - `OIDC_ENABLED=true` enables the middleware.
 - `OIDC_ISSUER` points to the IdP discovery URL (e.g., Keycloak realm or Authentik application base).

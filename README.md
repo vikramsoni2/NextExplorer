@@ -159,6 +159,11 @@ Security and Networking
 - `CORS_ORIGINS` – optional comma‑separated allowed origins for cross‑site requests. When `PUBLIC_URL` is set, defaults to that origin; in development, all origins are allowed if unset.
 - `TRUST_PROXY` – proxy trust configuration. When `PUBLIC_URL` is set and `TRUST_PROXY` is not, a safe default of `loopback,uniquelocal` is used. Override with a hop count or explicit CIDR list only if you understand your proxy chain.
 
+Authentication
+- `AUTH_MODE` – `local` | `oidc` | `both` (default) | `disabled`.
+- `AUTH_ENABLED` – legacy toggle; prefer `AUTH_MODE=disabled`.
+- `AUTH_ADMIN_EMAIL`, `AUTH_ADMIN_PASSWORD` – when set (and local auth is enabled), bootstraps/updates a local admin user at startup and skips the first-run setup screen. If a user already exists with the same email, the password is reset to `AUTH_ADMIN_PASSWORD`.
+
 Reverse Proxies
 - If running behind Nginx/Traefik/a load balancer with TLS termination, set `PUBLIC_URL` to the external `https` URL. Cookies receive `Secure`, redirects and CORS are correct, and Express proxy trust is configured safely. Preserve `X‑Forwarded-*` headers in your proxy.
 

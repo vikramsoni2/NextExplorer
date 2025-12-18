@@ -82,6 +82,8 @@ const isHeic = (ext) => ext === 'heic';
 
 const inflight = new Map();
 
+const THUMBNAIL_CACHE_VERSION = 2;
+
 // Create thumbnail generation queue with concurrency limit
 // This prevents overwhelming the system with too many concurrent sharp/ffmpeg operations
 // Concurrency is dynamically updated from settings
@@ -134,6 +136,7 @@ const atomicWrite = async (finalPath, buffer) => {
 const makeImageThumb = async (srcPath, destPath) => {
   const { size, quality } = await getThumbOptions();
   const buffer = await sharp(srcPath)
+    .rotate()
     .resize({
       width: size,
       height: size,
@@ -204,6 +207,7 @@ const makeHeicThumb = async (srcPath, destPath) => {
     // Use ImageMagick to convert HEIC to PNG, then pipe to sharp for WebP conversion
     const convert = spawn('convert', [
       srcPath,
+      '-auto-orient',
       '-resize', `${size}x`,
       '-quality', '100',
       'png:-'
@@ -262,7 +266,7 @@ const generateThumbnail = async (filePath, thumbPath) => {
 
 const buildThumbnailPaths = async (filePath, stats = null) => {
   const key = await hashForFile(filePath, stats);
-  const thumbFile = `${key}.webp`;
+  const thumbFile = `v${THUMBNAIL_CACHE_VERSION}-${key}.webp`;
   const thumbPath = path.join(directories.thumbnails, thumbFile);
   return { thumbFile, thumbPath };
 };

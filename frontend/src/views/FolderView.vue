@@ -9,9 +9,8 @@ import { useSelection } from '@/composables/itemSelection';
 import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { ImagesOutline } from '@vicons/ionicons5';
-import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 import { useViewConfig } from '@/composables/useViewConfig';
-import { DragSelect, DragSelectOption } from '@coleqiu/vue-drag-select';
+import { DragSelect } from '@coleqiu/vue-drag-select';
 import { useUppyDropTarget } from '@/composables/fileUploader';
 import { FolderOpenIcon } from '@heroicons/vue/24/outline';
 
@@ -20,7 +19,6 @@ const fileStore = useFileStore()
 const route = useRoute()
 const { gridClasses, gridStyle, LIST_VIEW_GRID_COLS } = useViewConfig()
 const loading = ref(true)
-const selectedItems = ref([]);
 const { clearSelection } = useSelection();
 const contextMenu = useExplorerContextMenu();
 const dropTargetRef = ref(null);
@@ -102,18 +100,15 @@ const showEmptyFolderMessage = computed(() => {
 <template>
   <div
     ref="dropTargetRef"
-    class="upload-drop-target h-full relative flex flex-col max-h-screen"
+    class="upload-drop-target relative flex flex-col flex-1 min-h-0"
     @click.self="clearSelection()"
   >
-    <!-- Toolbar is always mounted so it doesn't re-render on each navigation -->
-    <FolderViewToolbar />
-
     <template v-if="!loading">
       <DragSelect
         v-model="selectionModel"
         :click-option-to-select="false"
         :disabled="isTouchDevice || !!fileStore.renameState"
-        class="grow overflow-y-scroll px-2"
+        class="grow px-2"
         @click.self="clearSelection()"
         @contextmenu.prevent="handleBackgroundContextMenu"
       >
@@ -127,7 +122,7 @@ const showEmptyFolderMessage = computed(() => {
             :class="['grid items-center', LIST_VIEW_GRID_COLS,
             'px-4 py-2 text-xs',
             'text-neutral-600 dark:text-neutral-300',
-            'uppercase tracking-wide select-none sticky top-0',
+            'uppercase tracking-wide select-none',
             'bg-white dark:bg-base',
             'backdrop-blur-sm']"
           >
@@ -168,7 +163,7 @@ const showEmptyFolderMessage = computed(() => {
     </template>
 
     <template v-else>
-      <div class="flex grow items-center h-full justify-center text-sm text-neutral-500 dark:text-neutral-400">
+      <div class="flex flex-1 items-center justify-center text-sm text-neutral-500 dark:text-neutral-400">
         <div class="flex items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
           <LoadingIcon /> {{ $t('common.loading') }}
         </div>

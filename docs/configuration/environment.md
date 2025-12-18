@@ -1,6 +1,6 @@
 # Environment Reference
 
-nextExplorer is configured almost entirely through environment variables. The backend (`backend/config/env.js`) centralizes the defaults you see here. Use this reference when you want to tune ports, paths, auth, integrations, or feature flags.
+nextExplorer is configured almost entirely through environment variables. The backend (`backend/src/config/env.js`) centralizes the defaults you see here. Use this reference when you want to tune ports, paths, auth, integrations, or feature flags.
 
 ## Server & networking
 
@@ -37,6 +37,8 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `SESSION_SECRET`, `AUTH_SESSION_SECRET` | _auto-generated_ | Cryptographic secret used by Express to sign and encrypt session cookies and related tokens. In production, set this to a long, random, **stable** value (at least 32 characters) so sessions remain valid across restarts and multiple replicas; if left unset, a new random secret is generated on each start and all users will be logged out after every restart. |
 | `AUTH_MAX_FAILED` | `5` | Failed login attempts before temporary lockout. |
 | `AUTH_LOCK_MINUTES` | `15` | Lockout duration in minutes when max failures reached. |
+| `AUTH_ADMIN_EMAIL` | _none_ | Optional first-run bootstrap for local auth: when set with `AUTH_ADMIN_PASSWORD`, the backend creates an admin user on startup (and the setup wizard is skipped). |
+| `AUTH_ADMIN_PASSWORD` | _none_ | Password used for `AUTH_ADMIN_EMAIL` bootstrap. If a user already exists with the same email, this value **overrides/resets** the local password on startup. (Minimum 6 chars; avoid leaving this set unless you want the password enforced on every restart.) |
 
 ## OIDC & SSO
 

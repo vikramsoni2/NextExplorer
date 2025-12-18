@@ -172,8 +172,10 @@
   "user": {
     "account": "Konto",
     "signOut": "Wyloguj",
+    "useSystemTheme": "Użyj motywu systemowego",
     "useLightTheme": "Użyj jasnego motywu",
     "useDarkTheme": "Użyj ciemnego motywu",
+    "systemTheme": "Motyw systemowy",
     "lightTheme": "Jasny motyw",
     "darkTheme": "Ciemny motyw"
   },
@@ -212,7 +214,9 @@
     "personal": "Moje pliki"
   },
   "browser": {
-    "resizeSidebar": "Zmień rozmiar paska bocznego"
+    "resizeSidebar": "Zmień rozmiar paska bocznego",
+    "openSidebar": "Otwórz pasek boczny",
+    "closeSidebar": "Zamknij pasek boczny"
   },
   "nav": {
     "back": "Wstecz",
