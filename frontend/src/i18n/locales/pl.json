@@ -172,8 +172,10 @@
   "user": {
     "account": "Konto",
     "signOut": "Wyloguj",
+    "useSystemTheme": "Użyj motywu systemowego",
     "useLightTheme": "Użyj jasnego motywu",
     "useDarkTheme": "Użyj ciemnego motywu",
+    "systemTheme": "Motyw systemowy",
     "lightTheme": "Jasny motyw",
     "darkTheme": "Ciemny motyw"
   },

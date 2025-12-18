@@ -9,6 +9,7 @@ import {
   ArrowRightOnRectangleIcon,
   ChevronUpIcon,
   Cog8ToothIcon,
+  ComputerDesktopIcon,
   UserCircleIcon,
 } from '@heroicons/vue/24/outline';
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline';
@@ -37,8 +38,26 @@ const avatarLetter = computed(() => {
   return source ? source.trim().charAt(0).toUpperCase() : '';
 });
 
-const themeActionLabel = computed(() => (settings.isDark ? t('user.useLightTheme') : t('user.useDarkTheme')));
-const themeStatusLabel = computed(() => (settings.isDark ? t('user.darkTheme') : t('user.lightTheme')));
+const nextThemeMode = computed(() =>
+  settings.themeMode === 'auto' ? 'light' : settings.themeMode === 'light' ? 'dark' : 'auto',
+);
+
+const themeActionLabel = computed(() => {
+  if (nextThemeMode.value === 'light') return t('user.useLightTheme');
+  if (nextThemeMode.value === 'dark') return t('user.useDarkTheme');
+  return t('user.useSystemTheme');
+});
+
+const themeStatusLabel = computed(() => {
+  if (settings.themeMode === 'auto') return t('user.systemTheme');
+  return settings.themeMode === 'dark' ? t('user.darkTheme') : t('user.lightTheme');
+});
+
+const themeIcon = computed(() => {
+  if (nextThemeMode.value === 'light') return SunIcon;
+  if (nextThemeMode.value === 'dark') return MoonIcon;
+  return ComputerDesktopIcon;
+});
 const showSignOut = computed(() => auth.authEnabled !== false);
 
 const toggleMenu = () => {
@@ -51,7 +70,7 @@ const handleSettings = () => {
 };
 
 const handleThemeToggle = () => {
-  settings.toggleDark();
+  settings.cycleTheme();
 };
 
 const handleLogout = async () => {
@@ -96,7 +115,7 @@ const handleLogout = async () => {
             <button
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
               type="button" @click="handleThemeToggle">
-              <component :is="settings.isDark ? SunIcon : MoonIcon" class="h-5 w-5" />
+              <component :is="themeIcon" class="h-5 w-5" />
               <div class="flex min-w-0 flex-col">
                 <span class="text-sm font-semibold">{{ themeActionLabel }}</span>
                 <span class="text-xs text-neutral-400 dark:text-white/50">{{ themeStatusLabel }}</span>

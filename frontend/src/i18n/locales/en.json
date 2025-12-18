@@ -181,8 +181,10 @@
   "user": {
     "account": "Account",
     "signOut": "Sign out",
+    "useSystemTheme": "Use system theme",
     "useLightTheme": "Use light theme",
     "useDarkTheme": "Use dark theme",
+    "systemTheme": "System theme",
     "lightTheme": "Light theme",
     "darkTheme": "Dark theme"
   },

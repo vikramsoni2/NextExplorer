@@ -172,8 +172,10 @@
   "user": {
     "account": "账户",
     "signOut": "退出登录",
+    "useSystemTheme": "使用系统主题",
     "useLightTheme": "使用浅色主题",
     "useDarkTheme": "使用深色主题",
+    "systemTheme": "系统主题",
     "lightTheme": "浅色主题",
     "darkTheme": "深色主题"
   },

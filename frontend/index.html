@@ -2,7 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    
+
+    <script>
+      (() => {
+        try {
+          const mode = localStorage.getItem('settings:theme') || 'auto';
+          const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle(
+            'dark',
+            mode === 'dark' || (mode === 'auto' && prefersDark),
+          );
+        } catch (_) {}
+      })();
+    </script>
+
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico?v=3" />

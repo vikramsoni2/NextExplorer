@@ -172,8 +172,10 @@
   "user": {
     "account": "खाता",
     "signOut": "साइन आउट",
+    "useSystemTheme": "सिस्टम थीम का उपयोग करें",
     "useLightTheme": "लाइट थीम का उपयोग करें",
     "useDarkTheme": "डार्क थीम का उपयोग करें",
+    "systemTheme": "सिस्टम थीम",
     "lightTheme": "लाइट थीम",
     "darkTheme": "डार्क थीम"
   },

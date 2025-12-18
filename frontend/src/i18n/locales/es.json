@@ -173,8 +173,10 @@
   "user": {
     "account": "Cuenta",
     "signOut": "Cerrar sesión",
+    "useSystemTheme": "Usar tema del sistema",
     "useLightTheme": "Usar tema claro",
     "useDarkTheme": "Usar tema oscuro",
+    "systemTheme": "Tema del sistema",
     "lightTheme": "Tema claro",
     "darkTheme": "Tema oscuro"
   },
