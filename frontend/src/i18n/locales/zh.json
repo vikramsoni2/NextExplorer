@@ -214,7 +214,9 @@
     "personal": "我的文件"
   },
   "browser": {
-    "resizeSidebar": "调整侧边栏大小"
+    "resizeSidebar": "调整侧边栏大小",
+    "openSidebar": "打开侧边栏",
+    "closeSidebar": "关闭侧边栏"
   },
   "nav": {
     "back": "后退",

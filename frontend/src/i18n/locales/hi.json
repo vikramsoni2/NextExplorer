@@ -214,7 +214,9 @@
     "personal": "मेरी फ़ाइलें"
   },
   "browser": {
-    "resizeSidebar": "साइडबार का आकार बदलें"
+    "resizeSidebar": "साइडबार का आकार बदलें",
+    "openSidebar": "साइडबार खोलें",
+    "closeSidebar": "साइडबार बंद करें"
   },
   "nav": {
     "back": "पीछे",

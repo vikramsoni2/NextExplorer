@@ -215,7 +215,9 @@
     "personal": "Mis archivos"
   },
   "browser": {
-    "resizeSidebar": "Redimensionar barra lateral"
+    "resizeSidebar": "Redimensionar barra lateral",
+    "openSidebar": "Abrir barra lateral",
+    "closeSidebar": "Cerrar barra lateral"
   },
   "nav": {
     "back": "Atrás",

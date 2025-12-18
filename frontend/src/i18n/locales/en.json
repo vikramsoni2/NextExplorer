@@ -223,7 +223,9 @@
     "personal": "My Files"
   },
   "browser": {
-    "resizeSidebar": "Resize sidebar"
+    "resizeSidebar": "Resize sidebar",
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   },
   "nav": {
     "back": "Back",
