@@ -327,6 +327,8 @@
     "nameZToA": "Namn Ö till A",
     "smallToLarge": "Liten till stor",
     "largeToSmall": "Stor till liten",
+    "kindAToZ": "Typ A till Ö",
+    "kindZToA": "Typ Ö till A",
     "oldToNew": "Gammal till ny",
     "newToOld": "Ny till gammal"
   },

@@ -327,6 +327,8 @@
     "nameZToA": "नाम Z से A",
     "smallToLarge": "छोटे से बड़े तक",
     "largeToSmall": "बड़े से छोटे तक",
+    "kindAToZ": "प्रकार A से Z",
+    "kindZToA": "प्रकार Z से A",
     "oldToNew": "पुराने से नए तक",
     "newToOld": "नए से पुराने तक"
   },

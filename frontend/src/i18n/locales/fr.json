@@ -327,6 +327,8 @@
     "nameZToA": "Nom de Z à A",
     "smallToLarge": "Du plus petit au plus grand",
     "largeToSmall": "Du plus grand au plus petit",
+    "kindAToZ": "Type de A à Z",
+    "kindZToA": "Type de Z à A",
     "oldToNew": "Du plus ancien au plus récent",
     "newToOld": "Du plus récent au plus ancien"
   },

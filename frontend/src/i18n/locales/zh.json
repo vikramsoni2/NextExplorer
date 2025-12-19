@@ -327,6 +327,8 @@
     "nameZToA": "名称从 Z 到 A",
     "smallToLarge": "从小到大",
     "largeToSmall": "从大到小",
+    "kindAToZ": "类型从 A 到 Z",
+    "kindZToA": "类型从 Z 到 A",
     "oldToNew": "从旧到新",
     "newToOld": "从新到旧"
   },

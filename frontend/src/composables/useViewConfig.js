@@ -8,9 +8,6 @@ import { useSettingsStore } from '@/stores/settings';
 export function useViewConfig() {
   const settings = useSettingsStore();
 
-  // Shared constant for list view columns - ensures header and rows stay aligned
-  const LIST_VIEW_GRID_COLS = 'grid-cols-[30px_5fr_1fr_1fr_2fr]';
-
   /**
    * Compute grid container classes based on current view mode
    */
@@ -43,6 +40,5 @@ export function useViewConfig() {
   return {
     gridClasses,
     gridStyle,
-    LIST_VIEW_GRID_COLS,
   };
 }

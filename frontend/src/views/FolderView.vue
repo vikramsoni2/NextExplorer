@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
 import { useSettingsStore } from '@/stores/settings'
 import FileObject from '@/components/FileObject.vue';
@@ -13,11 +13,13 @@ import { useViewConfig } from '@/composables/useViewConfig';
 import { DragSelect } from '@coleqiu/vue-drag-select';
 import { useUppyDropTarget } from '@/composables/fileUploader';
 import { FolderOpenIcon } from '@heroicons/vue/24/outline';
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
+import { useEventListener } from '@vueuse/core';
 
 const settings = useSettingsStore()
 const fileStore = useFileStore()
 const route = useRoute()
-const { gridClasses, gridStyle, LIST_VIEW_GRID_COLS } = useViewConfig()
+const { gridClasses, gridStyle } = useViewConfig()
 const loading = ref(true)
 const { clearSelection } = useSelection();
 const contextMenu = useExplorerContextMenu();
@@ -95,6 +97,70 @@ const showEmptyFolderMessage = computed(() => {
   return fileStore.getCurrentPathItems.length === 0;
 });
 
+const toggleSort = (by, defaultOrder = 'asc') => {
+  const currentBy = settings.sortBy?.by;
+  const currentOrder = settings.sortBy?.order;
+
+  if (currentBy === by) {
+    settings.setSort(by, currentOrder === 'asc' ? 'desc' : 'asc');
+    return;
+  }
+
+  settings.setSort(by, defaultOrder);
+};
+
+const listColumns = [
+  { key: 'name', labelKey: 'common.name', by: 'name', defaultOrder: 'asc', widthIndex: 1 },
+  { key: 'size', labelKey: 'common.size', by: 'size', defaultOrder: 'desc', widthIndex: 2 },
+  { key: 'kind', labelKey: 'folder.kind', by: 'kind', defaultOrder: 'asc', widthIndex: 3 },
+  { key: 'dateModified', labelKey: 'folder.dateModified', by: 'dateModified', defaultOrder: 'desc', widthIndex: 4 },
+];
+
+const sortIndicator = (by) => {
+  if (settings.sortBy?.by !== by) return null;
+  return settings.sortBy?.order || null;
+};
+
+const resizeState = ref(null);
+const bodyStyleBeforeResize = ref({ cursor: '', userSelect: '' });
+
+const stopResize = () => {
+  if (!resizeState.value) return;
+  resizeState.value = null;
+  document.body.style.cursor = bodyStyleBeforeResize.value.cursor;
+  document.body.style.userSelect = bodyStyleBeforeResize.value.userSelect;
+};
+
+const startResize = (colIndex, event) => {
+  if (!event) return;
+  if (event.button !== undefined && event.button !== 0) return;
+
+  const startWidth = Number(settings.listViewColumnWidths?.[colIndex]);
+  if (!Number.isFinite(startWidth)) return;
+
+  resizeState.value = { colIndex, startX: event.clientX, startWidth };
+  bodyStyleBeforeResize.value = {
+    cursor: document.body.style.cursor || '',
+    userSelect: document.body.style.userSelect || '',
+  };
+  document.body.style.cursor = 'col-resize';
+  document.body.style.userSelect = 'none';
+};
+
+useEventListener(window, 'pointermove', (event) => {
+  const state = resizeState.value;
+  if (!state) return;
+  const deltaX = event.clientX - state.startX;
+  settings.setListViewColumnWidth(state.colIndex, state.startWidth + deltaX);
+});
+
+useEventListener(window, 'pointerup', stopResize);
+useEventListener(window, 'pointercancel', stopResize);
+
+onBeforeUnmount(() => {
+  stopResize();
+});
+
 </script>
 
 <template>
@@ -113,24 +179,45 @@ const showEmptyFolderMessage = computed(() => {
         @contextmenu.prevent="handleBackgroundContextMenu"
       >
         <div
-          :class="[gridClasses, 'min-h-full']"
+          :class="[gridClasses, 'min-h-full', settings.view === 'list' ? 'overflow-x-auto' : '']"
           :style="gridStyle"
         >
           <!-- Detail view header -->
           <div
             v-if="settings.view === 'list'"
-            :class="['grid items-center', LIST_VIEW_GRID_COLS,
+            :class="['grid items-center',
             'px-4 py-2 text-xs',
             'text-neutral-600 dark:text-neutral-300',
             'uppercase tracking-wide select-none',
             'bg-white dark:bg-base',
-            'backdrop-blur-sm']"
+            'backdrop-blur-sm',
+            'min-w-max']"
+            :style="{ gridTemplateColumns: settings.listViewGridTemplateColumns }"
           >
             <div></div>
-            <div>{{ $t('common.name') }}</div>
-            <div>{{ $t('common.size') }}</div>
-            <div>{{ $t('folder.kind') }}</div>
-            <div>{{ $t('folder.dateModified') }}</div>
+            <div
+              v-for="col in listColumns"
+              :key="col.key"
+              class="relative flex items-center"
+            >
+              <button
+                type="button"
+                class="flex items-center gap-1 text-left hover:text-neutral-900 dark:hover:text-white"
+                @click="toggleSort(col.by, col.defaultOrder)"
+              >
+                <span>{{ $t(col.labelKey) }}</span>
+                <ChevronUpIcon v-if="sortIndicator(col.by) === 'asc'" class="h-3.5 w-3.5" />
+                <ChevronDownIcon v-else-if="sortIndicator(col.by) === 'desc'" class="h-3.5 w-3.5" />
+              </button>
+              <div
+                class="absolute -right-2 top-0 h-full w-4 cursor-col-resize touch-none"
+                title="Resize"
+                @pointerdown.stop.prevent="startResize(col.widthIndex, $event)"
+                @dblclick.stop.prevent="settings.resetListViewColumnWidths()"
+              >
+                <div class="mx-auto h-full w-px bg-transparent hover:bg-neutral-300 dark:hover:bg-neutral-600"></div>
+              </div>
+            </div>
           </div>
 
           <FileObject

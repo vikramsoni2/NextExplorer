@@ -327,6 +327,8 @@
     "nameZToA": "Name Z bis A",
     "smallToLarge": "Klein nach groß",
     "largeToSmall": "Groß nach klein",
+    "kindAToZ": "Typ A bis Z",
+    "kindZToA": "Typ Z bis A",
     "oldToNew": "Alt nach neu",
     "newToOld": "Neu nach alt"
   },

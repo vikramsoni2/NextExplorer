@@ -11,14 +11,12 @@ import { useFileStore } from '@/stores/fileStore';
 import { useExplorerContextMenu } from '@/composables/contextMenu';
 import { isPreviewableImage } from '@/config/media';
 import { useSettingsStore } from '@/stores/settings';
-import { useViewConfig } from '@/composables/useViewConfig';
 import { DragSelectOption } from '@coleqiu/vue-drag-select';
 import MiddleEllipsis from '@/components/MiddleEllipsis.vue';
 import { ellipses } from '@/utils/ellipses';
 
 const props = defineProps(['item', 'view'])
 const settings = useSettingsStore();
-const { LIST_VIEW_GRID_COLS } = useViewConfig();
 
 const {openItem} = useNavigation()
 const {handleSelection, isSelected} = useSelection();
@@ -296,13 +294,15 @@ if (isTouchDevice.value) {
     @click="handleClick"
     @dblclick="handleDblClick"
     @contextmenu.prevent.stop="handleContextMenu"
-    :class="['grid select-none items-center', LIST_VIEW_GRID_COLS,
+    :class="['grid select-none items-center',
     'cursor-pointer auto-cols-fr p-1 px-4 rounded-md',
+    'min-w-max',
     'group-even/item:bg-zinc-100 dark:group-even/item:bg-neutral-700/30',
     {
       'text-white dark:text-white bg-blue-600 dark:bg-blue-600/80 group-even/item:bg-blue-600! dark:group-even/item:bg-blue-600/80!': isSelected(item),
       'opacity-60': isCut && !isSelected(item)
     }]"
+    :style="{ gridTemplateColumns: settings.listViewGridTemplateColumns }"
      >
         
         <FileIcon 

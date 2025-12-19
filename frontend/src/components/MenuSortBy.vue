@@ -14,6 +14,8 @@ function sortLabel(option){
   if (option.by === 'name' && option.order === 'desc') return t('sort.nameZToA')
   if (option.by === 'size' && option.order === 'asc') return t('sort.smallToLarge')
   if (option.by === 'size' && option.order === 'desc') return t('sort.largeToSmall')
+  if (option.by === 'kind' && option.order === 'asc') return t('sort.kindAToZ')
+  if (option.by === 'kind' && option.order === 'desc') return t('sort.kindZToA')
   if (option.by === 'dateModified' && option.order === 'asc') return t('sort.oldToNew')
   if (option.by === 'dateModified' && option.order === 'desc') return t('sort.newToOld')
   return option.name

@@ -328,6 +328,8 @@
     "nameZToA": "Nombre de la Z a la A",
     "smallToLarge": "De pequeño a grande",
     "largeToSmall": "De grande a pequeño",
+    "kindAToZ": "Tipo de la A a la Z",
+    "kindZToA": "Tipo de la Z a la A",
     "oldToNew": "De antiguo a nuevo",
     "newToOld": "De nuevo a antiguo"
   },
