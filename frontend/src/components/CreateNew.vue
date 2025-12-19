@@ -76,7 +76,7 @@ const createFile = async () => {
       @click="toggle()"
       class="inline-flex items-center justify-center rounded-lg 
       bg-neutral-900
-      dark:bg-neutral-600/60 hover:bg-neutral-600 active:bg-neutral-700
+      dark:bg-zinc-600/60 hover:bg-zinc-600 active:bg-zinc-700
       px-2 py-1.5 text-xs font-medium text-white
       shadow-sm transition
       md:px-3 md:pl-2 md:py-2 md:text-sm"

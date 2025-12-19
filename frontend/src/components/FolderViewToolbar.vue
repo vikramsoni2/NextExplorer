@@ -48,8 +48,7 @@ const canCreate = computed(() => {
 
 <template>
   <div
-    class="sticky top-0 z-40 border-b border-neutral-200/90 bg-white/90 p-3 backdrop-blur
-    dark:border-white/10 dark:bg-base/90"
+    class="sticky top-0 z-40 bg-white/90 p-3 backdrop-blur dark:bg-base/90"
   >
     <div class="flex flex-wrap items-center shrink-0">
       <button
