@@ -308,7 +308,7 @@ if (isTouchDevice.value) {
         <FileIcon 
         :item="item" 
         class="w-6 shrink-0"/> 
-        <div :title="item.name" class="break-all text-sm line-clamp-1">
+        <div :title="item.name" class="min-w-0 overflow-hidden text-sm">
           <template v-if="isRenaming">
             <input
               ref="renameInputRef"

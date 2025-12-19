@@ -29,7 +29,7 @@ const endText = computed(() => {
 </script>
 
 <template>
-  <span class="flex pr-4 overflow-hidden max-w-full">
+  <span class="flex w-full min-w-0 pr-4 overflow-hidden max-w-full">
     <span class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
       {{ startText }}
     </span>
