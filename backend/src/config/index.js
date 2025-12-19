@@ -101,6 +101,7 @@ const auth = {
     scopes: parseScopes(env.OIDC_SCOPES) || null,
     adminGroups: parseScopes(env.OIDC_ADMIN_GROUPS) || null,
     requireEmailVerified: env.OIDC_REQUIRE_EMAIL_VERIFIED,
+    autoCreateUsers: env.OIDC_AUTO_CREATE_USERS,
   },
 };
 

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const { getDb } = require('./db');
 const { auth: envAuthConfig } = require('../config/index');
+const { ForbiddenError } = require('../errors/AppError');
 
 const nowIso = () => new Date().toISOString();
 
@@ -380,6 +381,7 @@ const getOrCreateOidcUser = async ({
   displayName,
   roles,
   requireEmailVerified = false,
+  autoCreateUsers = true,
 }) => {
   const db = await getDb();
   const normEmail = normalizeEmail(email);
@@ -446,6 +448,10 @@ const getOrCreateOidcUser = async ({
   }
 
   // New user: Create user and OIDC auth method
+  if (!autoCreateUsers) {
+    throw new ForbiddenError('Profile does not exist.');
+  }
+
   console.log(`[Auth] Creating new user from OIDC: ${normEmail}`);
 
   const userId = generateId();
@@ -490,6 +496,7 @@ const getRequestUser = async (req) => {
   if (req?.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated() && req.oidc.user?.sub) {
     const issuer = (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.issuer) || null;
     if (!issuer) return null;
+    const autoCreateUsers = (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.autoCreateUsers) ?? true;
 
     const db = await getDb();
     const authMethod = db.prepare(`
@@ -512,6 +519,9 @@ const getRequestUser = async (req) => {
       }
       return user;
     }
+
+    // When auto-create is disabled, do not allow a synthetic user fallback.
+    if (!autoCreateUsers) return null;
 
     // Fallback: derive a minimal user object from OIDC claims when DB sync hasn't happened yet
     try {

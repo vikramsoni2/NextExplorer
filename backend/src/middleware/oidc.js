@@ -147,10 +147,16 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
         emailVerified,
         roles,
         requireEmailVerified: envAuthConfig?.oidc?.requireEmailVerified || false,
+        autoCreateUsers: envAuthConfig?.oidc?.autoCreateUsers ?? true,
       });
       
       logger.debug('afterCallback: user persisted/synced');
     } catch (e) {
+      // If user sync fails, block login only for operational/expected errors
+      // (e.g., auto-provision disabled and profile missing).
+      if (e && e.isOperational) {
+        throw e;
+      }
       logger.warn({ err: e }, 'afterCallback user sync failed');
     }
     

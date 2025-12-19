@@ -47,6 +47,8 @@ module.exports = {
   OIDC_SCOPES: process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null,
   OIDC_ADMIN_GROUPS: process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null,
   OIDC_REQUIRE_EMAIL_VERIFIED: normalizeBoolean(process.env.OIDC_REQUIRE_EMAIL_VERIFIED) || false,
+  // When false, OIDC login is only allowed for users that already exist in the DB (local or OIDC-linked).
+  OIDC_AUTO_CREATE_USERS: normalizeBoolean(process.env.OIDC_AUTO_CREATE_USERS) ?? true,
   
   // Search
   SEARCH_DEEP: normalizeBoolean(process.env.SEARCH_DEEP),

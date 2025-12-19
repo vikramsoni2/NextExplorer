@@ -1,5 +1,6 @@
 const { getRequestUser } = require('../services/users');
 const { auth } = require('../config/index');
+const { ForbiddenError } = require('../errors/AppError');
 
 const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
@@ -108,7 +109,21 @@ const authMiddleware = async (req, res, next) => {
     try {
       const user = await getRequestUser(req);
       if (user) req.user = user;
-    } catch (_) { /* ignore */ }
+      if (isEocAuthenticated && !user && (auth?.oidc?.autoCreateUsers ?? true) === false) {
+        // Allow guest/public access without an app user profile.
+        if (isPublicShareRoute || req.guestSession) {
+          next();
+          return;
+        }
+        throw new ForbiddenError('Profile does not exist.');
+      }
+    } catch (err) {
+      if (err && err.isOperational) {
+        next(err);
+        return;
+      }
+      /* ignore */
+    }
 
     // If the user is authenticated, prefer user access over any guest session.
     // This prevents stale guest sessions from blocking access to volumes/personal paths.

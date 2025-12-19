@@ -178,6 +178,7 @@ Environment
 - `OIDC_SCOPES` – default `openid profile email`; include `groups` if you want group‑based admin mapping.
 - `OIDC_ADMIN_GROUPS` – space or comma‑separated group names that grant admin role.
 - `OIDC_REQUIRE_EMAIL_VERIFIED` – `true` to require email verification from the identity provider before allowing user creation (default: `false`). Some providers like newer versions of Authentik set `email_verified` to `false` by default.
+- `OIDC_AUTO_CREATE_USERS` – `true` (default) to auto-create users on first OIDC login. Set `false` to require the user to already exist in the database (local or previously OIDC-linked), otherwise login is denied.
 - Optional overrides: `OIDC_CALLBACK_URL`, `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL` (usually unnecessary when discovery works).
 
 Provider Setup

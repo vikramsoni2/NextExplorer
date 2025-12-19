@@ -61,3 +61,67 @@ test('create local user, login, change password, and enforce lockout', async () 
     await envContext.cleanup();
   }
 });
+
+test('OIDC: deny login when auto-create disabled and user missing', async () => {
+  const envContext = await setupTestEnv({
+    tag: 'users-oidc-no-autocreate-',
+    modules: ['src/services/users', 'src/services/db'],
+    env: { OIDC_AUTO_CREATE_USERS: 'false' },
+  });
+  const users = envContext.requireFresh('src/services/users');
+
+  try {
+    await assert.rejects(
+      () => users.getOrCreateOidcUser({
+        issuer: 'https://issuer.example.com',
+        sub: 'sub-1',
+        email: 'missing@example.com',
+        emailVerified: true,
+        username: 'missing',
+        displayName: 'Missing',
+        roles: ['user'],
+        autoCreateUsers: false,
+      }),
+      (err) => err && err.statusCode === 403,
+    );
+  } finally {
+    await envContext.cleanup();
+  }
+});
+
+test('OIDC: auto-link to existing local user even when auto-create disabled', async () => {
+  const envContext = await setupTestEnv({
+    tag: 'users-oidc-autolink-',
+    modules: ['src/services/users', 'src/services/db'],
+    env: { OIDC_AUTO_CREATE_USERS: 'false' },
+  });
+  const users = envContext.requireFresh('src/services/users');
+
+  try {
+    const existing = await users.createLocalUser({
+      email: 'existing@example.com',
+      password: 'secret123',
+      username: 'existing',
+      displayName: 'Existing',
+      roles: ['user'],
+    });
+
+    const linked = await users.getOrCreateOidcUser({
+      issuer: 'https://issuer.example.com',
+      sub: 'sub-2',
+      email: 'existing@example.com',
+      emailVerified: true,
+      username: 'existing-oidc',
+      displayName: 'Existing OIDC',
+      roles: ['user'],
+      autoCreateUsers: false,
+    });
+    assert.equal(linked.id, existing.id);
+
+    const methods = await users.getUserAuthMethods(existing.id);
+    const hasOidc = methods.some((m) => m.method_type === 'oidc' && m.provider_sub === 'sub-2');
+    assert.equal(hasOidc, true);
+  } finally {
+    await envContext.cleanup();
+  }
+});

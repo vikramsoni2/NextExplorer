@@ -14,7 +14,7 @@ Administrators control users, folders, and security policies through Settings. T
 - When `USER_VOLUMES=true`, each user profile includes a **Volumes** tab for assigning per-user volumes. See [User volumes](/admin/user-volumes).
 - Local users store credentials in the SQLite database inside your `/config` mount.
 - Promote trusted accounts to admin inside the UI—note that demotions are blocked when it would remove the last admin.
-- When OIDC is enabled, users are created automatically on first login and elevated to admin if their `groups`, `roles`, or `entitlements` claims match any of the names inside `OIDC_ADMIN_GROUPS`.
+- When OIDC is enabled, users are created automatically on first login (unless `OIDC_AUTO_CREATE_USERS=false`) and elevated to admin if their `groups`, `roles`, or `entitlements` claims match any of the names inside `OIDC_ADMIN_GROUPS`.
 
 ## Access control policies
 
