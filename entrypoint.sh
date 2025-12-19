@@ -53,29 +53,20 @@ is_true() {
 
 DEMO_MODE="${DEMO_MODE:-false}"
 SAMPLE_URL="${SAMPLE_URL:-https://github.com/vikramsoni2/nextExplorer/releases/download/v2.0.0/samples.zip}"
-SAMPLES_DIR="${SAMPLES_DIR:-/tmp/Samples}"
-SAMPLES_MOUNT="${SAMPLES_MOUNT:-/mnt/Samples}"
+SAMPLES_DIR="${SAMPLES_DIR:-/mnt/Samples}"
+
 
 if is_true "$DEMO_MODE"; then
-  echo "INFO: DEMO_MODE enabled; seeding demo samples into ${SAMPLES_DIR} and exposing as ${SAMPLES_MOUNT} (read-only)"
-
-  mkdir -p "$SAMPLES_DIR" "$SAMPLES_MOUNT"
+  echo "INFO: DEMO_MODE enabled; seeding demo samples into ${SAMPLES_DIR} (read-only)"
+  mkdir -p "$SAMPLES_DIR"
 
   if command -v npm >/dev/null 2>&1; then
-    SAMPLE_URL="$SAMPLE_URL" SAMPLES_DIR="$SAMPLES_DIR" npm run --silent download_samples
+    if ! SAMPLE_URL="$SAMPLE_URL" SAMPLES_DIR="$SAMPLES_DIR" npm run --silent download_samples; then
+      echo "WARN: DEMO_MODE sample download failed; continuing without seeded samples"
+    fi
   else
-    SAMPLE_URL="$SAMPLE_URL" SAMPLES_DIR="$SAMPLES_DIR" node /app/src/scripts/downloadSamples.js
-  fi
-
-  if command -v mountpoint >/dev/null 2>&1 && mountpoint -q "$SAMPLES_MOUNT"; then
-    echo "INFO: ${SAMPLES_MOUNT} is already a mountpoint; skipping bind mount"
-  else
-    if mount --bind "$SAMPLES_DIR" "$SAMPLES_MOUNT" 2>/dev/null; then
-      mount -o remount,bind,ro "$SAMPLES_MOUNT"
-    else
-      echo "WARN: Unable to bind-mount ${SAMPLES_DIR} to ${SAMPLES_MOUNT} (missing CAP_SYS_ADMIN?); falling back to symlink"
-      rm -rf "$SAMPLES_MOUNT"
-      ln -s "$SAMPLES_DIR" "$SAMPLES_MOUNT"
+    if ! SAMPLE_URL="$SAMPLE_URL" SAMPLES_DIR="$SAMPLES_DIR" node /app/src/scripts/downloadSamples.js; then
+      echo "WARN: DEMO_MODE sample download failed; continuing without seeded samples"
     fi
   fi
 fi

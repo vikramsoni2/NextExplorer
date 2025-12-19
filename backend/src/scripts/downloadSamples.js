@@ -17,13 +17,53 @@ function requireEnv(name, fallback) {
   return value;
 }
 
+function envInt(name, fallback) {
+  const raw = process.env[name];
+  if (raw == null || raw === "") return fallback;
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value) || value < 0) {
+    throw new Error(`Invalid integer for ${name}: ${raw}`);
+  }
+  return value;
+}
+
 async function emptyDir(dir) {
   await fsp.rm(dir, { recursive: true, force: true });
   await fsp.mkdir(dir, { recursive: true });
 }
 
-async function downloadToFile(url, filePath) {
-  const response = await fetch(url);
+function configureFetchNetworking() {
+  const connectTimeoutMs = envInt("SAMPLES_CONNECT_TIMEOUT_MS", 60_000);
+  const headersTimeoutMs = envInt("SAMPLES_HEADERS_TIMEOUT_MS", 60_000);
+  const bodyTimeoutMs = envInt("SAMPLES_BODY_TIMEOUT_MS", 10 * 60_000);
+
+  try {
+    const { Agent, setGlobalDispatcher } = require("undici");
+    setGlobalDispatcher(
+      new Agent({
+        connectTimeout: connectTimeoutMs,
+        headersTimeout: headersTimeoutMs,
+        bodyTimeout: bodyTimeoutMs,
+      })
+    );
+  } catch {
+    // If undici isn't available for some reason, node's fetch defaults still apply.
+  }
+
+  return { connectTimeoutMs, headersTimeoutMs, bodyTimeoutMs };
+}
+
+async function downloadToFile(url, filePath, { requestTimeoutMs }) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+
+  let response;
+  try {
+    response = await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
   if (!response.ok) {
     throw new Error(`Failed to download ${url}: HTTP ${response.status} ${response.statusText}`);
   }
@@ -32,6 +72,38 @@ async function downloadToFile(url, filePath) {
   await fsp.mkdir(path.dirname(filePath), { recursive: true });
   const writable = fs.createWriteStream(filePath);
   await pipeline(Readable.fromWeb(response.body), writable);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function formatCause(err) {
+  const cause = err?.cause;
+  if (!cause) return "";
+  const code = cause.code ? ` (${cause.code})` : "";
+  const message = cause.message ? `: ${cause.message}` : "";
+  return `${code}${message}`;
+}
+
+async function downloadToFileWithRetries(url, filePath, { requestTimeoutMs, retries, backoffMs }) {
+  let lastErr;
+  for (let attempt = 1; attempt <= Math.max(1, retries); attempt++) {
+    try {
+      await downloadToFile(url, filePath, { requestTimeoutMs });
+      return;
+    } catch (err) {
+      lastErr = err;
+      const suffix = formatCause(err);
+      if (attempt >= retries) break;
+      const waitMs = backoffMs * attempt;
+      console.warn(
+        `WARN: Download attempt ${attempt}/${retries} failed${suffix}; retrying in ${waitMs}ms`
+      );
+      await sleep(waitMs);
+    }
+  }
+  throw lastErr;
 }
 
 async function removeMacJunk(rootDir) {
@@ -92,15 +164,24 @@ async function chmodReadOnlyRecursive(rootDir) {
 
 async function main() {
   const sampleUrl = requireEnv("SAMPLE_URL", DEFAULT_SAMPLE_URL);
-  const samplesDir = requireEnv("SAMPLES_DIR", "/tmp/Samples");
+  const samplesDir = requireEnv("SAMPLES_DIR", "/mnt/Samples");
   const tmpDir = process.env.SAMPLES_TMP_DIR || "/tmp/demo-seed";
   const zipPath = process.env.SAMPLES_ZIP_PATH || path.join(tmpDir, "samples.zip");
+  const retries = envInt("SAMPLES_DOWNLOAD_RETRIES", 5);
+  const backoffMs = envInt("SAMPLES_DOWNLOAD_BACKOFF_MS", 2_000);
+  const requestTimeoutMs = envInt("SAMPLES_REQUEST_TIMEOUT_MS", 10 * 60_000);
+
+  configureFetchNetworking();
 
   console.log(`INFO: Downloading samples from ${sampleUrl}`);
   await emptyDir(tmpDir);
   await emptyDir(samplesDir);
 
-  await downloadToFile(sampleUrl, zipPath);
+  await downloadToFileWithRetries(sampleUrl, zipPath, {
+    requestTimeoutMs,
+    retries,
+    backoffMs,
+  });
 
   console.log(`INFO: Extracting ${zipPath} to ${samplesDir}`);
   const unzip = spawnSync("unzip", ["-q", zipPath, "-d", samplesDir], { stdio: "inherit" });
