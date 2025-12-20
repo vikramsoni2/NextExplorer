@@ -28,7 +28,7 @@ RUN groupadd --system appuser && \
 
 # Install runtime tooling (ffmpeg, gosu for UID remapping, ripgrep for searches, imagemagick for HEIC thumbnails).
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick unzip util-linux \
+  && apt-get install -y --no-install-recommends ffmpeg gosu ripgrep imagemagick curl unzip \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
