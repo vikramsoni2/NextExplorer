@@ -52,6 +52,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `OIDC_SCOPES` | `openid profile email` | Default scopes; add `groups` to propagate group claims. |
 | `OIDC_ADMIN_GROUPS` | _none_ | Space/comma-separated names that grant admin rights when found in `groups`, `roles`, or `entitlements`. |
 | `OIDC_REQUIRE_EMAIL_VERIFIED` | `false` | When `true`, requires the IdP to verify the user's email before allowing user creation or auto-linking. Some providers like newer Authentik versions set `email_verified` to `false` by default. |
+| `OIDC_AUTO_CREATE_USERS` | `true` | When `false`, the user must already exist in the nextExplorer database (local or previously OIDC-linked), otherwise OIDC login is denied. |
 
 ## Feature toggles
 

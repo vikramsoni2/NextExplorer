@@ -4,6 +4,32 @@ Release notes for nextExplorer. GitHub remains the source of truth: https://gith
 
 Releases are listed newest to oldest.
 
+## v2.0.6 (2025-12-20)
+
+[GitHub release](https://github.com/vikramsoni2/nextExplorer/releases/tag/v2.0.6)
+
+### What's Changed
+
+- added demo url
+- added OIDC_AUTO_CREATE_USERS option
+- share option in context menu
+- home button in mobile view
+
+**Full Changelog**: https://github.com/vikramsoni2/nextExplorer/compare/v2.0.5...v2.0.6
+
+## v2.0.5 (2025-12-19)
+
+[GitHub release](https://github.com/vikramsoni2/nextExplorer/releases/tag/v2.0.5)
+
+### What's Changed
+
+- Updated login page layout, language selection now on top right
+- Added option to resize columns and sort by column header on detail view
+- Added keyboard shortcuts and confirm on close on default text editor.
+- Various UI fixes
+
+**Full Changelog**: https://github.com/vikramsoni2/nextExplorer/compare/v2.0.4...v2.0.5
+
 ## v2.0.4 (2025-12-18)
 
 [GitHub release](https://github.com/vikramsoni2/nextExplorer/releases/tag/v2.0.4)

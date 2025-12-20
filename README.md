@@ -2,7 +2,7 @@
   <img src="docs/public/images/logo.png" width="96" height="96" alt="nextExplorer logo" />
 </p>
 
-<h1 align="center">nextExplorer</h1>
+<h1 align="center">NextExplorer</h1>
 
 <p align="center">
   A modern, self-hosted file explorer with secure access control, polished UX, and a Docker-first deployment.
