@@ -14,7 +14,7 @@
 
 ## Demo
 
-- https://explorer-demo.nxz.ai/
+- https://explorer-latest.onrender.com
 - Username: `demo@example.com`
 - Password: `password`
 
