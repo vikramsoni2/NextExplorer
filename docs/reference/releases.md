@@ -4,6 +4,26 @@ Release notes for nextExplorer. GitHub remains the source of truth: https://gith
 
 Releases are listed newest to oldest.
 
+## v2.0.7 (2025-12-23)
+
+[GitHub release](https://github.com/vikramsoni2/nextExplorer/releases/tag/v2.0.7)
+
+### What's Changed
+
+#### New Features
+- added option to choose color-scheme in editor
+  ![Editor Theme Selection](/images/editor-theme-1.png)
+
+#### Bugfixes
+- OIDC error redirects to login screen
+- teminal menu style fix
+- loading indicator style fix
+
+- context menu hide unrelated options based on readonly/shared path
+
+**Full Changelog**: https://github.com/vikramsoni2/nextExplorer/compare/v2.0.6...v2.0.7
+
+
 ## v2.0.6 (2025-12-20)
 
 [GitHub release](https://github.com/vikramsoni2/nextExplorer/releases/tag/v2.0.6)
