@@ -15,7 +15,7 @@
         "archiver": "^6.0.2",
         "axios": "^1.7.7",
         "bcryptjs": "^2.4.3",
-        "better-sqlite3": "^12.4.1",
+        "better-sqlite3": "^12.5.0",
         "body-parser": "^1.20.2",
         "connect-sqlite3": "^0.9.16",
         "cookie-parser": "^1.4.7",
