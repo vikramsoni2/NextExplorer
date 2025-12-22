@@ -2,12 +2,12 @@
   <div class="flex h-full w-full flex-col bg-white dark:bg-default">
     <header
       class="sticky top-0 z-40 flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white/90 px-4 py-2 shadow-xs backdrop-blur
-             dark:border-neutral-800 dark:bg-default/90"
+             dark:border-neutral-900 dark:bg-default"
     >
       <div class="min-w-0">
         <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Editing</p>
         <h1 class="truncate text-md text-neutral-900 dark:text-white">
-          {{ displayPath || '—' }}
+          {{ normalizedPath || '—' }}
         </h1>
         
       </div>
@@ -16,6 +16,48 @@
           {{ saveError }}
         </span>
         <p v-if="hasUnsavedChanges" class="mr-4 text-xs text-amber-600 dark:text-amber-400">Unsaved changes</p>
+        <div ref="themeMenuRef" class="relative">
+          <button
+            type="button"
+            class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800
+                   dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+            aria-haspopup="listbox"
+            :aria-expanded="isThemeMenuOpen"
+            :aria-label="`Theme: ${currentThemeLabel}`"
+            :title="`Theme: ${currentThemeLabel}`"
+            @click="isThemeMenuOpen = !isThemeMenuOpen"
+          >
+            <Color20Regular class="h-5 w-5" />
+          </button>
+          <div
+            v-if="isThemeMenuOpen"
+            class="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg
+                   dark:border-neutral-800 dark:bg-neutral-800"
+            role="listbox"
+            :aria-label="`Select editor theme`"
+          >
+            <div class="max-h-80 overflow-auto py-1">
+              <button
+                v-for="opt in themeOptions"
+                :key="opt.id"
+                type="button"
+                role="option"
+                :aria-selected="opt.id === themeId"
+                class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100
+                       dark:text-neutral-200 dark:hover:bg-white/10"
+                @click="updateTheme(opt.id)"
+              >
+                <span class="min-w-0 truncate">{{ opt.label }}</span>
+                <span
+                  v-if="opt.id === themeId"
+                  class="shrink-0 rounded-full bg-accent/15 px-2 py-0.5 text-xs font-semibold text-accent dark:bg-white/10 dark:text-white"
+                >
+                  Active
+                </span>
+              </button>
+            </div>
+          </div>
+        </div>
         <button
           type="button"
           @click="saveFile"
@@ -25,13 +67,13 @@
           :aria-label="$t('common.save')"
           :title="$t('common.save')"
         >
-          <ArrowPathIcon v-if="isSaving" class="h-5 w-5 animate-spin" />
-          <Save20Regular v-else class="h-5 w-5" />
+          <ArrowPathIcon v-if="isSaving" class="h-6 w-6 animate-spin shrink-0" />
+          <Save20Regular v-else class="h-6 w-6 shrink-0" />
         </button>
         <button
           type="button"
-          @click="cancelEditing"
-          :disabled="!canCancel"
+          @click="requestClose"
+          :disabled="isSaving"
           class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60
                  dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
           :aria-label="$t('common.close')"
@@ -59,7 +101,7 @@
         <Codemirror
           v-model="fileContent"
           :autofocus="true"
-          :extensions="editorExtensions"
+          :extensions="extensions"
           class="h-full"
           :style="{ height: '100%' }"
           @ready="handleReady"
@@ -70,244 +112,138 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, shallowRef, watch } from 'vue';
+import { ref, shallowRef, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Codemirror } from 'vue-codemirror';
 import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
-import { githubDark } from '@fsegurai/codemirror-theme-github-dark'
-import { XMarkIcon, ArrowPathIcon } from '@heroicons/vue/24/outline';
-import { Save20Regular } from '@vicons/fluent';
-import { onKeyStroke } from '@vueuse/core';
+import * as themeBundle from '@fsegurai/codemirror-theme-bundle';
+import { XMarkIcon, ArrowPathIcon, PaintBrushIcon } from '@heroicons/vue/24/outline';
+import { Save20Regular, Color20Regular } from '@vicons/fluent';
+import { onClickOutside, onKeyStroke, useLocalStorage } from '@vueuse/core';
 
 const route = useRoute();
 const router = useRouter();
 const { t } = useI18n();
 
+// State
 const fileContent = ref('');
 const originalContent = ref('');
 const isLoading = ref(false);
 const isSaving = ref(false);
 const loadError = ref('');
 const saveError = ref('');
-
 const view = shallowRef(null);
-const handleReady = (payload) => {
-  view.value = payload.view;
+const isThemeMenuOpen = ref(false);
+const themeMenuRef = ref(null);
+onClickOutside(themeMenuRef, () => { isThemeMenuOpen.value = false; });
+
+// Theme
+const themeId = useLocalStorage('editor:theme', 'vsCodeDark');
+const themeOptions = Object.keys(themeBundle)
+  .filter(k => !k.includes('Merge'))
+  .map(k => ({ id: k, label: k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, c => c.toUpperCase()) }))
+  .sort((a, b) => a.label.localeCompare(b.label));
+
+const currentThemeLabel = computed(() => themeOptions.find(o => o.id === themeId.value)?.label ?? themeId.value);
+
+// Editor Setup
+const languageComp = new Compartment();
+const themeComp = new Compartment();
+const extensions = [
+  languageComp.of([]),
+  themeComp.of(themeBundle[themeId.value] ?? themeBundle.githubDark)
+];
+
+const handleReady = ({ view: v }) => { view.value = v; };
+
+const updateTheme = (id) => {
+  themeId.value = id;
+  isThemeMenuOpen.value = false;
+  view.value?.dispatch({
+    effects: themeComp.reconfigure(themeBundle[id] ?? themeBundle.githubDark)
+  });
 };
 
-const rawPathParam = computed(() => {
-  const param = route.params.path;
-  if (Array.isArray(param)) {
-    return param.join('/');
-  }
-  return param || '';
-});
-
-const normalizedPath = computed(() => normalizePath(rawPathParam.value));
-const displayPath = computed(() => normalizedPath.value || '');
-const fileExtension = computed(() => {
-  const segments = normalizedPath.value.split('.');
-  return segments.length > 1 ? segments.pop().toLowerCase() : '';
-});
-
-// Language compartment allows reconfiguring language without recreating the editor
-const language = new Compartment();
-
-// Base extensions: theme + an empty language compartment (configured dynamically)
-const editorExtensions = computed(() => [
-  language.of([]),
-  githubDark,
-]);
-
+// File Info
+const normalizedPath = computed(() => normalizePath(Array.isArray(route.params.path) ? route.params.path.join('/') : (route.params.path || '')));
 const hasUnsavedChanges = computed(() => fileContent.value !== originalContent.value);
 const canSave = computed(() => hasUnsavedChanges.value && !isSaving.value && !isLoading.value && !loadError.value);
-const canCancel = computed(() => !isSaving.value);
 
-const resetStatus = () => {
-  saveError.value = '';
-};
-
-const requestCloseEditor = () => {
-  if (!canCancel.value) return;
-  if (hasUnsavedChanges.value) {
-    const ok = window.confirm(t('editor.confirmCloseWithoutSaving'));
-    if (!ok) return;
-  }
-  closeEditor();
-};
-
-// Use `keyup` for Escape so the same Escape press doesn't immediately cancel the native confirm dialog.
-onKeyStroke(
-  'Escape',
-  () => requestCloseEditor(),
-  { target: window, eventName: 'keyup' },
-);
-
-// Cmd/Ctrl+S to save (and prevent browser "Save page" dialog).
-onKeyStroke(
-  ['s', 'S'],
-  (event) => {
-    if (!(event.ctrlKey || event.metaKey)) return;
-    event.preventDefault();
-    if (!canSave.value) return;
-    saveFile();
-  },
-  { target: window, eventName: 'keydown', passive: false },
-);
-
-let loadRequestId = 0;
-
-const loadFile = async () => {
-  const targetPath = normalizedPath.value;
-
-  if (!targetPath) {
-    fileContent.value = '';
-    originalContent.value = '';
-    loadError.value = 'No file selected.';
-    return;
-  }
-
+// Operations
+const loadFile = async (path) => {
+  if (!path) return (fileContent.value = '');
+  
   isLoading.value = true;
   loadError.value = '';
-  resetStatus();
-
-  const requestId = ++loadRequestId;
+  saveError.value = '';
 
   try {
-    const response = await fetchFileContent(targetPath);
-    if (requestId !== loadRequestId) {
-      return;
-    }
-    const content = typeof response?.content === 'string' ? response.content : '';
-    originalContent.value = content;
-    fileContent.value = content;
-  } catch (error) {
-    console.error('Failed to load file:', error);
-    if (requestId === loadRequestId) {
-      loadError.value = error?.message || 'Failed to load file.';
-    }
+    const { content } = await fetchFileContent(path);
+    if (path !== normalizedPath.value) return; // Stale check
+    
+    fileContent.value = originalContent.value = content || '';
+    applyLanguage(path);
+  } catch (err) {
+    if (path !== normalizedPath.value) return;
+    loadError.value = err.message;
   } finally {
-    if (requestId === loadRequestId) {
-      isLoading.value = false;
-    }
+    if (path === normalizedPath.value) isLoading.value = false;
   }
 };
 
 const saveFile = async () => {
-  if (!canSave.value) return;
-
-  const targetPath = normalizedPath.value;
-  if (!targetPath) {
-    return;
-  }
-
+  if (!canSave.value || !normalizedPath.value) return;
   isSaving.value = true;
   saveError.value = '';
-
   try {
-    await saveFileContent(targetPath, fileContent.value);
+    await saveFileContent(normalizedPath.value, fileContent.value);
     originalContent.value = fileContent.value;
-  } catch (error) {
-    console.error('Failed to save file:', error);
-    saveError.value = error?.message || 'Failed to save file.';
+  } catch (err) {
+    saveError.value = err.message;
   } finally {
     isSaving.value = false;
   }
 };
 
-const cancelEditing = () => {
-  requestCloseEditor();
+const requestClose = () => {
+  if (isSaving.value) return;
+  if (hasUnsavedChanges.value && !confirm(t('editor.confirmCloseWithoutSaving'))) return;
+  
+  const parts = normalizedPath.value.split('/').filter(Boolean);
+  parts.pop();
+  router.push(`/browse${parts.length ? '/' + parts.join('/') : ''}`);
 };
 
-const closeEditor = () => {
-  const segments = normalizedPath.value.split('/').filter(Boolean);
-  if (segments.length > 0) {
-    segments.pop();
-  }
-  const destination = `/browse${segments.length > 0 ? `/${segments.join('/')}` : ''}`;
-  router.push({ path: destination });
-};
-
-// Dynamically load and apply a language based on the file path/extension
-const applyLanguageForPath = async () => {
-  // Only proceed when the editor view is ready
+const applyLanguage = async (path) => {
   if (!view.value) return;
-
-  const currentPath = normalizedPath.value || '';
-  const base = currentPath.split('/').filter(Boolean).pop() || '';
-  const ext = fileExtension.value;
-
+  const ext = path.split('.').pop().toLowerCase();
+  
   try {
-    // Lazy import the language registry; this code-splits languages and loads on demand
     const { languages } = await import('@codemirror/language-data');
+    // Simplified matching: extension -> name -> fallback for frameworks
+    const desc = languages.find(l => l.extensions?.includes(ext) || l.name?.toLowerCase() === ext)
+      ?? (['vue', 'svelte', 'astro'].includes(ext) ? languages.find(l => l.name === 'HTML') : null);
 
-    // Try to find a language by extension (normalize leading dots if present)
-    const matchesExt = (lang, e) => Array.isArray(lang.extensions)
-      && lang.extensions.some((x) => String(x).replace(/^\./, '').toLowerCase() === e);
-
-    // Try to find by common aliases or name as a fallback (e.g., dockerfile)
-    const matchesName = (lang, name) =>
-      (typeof lang.name === 'string' && lang.name.toLowerCase() === name)
-      || (Array.isArray(lang.alias) && lang.alias.some(a => String(a).toLowerCase() === name));
-
-    let desc = null;
-    if (ext) {
-      desc = languages.find((l) => matchesExt(l, ext));
-    }
-
-    if (!desc && base) {
-      const baseLower = base.toLowerCase();
-      desc = languages.find((l) => matchesName(l, baseLower));
-    }
-
-    // As a convenience, map a few framework single-file extensions to their closest core language
-    if (!desc && ['vue', 'svelte', 'astro'].includes(ext)) {
-      desc = languages.find((l) => matchesName(l, 'html'))
-        || languages.find((l) => matchesExt(l, 'html'));
-    }
-
-    // If we found a language description, load it and reconfigure
-    if (desc && typeof desc.load === 'function') {
-      const support = await desc.load();
-      view.value.dispatch({ effects: language.reconfigure(support) });
-      return;
-    }
-
-    // Fallback to no specific language (plain text)
-    view.value.dispatch({ effects: language.reconfigure([]) });
-  } catch (err) {
-    // If the language registry is unavailable or errors, fallback silently
-    console.warn('Language load failed; falling back to plain text.', err);
-    try {
-      view.value.dispatch({ effects: language.reconfigure([]) });
-    } catch (_) {
-      // ignore
-    }
+    view.value.dispatch({
+      effects: languageComp.reconfigure(desc ? await desc.load() : [])
+    });
+  } catch (e) {
+    console.warn('Language error:', e);
   }
 };
 
-watch(normalizedPath, () => {
-  resetStatus();
-  loadFile();
-  // Update language when path changes
-  applyLanguageForPath();
-}, { immediate: true });
-
-watch(fileContent, () => {
-  if (saveError.value) {
-    saveError.value = '';
+// Interaction
+onKeyStroke('Escape', () => isThemeMenuOpen.value ? (isThemeMenuOpen.value = false) : requestClose());
+onKeyStroke(['s', 'S'], (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    saveFile();
   }
 });
 
-onMounted(() => {
-  // Apply language when the editor view becomes ready
-  const stop = watch(view, (v) => {
-    if (v) {
-      applyLanguageForPath();
-      stop();
-    }
-  });
-});
+watch(normalizedPath, loadFile, { immediate: true });
+watch(view, () => applyLanguage(normalizedPath.value));
+watch(fileContent, () => { if (saveError.value) saveError.value = ''; });
 </script>

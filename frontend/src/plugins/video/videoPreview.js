@@ -19,15 +19,6 @@ export const videoPreviewPlugin = () => ({
   // Component loader - can be sync or async
   component: () => import('./VideoPreview.vue'),
   
-  // actions: (ctx) => {
-  //   const path = ctx.filePath;
-  //   if (!path) return [];
-  //   return [{
-  //     id: 'download',
-  //     label: 'Download',
-  //     run: () => ctx.api.download(path),
-  //   }];
-  // },
   actions: (context) => [
     {
       id: 'download',

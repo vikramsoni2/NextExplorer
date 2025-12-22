@@ -16,6 +16,7 @@
     "@codemirror/theme-one-dark": "^6.1.2",
     "@coleqiu/vue-drag-select": "^2.0.6-beta.1",
     "@floating-ui/vue": "^1.1.9",
+    "@fsegurai/codemirror-theme-bundle": "^6.3.0",
     "@fsegurai/codemirror-theme-github-dark": "^6.2.2",
     "@headlessui/vue": "^1.7.22",
     "@heroicons/vue": "^2.1.3",
