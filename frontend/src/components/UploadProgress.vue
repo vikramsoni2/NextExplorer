@@ -6,10 +6,21 @@ import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/
 import { useUppyStore } from '@/stores/uppyStore'
 import { formatBytes } from '@/utils'
 
+const props = defineProps({
+  forceVisible: { type: Boolean, default: false },
+  defaultDetailsOpen: { type: Boolean, default: false },
+  defaultPaused: { type: Boolean, default: false },
+  draggable: { type: Boolean, default: true },
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 400, y: 400 }),
+  },
+})
+
 const uppyStore = useUppyStore()
 const { t } = useI18n();
-const [detailsOpen, toggleDetails] = useToggle(false)
-const isPaused = ref(false)
+const [detailsOpen, toggleDetails] = useToggle(props.defaultDetailsOpen)
+const isPaused = ref(props.defaultPaused)
 
 const el = ref(null)
 const { width: viewportWidth, height: viewportHeight } = useWindowSize()
@@ -17,8 +28,9 @@ const { width: panelWidth, height: panelHeight } = useElementSize(el)
 const edgeOffset = 16
 
 const { x, y, style } = useDraggable(el, {
-  initialValue: { x: 400, y: 400 },
+  initialValue: props.initialPosition,
   preventDefault: true,
+  disabled: computed(() => !props.draggable),
 })
 
 // Auto-clamp position to keep panel in viewport - watchEffect automatically tracks all dependencies
@@ -98,6 +110,7 @@ const roundedProgress = computed(() => Math.round(progress.value ?? 0))
 const overallBarWidth = computed(() => Math.min(progress.value ?? 0, 100))
 
 const uploadInProgress = computed(() => {
+  if (props.forceVisible) return true
   const currentUploads = uppyStore.state.currentUploads ?? {}
   return Object.keys(currentUploads).length > 0 || fileStats.value.activeCount > 0
 })
@@ -154,7 +167,7 @@ function toggleDetailsKey(e) {
             :aria-expanded="detailsOpen"
             @click="toggleDetails()"
             @keydown="toggleDetailsKey"
-            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500"
+            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <ChevronDownIcon class="h-5 w-5 transition-transform" :class="detailsOpen ? 'rotate-180' : ''" />
           </button>
@@ -164,7 +177,7 @@ function toggleDetailsKey(e) {
             :title="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             :aria-label="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             @click="onTogglePause"
-            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500"
+            class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
             <component :is="isPaused ? PlayIcon : PauseIcon" class="h-5 w-5" />
           </button>
@@ -184,18 +197,18 @@ function toggleDetailsKey(e) {
       <div class="mt-1 text-sm text-zinc-600 dark:text-zinc-300">
         {{ t('upload.uploads', { count: fileStats.totalCount, items: fileStats.totalCount === 1 ? t('common.item') : t('common.items') }) }}
         <template v-if="destinationFolder">
-          {{ t('common.to') }} <span class="text-sky-600 dark:text-sky-300 font-medium">{{ destinationFolder }}</span>
+          {{ t('common.to') }} <span class="text-indigo-600 dark:text-indigo-300 font-medium">{{ destinationFolder }}</span>
         </template>
       </div>
 
       <!-- Overall progress bar -->
       <div class="mt-3">
-        <div class="w-full h-3 rounded-full overflow-hidden border border-zinc-200/70 dark:border-zinc-700/50 bg-[linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.6))] dark:bg-[linear-gradient(180deg,rgba(24,24,27,.9),rgba(24,24,27,.6))]">
+        <div class="w-full h-3 rounded-full overflow-hidden border border-zinc-200/70 dark:border-zinc-700/50 bg-zinc-100/80 dark:bg-zinc-800/70">
           <div
-            class="h-full rounded-full win-bar"
+            class="h-full rounded-full upload-bar"
             :class="[
-              isPaused ? 'opacity-60' : 'win-bar--striped',
-              roundedProgress === 100 ? 'win-bar--complete' : 'win-bar--active'
+              isPaused ? 'opacity-60' : 'upload-bar--animated',
+              roundedProgress === 100 ? 'upload-bar--complete' : 'upload-bar--active'
             ]"
             :style="`width: ${overallBarWidth}%;`"
           />
@@ -223,9 +236,9 @@ function toggleDetailsKey(e) {
         :key="file.id"
         class="details-item px-5 py-3"
       >
-        <div class="flex items-start gap-3">
+          <div class="flex items-start gap-3">
           <!-- File badge -->
-          <div class="mt-0.5 h-6 w-6 shrink-0 grid place-items-center rounded-md bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300 uppercase text-[10px] font-semibold">
+          <div class="mt-0.5 h-6 w-6 shrink-0 grid place-items-center rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 uppercase text-[10px] font-semibold">
             {{ (file.extension || file.type || 'file').toString().split('/').pop().slice(0,3) }}
           </div>
 
@@ -245,10 +258,10 @@ function toggleDetailsKey(e) {
 
             <div class="mt-1 h-2 overflow-hidden rounded-full border border-zinc-200/70 dark:border-zinc-700/50 bg-zinc-100 dark:bg-zinc-800">
               <div
-                class="h-full rounded-full win-bar"
+                class="h-full rounded-full upload-bar"
                 :class="[
-                  !file._progress.uploadComplete && !isPaused ? 'win-bar--striped' : '',
-                  file._progress.uploadComplete ? 'win-bar--complete' : 'win-bar--active'
+                  !file._progress.uploadComplete && !isPaused ? 'upload-bar--animated' : '',
+                  file._progress.uploadComplete ? 'upload-bar--complete' : 'upload-bar--active'
                 ]"
                 :style="`width: ${file._progress.percentage}%;`"
               />
@@ -265,61 +278,73 @@ function toggleDetailsKey(e) {
 </template>
 
 <style scoped>
-/* Windows-esque bar: subtle gradient, glossy edge, animated diagonal stripes while active */
-.win-bar {
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, #6fb6ff, #0a7cff);
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.35),
-    inset 0 -1px 0 rgba(0,0,0,.08);
-  transition: width .3s ease, opacity .2s ease, background .3s ease;
-}
-
-/* Active (blue), Completed (green) */
-.win-bar--active {
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, #6fb6ff, #0a7cff);
-}
-.win-bar--complete {
-  background-image:
-    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0) 60%),
-    linear-gradient(180deg, #6ee7b7, #10b981);
-}
-
-/* Diagonal stripe animation (like Windows indeterminate feel but determinate-friendly) */
-.win-bar--striped {
+/* Modern indigo fill with a subtle left-to-right shimmer while active. */
+.upload-bar {
   position: relative;
   overflow: hidden;
+  --upload-pulse-width: 240px;
+  transition: width 320ms cubic-bezier(0.22, 1, 0.36, 1), opacity 160ms ease;
 }
-.win-bar--striped::before {
+
+/* Active (indigo), Completed (emerald) */
+.upload-bar--active {
+  background: linear-gradient(90deg, #4f46e5, #6366f1, #818cf8);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 0 0 1px rgba(79, 70, 229, 0.18),
+    0 10px 24px rgba(79, 70, 229, 0.22);
+}
+.upload-bar--complete {
+  background: linear-gradient(90deg, #10b981, #34d399, #6ee7b7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 0 0 1px rgba(16, 185, 129, 0.2),
+    0 10px 24px rgba(16, 185, 129, 0.18);
+}
+
+.upload-bar--animated.upload-bar--active {
+  background-size: 200% 100%;
+  animation: uploadGradientDrift 3.2s ease-in-out infinite;
+}
+
+.upload-bar--animated::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background-size: 28px 28px;
-  background-image: linear-gradient(
-    135deg,
-    rgba(255,255,255,.28) 25%,
-    rgba(255,255,255,0) 25%,
-    rgba(255,255,255,0) 50%,
-    rgba(255,255,255,.28) 50%,
-    rgba(255,255,255,.28) 75%,
-    rgba(255,255,255,0) 75%,
-    rgba(255,255,255,0) 100%
+  top: 0;
+  bottom: 0;
+  left: calc(var(--upload-pulse-width) * -1);
+  width: var(--upload-pulse-width);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
   );
-  animation: winStripe 1.2s linear infinite;
+  opacity: 0;
+  filter: blur(0.1px);
+  will-change: left, opacity;
+  animation: uploadShimmer 1.6s ease-in-out infinite;
   pointer-events: none;
 }
 
 /* Reduce motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .win-bar--striped::before { animation: none; }
+  .upload-bar { transition: none; }
+  .upload-bar--animated.upload-bar--active { animation: none; }
+  .upload-bar--animated::before { animation: none; }
 }
 
-@keyframes winStripe {
-  from { background-position: 0 0; }
-  to   { background-position: 28px 0; }
+@keyframes uploadGradientDrift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes uploadShimmer {
+  0% { left: calc(var(--upload-pulse-width) * -1); opacity: 0; }
+  15% { opacity: 0.85; }
+  50% { opacity: 0.6; }
+  85% { opacity: 0.85; }
+  100% { left: calc(100% + var(--upload-pulse-width)); opacity: 0; }
 }
 
 .details-panel {

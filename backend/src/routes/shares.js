@@ -485,6 +485,7 @@ router.get('/:token/browse/*', asyncHandler(async (req, res) => {
   const thumbsEnabled = settings?.thumbnails?.enabled !== false;
   const previewable = new Set([
     ...extensions.images,
+    ...(extensions.rawImages || []),
     ...extensions.videos,
     ...(extensions.documents || []),
   ]);

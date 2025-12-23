@@ -161,6 +161,7 @@ module.exports = {
   
   extensions: {
     images: constants.IMAGE_EXTENSIONS,
+    rawImages: constants.RAW_IMAGE_EXTENSIONS,
     videos: constants.VIDEO_EXTENSIONS,
     audios: constants.AUDIO_EXTENSIONS,
     documents: constants.DOCUMENT_EXTENSIONS,

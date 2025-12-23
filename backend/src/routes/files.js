@@ -24,6 +24,7 @@ const {
   ConflictError,
   UnsupportedMediaTypeError
 } = require('../errors/AppError');
+const { getRawPreviewJpegPath } = require('../services/rawPreviewService');
 
 const router = express.Router();
 
@@ -427,6 +428,35 @@ router.get('/preview', asyncHandler(async (req, res) => {
   }
 
   const extension = path.extname(absolutePath).slice(1).toLowerCase();
+
+  if ((extensions.rawImages || []).includes(extension)) {
+    let jpegPath;
+    try {
+      jpegPath = await getRawPreviewJpegPath(absolutePath);
+    } catch (error) {
+      logger.warn({ absolutePath, err: error }, 'Failed to extract embedded RAW preview');
+      throw new UnsupportedMediaTypeError('Preview is not available for this RAW file.');
+    }
+
+    const jpegStats = await fs.stat(jpegPath);
+
+    res.writeHead(200, {
+      'Content-Type': 'image/jpeg',
+      'Content-Length': jpegStats.size,
+    });
+
+    const stream = fss.createReadStream(jpegPath);
+    stream.on('error', (streamError) => {
+      logger.error({ err: streamError }, 'RAW preview stream failed');
+      if (!res.headersSent) {
+        res.status(500).end();
+      } else {
+        res.destroy(streamError);
+      }
+    });
+    stream.pipe(res);
+    return;
+  }
 
   if (!extensions.previewable.has(extension)) {
     throw new UnsupportedMediaTypeError('Preview is not available for this file type.');
