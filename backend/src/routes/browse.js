@@ -15,6 +15,7 @@ const { getPermissionForPath } = require('../services/accessControlService');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const previewable = new Set([
   ...extensions.images,
+  ...(extensions.rawImages || []),
   ...extensions.videos,
   ...(extensions.documents || []),
 ]);

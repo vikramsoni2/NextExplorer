@@ -11,6 +11,7 @@ const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions } = require('../config/index');
 const { getSettings } = require('../services/settingsService');
 const logger = require('../utils/logger');
+const { getRawPreviewJpegPath } = require('./rawPreviewService');
 
 const getThumbOptions = async () => {
   const settings = await getSettings();
@@ -76,6 +77,7 @@ const configureFfmpegBinaries = () => {
 configureFfmpegBinaries();
 
 const isImage = (ext) => extensions.images.includes(ext);
+const isRawImage = (ext) => (extensions.rawImages || []).includes(ext);
 const isVideo = (ext) => extensions.videos.includes(ext);
 const isPdf = (ext) => ext === 'pdf';
 const isHeic = (ext) => ext === 'heic';
@@ -148,6 +150,11 @@ const makeImageThumb = async (srcPath, destPath) => {
     .toBuffer();
 
   await atomicWrite(destPath, buffer);
+};
+
+const makeRawImageThumb = async (srcPath, destPath) => {
+  const previewJpegPath = await getRawPreviewJpegPath(srcPath);
+  await makeImageThumb(previewJpegPath, destPath);
 };
 
 const probeDuration = (filePath) =>
@@ -248,6 +255,11 @@ const generateThumbnail = async (filePath, thumbPath) => {
 
   if (isHeic(extension)) {
     await makeHeicThumb(filePath, thumbPath);
+    return;
+  }
+
+  if (isRawImage(extension)) {
+    await makeRawImageThumb(filePath, thumbPath);
     return;
   }
 

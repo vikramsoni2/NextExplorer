@@ -311,12 +311,19 @@ export const useFileStore = defineStore('fileStore', () => {
 
     return [...currentPathItems.value].sort((a, b) => {
       // keep directories first
-      if (a.kind === 'directory' && b.kind != 'directory') return -1;
-      if (a.kind != 'directory' && b.kind === 'directory') return 1;
+      const isDirDiff = (b.kind === 'directory') - (a.kind === 'directory');
+      if (isDirDiff) return isDirDiff; // returns -1 or 1
+
       const aValue = a[settings.sortBy.by];
       const bValue = b[settings.sortBy.by];
       if (aValue === bValue) return 0;
-      return aValue > bValue ? direction : -direction;
+      
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return (
+          aValue.localeCompare(bValue, undefined, { sensitivity: 'base' }) * direction
+        );
+      }
+      return (aValue > bValue ? 1 : -1) * direction;
     });
   });
 

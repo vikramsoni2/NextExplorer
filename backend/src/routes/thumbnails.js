@@ -18,7 +18,9 @@ const isThumbnailable = (extension = '') => {
     return false;
   }
   const ext = extension.toLowerCase();
-  return extensions.images.includes(ext) || extensions.videos.includes(ext);
+  return extensions.images.includes(ext)
+    || (extensions.rawImages || []).includes(ext)
+    || extensions.videos.includes(ext);
 };
 
 router.get('/thumbnails/*', asyncHandler(async (req, res) => {
@@ -79,7 +81,7 @@ router.get('/thumbnails/*', asyncHandler(async (req, res) => {
   }
 
   // If thumbnail generation failed or produced no result, fall back to the original file
-  if (!thumbnail && extensions.images.includes(extension)) {
+  if (!thumbnail && (extensions.images.includes(extension) || (extensions.rawImages || []).includes(extension))) {
     const previewUrl = `/api/preview?path=${encodeURIComponent(logicalPath)}`;
     return res.json({ thumbnail: previewUrl });
   }

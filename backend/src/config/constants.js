@@ -1,4 +1,5 @@
 const IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg', 'ico', 'tif', 'tiff', 'avif', 'heic'];
+const RAW_IMAGE_EXTENSIONS = ['nef', 'dng', 'arw', 'cr2', 'raf'];
 const VIDEO_EXTENSIONS = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
 const AUDIO_EXTENSIONS = ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus', 'wma'];
 const DOCUMENT_EXTENSIONS = ['pdf'];
@@ -17,10 +18,11 @@ const MIME_TYPES = {
 
 module.exports = {
   IMAGE_EXTENSIONS,
+  RAW_IMAGE_EXTENSIONS,
   VIDEO_EXTENSIONS,
   AUDIO_EXTENSIONS,
   DOCUMENT_EXTENSIONS,
   EXCLUDED_FILES,
   MIME_TYPES,
-  PREVIEWABLE_EXTENSIONS: new Set([...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS, ...DOCUMENT_EXTENSIONS]),
+  PREVIEWABLE_EXTENSIONS: new Set([...IMAGE_EXTENSIONS, ...RAW_IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS, ...DOCUMENT_EXTENSIONS]),
 };

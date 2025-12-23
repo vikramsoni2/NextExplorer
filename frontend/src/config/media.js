@@ -11,6 +11,11 @@ const DEFAULT_IMAGE_PREVIEW_EXTENSIONS = [
   'tiff',
   'avif',
   'heic',
+  'nef',
+  'dng',
+  'arw',
+  'cr2',
+  'raf',
 ];
 
 const envImageExtensions = (import.meta.env.VITE_IMAGE_PREVIEW_EXTENSIONS || '')

@@ -9,6 +9,7 @@ services:
     volumes:
       - /Users/vikram/projects:/mnt/Projects
       - /Users/vikram/Downloads:/mnt/Downloads
+      - /Users/vikram/Pictures:/mnt/Pictures
       - /Users/vikram/Downloads/config:/config
       - /Users/vikram/Downloads/cache:/cache
     environment:
