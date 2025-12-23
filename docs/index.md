@@ -41,6 +41,7 @@ nextExplorer arrives ready to run. Drop the container on any host, mount your vo
 
 ### Quick start
 
+**Minimal Docker-compose to start**
 ```yaml
 services:
   nextexplorer:
@@ -52,21 +53,14 @@ services:
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
-      # Optional: override the auto-generated session secret
-      # - SESSION_SECRET=please-change-me
-      # Optional OIDC (see Authentication)
-      # - OIDC_ENABLED=true
-      # - OIDC_ISSUER=https://auth.example.com/application/o/next/
-      # - OIDC_CLIENT_ID=nextexplorer
-      # - OIDC_CLIENT_SECRET=...
-      # - OIDC_SCOPES=openid profile email groups
-      # - OIDC_ADMIN_GROUPS=next-admin admins
     volumes:
       - /srv/nextexplorer/config:/config
       - /srv/nextexplorer/cache:/cache
       - /srv/data/Projects:/mnt/Projects
       - /srv/data/Downloads:/mnt/Downloads
 ```
+
+For full set of config see [Environment Reference](configuration/environment.html).
 
 Run it with `docker compose up -d`, then visit `http://localhost:3000` to finish the onboarding wizard.
 
