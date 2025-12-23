@@ -6,10 +6,21 @@ import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/
 import { useUppyStore } from '@/stores/uppyStore'
 import { formatBytes } from '@/utils'
 
+const props = defineProps({
+  forceVisible: { type: Boolean, default: false },
+  defaultDetailsOpen: { type: Boolean, default: false },
+  defaultPaused: { type: Boolean, default: false },
+  draggable: { type: Boolean, default: true },
+  initialPosition: {
+    type: Object,
+    default: () => ({ x: 400, y: 400 }),
+  },
+})
+
 const uppyStore = useUppyStore()
 const { t } = useI18n();
-const [detailsOpen, toggleDetails] = useToggle(false)
-const isPaused = ref(false)
+const [detailsOpen, toggleDetails] = useToggle(props.defaultDetailsOpen)
+const isPaused = ref(props.defaultPaused)
 
 const el = ref(null)
 const { width: viewportWidth, height: viewportHeight } = useWindowSize()
@@ -17,8 +28,9 @@ const { width: panelWidth, height: panelHeight } = useElementSize(el)
 const edgeOffset = 16
 
 const { x, y, style } = useDraggable(el, {
-  initialValue: { x: 400, y: 400 },
+  initialValue: props.initialPosition,
   preventDefault: true,
+  disabled: computed(() => !props.draggable),
 })
 
 // Auto-clamp position to keep panel in viewport - watchEffect automatically tracks all dependencies
@@ -98,6 +110,7 @@ const roundedProgress = computed(() => Math.round(progress.value ?? 0))
 const overallBarWidth = computed(() => Math.min(progress.value ?? 0, 100))
 
 const uploadInProgress = computed(() => {
+  if (props.forceVisible) return true
   const currentUploads = uppyStore.state.currentUploads ?? {}
   return Object.keys(currentUploads).length > 0 || fileStats.value.activeCount > 0
 })

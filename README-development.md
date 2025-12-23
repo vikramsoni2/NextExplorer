@@ -71,6 +71,8 @@ npm run dev
   - `npm run preview` – serve the built assets locally.
   - `npm run test:unit` – Vitest unit suite.
   - `npm run lint` – ESLint with Vue plugin; auto-fixes where possible.
+  - `npm run storybook` – component explorer on `http://localhost:6006`.
+  - `npm run build-storybook` – static Storybook build (`frontend/storybook-static/`).
 
 #### Features Store Architecture
 
