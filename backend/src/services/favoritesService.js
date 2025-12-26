@@ -7,11 +7,10 @@ const config = require('../config');
 
 const DEFAULT_FAVORITE_ICON = config.favorites.defaultIcon;
 
-const generateId = () => (
+const generateId = () =>
   typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`
-);
+    : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`;
 
 /**
  * Validate and sanitize a favorite
@@ -62,11 +61,15 @@ const ensureUserId = (userId) => {
  * Get the next position for a user's favorites
  */
 const getNextFavoritePosition = (db, userId) => {
-  const row = db.prepare(`
+  const row = db
+    .prepare(
+      `
     SELECT COALESCE(MAX(position), -1) AS maxPos
     FROM favorites
     WHERE user_id = ?
-  `).get(userId);
+  `,
+    )
+    .get(userId);
 
   const currentMax = typeof row?.maxPos === 'number' ? row.maxPos : -1;
   return currentMax + 1;
@@ -83,7 +86,10 @@ const validatePath = async (relativePath, user) => {
     throw err;
   }
 
-  const { accessInfo, resolved } = await resolvePathWithAccess({ user: ctxUser, guestSession: null }, relativePath);
+  const { accessInfo, resolved } = await resolvePathWithAccess(
+    { user: ctxUser, guestSession: null },
+    relativePath,
+  );
   if (!accessInfo?.canAccess || !resolved) {
     const err = new Error(accessInfo?.denialReason || 'Path is not accessible');
     err.status = 403;
@@ -106,12 +112,16 @@ const getFavorites = async (userId) => {
   ensureUserId(userId);
 
   const db = await getDb();
-  const favorites = db.prepare(`
+  const favorites = db
+    .prepare(
+      `
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE user_id = ?
     ORDER BY position ASC, created_at ASC
-  `).all(userId);
+  `,
+    )
+    .all(userId);
 
   return favorites.map(mapDbFavorite);
 };
@@ -120,7 +130,8 @@ const getFavorites = async (userId) => {
  * Add or update a favorite for a user
  */
 const addFavorite = async (userOrId, { path, label, icon, color }) => {
-  const user = userOrId && typeof userOrId === 'object' ? userOrId : { id: userOrId };
+  const user =
+    userOrId && typeof userOrId === 'object' ? userOrId : { id: userOrId };
   const userId = ensureUserId(user?.id);
 
   const favorite = sanitize({ path, label, icon, color });
@@ -137,7 +148,8 @@ const addFavorite = async (userOrId, { path, label, icon, color }) => {
   const id = generateId();
   const position = getNextFavoritePosition(db, userId);
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO favorites (id, user_id, path, label, icon, color, created_at, updated_at, position)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(user_id, path) DO UPDATE SET
@@ -145,13 +157,28 @@ const addFavorite = async (userOrId, { path, label, icon, color }) => {
       icon = excluded.icon,
       color = excluded.color,
       updated_at = excluded.updated_at
-  `).run(id, userId, favorite.path, favorite.label, favorite.icon, favorite.color, now, now, position);
+  `,
+  ).run(
+    id,
+    userId,
+    favorite.path,
+    favorite.label,
+    favorite.icon,
+    favorite.color,
+    now,
+    now,
+    position,
+  );
 
-  const row = db.prepare(`
+  const row = db
+    .prepare(
+      `
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE user_id = ? AND path = ?
-  `).get(userId, favorite.path);
+  `,
+    )
+    .get(userId, favorite.path);
 
   return mapDbFavorite(row);
 };
@@ -165,9 +192,11 @@ const removeFavorite = async (userId, path) => {
   const normalizedPath = normalizeRelativePath(path);
 
   const db = await getDb();
-  db.prepare(`
+  db.prepare(
+    `
     DELETE FROM favorites WHERE user_id = ? AND path = ?
-  `).run(userId, normalizedPath);
+  `,
+  ).run(userId, normalizedPath);
 
   // Return updated list
   return getFavorites(userId);
@@ -217,11 +246,15 @@ const updateFavorite = async (userId, favoriteId, updates) => {
   values.push(favoriteId);
   values.push(userId);
 
-  const result = db.prepare(`
+  const result = db
+    .prepare(
+      `
     UPDATE favorites
     SET ${fields.join(', ')}
     WHERE id = ? AND user_id = ?
-  `).run(...values);
+  `,
+    )
+    .run(...values);
 
   if (result.changes === 0) {
     const err = new Error('Favorite not found');
@@ -229,11 +262,15 @@ const updateFavorite = async (userId, favoriteId, updates) => {
     throw err;
   }
 
-  const updated = db.prepare(`
+  const updated = db
+    .prepare(
+      `
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE id = ? AND user_id = ?
-  `).get(favoriteId, userId);
+  `,
+    )
+    .get(favoriteId, userId);
 
   return mapDbFavorite(updated);
 };
@@ -253,13 +290,17 @@ const reorderFavorites = async (userId, orderedIds) => {
 
   const db = await getDb();
 
-  const existing = db.prepare(`
+  const existing = db
+    .prepare(
+      `
     SELECT id
     FROM favorites
     WHERE user_id = ?
-  `).all(userId);
+  `,
+    )
+    .all(userId);
 
-  const existingIds = existing.map(row => row.id);
+  const existingIds = existing.map((row) => row.id);
 
   if (existingIds.length !== orderedIds.length) {
     const err = new Error('Order must include all favorites');
@@ -304,12 +345,16 @@ const reorderFavorites = async (userId, orderedIds) => {
 
   transact(orderedIds);
 
-  const rows = db.prepare(`
+  const rows = db
+    .prepare(
+      `
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE user_id = ?
     ORDER BY position ASC, created_at ASC
-  `).all(userId);
+  `,
+    )
+    .all(userId);
 
   return rows.map(mapDbFavorite);
 };

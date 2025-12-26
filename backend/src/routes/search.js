@@ -11,7 +11,11 @@ const { getPermissionForPath } = require('../services/accessControlService');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const { ValidationError, NotFoundError, ForbiddenError } = require('../errors/AppError');
+const {
+  ValidationError,
+  NotFoundError,
+  ForbiddenError,
+} = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -19,9 +23,10 @@ const router = express.Router();
 const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'build']);
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 500;
-const CONTENT_FALLBACK_MAX_SIZE = searchConfig?.maxFileSizeBytes > 0 
-  ? searchConfig.maxFileSizeBytes 
-  : 5 * 1024 * 1024;
+const CONTENT_FALLBACK_MAX_SIZE =
+  searchConfig?.maxFileSizeBytes > 0
+    ? searchConfig.maxFileSizeBytes
+    : 5 * 1024 * 1024;
 
 // Cache ripgrep availability (Optimization #4)
 let ripgrepAvailable = null;
@@ -29,7 +34,7 @@ let ripgrepAvailable = null;
 // Utilities
 const toLimit = (value, def = DEFAULT_LIMIT) => {
   const n = Number(value);
-  return (Number.isFinite(n) && n > 0) ? Math.min(n, MAX_LIMIT) : def;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, MAX_LIMIT) : def;
 };
 
 const isDirectory = async (p) => {
@@ -43,64 +48,74 @@ const isDirectory = async (p) => {
 // Cached ripgrep check (Optimization #4)
 const hasRipgrep = async () => {
   if (ripgrepAvailable !== null) return ripgrepAvailable;
-  
+
   ripgrepAvailable = await new Promise((resolve) => {
     const child = spawn('rg', ['--version']);
     child.on('error', () => resolve(false));
     child.on('exit', (code) => resolve(code === 0));
   });
-  
+
   return ripgrepAvailable;
 };
 
 // Search implementations
-const buildRipgrepArgs = () => ['-g', '!.git', '-g', '!node_modules', '-g', '!dist', '-g', '!build'];
+const buildRipgrepArgs = () => [
+  '-g',
+  '!.git',
+  '-g',
+  '!node_modules',
+  '-g',
+  '!dist',
+  '-g',
+  '!build',
+];
 
 const normalizePath = (p, relBasePath) => {
   const normalized = p.replace(/\\/g, '/');
   return relBasePath ? path.posix.join(relBasePath, normalized) : normalized;
 };
 
-const shouldIgnore = (name) => IGNORED_DIRS.has(name) || excludedFiles.includes(name);
+const shouldIgnore = (name) =>
+  IGNORED_DIRS.has(name) || excludedFiles.includes(name);
 
 const extractDirMatches = (fullPath, needle) => {
   const dirs = new Set();
   const dirPath = path.posix.dirname(fullPath);
-  
+
   if (dirPath && dirPath !== '.') {
     const parts = dirPath.split('/');
     let acc = '';
-    
+
     for (const part of parts) {
       if (!part || shouldIgnore(part)) continue;
       acc = acc ? `${acc}/${part}` : part;
       if (part.toLowerCase().includes(needle)) dirs.add(acc);
     }
   }
-  
+
   return dirs;
 };
 
 const shouldIncludeResult = async (rel) => {
   const name = path.posix.basename(rel);
   if (excludedFiles.includes(name)) return false;
-  if (await getPermissionForPath(rel) === 'hidden') return false;
+  if ((await getPermissionForPath(rel)) === 'hidden') return false;
   return true;
 };
 
 const formatResult = (rel, kind, line, lineNumber) => {
   const parent = path.posix.dirname(rel);
-  const item = { 
-    name: path.posix.basename(rel), 
-    path: parent === '.' ? '' : parent, 
-    kind 
+  const item = {
+    name: path.posix.basename(rel),
+    path: parent === '.' ? '' : parent,
+    kind,
   };
-  
+
   if (line != null) {
     item.matchLine = line;
     if (Number.isFinite(lineNumber)) item.matchLineNumber = lineNumber;
   }
-  
+
   return item;
 };
 
@@ -114,16 +129,23 @@ const parseJsonLine = (line) => {
 };
 
 // Optimized: Stream file list results (Optimization #1 & #3)
-async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet) {
+async function* streamFileListMatches(
+  baseAbsPath,
+  relBasePath,
+  needle,
+  seenPaths,
+  dirSet,
+) {
   const globArgs = buildRipgrepArgs();
-  const fileListProcess = spawn('rg', 
-    ['--files', '--hidden', '--no-messages', ...globArgs], 
-    { cwd: baseAbsPath }
+  const fileListProcess = spawn(
+    'rg',
+    ['--files', '--hidden', '--no-messages', ...globArgs],
+    { cwd: baseAbsPath },
   );
 
   const rl = readline.createInterface({
     input: fileListProcess.stdout,
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
 
   for await (const line of rl) {
@@ -131,7 +153,7 @@ async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPath
     if (!trimmed) continue;
 
     const fullRel = normalizePath(trimmed, relBasePath);
-    
+
     // Extract and yield directory matches immediately
     for (const dirPath of extractDirMatches(fullRel, needle)) {
       if (!dirSet.has(dirPath) && !seenPaths.has(dirPath)) {
@@ -155,15 +177,29 @@ async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPath
 }
 
 // Optimized: Stream content matches with JSON output (Optimization #1 & #2)
-async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) {
+async function* streamContentMatches(
+  baseAbsPath,
+  relBasePath,
+  term,
+  seenPaths,
+) {
   const globArgs = buildRipgrepArgs();
-  
+
   const contentArgs = [
     '--json', // Use JSON output for faster parsing (Optimization #2)
-    '-n', '-H', '--hidden', '--no-messages', 
-    '--smart-case', '-F', term, '.', '-m', '1', ...globArgs
+    '-n',
+    '-H',
+    '--hidden',
+    '--no-messages',
+    '--smart-case',
+    '-F',
+    term,
+    '.',
+    '-m',
+    '1',
+    ...globArgs,
   ];
-  
+
   if (searchConfig?.maxFileSize) {
     contentArgs.unshift('--max-filesize', searchConfig.maxFileSize);
   }
@@ -171,7 +207,7 @@ async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) 
   const contentProcess = spawn('rg', contentArgs, { cwd: baseAbsPath });
   const rl = readline.createInterface({
     input: contentProcess.stdout,
-    crlfDelay: Infinity
+    crlfDelay: Infinity,
   });
 
   for await (const line of rl) {
@@ -186,7 +222,7 @@ async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) 
 
     const rel = normalizePath(filePath, relBasePath);
     if (seenPaths.has(rel)) continue;
-    
+
     seenPaths.add(rel);
     if (await shouldIncludeResult(rel)) {
       yield formatResult(rel, 'file', lineText, lineNum);
@@ -195,20 +231,42 @@ async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) 
 }
 
 // Optimized ripgrep with parallel execution (Optimization #1, #2, #3)
-async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = true) {
+async function* generateRipgrepResults(
+  baseAbsPath,
+  relBasePath,
+  term,
+  deep = true,
+) {
   const needle = term.toLowerCase();
   const seenPaths = new Set();
   const dirSet = new Set();
 
   if (!deep) {
     // If no deep search, only run file list matches
-    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
+    yield* streamFileListMatches(
+      baseAbsPath,
+      relBasePath,
+      needle,
+      seenPaths,
+      dirSet,
+    );
     return;
   }
 
   // Optimization #3: Run both searches in parallel
-  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
-  const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths);
+  const fileListGen = streamFileListMatches(
+    baseAbsPath,
+    relBasePath,
+    needle,
+    seenPaths,
+    dirSet,
+  );
+  const contentGen = streamContentMatches(
+    baseAbsPath,
+    relBasePath,
+    term,
+    seenPaths,
+  );
 
   // Yield from file list first (directories and filename matches)
   for await (const result of fileListGen) {
@@ -222,7 +280,12 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = tr
 }
 
 // Optimized fallback with streaming (Optimization #1)
-async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = true) {
+async function* generateFallbackResults(
+  baseAbsPath,
+  relBasePath,
+  term,
+  deep = true,
+) {
   const seenPaths = new Set();
   const needle = term.toLowerCase();
 
@@ -234,10 +297,10 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
     } catch {
       return; // Skip directories we can't read
     }
-    
+
     for (const d of dirents) {
       if (shouldIgnore(d.name)) continue;
-      
+
       const abs = path.join(dirAbs, d.name);
       const rel = dirRel ? path.posix.join(dirRel, d.name) : d.name;
 
@@ -262,10 +325,12 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
               const content = await fs.readFile(abs, 'utf8');
               const lower = content.toLowerCase();
               const idx = lower.indexOf(needle);
-              
+
               if (idx !== -1) {
-                const lineNumber = (content.slice(0, idx).match(/\n/g)?.length ?? 0) + 1;
-                const matchedLine = content.split(/\r?\n/)[lineNumber - 1] || '';
+                const lineNumber =
+                  (content.slice(0, idx).match(/\n/g)?.length ?? 0) + 1;
+                const matchedLine =
+                  content.split(/\r?\n/)[lineNumber - 1] || '';
                 seenPaths.add(rel);
                 if (await shouldIncludeResult(rel)) {
                   yield formatResult(rel, 'file', matchedLine, lineNumber);
@@ -283,53 +348,61 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
   yield* walk(baseAbsPath, relBasePath);
 }
 
-router.get('/search', asyncHandler(async (req, res) => {
-  const q = (req.query.q || '').trim();
-  if (!q) {
-    throw new ValidationError('Search term (q) is required.');
-  }
+router.get(
+  '/search',
+  asyncHandler(async (req, res) => {
+    const q = (req.query.q || '').trim();
+    if (!q) {
+      throw new ValidationError('Search term (q) is required.');
+    }
 
-  const relBaseInput = normalizeRelativePath(req.query.path || '');
+    const relBaseInput = normalizeRelativePath(req.query.path || '');
 
-  const context = { user: req.user, guestSession: req.guestSession };
-  let accessInfo;
-  let resolvedBase;
-  try {
-    ({ accessInfo, resolved: resolvedBase } = await resolvePathWithAccess(context, relBaseInput));
-  } catch (error) {
-    throw new NotFoundError('Base path not found.');
-  }
+    const context = { user: req.user, guestSession: req.guestSession };
+    let accessInfo;
+    let resolvedBase;
+    try {
+      ({ accessInfo, resolved: resolvedBase } = await resolvePathWithAccess(
+        context,
+        relBaseInput,
+      ));
+    } catch (error) {
+      throw new NotFoundError('Base path not found.');
+    }
 
-  if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
-    throw new ForbiddenError(accessInfo?.denialReason || 'Search base is not accessible.');
-  }
+    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
+      throw new ForbiddenError(
+        accessInfo?.denialReason || 'Search base is not accessible.',
+      );
+    }
 
-  const baseAbs = resolvedBase.absolutePath;
-  const relBase = resolvedBase.relativePath;
+    const baseAbs = resolvedBase.absolutePath;
+    const relBase = resolvedBase.relativePath;
 
-  if (!(await pathExists(baseAbs))) {
-    throw new NotFoundError('Base path not found.');
-  }
-  if (!(await isDirectory(baseAbs))) {
-    throw new ValidationError('Search base path must be a directory.');
-  }
+    if (!(await pathExists(baseAbs))) {
+      throw new NotFoundError('Base path not found.');
+    }
+    if (!(await isDirectory(baseAbs))) {
+      throw new ValidationError('Search base path must be a directory.');
+    }
 
-  const limit = toLimit(req.query.limit);
-  const ripgrepAllowed = searchConfig?.ripgrep !== false;
-  const useRipgrep = ripgrepAllowed && await hasRipgrep();
-  const deepEnabled = searchConfig?.deep !== false;
+    const limit = toLimit(req.query.limit);
+    const ripgrepAllowed = searchConfig?.ripgrep !== false;
+    const useRipgrep = ripgrepAllowed && (await hasRipgrep());
+    const deepEnabled = searchConfig?.deep !== false;
 
-  const generator = useRipgrep
-    ? generateRipgrepResults(baseAbs, relBase, q, deepEnabled)
-    : generateFallbackResults(baseAbs, relBase, q, deepEnabled);
+    const generator = useRipgrep
+      ? generateRipgrepResults(baseAbs, relBase, q, deepEnabled)
+      : generateFallbackResults(baseAbs, relBase, q, deepEnabled);
 
-  const items = [];
-  for await (const item of generator) {
-    items.push(item);
-    if (items.length >= limit) break;
-  }
+    const items = [];
+    for await (const item of generator) {
+      items.push(item);
+      if (items.length >= limit) break;
+    }
 
-  res.json({ items });
-}));
+    res.json({ items });
+  }),
+);
 
 module.exports = router;

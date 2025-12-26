@@ -1,7 +1,7 @@
 <script setup>
 import { RouterLink } from 'vue-router';
 const { appname } = defineProps({
-  appname: { type: String, default: 'Explorer' }
+  appname: { type: String, default: 'Explorer' },
 });
 </script>
 

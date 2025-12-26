@@ -1,4 +1,4 @@
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const defaultDialogOptions = {
   multiple: true,
@@ -11,9 +11,9 @@ export function useFileDialog() {
   const files = ref([]);
 
   onMounted(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.className = "hidden";
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.className = 'hidden';
     document.body.appendChild(input);
     inputRef.value = input;
   });
@@ -32,10 +32,10 @@ export function useFileDialog() {
       const options = { ...defaultDialogOptions, ...opts };
       inputRef.value.accept = options.accept;
       inputRef.value.multiple = options.multiple;
-      
+
       if (options.directory) {
-        inputRef.value.webkitdirectory = !!options.directory;  
-        inputRef.value.directory = !!options.directory;       
+        inputRef.value.webkitdirectory = !!options.directory;
+        inputRef.value.directory = !!options.directory;
         inputRef.value.mozdirectory = !!options.directory;
       }
 
@@ -44,7 +44,7 @@ export function useFileDialog() {
           // Process directory files
           const items = Array.from(e.target.files);
           const directories = {};
-          items.forEach(file => {
+          items.forEach((file) => {
             const path = file.webkitRelativePath.split('/');
             const dir = path[0];
             if (!directories[dir]) {

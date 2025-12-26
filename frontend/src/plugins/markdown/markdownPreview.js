@@ -2,13 +2,13 @@ export const markdownPreviewPlugin = () => ({
   id: 'markdown-preview',
   label: 'Markdown Preview',
   priority: 30,
-  
+
   match: (context) => {
     return ['md', 'markdown'].includes(context.extension);
   },
-  
+
   component: () => import('./MarkdownPreview.vue'),
-  
+
   actions: (context) => [
     {
       id: 'edit',

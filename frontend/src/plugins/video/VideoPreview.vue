@@ -12,9 +12,7 @@
       <source :src="previewUrl" :type="mimeType" />
       Your browser does not support the video tag.
     </video>
-    <div v-else class="text-sm text-neutral-300">
-      Preview unavailable.
-    </div>
+    <div v-else class="text-sm text-neutral-300">Preview unavailable.</div>
   </div>
 </template>
 

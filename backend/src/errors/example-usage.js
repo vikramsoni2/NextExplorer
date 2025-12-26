@@ -15,148 +15,180 @@ const {
   ConflictError,
   RateLimitError,
   InternalError,
-  UnsupportedMediaTypeError
+  UnsupportedMediaTypeError,
 } = require('./AppError');
 
 const router = express.Router();
 
 // Example 1: Basic async route with validation
-router.post('/example/create', asyncHandler(async (req, res) => {
-  const { name, email } = req.body;
+router.post(
+  '/example/create',
+  asyncHandler(async (req, res) => {
+    const { name, email } = req.body;
 
-  // Validation
-  if (!name || !email) {
-    throw new ValidationError('Name and email are required');
-  }
+    // Validation
+    if (!name || !email) {
+      throw new ValidationError('Name and email are required');
+    }
 
-  if (!email.includes('@')) {
-    throw new ValidationError('Invalid email format');
-  }
+    if (!email.includes('@')) {
+      throw new ValidationError('Invalid email format');
+    }
 
-  // Simulate creation
-  const item = { id: 1, name, email };
-  res.status(201).json({ success: true, item });
-}));
+    // Simulate creation
+    const item = { id: 1, name, email };
+    res.status(201).json({ success: true, item });
+  }),
+);
 
 // Example 2: Authentication check
-router.get('/example/protected', asyncHandler(async (req, res) => {
-  const user = req.user;
+router.get(
+  '/example/protected',
+  asyncHandler(async (req, res) => {
+    const user = req.user;
 
-  if (!user) {
-    throw new UnauthorizedError('Please login to access this resource');
-  }
+    if (!user) {
+      throw new UnauthorizedError('Please login to access this resource');
+    }
 
-  res.json({ message: 'Protected data', user });
-}));
+    res.json({ message: 'Protected data', user });
+  }),
+);
 
 // Example 3: Permission check
-router.delete('/example/admin-only', asyncHandler(async (req, res) => {
-  const user = req.user;
+router.delete(
+  '/example/admin-only',
+  asyncHandler(async (req, res) => {
+    const user = req.user;
 
-  if (!user) {
-    throw new UnauthorizedError('Authentication required');
-  }
+    if (!user) {
+      throw new UnauthorizedError('Authentication required');
+    }
 
-  if (!user.roles?.includes('admin')) {
-    throw new ForbiddenError('Admin access required');
-  }
+    if (!user.roles?.includes('admin')) {
+      throw new ForbiddenError('Admin access required');
+    }
 
-  res.json({ message: 'Admin action completed' });
-}));
+    res.json({ message: 'Admin action completed' });
+  }),
+);
 
 // Example 4: Resource lookup with 404
-router.get('/example/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
+router.get(
+  '/example/:id',
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
 
-  // Simulate database lookup
-  const item = null; // await db.findById(id);
+    // Simulate database lookup
+    const item = null; // await db.findById(id);
 
-  if (!item) {
-    throw new NotFoundError(`Item with id ${id} not found`);
-  }
+    if (!item) {
+      throw new NotFoundError(`Item with id ${id} not found`);
+    }
 
-  res.json(item);
-}));
+    res.json(item);
+  }),
+);
 
 // Example 5: Duplicate resource handling
-router.post('/example/register', asyncHandler(async (req, res) => {
-  const { email } = req.body;
+router.post(
+  '/example/register',
+  asyncHandler(async (req, res) => {
+    const { email } = req.body;
 
-  // Simulate checking for existing user
-  const existingUser = true; // await db.findByEmail(email);
+    // Simulate checking for existing user
+    const existingUser = true; // await db.findByEmail(email);
 
-  if (existingUser) {
-    throw new ConflictError('User with this email already exists');
-  }
+    if (existingUser) {
+      throw new ConflictError('User with this email already exists');
+    }
 
-  res.status(201).json({ message: 'User created' });
-}));
+    res.status(201).json({ message: 'User created' });
+  }),
+);
 
 // Example 6: Rate limiting
-router.post('/example/login', asyncHandler(async (req, res) => {
-  const attempts = 11; // Simulate too many attempts
+router.post(
+  '/example/login',
+  asyncHandler(async (req, res) => {
+    const attempts = 11; // Simulate too many attempts
 
-  if (attempts > 10) {
-    throw new RateLimitError('Too many login attempts. Please try again later.', 900); // retry after 15 minutes
-  }
+    if (attempts > 10) {
+      throw new RateLimitError(
+        'Too many login attempts. Please try again later.',
+        900,
+      ); // retry after 15 minutes
+    }
 
-  res.json({ message: 'Login successful' });
-}));
+    res.json({ message: 'Login successful' });
+  }),
+);
 
 // Example 7: File upload validation
-router.post('/example/upload', asyncHandler(async (req, res) => {
-  const fileType = req.file?.mimetype;
+router.post(
+  '/example/upload',
+  asyncHandler(async (req, res) => {
+    const fileType = req.file?.mimetype;
 
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
-  if (!allowedTypes.includes(fileType)) {
-    throw new UnsupportedMediaTypeError('Only JPEG, PNG, and GIF images are supported');
-  }
+    if (!allowedTypes.includes(fileType)) {
+      throw new UnsupportedMediaTypeError(
+        'Only JPEG, PNG, and GIF images are supported',
+      );
+    }
 
-  res.json({ message: 'File uploaded successfully' });
-}));
+    res.json({ message: 'File uploaded successfully' });
+  }),
+);
 
 // Example 8: Validation with field-specific details
-router.post('/example/complex-validation', asyncHandler(async (req, res) => {
-  const { username, password, email } = req.body;
-  const errors = {};
+router.post(
+  '/example/complex-validation',
+  asyncHandler(async (req, res) => {
+    const { username, password, email } = req.body;
+    const errors = {};
 
-  if (!username || username.length < 3) {
-    errors.username = 'Username must be at least 3 characters';
-  }
+    if (!username || username.length < 3) {
+      errors.username = 'Username must be at least 3 characters';
+    }
 
-  if (!password || password.length < 8) {
-    errors.password = 'Password must be at least 8 characters';
-  }
+    if (!password || password.length < 8) {
+      errors.password = 'Password must be at least 8 characters';
+    }
 
-  if (!email || !email.includes('@')) {
-    errors.email = 'Valid email is required';
-  }
+    if (!email || !email.includes('@')) {
+      errors.email = 'Valid email is required';
+    }
 
-  if (Object.keys(errors).length > 0) {
-    throw new ValidationError('Validation failed', errors);
-  }
+    if (Object.keys(errors).length > 0) {
+      throw new ValidationError('Validation failed', errors);
+    }
 
-  res.json({ message: 'Validation passed' });
-}));
+    res.json({ message: 'Validation passed' });
+  }),
+);
 
 // Example 9: Catching specific errors and re-throwing as custom errors
-router.post('/example/database-operation', asyncHandler(async (req, res) => {
-  try {
-    // Simulate database operation
-    // await db.query('INSERT INTO users...');
-    throw new Error('DUPLICATE_KEY');
-  } catch (error) {
-    if (error.message === 'DUPLICATE_KEY') {
-      throw new ConflictError('Record already exists');
+router.post(
+  '/example/database-operation',
+  asyncHandler(async (req, res) => {
+    try {
+      // Simulate database operation
+      // await db.query('INSERT INTO users...');
+      throw new Error('DUPLICATE_KEY');
+    } catch (error) {
+      if (error.message === 'DUPLICATE_KEY') {
+        throw new ConflictError('Record already exists');
+      }
+      if (error.message === 'CONNECTION_FAILED') {
+        throw new InternalError('Database connection failed');
+      }
+      // Re-throw unknown errors
+      throw error;
     }
-    if (error.message === 'CONNECTION_FAILED') {
-      throw new InternalError('Database connection failed');
-    }
-    // Re-throw unknown errors
-    throw error;
-  }
-}));
+  }),
+);
 
 // Example 10: Manual error handling (when you need more control)
 router.post('/example/manual', async (req, res, next) => {
@@ -167,7 +199,7 @@ router.post('/example/manual', async (req, res, next) => {
     res.json({
       success: true,
       data: result,
-      metadata: { timestamp: new Date() }
+      metadata: { timestamp: new Date() },
     });
   } catch (error) {
     // Transform error if needed

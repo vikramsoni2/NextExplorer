@@ -1,5 +1,5 @@
-import { ref } from 'vue'
-import { useFileActions } from '@/composables/fileActions'
+import { ref } from 'vue';
+import { useFileActions } from '@/composables/fileActions';
 
 // Singleton instance so multiple callers share the same modal state
 let instance = null;

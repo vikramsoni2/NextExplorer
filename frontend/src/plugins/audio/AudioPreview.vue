@@ -1,10 +1,12 @@
 <template>
-  <div class="flex h-full w-full items-center justify-center bg-neutral-950 p-6">
-    <div class="w-full max-w-3xl rounded-xl bg-neutral-900/70 p-4 shadow-lg ring-1 ring-white/10">
+  <div
+    class="flex h-full w-full items-center justify-center bg-neutral-950 p-6"
+  >
+    <div
+      class="w-full max-w-3xl rounded-xl bg-neutral-900/70 p-4 shadow-lg ring-1 ring-white/10"
+    >
       <div class="mb-3 min-w-0">
-        <p class="text-xs uppercase tracking-wide text-neutral-400">
-          Audio
-        </p>
+        <p class="text-xs uppercase tracking-wide text-neutral-400">Audio</p>
         <h3 class="truncate text-base font-semibold text-white">
           {{ item?.name || '—' }}
         </h3>
@@ -22,9 +24,7 @@
         Your browser does not support the audio element.
       </audio>
 
-      <div v-else class="text-sm text-neutral-300">
-        Preview unavailable.
-      </div>
+      <div v-else class="text-sm text-neutral-300">Preview unavailable.</div>
     </div>
   </div>
 </template>
@@ -69,4 +69,3 @@ const cleanup = () => {
 watch(() => props.previewUrl, cleanup);
 onBeforeUnmount(cleanup);
 </script>
-

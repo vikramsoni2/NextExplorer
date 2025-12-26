@@ -3,23 +3,22 @@ import { withViewTransition } from '@/utils';
 import { isEditableExtension } from '@/config/editor';
 import { usePreviewManager } from '@/plugins/preview/manager';
 
-
 export function useNavigation() {
-    
-  const router = useRouter()
-  const route = useRoute()
+  const router = useRouter();
+  const route = useRoute();
   const previewManager = usePreviewManager();
 
-
-  const openItem = (item)=>{
+  const openItem = (item) => {
     if (!item) return;
 
-    const extensionFromKind = typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
-    const extensionFromName = typeof item.name === 'string' && item.name.includes('.')
-      ? item.name.split('.').pop().toLowerCase()
-      : '';
+    const extensionFromKind =
+      typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
+    const extensionFromName =
+      typeof item.name === 'string' && item.name.includes('.')
+        ? item.name.split('.').pop().toLowerCase()
+        : '';
 
-    if(item.kind==='volume'){
+    if (item.kind === 'volume') {
       withViewTransition(() => {
         router.push({ name: 'FolderView', params: { path: item.name } });
       })();
@@ -31,8 +30,10 @@ export function useNavigation() {
       })();
       return;
     }
-    if(item.kind==='directory'){
-      const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
+    if (item.kind === 'directory') {
+      const newPath = route.params.path
+        ? `${route.params.path}/${item.name}`
+        : item.name;
       withViewTransition(() => {
         router.push({ name: 'FolderView', params: { path: newPath } });
       })();
@@ -44,20 +45,25 @@ export function useNavigation() {
       return;
     }
 
-    if(isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)){
+    if (
+      isEditableExtension(extensionFromKind) ||
+      isEditableExtension(extensionFromName)
+    ) {
       const basePath = item.path ? `${item.path}/${item.name}` : item.name;
       const fileToEdit = basePath.replace(/^\/+/, '');
       // Encode each segment for editor path
-      const encodedPath = fileToEdit.split('/').map(encodeURIComponent).join('/');
+      const encodedPath = fileToEdit
+        .split('/')
+        .map(encodeURIComponent)
+        .join('/');
       withViewTransition(() => {
         router.push({ path: `/editor/${encodedPath}` });
       })();
       return;
     }
   };
-  
 
-  const openBreadcrumb = withViewTransition((path)=>{
+  const openBreadcrumb = withViewTransition((path) => {
     if (path === 'share') {
       router.push({ name: 'SharedWithMe' });
       return;
@@ -65,9 +71,9 @@ export function useNavigation() {
     router.push({ name: 'FolderView', params: { path } });
   });
 
-  const goNext = withViewTransition(()=>router.go(1));
+  const goNext = withViewTransition(() => router.go(1));
 
-  const goPrev = withViewTransition(()=>router.go(-1));
+  const goPrev = withViewTransition(() => router.go(-1));
 
   const goUp = withViewTransition(() => {
     const currentPath = route.params.path || '';
@@ -83,38 +89,33 @@ export function useNavigation() {
     }
   });
 
-
   return {
     openItem,
     openBreadcrumb,
     goNext,
     goPrev,
-    goUp
-  }
+    goUp,
+  };
 }
 
-
-
-
 // const goForward = ()=>{
-  //   router.go(1);
-  // }
+//   router.go(1);
+// }
 
-  // const goBackward = ()=>{
-  //   router.go(-1);
-  // }
+// const goBackward = ()=>{
+//   router.go(-1);
+// }
 
-  // const goUpward = ()=>{
-  //   const path = route.params.path.split('/');
-  //   path.pop();
-  //   const new_path = path.join('/');
-  //   router.push({ name: 'browse', params: {path: new_path} });
-  // }
+// const goUpward = ()=>{
+//   const path = route.params.path.split('/');
+//   path.pop();
+//   const new_path = path.join('/');
+//   router.push({ name: 'browse', params: {path: new_path} });
+// }
 
-  // const canGoForward = ()=>{
+// const canGoForward = ()=>{
 
-  //   //check in router object if the route can go forward.
-  //   return router.currentRoute.value.meta.canGoForward;
-    
+//   //check in router object if the route can go forward.
+//   return router.currentRoute.value.meta.canGoForward;
 
-  // }
+// }

@@ -12,7 +12,9 @@ const createSettingsContext = async () => {
     tag: 'settings-test-',
     modules: SETTINGS_MODULES,
   });
-  const settingsService = envContext.requireFresh('src/services/settingsService');
+  const settingsService = envContext.requireFresh(
+    'src/services/settingsService',
+  );
   return { envContext, settingsService };
 };
 

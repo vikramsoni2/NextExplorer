@@ -15,28 +15,39 @@ const supportsLocalAuth = () => {
 };
 
 const ensureEnvAdminUser = async () => {
-  const email = typeof env.AUTH_ADMIN_EMAIL === 'string' ? env.AUTH_ADMIN_EMAIL.trim() : '';
-  const password = typeof env.AUTH_ADMIN_PASSWORD === 'string' ? env.AUTH_ADMIN_PASSWORD : '';
+  const email =
+    typeof env.AUTH_ADMIN_EMAIL === 'string' ? env.AUTH_ADMIN_EMAIL.trim() : '';
+  const password =
+    typeof env.AUTH_ADMIN_PASSWORD === 'string' ? env.AUTH_ADMIN_PASSWORD : '';
 
   if (!email && !password) return;
 
   if (!auth?.enabled) {
-    logger.info('AUTH_ADMIN_* provided but auth is disabled; skipping admin bootstrap.');
+    logger.info(
+      'AUTH_ADMIN_* provided but auth is disabled; skipping admin bootstrap.',
+    );
     return;
   }
 
   if (!supportsLocalAuth()) {
-    logger.info({ authMode: auth?.mode }, 'AUTH_ADMIN_* provided but local auth is disabled; skipping admin bootstrap.');
+    logger.info(
+      { authMode: auth?.mode },
+      'AUTH_ADMIN_* provided but local auth is disabled; skipping admin bootstrap.',
+    );
     return;
   }
 
   if (!email || !password) {
-    logger.warn('AUTH_ADMIN_EMAIL and AUTH_ADMIN_PASSWORD must both be set to bootstrap an admin user.');
+    logger.warn(
+      'AUTH_ADMIN_EMAIL and AUTH_ADMIN_PASSWORD must both be set to bootstrap an admin user.',
+    );
     return;
   }
 
   if (password.length < 6) {
-    logger.warn('AUTH_ADMIN_PASSWORD must be at least 6 characters; skipping admin bootstrap.');
+    logger.warn(
+      'AUTH_ADMIN_PASSWORD must be at least 6 characters; skipping admin bootstrap.',
+    );
     return;
   }
 
@@ -45,10 +56,17 @@ const ensureEnvAdminUser = async () => {
 
   const ensureAdminRole = async (userId, rolesJson) => {
     let roles = [];
-    try { roles = JSON.parse(rolesJson || '[]'); } catch (_) { roles = []; }
+    try {
+      roles = JSON.parse(rolesJson || '[]');
+    } catch (_) {
+      roles = [];
+    }
     if (!Array.isArray(roles)) roles = [];
     if (!roles.includes('admin')) {
-      await updateUserRoles({ userId, roles: [...new Set([...roles, 'admin'])] });
+      await updateUserRoles({
+        userId,
+        roles: [...new Set([...roles, 'admin'])],
+      });
     }
   };
 
@@ -63,7 +81,10 @@ const ensureEnvAdminUser = async () => {
           displayName: username,
           roles: ['admin'],
         });
-        logger.info({ email: user.email }, 'Bootstrapped admin user from environment.');
+        logger.info(
+          { email: user.email },
+          'Bootstrapped admin user from environment.',
+        );
         return;
       } catch (e) {
         // Race/replica-safe: if another instance created the user already, fall through to update.
@@ -73,15 +94,24 @@ const ensureEnvAdminUser = async () => {
 
     const user = await getByEmail(normalizedEmail);
     if (!user) {
-      logger.warn({ email: normalizedEmail }, 'Unable to locate admin user after bootstrap attempt; skipping.');
+      logger.warn(
+        { email: normalizedEmail },
+        'Unable to locate admin user after bootstrap attempt; skipping.',
+      );
       return;
     }
 
     await ensureAdminRole(user.id, user.roles);
     await setLocalPasswordAdmin({ userId: user.id, newPassword: password });
-    logger.info({ email: normalizedEmail }, 'Ensured admin user password from environment.');
+    logger.info(
+      { email: normalizedEmail },
+      'Ensured admin user password from environment.',
+    );
   } catch (error) {
-    logger.warn({ err: error }, 'Failed to bootstrap admin user from environment.');
+    logger.warn(
+      { err: error },
+      'Failed to bootstrap admin user from environment.',
+    );
   }
 };
 
@@ -94,14 +124,19 @@ const bootstrap = async () => {
     ['thumbnails', directories.thumbnails],
   ];
 
-  await Promise.all(dirEntries.map(async ([name, dir]) => {
-    try {
-      await ensureDir(dir);
-      logger.debug({ dir }, `${name} directory ensured`);
-    } catch (error) {
-      logger.warn({ directory: dir, err: error }, `Unable to prepare ${name} directory`);
-    }
-  }));
+  await Promise.all(
+    dirEntries.map(async ([name, dir]) => {
+      try {
+        await ensureDir(dir);
+        logger.debug({ dir }, `${name} directory ensured`);
+      } catch (error) {
+        logger.warn(
+          { directory: dir, err: error },
+          `Unable to prepare ${name} directory`,
+        );
+      }
+    }),
+  );
 
   await ensureEnvAdminUser();
   logger.debug('Bootstrap complete');

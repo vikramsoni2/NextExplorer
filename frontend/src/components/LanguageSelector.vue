@@ -19,8 +19,7 @@ const currentLanguage = computed(() => {
   const list = languages.value;
   return (
     list.find((lang) => lang.code === locale.value) ||
-    list[0] ||
-    { code: locale.value, label: locale.value.toUpperCase() }
+    list[0] || { code: locale.value, label: locale.value.toUpperCase() }
   );
 });
 
@@ -51,7 +50,7 @@ onClickOutside(languageSwitcherRef, () => {
       @click="languageMenuOpen = !languageMenuOpen"
     >
       <span class="flex items-center gap-2">
-        <EarthSharp class="h-4"/>
+        <EarthSharp class="h-4" />
         <span class="hidden text-xs sm:inline">
           {{ currentLanguage.label }}
         </span>
@@ -69,7 +68,10 @@ onClickOutside(languageSwitcherRef, () => {
         type="button"
         class="flex w-full items-center justify-between gap-4 px-3 py-1.5 hover:bg-white/10"
         :class="{ 'font-semibold text-white': locale === lang.code }"
-        @click="setLocale(lang.code); languageMenuOpen = false"
+        @click="
+          setLocale(lang.code);
+          languageMenuOpen = false;
+        "
       >
         <span>{{ lang.code.toUpperCase() }}</span>
         <span>{{ lang.label }} </span>

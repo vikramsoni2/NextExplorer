@@ -100,53 +100,60 @@ const favoriteIconOptions = computed(() =>
   ICON_NAMES.map((iconName) => ({
     value: iconName,
     component: resolveIconComponent(`${editorIconVariant.value}:${iconName}`),
-  }))
+  })),
 );
 </script>
 
 <template>
   <ModalDialog v-model="isFavoriteEditorOpen">
     <template #title>
-      {{ t('favorites.editTitle')}}
+      {{ t('favorites.editTitle') }}
     </template>
     <div class="space-y-4">
       <div>
-        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-          {{ t('common.path')}}
+        <label
+          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1"
+        >
+          {{ t('common.path') }}
         </label>
         <input
           v-model="editorPath"
           type="text"
           class="w-full rounded-md border border-zinc-300 bg-zinc-100 px-2 py-1.5 text-xs text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           disabled
-        >
+        />
       </div>
       <div>
-        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
-          {{ t('common.name')}}
+        <label
+          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1"
+        >
+          {{ t('common.name') }}
         </label>
         <input
           v-model="editorName"
           type="text"
           class="w-full rounded-md border border-zinc-300 px-2 py-1.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-        >
+        />
       </div>
       <div>
-        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2">
-          {{ t('favorites.icon')}}
+        <label
+          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2"
+        >
+          {{ t('favorites.icon') }}
         </label>
 
         <!-- Icon Variant Toggle and Color Palette - Combined Row -->
-        <div class="mb-3 flex items-center  justify-between gap-4">
-
+        <div class="mb-3 flex items-center justify-between gap-4">
           <!-- Icon Variant Toggle -->
           <div class="flex gap-2">
             <button
               type="button"
               class="rounded-md border px-3 py-1.5 text-xs font-medium transition"
-              :class="editorIconVariant === 'outline-solid'
-                ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-300'
-                : 'border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'"
+              :class="
+                editorIconVariant === 'outline-solid'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-300'
+                  : 'border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
+              "
               @click="editorIconVariant = 'outline-solid'"
             >
               Outline
@@ -154,16 +161,16 @@ const favoriteIconOptions = computed(() =>
             <button
               type="button"
               class="rounded-md border px-3 py-1.5 text-xs font-medium transition"
-              :class="editorIconVariant === 'solid'
-                ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-300'
-                : 'border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'"
+              :class="
+                editorIconVariant === 'solid'
+                  ? 'border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-300'
+                  : 'border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800'
+              "
               @click="editorIconVariant = 'solid'"
             >
               Solid
             </button>
           </div>
-
-          
 
           <!-- Color Palette -->
           <div class="flex gap-2 items-center">
@@ -171,11 +178,17 @@ const favoriteIconOptions = computed(() =>
             <button
               type="button"
               class="flex h-7 w-7 items-center justify-center rounded-md border-2 transition hover:scale-110"
-              :class="!editorColor ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400' : 'border-zinc-300 dark:border-zinc-600'"
+              :class="
+                !editorColor
+                  ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400'
+                  : 'border-zinc-300 dark:border-zinc-600'
+              "
               @click="editorColor = null"
               title="Default"
             >
-              <div class="h-5 w-5 rounded-xs bg-linear-to-br from-zinc-300 to-zinc-500 dark:from-zinc-600 dark:to-zinc-400"></div>
+              <div
+                class="h-5 w-5 rounded-xs bg-linear-to-br from-zinc-300 to-zinc-500 dark:from-zinc-600 dark:to-zinc-400"
+              ></div>
             </button>
 
             <!-- Color options -->
@@ -184,7 +197,11 @@ const favoriteIconOptions = computed(() =>
               :key="color.value"
               type="button"
               class="h-7 w-7 rounded-md border-2 transition hover:scale-110"
-              :class="editorColor === color.value ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400' : 'border-zinc-300 dark:border-zinc-600'"
+              :class="
+                editorColor === color.value
+                  ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400'
+                  : 'border-zinc-300 dark:border-zinc-600'
+              "
               :style="{ backgroundColor: color.value }"
               @click="editorColor = color.value"
               :title="color.name"
@@ -199,7 +216,11 @@ const favoriteIconOptions = computed(() =>
               :key="option.value"
               type="button"
               class="flex h-10 w-10 items-center justify-center rounded-md border text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-100 dark:hover:bg-zinc-800"
-              :class="option.value === editorIcon ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400' : 'border-zinc-300'"
+              :class="
+                option.value === editorIcon
+                  ? 'border-blue-500 ring-2 ring-blue-400 dark:border-blue-400'
+                  : 'border-zinc-300'
+              "
               @click="editorIcon = option.value"
             >
               <component

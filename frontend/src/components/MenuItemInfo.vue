@@ -29,10 +29,10 @@ const handleDownload = () => {
       type="button"
       @click="handleDownload"
       :disabled="!hasSelection"
-      class="p-[6px] rounded-md transition-colors
-        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
-      :class="{ 'opacity-50 cursor-default pointer-events-none': !hasSelection }"
+      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      :class="{
+        'opacity-50 cursor-default pointer-events-none': !hasSelection,
+      }"
       :title="$t('actions.download')"
     >
       <ArrowDownTrayIcon class="w-6" />

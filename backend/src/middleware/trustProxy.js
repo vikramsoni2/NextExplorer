@@ -4,11 +4,11 @@ const configureTrustProxy = (app) => {
   try {
     const { getTrustProxySetting } = require('../config/trustProxy');
     const tp = getTrustProxySetting();
-    
+
     if (tp.set) {
       app.set('trust proxy', tp.value);
     }
-    
+
     if (tp.message) {
       logger.info({ message: tp.message }, 'Trust proxy configured');
     } else {

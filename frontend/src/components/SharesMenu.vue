@@ -56,7 +56,7 @@ const handleOpenSharedByMe = () => {
               :class="[
                 isSharedWithMeActive
                   ? 'text-neutral-950 dark:text-white'
-                  : 'text-neutral-950 dark:text-neutral-300/90'
+                  : 'text-neutral-950 dark:text-neutral-300/90',
               ]"
             >
               <ShareIcon class="h-5 shrink-0" />
@@ -71,7 +71,7 @@ const handleOpenSharedByMe = () => {
               :class="[
                 isSharedByMeActive
                   ? 'text-neutral-950 dark:text-white'
-                  : 'text-neutral-950 dark:text-neutral-300/90'
+                  : 'text-neutral-950 dark:text-neutral-300/90',
               ]"
             >
               <ShareIcon class="h-5 shrink-0" />

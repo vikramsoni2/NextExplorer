@@ -12,13 +12,23 @@ const fileStore = useFileStore();
 const isShareDialogOpen = ref(false);
 const itemToShare = ref(null);
 
-const isShareView = computed(() => normalizePath(fileStore.getCurrentPath || '').startsWith('share/'));
-const locationCanShare = computed(() => fileStore.currentPathData?.canShare ?? true);
-const isShareAllowedHere = computed(() => locationCanShare.value && !isShareView.value);
+const isShareView = computed(() =>
+  normalizePath(fileStore.getCurrentPath || '').startsWith('share/'),
+);
+const locationCanShare = computed(
+  () => fileStore.currentPathData?.canShare ?? true,
+);
+const isShareAllowedHere = computed(
+  () => locationCanShare.value && !isShareView.value,
+);
 
 const canShare = computed(() => {
   // Can share if exactly one item is selected
-  return isShareAllowedHere.value && fileStore.selectedItems && fileStore.selectedItems.length === 1;
+  return (
+    isShareAllowedHere.value &&
+    fileStore.selectedItems &&
+    fileStore.selectedItems.length === 1
+  );
 });
 
 const selectedItem = computed(() => {
@@ -46,11 +56,11 @@ function handleShareCreated(share) {
       type="button"
       @click="openShareDialog"
       :disabled="!canShare"
-      class="p-[6px] rounded-md transition-colors
-        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canShare }"
-      :title="canShare ? t('share.shareSelectedItem') : t('share.selectItemToShare')"
+      :title="
+        canShare ? t('share.shareSelectedItem') : t('share.selectItemToShare')
+      "
     >
       <ShareIcon class="w-6 h-6" />
     </button>

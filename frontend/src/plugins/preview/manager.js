@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getPreviewUrl, normalizePath, downloadItems, fetchFileContent } from '@/api';
+import {
+  getPreviewUrl,
+  normalizePath,
+  downloadItems,
+  fetchFileContent,
+} from '@/api';
 import { useFileStore } from '@/stores/fileStore';
 import router from '@/router';
 
@@ -14,7 +19,7 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     if (!item) return '';
     const kind = String(item.kind || '').toLowerCase();
     if (kind && kind !== 'directory') return kind;
-    
+
     const name = String(item.name || '');
     const lastDot = name.lastIndexOf('.');
     return lastDot > 0 ? name.slice(lastDot + 1).toLowerCase() : '';
@@ -32,11 +37,12 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     const fileStore = useFileStore();
     const base = target || {};
     const items = fileStore.getCurrentPathItems || [];
-    return items
+    return items;
   };
 
   const createApi = (item) => ({
-    getPreviewUrl: (targetItem) => getPreviewUrl(getFullPath(targetItem || item)),
+    getPreviewUrl: (targetItem) =>
+      getPreviewUrl(getFullPath(targetItem || item)),
     fetchContent: () => fetchFileContent(getFullPath(item)),
     getSiblings: (target) => getSiblings(target || item),
     openEditor: () => {
@@ -50,16 +56,16 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     download: async () => {
       const path = getFullPath(item);
       if (!path) return;
-      
+
       const response = await downloadItems([path]);
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      
+
       const link = document.createElement('a');
       link.href = url;
       link.download = item.name || 'download';
       link.click();
-      
+
       URL.revokeObjectURL(url);
     },
     close: () => close(),
@@ -68,10 +74,10 @@ export const usePreviewManager = defineStore('preview-manager', () => {
   // Plugin Management
   const register = (plugin) => {
     if (!plugin?.id) return;
-    
+
     // Remove existing plugin with same id
-    plugins.value = plugins.value.filter(p => p.id !== plugin.id);
-    
+    plugins.value = plugins.value.filter((p) => p.id !== plugin.id);
+
     // Add and sort by priority (descending)
     plugins.value.push(plugin);
     plugins.value.sort((a, b) => {
@@ -82,13 +88,13 @@ export const usePreviewManager = defineStore('preview-manager', () => {
   };
 
   const unregister = (pluginId) => {
-    plugins.value = plugins.value.filter(p => p.id !== pluginId);
+    plugins.value = plugins.value.filter((p) => p.id !== pluginId);
   };
 
   // Find matching plugin
   const findPlugin = (item) => {
     if (!item) return null;
-    
+
     const extension = getExtension(item);
     const fullPath = getFullPath(item);
     const previewUrl = getPreviewUrl(fullPath);
@@ -153,7 +159,7 @@ export const usePreviewManager = defineStore('preview-manager', () => {
     isOpen,
     activeItem,
     activePlugin,
-    
+
     // Actions
     register,
     unregister,

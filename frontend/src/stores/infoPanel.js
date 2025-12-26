@@ -31,4 +31,3 @@ export const useInfoPanelStore = defineStore('infoPanel', () => {
     relativePath,
   };
 });
-

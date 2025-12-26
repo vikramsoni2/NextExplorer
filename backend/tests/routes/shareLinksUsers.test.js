@@ -36,16 +36,22 @@ const buildApp = () => {
 
   const authRoutes = envContext.requireFresh('src/routes/auth');
   const sharesRoutes = envContext.requireFresh('src/routes/shares');
-  const authMiddleware = envContext.requireFresh('src/middleware/authMiddleware');
-  const { errorHandler } = envContext.requireFresh('src/middleware/errorHandler');
+  const authMiddleware = envContext.requireFresh(
+    'src/middleware/authMiddleware',
+  );
+  const { errorHandler } = envContext.requireFresh(
+    'src/middleware/errorHandler',
+  );
 
   const app = express();
   app.use(express.json());
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
 
   // Minimal stub for req.oidc so auth middleware doesn't treat requests as EOC-authenticated.
   app.use((req, _res, next) => {
@@ -70,7 +76,11 @@ test('user-specific share links: /api/share/:token/access works when logged in',
   // Setup the first account (admin/owner).
   await request(app)
     .post('/api/auth/setup')
-    .send({ email: 'owner@example.com', username: 'owner', password: 'secret123' })
+    .send({
+      email: 'owner@example.com',
+      username: 'owner',
+      password: 'secret123',
+    })
     .expect(201);
 
   // Create a recipient user directly in DB.
@@ -121,4 +131,3 @@ test('user-specific share links: /api/share/:token/access works when logged in',
   assert.equal(access.body?.share?.shareToken, token);
   assert.equal(access.body?.share?.sourcePath, `share/${token}`);
 });
-

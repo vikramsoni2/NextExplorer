@@ -14,7 +14,7 @@ import {
   ClipboardDocumentIcon,
   CheckIcon,
   MagnifyingGlassIcon,
-  ArrowsUpDownIcon
+  ArrowsUpDownIcon,
 } from '@heroicons/vue/24/outline';
 import FileIcon from '@/icons/FileIcon.vue';
 
@@ -37,7 +37,7 @@ const GRID_COLS = 'grid-cols-[30px_minmax(0,3fr)_1.5fr_1fr_1.5fr_100px]';
 // Create a map of userId -> user for quick lookup
 const usersMap = computed(() => {
   const map = {};
-  users.value.forEach(user => {
+  users.value.forEach((user) => {
     map[user.id] = user;
   });
   return map;
@@ -50,7 +50,7 @@ const loadShares = async () => {
   try {
     const [sharesResponse, usersResponse] = await Promise.all([
       getMyShares(),
-      fetchShareableUsers().catch(() => ({ users: [] }))
+      fetchShareableUsers().catch(() => ({ users: [] })),
     ]);
     shares.value = sharesResponse?.shares || [];
     users.value = usersResponse?.users || [];
@@ -68,7 +68,7 @@ const getPermittedUsers = (share) => {
     return [];
   }
   return share.permittedUserIds
-    .map(userId => usersMap.value[userId])
+    .map((userId) => usersMap.value[userId])
     .filter(Boolean); // Filter out any undefined users
 };
 
@@ -154,7 +154,7 @@ const getIconItem = (share) => {
     kind,
     name: getShareLabel(share),
     thumbnail: null,
-    supportsThumbnail: false
+    supportsThumbnail: false,
   };
 };
 
@@ -203,26 +203,33 @@ onMounted(async () => {
 <template>
   <div class="h-full relative flex flex-col max-h-screen">
     <!-- Toolbar -->
-    <div class="z-10 p-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-default">
+    <div
+      class="z-10 p-3 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-default"
+    >
       <div class="flex items-center gap-3">
         <!-- Title/Icon -->
         <div class="flex items-center gap-2 mr-4">
-          
-          <h1 class="font-medium text-neutral-800 dark:text-neutral-200 hidden sm:block text-lg ml-2">
+          <h1
+            class="font-medium text-neutral-800 dark:text-neutral-200 hidden sm:block text-lg ml-2"
+          >
             {{ t('share.sharedByMe') }}
           </h1>
         </div>
 
         <!-- Filters -->
-        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-md p-0.5">
+        <div
+          class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-md p-0.5"
+        >
           <button
             v-for="mode in ['active', 'expired', 'all']"
             :key="mode"
             @click="filterMode = mode"
             class="px-3 py-1 text-xs font-medium rounded-sm transition-colors"
-            :class="filterMode === mode 
-              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm' 
-              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'"
+            :class="
+              filterMode === mode
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+            "
           >
             {{ t(`common.${mode}`) }}
           </button>
@@ -245,7 +252,9 @@ onMounted(async () => {
 
         <!-- Search -->
         <div class="relative">
-          <MagnifyingGlassIcon class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+          <MagnifyingGlassIcon
+            class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400"
+          />
           <input
             v-model="searchQuery"
             type="text"
@@ -260,17 +269,27 @@ onMounted(async () => {
     <div class="flex-1 overflow-y-auto px-2">
       <!-- Loading -->
       <div v-if="loading" class="flex h-full items-center justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+        ></div>
       </div>
 
       <!-- Error -->
-      <div v-else-if="error" class="flex h-full flex-col items-center justify-center text-red-500">
+      <div
+        v-else-if="error"
+        class="flex h-full flex-col items-center justify-center text-red-500"
+      >
         <p>{{ error }}</p>
-        <button @click="loadShares" class="mt-2 text-blue-500 hover:underline">{{ t('common.tryAgain') }}</button>
+        <button @click="loadShares" class="mt-2 text-blue-500 hover:underline">
+          {{ t('common.tryAgain') }}
+        </button>
       </div>
 
       <!-- Empty -->
-      <div v-else-if="visibleShares.length === 0" class="flex h-full flex-col items-center justify-center text-neutral-400">
+      <div
+        v-else-if="visibleShares.length === 0"
+        class="flex h-full flex-col items-center justify-center text-neutral-400"
+      >
         <ShareIcon class="w-16 h-16 mb-4 opacity-20" />
         <p>{{ t('share.noSharedItemsToShow') }}</p>
       </div>
@@ -279,7 +298,10 @@ onMounted(async () => {
       <div v-else class="min-w-[800px]">
         <!-- Header Row -->
         <div
-          :class="['grid items-center gap-4 px-4 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-800 sticky top-0 bg-white dark:bg-default z-10', GRID_COLS]"
+          :class="[
+            'grid items-center gap-4 px-4 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider border-b border-neutral-100 dark:border-neutral-800 sticky top-0 bg-white dark:bg-default z-10',
+            GRID_COLS,
+          ]"
         >
           <div></div>
           <div>{{ t('common.name') }}</div>
@@ -294,16 +316,25 @@ onMounted(async () => {
           <div
             v-for="share in visibleShares"
             :key="share.id"
-            :class="['grid items-center gap-4 px-4 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors group', GRID_COLS]"
+            :class="[
+              'grid items-center gap-4 px-4 py-2 text-sm rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-colors group',
+              GRID_COLS,
+            ]"
           >
             <!-- Icon -->
             <div class="flex justify-center items-center">
-              <FileIcon :item="getIconItem(share)" class="w-12 h-12 shrink-0" :disable-thumbnails="true" />
+              <FileIcon
+                :item="getIconItem(share)"
+                class="w-12 h-12 shrink-0"
+                :disable-thumbnails="true"
+              />
             </div>
 
             <!-- Name & Path -->
             <div class="min-w-0">
-              <div class="font-medium text-neutral-900 dark:text-neutral-100 truncate">
+              <div
+                class="font-medium text-neutral-900 dark:text-neutral-100 truncate"
+              >
                 {{ getShareLabel(share) }}
               </div>
               <div class="text-xs text-neutral-400 truncate font-mono mt-0.5">
@@ -313,7 +344,10 @@ onMounted(async () => {
 
             <!-- Shared With -->
             <div class="min-w-0">
-              <div v-if="share.sharingType === 'anyone'" class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300">
+              <div
+                v-if="share.sharingType === 'anyone'"
+                class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300"
+              >
                 <GlobeAltIcon class="w-4 h-4" />
                 <span>{{ t('share.sharedWithAnyone') }}</span>
               </div>
@@ -325,27 +359,44 @@ onMounted(async () => {
                 >
                   {{ user.displayName || user.username }}
                 </div>
-                <span v-if="getPermittedUsers(share).length > 3" class="text-xs text-neutral-400">
+                <span
+                  v-if="getPermittedUsers(share).length > 3"
+                  class="text-xs text-neutral-400"
+                >
                   +{{ getPermittedUsers(share).length - 3 }}
                 </span>
               </div>
             </div>
 
             <!-- Access -->
-            <div class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300">
+            <div
+              class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300"
+            >
               <component
-                :is="share.accessMode === 'readonly' ? LockClosedIcon : LockOpenIcon"
+                :is="
+                  share.accessMode === 'readonly'
+                    ? LockClosedIcon
+                    : LockOpenIcon
+                "
                 class="w-4 h-4"
               />
               <span>
-                {{ share.accessMode === 'readonly' ? t('settings.access.readOnly') : t('settings.access.readWrite') }}
+                {{
+                  share.accessMode === 'readonly'
+                    ? t('settings.access.readOnly')
+                    : t('settings.access.readWrite')
+                }}
               </span>
             </div>
 
             <!-- Expires -->
             <div class="text-neutral-600 dark:text-neutral-300">
               <span :class="{ 'text-red-500': isExpired(share) }">
-                {{ share.expiresAt ? formatDate(share.expiresAt) : t('common.noExpiration') }}
+                {{
+                  share.expiresAt
+                    ? formatDate(share.expiresAt)
+                    : t('common.noExpiration')
+                }}
               </span>
             </div>
 
@@ -357,7 +408,9 @@ onMounted(async () => {
                 :title="t('actions.copy')"
               >
                 <component
-                  :is="copiedId === share.id ? CheckIcon : ClipboardDocumentIcon"
+                  :is="
+                    copiedId === share.id ? CheckIcon : ClipboardDocumentIcon
+                  "
                   class="w-4 h-4"
                   :class="{ 'text-green-500': copiedId === share.id }"
                 />

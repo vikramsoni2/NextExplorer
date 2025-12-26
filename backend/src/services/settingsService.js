@@ -6,7 +6,8 @@ const { normalizeRelativePath } = require('../utils/pathUtils');
  */
 const sanitizeThumbnails = (thumbnails = {}) => {
   return {
-    enabled: typeof thumbnails.enabled === 'boolean' ? thumbnails.enabled : true,
+    enabled:
+      typeof thumbnails.enabled === 'boolean' ? thumbnails.enabled : true,
     size: Number.isFinite(thumbnails.size)
       ? Math.max(64, Math.min(1024, Math.floor(thumbnails.size)))
       : 200,
@@ -24,11 +25,11 @@ const sanitizeThumbnails = (thumbnails = {}) => {
  */
 const sanitizeAccessRules = (rules = []) => {
   if (!Array.isArray(rules)) return [];
-  
+
   return rules
-    .map(rule => {
+    .map((rule) => {
       if (!rule || typeof rule !== 'object') return null;
-      
+
       // Validate path
       let normalizedPath;
       try {
@@ -36,14 +37,14 @@ const sanitizeAccessRules = (rules = []) => {
       } catch {
         return null; // Invalid path
       }
-      
+
       if (!normalizedPath) return null;
-      
+
       // Validate permissions
-      const permissions = ['rw', 'ro', 'hidden'].includes(rule.permissions) 
-        ? rule.permissions 
+      const permissions = ['rw', 'ro', 'hidden'].includes(rule.permissions)
+        ? rule.permissions
         : 'rw';
-      
+
       return {
         id: rule.id || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         path: normalizedPath,
@@ -71,10 +72,12 @@ const sanitize = (settings) => {
  */
 const getSettings = async () => {
   const data = await storage.get();
-  return data.settings || {
-    thumbnails: { enabled: true, size: 200, quality: 70, concurrency: 10 },
-    access: { rules: [] },
-  };
+  return (
+    data.settings || {
+      thumbnails: { enabled: true, size: 200, quality: 70, concurrency: 10 },
+      access: { rules: [] },
+    }
+  );
 };
 
 /**
@@ -83,23 +86,24 @@ const getSettings = async () => {
  */
 const setSettings = async (partial) => {
   const current = await getSettings();
-  
+
   // Deep merge
   const merged = {
     thumbnails: { ...current.thumbnails, ...(partial.thumbnails || {}) },
     access: {
-      rules: partial.access?.rules !== undefined 
-        ? partial.access.rules 
-        : current.access.rules,
+      rules:
+        partial.access?.rules !== undefined
+          ? partial.access.rules
+          : current.access.rules,
     },
   };
-  
+
   // Sanitize and save
   const updated = await storage.update((data) => ({
     ...data,
     settings: sanitize(merged),
   }));
-  
+
   return updated.settings;
 };
 
@@ -112,8 +116,8 @@ const updateSettings = async (updater) => {
   return setSettings(next);
 };
 
-module.exports = { 
-  getSettings, 
-  setSettings, 
+module.exports = {
+  getSettings,
+  setSettings,
   updateSettings,
 };

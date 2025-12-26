@@ -1,13 +1,13 @@
-import { setup } from '@storybook/vue3'
+import { setup } from '@storybook/vue3';
 
-import { createPinia } from 'pinia'
-import i18n from '../src/i18n'
-import '../src/assets/main.css'
+import { createPinia } from 'pinia';
+import i18n from '../src/i18n';
+import '../src/assets/main.css';
 
 setup((app) => {
-  app.use(createPinia())
-  app.use(i18n)
-})
+  app.use(createPinia());
+  app.use(i18n);
+});
 
 export const parameters = {
   actions: { argTypesRegex: '^on[A-Z].*' },
@@ -51,4 +51,3 @@ export const decorators = [
     };
   },
 ];
-

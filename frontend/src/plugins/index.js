@@ -21,7 +21,7 @@ export const installPreviewPlugins = (pinia, options = {}) => {
   registerCorePlugins(manager);
 
   if (customPlugins.length > 0) {
-    customPlugins.forEach(plugin => {
+    customPlugins.forEach((plugin) => {
       try {
         manager.register(plugin);
       } catch (error) {
@@ -49,7 +49,7 @@ function registerCorePlugins(manager) {
     markdownPreviewPlugin(),
   ];
 
-  plugins.forEach(plugin => manager.register(plugin));
+  plugins.forEach((plugin) => manager.register(plugin));
 }
 
 /**
@@ -80,9 +80,9 @@ function normalizeExtensions(extensions) {
   if (!Array.isArray(extensions)) {
     return [];
   }
-  
+
   return extensions
-    .filter(ext => ext && typeof ext === 'string')
-    .map(ext => ext.toLowerCase().trim())
-    .filter(ext => ext.length > 0);
+    .filter((ext) => ext && typeof ext === 'string')
+    .map((ext) => ext.toLowerCase().trim())
+    .filter((ext) => ext.length > 0);
 }

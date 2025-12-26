@@ -18,7 +18,7 @@ class AppError extends Error {
     return {
       message: this.message,
       statusCode: this.statusCode,
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
     };
   }
 }
@@ -36,7 +36,7 @@ class ValidationError extends AppError {
   toJSON() {
     return {
       ...super.toJSON(),
-      details: this.details
+      details: this.details,
     };
   }
 }
@@ -129,5 +129,5 @@ module.exports = {
   ConflictError,
   RateLimitError,
   InternalError,
-  UnsupportedMediaTypeError
+  UnsupportedMediaTypeError,
 };

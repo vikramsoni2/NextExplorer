@@ -20,7 +20,10 @@ test.after(async () => {
 });
 
 test('normalizeRelativePath normalizes slashes and rejects traversal', () => {
-  assert.strictEqual(pathUtils.normalizeRelativePath('folder//nested'), 'folder/nested');
+  assert.strictEqual(
+    pathUtils.normalizeRelativePath('folder//nested'),
+    'folder/nested',
+  );
   assert.strictEqual(pathUtils.normalizeRelativePath('/'), '');
   assert.strictEqual(pathUtils.normalizeRelativePath(''), '');
   assert.strictEqual(pathUtils.normalizeRelativePath('./foo/../bar'), 'bar');
@@ -34,7 +37,10 @@ test('resolveVolumePath protects volume root boundaries', () => {
 });
 
 test('combineRelativePath and splitName helpers behave consistently', () => {
-  assert.strictEqual(pathUtils.combineRelativePath('a//b', 'file.txt'), 'a/b/file.txt');
+  assert.strictEqual(
+    pathUtils.combineRelativePath('a//b', 'file.txt'),
+    'a/b/file.txt',
+  );
   const { base, extension } = pathUtils.splitName('archive.tar.gz');
   assert.strictEqual(base, 'archive.tar');
   assert.strictEqual(extension, '.gz');
@@ -53,13 +59,21 @@ test('ensureValidName rejects invalid names', () => {
 test('findAvailableName and findAvailableFolderName avoid collisions', async () => {
   const filePath = path.join(envContext.volumeDir, 'duplicate.txt');
   await fsPromises.writeFile(filePath, 'data');
-  const nextName = await pathUtils.findAvailableName(envContext.volumeDir, 'duplicate.txt');
+  const nextName = await pathUtils.findAvailableName(
+    envContext.volumeDir,
+    'duplicate.txt',
+  );
   assert.strictEqual(nextName, 'duplicate (1).txt');
-  const firstName = await pathUtils.findAvailableName(envContext.volumeDir, 'new.txt');
+  const firstName = await pathUtils.findAvailableName(
+    envContext.volumeDir,
+    'new.txt',
+  );
   assert.strictEqual(firstName, 'new.txt');
 
   await fsPromises.mkdir(path.join(envContext.volumeDir, 'Untitled Folder'));
-  const folderName = await pathUtils.findAvailableFolderName(envContext.volumeDir);
+  const folderName = await pathUtils.findAvailableFolderName(
+    envContext.volumeDir,
+  );
   assert.strictEqual(folderName, 'Untitled Folder 2');
 });
 
@@ -67,5 +81,8 @@ test('resolveItemPaths returns normalized relative and absolute paths', async ()
   const item = { name: 'file.txt', path: 'docs/reports' };
   const resolved = await pathUtils.resolveItemPaths(item);
   assert.strictEqual(resolved.relativePath, 'docs/reports/file.txt');
-  assert.strictEqual(resolved.absolutePath, path.resolve(envContext.volumeDir, 'docs/reports/file.txt'));
+  assert.strictEqual(
+    resolved.absolutePath,
+    path.resolve(envContext.volumeDir, 'docs/reports/file.txt'),
+  );
 });

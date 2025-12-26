@@ -43,9 +43,8 @@ const initializeApp = async () => {
   registerRoutes(app);
   logger.debug('Registered application routes');
 
-  
   configureStaticFiles(app);
-  
+
   // Error handling middleware (must be after all routes)
   app.use(notFoundHandler);
   app.use(errorHandler);

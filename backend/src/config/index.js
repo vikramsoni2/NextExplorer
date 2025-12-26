@@ -9,7 +9,7 @@ const { parseByteSize } = require('../utils/env');
 const parseScopes = (raw) => {
   if (!raw) return null;
   const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/);
-  return parts.map(s => s.trim()).filter(Boolean);
+  return parts.map((s) => s.trim()).filter(Boolean);
 };
 
 // --- Paths ---
@@ -22,13 +22,17 @@ const userRootDir = env.USER_ROOT
 
 const directories = {
   volume: volumeDir,
-  volumeWithSep: volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`,
+  volumeWithSep: volumeDir.endsWith(path.sep)
+    ? volumeDir
+    : `${volumeDir}${path.sep}`,
   config: configDir,
   cache: cacheDir,
   thumbnails: path.join(cacheDir, 'thumbnails'),
   extensions: path.join(configDir, 'extensions'),
   userRoot: userRootDir,
-  userRootWithSep: userRootDir.endsWith(path.sep) ? userRootDir : `${userRootDir}${path.sep}`,
+  userRootWithSep: userRootDir.endsWith(path.sep)
+    ? userRootDir
+    : `${userRootDir}${path.sep}`,
 };
 
 // --- Public URL ---
@@ -48,7 +52,12 @@ if (env.PUBLIC_URL) {
 const buildCorsConfig = () => {
   if (env.CORS_ORIGINS) {
     if (env.CORS_ORIGINS === '*') return { allowAll: true, origins: [] };
-    return { allowAll: false, origins: env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean) };
+    return {
+      allowAll: false,
+      origins: env.CORS_ORIGINS.split(',')
+        .map((o) => o.trim())
+        .filter(Boolean),
+    };
   }
   if (publicOrigin) return { allowAll: false, origins: [publicOrigin] };
   return { allowAll: true, origins: [] }; // Backwards compatibility
@@ -75,7 +84,9 @@ const determineAuthMode = () => {
   if (env.AUTH_MODE) {
     const validModes = ['local', 'oidc', 'both', 'disabled'];
     if (!validModes.includes(env.AUTH_MODE)) {
-      console.warn(`[Config] Invalid AUTH_MODE="${env.AUTH_MODE}". Using "both" as default.`);
+      console.warn(
+        `[Config] Invalid AUTH_MODE="${env.AUTH_MODE}". Using "both" as default.`,
+      );
       return 'both';
     }
     return env.AUTH_MODE;
@@ -86,7 +97,7 @@ const determineAuthMode = () => {
 const authMode = determineAuthMode();
 
 const auth = {
-  enabled: authMode === 'disabled' ? false : (env.AUTH_ENABLED !== false),
+  enabled: authMode === 'disabled' ? false : env.AUTH_ENABLED !== false,
   sessionSecret: env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   mode: authMode,
   oidc: {
@@ -97,7 +108,8 @@ const auth = {
     userInfoURL: env.OIDC_USERINFO_URL,
     clientId: env.OIDC_CLIENT_ID,
     clientSecret: env.OIDC_CLIENT_SECRET,
-    callbackUrl: env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
+    callbackUrl:
+      env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
     scopes: parseScopes(env.OIDC_SCOPES) || null,
     adminGroups: parseScopes(env.OIDC_ADMIN_GROUPS) || null,
     requireEmailVerified: env.OIDC_REQUIRE_EMAIL_VERIFIED,
@@ -117,7 +129,9 @@ const onlyoffice = {
   secret: env.ONLYOFFICE_SECRET || env.SESSION_SECRET || auth.sessionSecret,
   lang: env.ONLYOFFICE_LANG,
   forceSave: env.ONLYOFFICE_FORCE_SAVE,
-  extensions: env.ONLYOFFICE_FILE_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+  extensions: env.ONLYOFFICE_FILE_EXTENSIONS.split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
 };
 
 // --- Editor ---
@@ -128,7 +142,9 @@ const editorMaxFileSizeBytes = (() => {
 })();
 
 const editor = {
-  extensions: env.EDITOR_EXTENSIONS.split(',').map(s => s.trim().toLowerCase()).filter(Boolean),
+  extensions: env.EDITOR_EXTENSIONS.split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
   maxFileSizeBytes: editorMaxFileSizeBytes,
 };
 
@@ -152,13 +168,13 @@ const shares = {
 module.exports = {
   port: env.PORT,
   directories,
-  
+
   files: {
     passwordConfig: path.join(configDir, 'app-config.json'),
   },
-  
+
   public: { url: publicUrl, origin: publicOrigin },
-  
+
   extensions: {
     images: constants.IMAGE_EXTENSIONS,
     rawImages: constants.RAW_IMAGE_EXTENSIONS,
@@ -167,20 +183,20 @@ module.exports = {
     documents: constants.DOCUMENT_EXTENSIONS,
     previewable: constants.PREVIEWABLE_EXTENSIONS,
   },
-  
+
   excludedFiles: constants.EXCLUDED_FILES,
   mimeTypes: constants.MIME_TYPES,
   corsOptions,
-  
+
   auth,
-  
+
   search: {
     deep: env.SEARCH_DEEP ?? true,
     ripgrep: env.SEARCH_RIPGREP ?? true,
     maxFileSize: env.SEARCH_MAX_FILESIZE,
     maxFileSizeBytes: searchMaxFileSizeBytes,
   },
-  
+
   thumbnails: { size: 200, quality: 70 },
   onlyoffice,
   editor,
@@ -194,7 +210,7 @@ module.exports = {
     shares: env.SHARES_ENABLED,
     skipHome: env.SKIP_HOME,
   },
-  
+
   logging: {
     level: loggingConfig.level,
     isDebug: loggingConfig.isDebug,

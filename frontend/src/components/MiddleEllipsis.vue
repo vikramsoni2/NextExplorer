@@ -5,12 +5,12 @@ const props = defineProps({
   text: {
     type: String,
     required: true,
-    default: ''
+    default: '',
   },
   endChars: {
     type: Number,
-    default: 10
-  }
+    default: 10,
+  },
 });
 
 const startText = computed(() => {
@@ -33,10 +33,7 @@ const endText = computed(() => {
     <span class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
       {{ startText }}
     </span>
-    <span
-      v-if="endText"
-      class="shrink-0 whitespace-nowrap"
-    >
+    <span v-if="endText" class="shrink-0 whitespace-nowrap">
       {{ endText }}
     </span>
   </span>

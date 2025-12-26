@@ -26,18 +26,22 @@ const DEFAULT_DATA = {
  */
 const init = async () => {
   if (initialized) return;
-  
+
   await ensureDir(directories.config);
-  
+
   try {
     await fs.access(CONFIG_FILE);
   } catch (error) {
     if (error?.code === 'ENOENT') {
       logger.info('Creating default config file');
-      await fs.writeFile(CONFIG_FILE, JSON.stringify(DEFAULT_DATA, null, 2) + '\n', ENCODING);
+      await fs.writeFile(
+        CONFIG_FILE,
+        JSON.stringify(DEFAULT_DATA, null, 2) + '\n',
+        ENCODING,
+      );
     }
   }
-  
+
   cache = await read();
   initialized = true;
 };
@@ -59,7 +63,11 @@ const read = async () => {
  * Write to disk and update cache
  */
 const write = async (data) => {
-  await fs.writeFile(CONFIG_FILE, JSON.stringify(data, null, 2) + '\n', ENCODING);
+  await fs.writeFile(
+    CONFIG_FILE,
+    JSON.stringify(data, null, 2) + '\n',
+    ENCODING,
+  );
   cache = data;
   return data;
 };

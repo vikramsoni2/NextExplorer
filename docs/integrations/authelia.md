@@ -14,14 +14,14 @@ Authelia can act as the OIDC Identity Provider for nextExplorer using the Author
 services:
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ['redis-server', '--appendonly', 'yes']
   authelia:
     image: authelia/authelia:latest
     depends_on: [redis]
     volumes:
       - ./authelia/config:/config
     ports:
-      - "9091:9091"
+      - '9091:9091'
 ```
 
 Generate secrets (example commands):
@@ -61,9 +61,9 @@ The backend discovers `/login`, `/callback`, `/logout` automatically once OIDC i
 
 ## Troubleshooting tips
 
-| Symptom | Fix |
-| --- | --- |
-| Redirect URI mismatch | Ensure Authelia’s `redirect_uris` entry equals `${PUBLIC_URL}/callback` (or `OIDC_CALLBACK_URL` if overridden). |
-| Users not admin | Include the group claim in Authelia (via `groups` scope/mapping) and add the group name to `OIDC_ADMIN_GROUPS`. |
-| Session issue after restart | Set a fixed `SESSION_SECRET` so the Express session stays valid. |
-| Behind proxy | Set `PUBLIC_URL`, configure `TRUST_PROXY`, and forward `X-Forwarded-*` headers from your proxy.
+| Symptom                     | Fix                                                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Redirect URI mismatch       | Ensure Authelia’s `redirect_uris` entry equals `${PUBLIC_URL}/callback` (or `OIDC_CALLBACK_URL` if overridden). |
+| Users not admin             | Include the group claim in Authelia (via `groups` scope/mapping) and add the group name to `OIDC_ADMIN_GROUPS`. |
+| Session issue after restart | Set a fixed `SESSION_SECRET` so the Express session stays valid.                                                |
+| Behind proxy                | Set `PUBLIC_URL`, configure `TRUST_PROXY`, and forward `X-Forwarded-*` headers from your proxy.                 |

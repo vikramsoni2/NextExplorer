@@ -13,4 +13,3 @@ router.get('/readyz', (req, res) => {
 });
 
 module.exports = router;
-

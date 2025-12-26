@@ -27,7 +27,7 @@ defineEmits(['toggle-sidebar']);
 // Check if we're at the volumes home view (no path selected)
 const isVolumesView = computed(() => {
   const p = route.params.path;
-  const s = Array.isArray(p) ? p.join('/') : (p || '');
+  const s = Array.isArray(p) ? p.join('/') : p || '';
   return !s || s.trim() === '';
 });
 
@@ -48,7 +48,6 @@ const canCreate = computed(() => {
 const goHome = async () => {
   await router.push('/browse/');
 };
-
 </script>
 
 <template>
@@ -65,14 +64,11 @@ const goHome = async () => {
         <Bars3Icon class="h-6 w-6" />
       </button>
 
-      
+      <CreateNew v-if="canCreate" class="mr-3" />
 
-      <CreateNew v-if="canCreate" class="mr-3"/>
-      
-      <div class="flex items-center max-sm:order-2 max-sm:basis-full 
-      max-sm:bg-zinc-100 max-sm:dark:bg-zinc-800 
-      max-sm:p-1 max-sm:my-1 max-sm:rounded-xl">
-
+      <div
+        class="flex items-center max-sm:order-2 max-sm:basis-full max-sm:bg-zinc-100 max-sm:dark:bg-zinc-800 max-sm:p-1 max-sm:my-1 max-sm:rounded-xl"
+      >
         <button
           v-if="!isVolumesView"
           type="button"
@@ -84,26 +80,29 @@ const goHome = async () => {
           <HomeIcon class="h-5 w-5" />
         </button>
         <NavButtons />
-        <BreadCrumb class="ml-2"/>
+        <BreadCrumb class="ml-2" />
       </div>
-      
+
       <div class="flex items-center ml-auto">
         <template v-if="!isVolumesView">
-          <MenuItemInfo class="ml-auto"/>
+          <MenuItemInfo class="ml-auto" />
           <MenuShare />
-          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <div
+            class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
+          ></div>
           <MenuSortBy />
-          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <div
+            class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
+          ></div>
           <ViewMode />
           <PhotoSizeControl v-if="settings.view === 'photos'" />
-          <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
+          <div
+            class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
+          ></div>
         </template>
-        <NotificationBell/>
-        <SearchBar/>
+        <NotificationBell />
+        <SearchBar />
       </div>
-      
     </div>
-
   </div>
-
 </template>

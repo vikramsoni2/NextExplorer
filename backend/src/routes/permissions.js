@@ -8,7 +8,12 @@ const { normalizeRelativePath } = require('../utils/pathUtils');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const { ValidationError, ForbiddenError, NotFoundError, UnauthorizedError } = require('../errors/AppError');
+const {
+  ValidationError,
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+} = require('../errors/AppError');
 
 const router = express.Router();
 const execAsync = promisify(exec);
@@ -16,213 +21,249 @@ const execAsync = promisify(exec);
 /**
  * Get file permissions, owner, and group information
  */
-router.get('/permissions/*', asyncHandler(async (req, res) => {
-  const rawPath = req.params[0] || '';
-  const relativePath = normalizeRelativePath(rawPath);
+router.get(
+  '/permissions/*',
+  asyncHandler(async (req, res) => {
+    const rawPath = req.params[0] || '';
+    const relativePath = normalizeRelativePath(rawPath);
 
-  if (!relativePath) {
-    throw new ValidationError('A file path is required.');
-  }
-
-  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
-  if (!accessInfo?.canAccess || !resolved) {
-    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
-  }
-
-  try {
-    const stats = await fs.stat(resolved.absolutePath);
-
-    // Get owner and group information
-    // On Unix systems, we can use uid/gid, but we need the names
-    let owner = stats.uid.toString();
-    let group = stats.gid.toString();
-
-    // Try to get username and group name (Unix/Linux/macOS)
-    if (process.platform !== 'win32') {
-      try {
-        // Get owner name from uid
-        const { stdout: ownerOut } = await execAsync(`id -nu ${stats.uid}`);
-        owner = ownerOut.trim();
-      } catch (e) {
-        logger.debug({ err: e }, 'Failed to get owner name');
-      }
-
-      try {
-        // Get group name from gid
-        const { stdout: groupOut } = await execAsync(`id -gn ${stats.gid}`);
-        group = groupOut.trim();
-      } catch (e) {
-        logger.debug({ err: e }, 'Failed to get group name');
-      }
+    if (!relativePath) {
+      throw new ValidationError('A file path is required.');
     }
 
-    res.json({
-      path: relativePath,
-      mode: stats.mode,
-      owner,
-      group,
-      uid: stats.uid,
-      gid: stats.gid,
-      isDirectory: stats.isDirectory()
-    });
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      throw new NotFoundError('Path not found.');
+    const { accessInfo, resolved } = await resolvePathWithAccess(
+      { user: req.user, guestSession: req.guestSession },
+      relativePath,
+    );
+    if (!accessInfo?.canAccess || !resolved) {
+      throw new ForbiddenError(
+        accessInfo?.denialReason || 'Path is not accessible.',
+      );
     }
-    throw error;
-  }
-}));
+
+    try {
+      const stats = await fs.stat(resolved.absolutePath);
+
+      // Get owner and group information
+      // On Unix systems, we can use uid/gid, but we need the names
+      let owner = stats.uid.toString();
+      let group = stats.gid.toString();
+
+      // Try to get username and group name (Unix/Linux/macOS)
+      if (process.platform !== 'win32') {
+        try {
+          // Get owner name from uid
+          const { stdout: ownerOut } = await execAsync(`id -nu ${stats.uid}`);
+          owner = ownerOut.trim();
+        } catch (e) {
+          logger.debug({ err: e }, 'Failed to get owner name');
+        }
+
+        try {
+          // Get group name from gid
+          const { stdout: groupOut } = await execAsync(`id -gn ${stats.gid}`);
+          group = groupOut.trim();
+        } catch (e) {
+          logger.debug({ err: e }, 'Failed to get group name');
+        }
+      }
+
+      res.json({
+        path: relativePath,
+        mode: stats.mode,
+        owner,
+        group,
+        uid: stats.uid,
+        gid: stats.gid,
+        isDirectory: stats.isDirectory(),
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new NotFoundError('Path not found.');
+      }
+      throw error;
+    }
+  }),
+);
 
 /**
  * Change file permissions (chmod)
  */
-router.post('/permissions/chmod', asyncHandler(async (req, res) => {
-  const { path: rawPath, mode, recursive } = req.body;
+router.post(
+  '/permissions/chmod',
+  asyncHandler(async (req, res) => {
+    const { path: rawPath, mode, recursive } = req.body;
 
-  if (!rawPath) {
-    throw new ValidationError('Path is required.');
-  }
+    if (!rawPath) {
+      throw new ValidationError('Path is required.');
+    }
 
-  if (!mode || !/^[0-7]{3}$/.test(mode)) {
-    throw new ValidationError('Mode must be a 3-digit octal string (e.g., "755").');
-  }
+    if (!mode || !/^[0-7]{3}$/.test(mode)) {
+      throw new ValidationError(
+        'Mode must be a 3-digit octal string (e.g., "755").',
+      );
+    }
 
-  if (!req.user || !req.user.id) {
-    throw new UnauthorizedError('Authentication required');
-  }
-  if (req.guestSession) {
-    throw new ForbiddenError('Guests cannot change permissions.');
-  }
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    if (req.guestSession) {
+      throw new ForbiddenError('Guests cannot change permissions.');
+    }
 
-  const relativePath = normalizeRelativePath(rawPath);
-  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
-  if (!accessInfo?.canAccess || !resolved) {
-    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
-  }
-  if (!accessInfo.canWrite) {
-    throw new ForbiddenError('Path is read-only.');
-  }
+    const relativePath = normalizeRelativePath(rawPath);
+    const { accessInfo, resolved } = await resolvePathWithAccess(
+      { user: req.user, guestSession: req.guestSession },
+      relativePath,
+    );
+    if (!accessInfo?.canAccess || !resolved) {
+      throw new ForbiddenError(
+        accessInfo?.denialReason || 'Path is not accessible.',
+      );
+    }
+    if (!accessInfo.canWrite) {
+      throw new ForbiddenError('Path is read-only.');
+    }
 
-  try {
-    // Check if path exists
-    await fs.stat(resolved.absolutePath);
+    try {
+      // Check if path exists
+      await fs.stat(resolved.absolutePath);
 
-    // Use chmod via Node.js built-in
-    const modeInt = parseInt(mode, 8);
-    await fs.chmod(resolved.absolutePath, modeInt);
+      // Use chmod via Node.js built-in
+      const modeInt = parseInt(mode, 8);
+      await fs.chmod(resolved.absolutePath, modeInt);
 
-    // If recursive and directory, apply to all children
-    if (recursive) {
-      const stats = await fs.stat(resolved.absolutePath);
-      if (stats.isDirectory()) {
-        // Use chmod -R for recursive on Unix systems
-        if (process.platform !== 'win32') {
-          try {
-            await execAsync(`chmod -R ${mode} "${resolved.absolutePath}"`);
-          } catch (e) {
-            logger.error({ err: e }, 'Failed to apply recursive chmod');
-            throw new Error('Failed to apply permissions recursively.');
+      // If recursive and directory, apply to all children
+      if (recursive) {
+        const stats = await fs.stat(resolved.absolutePath);
+        if (stats.isDirectory()) {
+          // Use chmod -R for recursive on Unix systems
+          if (process.platform !== 'win32') {
+            try {
+              await execAsync(`chmod -R ${mode} "${resolved.absolutePath}"`);
+            } catch (e) {
+              logger.error({ err: e }, 'Failed to apply recursive chmod');
+              throw new Error('Failed to apply permissions recursively.');
+            }
+          } else {
+            // On Windows, we'd need to recursively walk the directory
+            // For now, just apply to the top-level
+            logger.warn('Recursive chmod not fully supported on Windows');
           }
-        } else {
-          // On Windows, we'd need to recursively walk the directory
-          // For now, just apply to the top-level
-          logger.warn('Recursive chmod not fully supported on Windows');
         }
       }
-    }
 
-    logger.info({ path: relativePath, mode, recursive }, 'Permissions changed');
+      logger.info(
+        { path: relativePath, mode, recursive },
+        'Permissions changed',
+      );
 
-    res.json({
-      success: true,
-      path: relativePath,
-      mode: modeInt
-    });
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      throw new NotFoundError('Path not found.');
+      res.json({
+        success: true,
+        path: relativePath,
+        mode: modeInt,
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new NotFoundError('Path not found.');
+      }
+      if (error.code === 'EPERM' || error.code === 'EACCES') {
+        throw new ForbiddenError('Permission denied to change permissions.');
+      }
+      throw error;
     }
-    if (error.code === 'EPERM' || error.code === 'EACCES') {
-      throw new ForbiddenError('Permission denied to change permissions.');
-    }
-    throw error;
-  }
-}));
+  }),
+);
 
 /**
  * Change file owner or group (chown)
  */
-router.post('/permissions/chown', asyncHandler(async (req, res) => {
-  const { path: rawPath, owner, group } = req.body;
+router.post(
+  '/permissions/chown',
+  asyncHandler(async (req, res) => {
+    const { path: rawPath, owner, group } = req.body;
 
-  if (!rawPath) {
-    throw new ValidationError('Path is required.');
-  }
+    if (!rawPath) {
+      throw new ValidationError('Path is required.');
+    }
 
-  if (!owner && !group) {
-    throw new ValidationError('Either owner or group must be specified.');
-  }
+    if (!owner && !group) {
+      throw new ValidationError('Either owner or group must be specified.');
+    }
 
-  if (!req.user || !req.user.id) {
-    throw new UnauthorizedError('Authentication required');
-  }
-  if (req.guestSession) {
-    throw new ForbiddenError('Guests cannot change ownership.');
-  }
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    if (req.guestSession) {
+      throw new ForbiddenError('Guests cannot change ownership.');
+    }
 
-  const relativePath = normalizeRelativePath(rawPath);
-  const { accessInfo, resolved } = await resolvePathWithAccess({ user: req.user, guestSession: req.guestSession }, relativePath);
-  if (!accessInfo?.canAccess || !resolved) {
-    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
-  }
-  if (!accessInfo.canWrite) {
-    throw new ForbiddenError('Path is read-only.');
-  }
+    const relativePath = normalizeRelativePath(rawPath);
+    const { accessInfo, resolved } = await resolvePathWithAccess(
+      { user: req.user, guestSession: req.guestSession },
+      relativePath,
+    );
+    if (!accessInfo?.canAccess || !resolved) {
+      throw new ForbiddenError(
+        accessInfo?.denialReason || 'Path is not accessible.',
+      );
+    }
+    if (!accessInfo.canWrite) {
+      throw new ForbiddenError('Path is read-only.');
+    }
 
-  try {
-    // Check if path exists
-    await fs.stat(resolved.absolutePath);
+    try {
+      // Check if path exists
+      await fs.stat(resolved.absolutePath);
 
-    // chown requires shell execution as Node.js doesn't have built-in owner/group change
-    // This requires elevated privileges on most systems
-    if (process.platform !== 'win32') {
-      let chownCmd = '';
+      // chown requires shell execution as Node.js doesn't have built-in owner/group change
+      // This requires elevated privileges on most systems
+      if (process.platform !== 'win32') {
+        let chownCmd = '';
 
-      if (owner && group) {
-        chownCmd = `chown "${owner}:${group}" "${resolved.absolutePath}"`;
-      } else if (owner) {
-        chownCmd = `chown "${owner}" "${resolved.absolutePath}"`;
-      } else if (group) {
-        chownCmd = `chgrp "${group}" "${resolved.absolutePath}"`;
-      }
-
-      try {
-        await execAsync(chownCmd);
-        logger.info({ path: relativePath, owner, group }, 'Ownership changed');
-      } catch (e) {
-        logger.error({ err: e }, 'Failed to change ownership');
-
-        if (e.message.includes('Operation not permitted')) {
-          throw new ForbiddenError('Permission denied. Changing ownership typically requires root/admin privileges.');
+        if (owner && group) {
+          chownCmd = `chown "${owner}:${group}" "${resolved.absolutePath}"`;
+        } else if (owner) {
+          chownCmd = `chown "${owner}" "${resolved.absolutePath}"`;
+        } else if (group) {
+          chownCmd = `chgrp "${group}" "${resolved.absolutePath}"`;
         }
-        throw new Error('Failed to change ownership: ' + e.message);
-      }
-    } else {
-      throw new ValidationError('Changing ownership is not supported on Windows.');
-    }
 
-    res.json({
-      success: true,
-      path: relativePath,
-      owner,
-      group
-    });
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      throw new NotFoundError('Path not found.');
+        try {
+          await execAsync(chownCmd);
+          logger.info(
+            { path: relativePath, owner, group },
+            'Ownership changed',
+          );
+        } catch (e) {
+          logger.error({ err: e }, 'Failed to change ownership');
+
+          if (e.message.includes('Operation not permitted')) {
+            throw new ForbiddenError(
+              'Permission denied. Changing ownership typically requires root/admin privileges.',
+            );
+          }
+          throw new Error('Failed to change ownership: ' + e.message);
+        }
+      } else {
+        throw new ValidationError(
+          'Changing ownership is not supported on Windows.',
+        );
+      }
+
+      res.json({
+        success: true,
+        path: relativePath,
+        owner,
+        group,
+      });
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new NotFoundError('Path not found.');
+      }
+      throw error;
     }
-    throw error;
-  }
-}));
+  }),
+);
 
 module.exports = router;

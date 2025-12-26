@@ -28,7 +28,9 @@ export const useFileStore = defineStore('fileStore', () => {
   const thumbnailRequests = new Map();
 
   const hasSelection = computed(() => selectedItems.value.length > 0);
-  const hasClipboardItems = computed(() => copiedItems.value.length > 0 || cutItems.value.length > 0);
+  const hasClipboardItems = computed(
+    () => copiedItems.value.length > 0 || cutItems.value.length > 0,
+  );
 
   const itemKey = (item) => {
     if (!item || !item.name) {
@@ -39,7 +41,8 @@ export const useFileStore = defineStore('fileStore', () => {
     return `${parent}::${item.name}`;
   };
 
-  const findItemByKey = (key) => currentPathItems.value.find((item) => itemKey(item) === key);
+  const findItemByKey = (key) =>
+    currentPathItems.value.find((item) => itemKey(item) === key);
 
   const resolveItemRelativePath = (item) => {
     if (!item || !item.name) {
@@ -51,13 +54,14 @@ export const useFileStore = defineStore('fileStore', () => {
     return normalizePath(combined);
   };
 
-  const serializeItems = (items) => items
-    .filter((item) => item && item.name && item.kind !== 'volume')
-    .map((item) => ({
-      name: item.name,
-      path: normalizePath(item.path || ''),
-      kind: item.kind,
-    }));
+  const serializeItems = (items) =>
+    items
+      .filter((item) => item && item.name && item.kind !== 'volume')
+      .map((item) => ({
+        name: item.name,
+        path: normalizePath(item.path || ''),
+        kind: item.kind,
+      }));
 
   const resetClipboard = () => {
     copiedItems.value = [];
@@ -77,8 +81,11 @@ export const useFileStore = defineStore('fileStore', () => {
   };
 
   const paste = async (targetPath) => {
-    const hasTarget = typeof targetPath === 'string' && targetPath.trim().length > 0;
-    const destination = normalizePath(hasTarget ? targetPath : currentPath.value || '');
+    const hasTarget =
+      typeof targetPath === 'string' && targetPath.trim().length > 0;
+    const destination = normalizePath(
+      hasTarget ? targetPath : currentPath.value || '',
+    );
     const refreshTarget = normalizePath(currentPath.value || '');
 
     if (copiedItems.value.length > 0) {
@@ -132,9 +139,10 @@ export const useFileStore = defineStore('fileStore', () => {
     const destination = normalizePath(currentPath.value || '');
 
     // Determine a default base name and extension
-    const defaultName = (typeof baseName === 'string' && baseName.trim())
-      ? baseName.trim()
-      : 'Untitled.txt';
+    const defaultName =
+      typeof baseName === 'string' && baseName.trim()
+        ? baseName.trim()
+        : 'Untitled.txt';
 
     // Split name into stem + extension (preserve provided extension if present)
     const lastDot = defaultName.lastIndexOf('.');
@@ -142,7 +150,9 @@ export const useFileStore = defineStore('fileStore', () => {
     const ext = lastDot > 0 ? defaultName.slice(lastDot) : '';
 
     // Ensure the name is unique in current listing
-    const existingNames = new Set((currentPathItems.value || []).map((it) => it?.name).filter(Boolean));
+    const existingNames = new Set(
+      (currentPathItems.value || []).map((it) => it?.name).filter(Boolean),
+    );
     let candidate = `${stem}${ext}`;
     let counter = 2;
     while (existingNames.has(candidate)) {
@@ -150,7 +160,9 @@ export const useFileStore = defineStore('fileStore', () => {
       counter += 1;
     }
 
-    const relativePath = destination ? `${destination}/${candidate}` : candidate;
+    const relativePath = destination
+      ? `${destination}/${candidate}`
+      : candidate;
 
     // Create empty file
     await saveFileContentApi(relativePath, '');
@@ -214,7 +226,11 @@ export const useFileStore = defineStore('fileStore', () => {
     const targetPath = state.path;
 
     try {
-      const response = await renameItemApi(targetPath, state.originalName, newName);
+      const response = await renameItemApi(
+        targetPath,
+        state.originalName,
+        newName,
+      );
       const renamedName = response?.item?.name ?? newName;
       renameState.value = null;
       await fetchPathItems(targetPath);
@@ -254,7 +270,10 @@ export const useFileStore = defineStore('fileStore', () => {
       if (!appSettings.loaded) {
         if (!appSettings.loading) await appSettings.load();
       }
-      if (appSettings.loaded && appSettings.state.thumbnails?.enabled === false) {
+      if (
+        appSettings.loaded &&
+        appSettings.state.thumbnails?.enabled === false
+      ) {
         return null;
       }
     } catch (e) {
@@ -302,7 +321,7 @@ export const useFileStore = defineStore('fileStore', () => {
 
     return pending;
   };
-  
+
   const getCurrentPath = computed(() => currentPath.value);
 
   const getCurrentPathItems = computed(() => {
@@ -317,10 +336,11 @@ export const useFileStore = defineStore('fileStore', () => {
       const aValue = a[settings.sortBy.by];
       const bValue = b[settings.sortBy.by];
       if (aValue === bValue) return 0;
-      
+
       if (typeof aValue === 'string' && typeof bValue === 'string') {
         return (
-          aValue.localeCompare(bValue, undefined, { sensitivity: 'base' }) * direction
+          aValue.localeCompare(bValue, undefined, { sensitivity: 'base' }) *
+          direction
         );
       }
       return (aValue > bValue ? 1 : -1) * direction;
@@ -337,7 +357,9 @@ export const useFileStore = defineStore('fileStore', () => {
       ? currentPathItems.value
       : [];
 
-    const normalizedPath = normalizePath(typeof path === 'string' ? path : currentPath.value);
+    const normalizedPath = normalizePath(
+      typeof path === 'string' ? path : currentPath.value,
+    );
     currentPath.value = normalizedPath;
     selectedItems.value = [];
 
@@ -393,11 +415,16 @@ export const useFileStore = defineStore('fileStore', () => {
     };
 
     // Handle new response format with items and access metadata
-    if (response && typeof response === 'object' && Array.isArray(response.items)) {
+    if (
+      response &&
+      typeof response === 'object' &&
+      Array.isArray(response.items)
+    ) {
       currentPathItems.value = mergeItems(response.items);
-      const access = response.access && typeof response.access === 'object'
-        ? response.access
-        : null;
+      const access =
+        response.access && typeof response.access === 'object'
+          ? response.access
+          : null;
       currentPathData.value = {
         path: response.path || normalizedPath,
         canRead: access?.canRead ?? true,
@@ -413,7 +440,9 @@ export const useFileStore = defineStore('fileStore', () => {
       };
     } else {
       // Fallback for old response format (array of items)
-      currentPathItems.value = mergeItems(Array.isArray(response) ? response : []);
+      currentPathItems.value = mergeItems(
+        Array.isArray(response) ? response : [],
+      );
       currentPathData.value = null;
     }
 

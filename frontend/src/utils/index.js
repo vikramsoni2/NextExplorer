@@ -13,7 +13,6 @@ function formatBytes(bytes, decimals) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-
 function withViewTransition(func) {
   return function (...args) {
     if (!document.startViewTransition) {
@@ -24,10 +23,4 @@ function withViewTransition(func) {
   };
 }
 
-
-
-export {
-  formatDate,
-  formatBytes,
-  withViewTransition
-}
+export { formatDate, formatBytes, withViewTransition };

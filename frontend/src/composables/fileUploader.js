@@ -1,15 +1,14 @@
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Uppy from '@uppy/core';
 import XHRUpload from '@uppy/xhr-upload';
 import { useUppyStore } from '@/stores/uppyStore';
-import {useFileStore} from '@/stores/fileStore';
+import { useFileStore } from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import { isDisallowedUpload } from '@/utils/uploads';
 import DropTarget from '@uppy/drop-target';
 
 export function useFileUploader() {
-
   // Filtering is centralized in utils/uploads
   const uppyStore = useUppyStore();
   const fileStore = useFileStore();
@@ -20,14 +19,14 @@ export function useFileUploader() {
   // Ensure a single Uppy instance app-wide
   let uppy = uppyStore.uppy;
   const createdHere = ref(false);
-  
+
   if (!uppy) {
     uppy = new Uppy({
       debug: true,
       autoProceed: true,
       store: uppyStore,
     });
-    
+
     uppy.use(XHRUpload, {
       endpoint: `${apiBase}/api/upload`,
       formData: true,
@@ -53,8 +52,16 @@ export function useFileUploader() {
         '';
 
       // Some rare DnD sources may miss name; prefer data.name if present
-      if (!file?.name && file?.data?.name && typeof uppy.setFileName === 'function') {
-        try { uppy.setFileName(file.id, file.data.name); } catch (_) { /* noop */ }
+      if (
+        !file?.name &&
+        file?.data?.name &&
+        typeof uppy.setFileName === 'function'
+      ) {
+        try {
+          uppy.setFileName(file.id, file.data.name);
+        } catch (_) {
+          /* noop */
+        }
       }
 
       uppy.setFileMeta(file.id, {
@@ -64,21 +71,19 @@ export function useFileUploader() {
     });
 
     uppy.on('upload-success', () => {
-      fileStore.fetchPathItems(fileStore.currentPath)
-        .catch(() => {});
+      fileStore.fetchPathItems(fileStore.currentPath).catch(() => {});
     });
 
     uppyStore.uppy = uppy;
     createdHere.value = true;
   }
 
-
   function uppyFile(file) {
     return {
       name: file.name,
       type: file.type,
       data: file,
-    }
+    };
   }
 
   function setDialogAttributes(options) {
@@ -89,9 +94,7 @@ export function useFileUploader() {
     inputRef.value.mozdirectory = !!options.directory;
   }
 
-
   function openDialog(opts) {
-
     const defaultDialogOptions = {
       multiple: true,
       accept: '*',
@@ -102,12 +105,12 @@ export function useFileUploader() {
 
       files.value = [];
       const options = { ...defaultDialogOptions, ...opts };
-      
+
       setDialogAttributes(options);
 
       inputRef.value.onchange = (e) => {
         const selectedFiles = Array.from(e.target.files || []).filter(
-          (file) => !isDisallowedUpload(file.name)
+          (file) => !isDisallowedUpload(file.name),
         );
 
         files.value = selectedFiles.map((file) => uppyFile(file));
@@ -121,7 +124,6 @@ export function useFileUploader() {
       inputRef.value.click();
     });
   }
-  
 
   // function process() {
 
@@ -154,9 +156,9 @@ export function useFileUploader() {
   // }
 
   onMounted(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.className = "hidden";
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.className = 'hidden';
     document.body.appendChild(input);
     inputRef.value = input;
   });
@@ -174,28 +176,21 @@ export function useFileUploader() {
 
   return {
     files,
-    openDialog
-  }
-
+    openDialog,
+  };
 }
 
+// function onDrop(droppedFiles) {
+//   // each droppedFile to files array
+//   files.value.push(...droppedFiles)
+//   console.log(droppedFiles)
+// }
 
+// const { isOverDropZone } = useDropZone(dropzoneRef, {
+//   onDrop,
+// })
 
-  // function onDrop(droppedFiles) {
-  //   // each droppedFile to files array
-  //   files.value.push(...droppedFiles)
-  //   console.log(droppedFiles)
-  // }
-
-
-  
-  // const { isOverDropZone } = useDropZone(dropzoneRef, {
-  //   onDrop,
-  // })
-
-
-
-  // console.log(options)
+// console.log(options)
 
 // Attach/detach Uppy DropTarget plugin to a given element ref
 export function useUppyDropTarget(targetRef) {

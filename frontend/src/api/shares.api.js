@@ -1,8 +1,4 @@
-import {
-  requestJson,
-  normalizePath,
-  encodePath,
-} from './http';
+import { requestJson, normalizePath, encodePath } from './http';
 
 /**
  * Create a new share

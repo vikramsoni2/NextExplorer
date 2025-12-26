@@ -1,6 +1,6 @@
 # User volumes (per-user volume assignments)
 
-When `USER_VOLUMES=true`, nextExplorer stops showing *all* mounted volumes to everyone. Admins still see all volumes under `VOLUME_ROOT`, but regular users only see volumes explicitly assigned to them by an admin.
+When `USER_VOLUMES=true`, nextExplorer stops showing _all_ mounted volumes to everyone. Admins still see all volumes under `VOLUME_ROOT`, but regular users only see volumes explicitly assigned to them by an admin.
 
 ## Enable the feature
 
@@ -21,10 +21,10 @@ USER_VOLUMES=true
 1. Go to **Settings → Admin → Users**.
 2. Click a user (or create a new one).
 3. Open the **Volumes** tab.
-4. Click **Add volume**, browse to a directory, choose an access mode, and save.  
-  
-![Add volume dialog](/images/user-volumes-2.png)  
-  
+4. Click **Add volume**, browse to a directory, choose an access mode, and save.
+
+![Add volume dialog](/images/user-volumes-2.png)
+
 ![User profile volumes tab](/images/user-volumes-1.png)
 
 ### Volume fields
@@ -34,7 +34,6 @@ USER_VOLUMES=true
 - **Access mode**:
   - `readwrite`: user can upload, create folders, rename, move, and delete.
   - `readonly`: user can browse and download, but cannot modify content.
-
 
 ## Notes & interactions
 

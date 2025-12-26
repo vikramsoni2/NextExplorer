@@ -3,25 +3,25 @@ layout: home
 
 hero:
   # name: "nextExplorer"
-  text: "nextExplorer"
-  tagline: "Self-hosted file access for teams, homelabs, and agencies with a refined interface."
+  text: 'nextExplorer'
+  tagline: 'Self-hosted file access for teams, homelabs, and agencies with a refined interface.'
   actions:
     - theme: brand
-      text: "Quick start"
+      text: 'Quick start'
       link: /quick-launch/overview
     - theme: alt
-      text: "Documentation"
+      text: 'Documentation'
       link: /experience/features
 
 features:
-  - title: "Secure by default"
-    details: "Local accounts, groups, and optional OIDC keep every volume authenticated and auditable."
-  - title: "Fast previews"
-    details: "Media, documents, and code render instantly with thumbnails, syntax highlighting, and inline players."
-  - title: "Flexible deployments"
-    details: "Distribute the official Docker image anywhere, mount many volumes, and run it behind any reverse proxy."
-  - title: "Modern UX"
-    details: "Responsive grid/list views, drag-and-drop uploads, keyboard shortcuts, and edit-in-place make navigation fluid."
+  - title: 'Secure by default'
+    details: 'Local accounts, groups, and optional OIDC keep every volume authenticated and auditable.'
+  - title: 'Fast previews'
+    details: 'Media, documents, and code render instantly with thumbnails, syntax highlighting, and inline players.'
+  - title: 'Flexible deployments'
+    details: 'Distribute the official Docker image anywhere, mount many volumes, and run it behind any reverse proxy.'
+  - title: 'Modern UX'
+    details: 'Responsive grid/list views, drag-and-drop uploads, keyboard shortcuts, and edit-in-place make navigation fluid.'
 ---
 
 ## nextExplorer Documentation
@@ -42,6 +42,7 @@ nextExplorer arrives ready to run. Drop the container on any host, mount your vo
 ### Quick start
 
 **Minimal Docker-compose to start**
+
 ```yaml
 services:
   nextexplorer:
@@ -49,7 +50,7 @@ services:
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000
@@ -78,14 +79,14 @@ Run it with `docker compose up -d`, then visit `http://localhost:3000` to finish
 
 ### Screenshots
 
-| ![Workspace password creation](images/1.png) | ![Unlock modal](images/2.png) |
-| :--: | :--: |
-| Create a password to protect access. | Unlock trusted sessions quickly. |
+| ![Workspace password creation](images/1.png) |  ![Unlock modal](images/2.png)   |
+| :------------------------------------------: | :------------------------------: |
+|     Create a password to protect access.     | Unlock trusted sessions quickly. |
 
-| ![Grid view](images/3.png) | ![Light theme view](images/4.png) |
-| :--: | :--: |
-| Visual grid for media-heavy folders. | Clean light theme option. |
+|      ![Grid view](images/3.png)      | ![Light theme view](images/4.png) |
+| :----------------------------------: | :-------------------------------: |
+| Visual grid for media-heavy folders. |     Clean light theme option.     |
 
-| ![List view with metadata](images/5.png) | ![Upload manager](images/6.png) |
-| :--: | :--: |
+|  ![List view with metadata](images/5.png)   |     ![Upload manager](images/6.png)     |
+| :-----------------------------------------: | :-------------------------------------: |
 | Detail view highlights size and timestamps. | Track multi-file uploads with progress. |

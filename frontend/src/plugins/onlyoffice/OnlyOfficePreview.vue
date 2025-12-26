@@ -1,9 +1,15 @@
 <template>
   <div class="h-full w-full bg-white dark:bg-zinc-900">
-    <div v-if="error" class="flex h-full items-center justify-center text-sm text-red-600 dark:text-red-400">
+    <div
+      v-if="error"
+      class="flex h-full items-center justify-center text-sm text-red-600 dark:text-red-400"
+    >
       {{ error }}
     </div>
-    <div v-else-if="!ready" class="flex h-full items-center justify-center text-sm text-neutral-500 dark:text-neutral-400">
+    <div
+      v-else-if="!ready"
+      class="flex h-full items-center justify-center text-sm text-neutral-500 dark:text-neutral-400"
+    >
       Loading ONLYOFFICE…
     </div>
     <DocumentEditor
@@ -16,7 +22,6 @@
       :config="config"
     />
   </div>
-  
 </template>
 
 <script setup>
@@ -38,7 +43,13 @@ const error = ref(null);
 const ready = computed(() => Boolean(serverUrl.value && config.value));
 const editorId = computed(() => {
   const base = (props.context?.filePath || 'document').toString();
-  return 'onlyoffice-' + base.replace(/[^a-z0-9]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  return (
+    'onlyoffice-' +
+    base
+      .replace(/[^a-z0-9]+/gi, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80)
+  );
 });
 
 const load = async () => {
@@ -48,7 +59,10 @@ const load = async () => {
   try {
     const path = props.filePath;
     if (!path) throw new Error('Missing file path.');
-    const { documentServerUrl, config: cfg } = await fetchOnlyOfficeConfig(path, 'edit');
+    const { documentServerUrl, config: cfg } = await fetchOnlyOfficeConfig(
+      path,
+      'edit',
+    );
     serverUrl.value = documentServerUrl;
     console.log('ONLYOFFICE config:', cfg);
     config.value = cfg;
@@ -58,7 +72,10 @@ const load = async () => {
 };
 
 onMounted(load);
-watch(() => props.filePath, () => load());
+watch(
+  () => props.filePath,
+  () => load(),
+);
 </script>
 
 <style scoped>

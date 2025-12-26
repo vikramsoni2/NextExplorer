@@ -156,23 +156,35 @@ function toggleUserSelection(userId) {
 
 async function createShareLink() {
   if (!sourcePath.value) {
-    error.value = t('share.errors.invalidSourcePath', 'Unable to determine the item path to share.');
+    error.value = t(
+      'share.errors.invalidSourcePath',
+      'Unable to determine the item path to share.',
+    );
     return;
   }
 
   if (sharingType.value === 'users' && selectedUserIds.value.length === 0) {
-    error.value = t('share.errors.selectAtLeastOneUser', 'Select at least one user.');
+    error.value = t(
+      'share.errors.selectAtLeastOneUser',
+      'Select at least one user.',
+    );
     return;
   }
 
   if (enableExpiry.value) {
     const date = expiresAtDate.value;
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
-      error.value = t('share.errors.expirationRequired', 'Choose a valid expiration date.');
+      error.value = t(
+        'share.errors.expirationRequired',
+        'Choose a valid expiration date.',
+      );
       return;
     }
     if (date.getTime() <= Date.now()) {
-      error.value = t('share.errors.expirationMustBeFuture', 'Expiration must be in the future.');
+      error.value = t(
+        'share.errors.expirationMustBeFuture',
+        'Expiration must be in the future.',
+      );
       return;
     }
   }
@@ -187,7 +199,10 @@ async function createShareLink() {
       sharingType: sharingType.value,
       password: enablePassword.value ? password.value : null,
       userIds: sharingType.value === 'users' ? selectedUserIds.value : [],
-      expiresAt: enableExpiry.value && expiresAtDate.value ? expiresAtDate.value.toISOString() : null,
+      expiresAt:
+        enableExpiry.value && expiresAtDate.value
+          ? expiresAtDate.value.toISOString()
+          : null,
       label: label.value || null,
     };
 
@@ -233,12 +248,16 @@ function closeDialog() {
       <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
         <div class="flex items-center gap-2 text-green-800 dark:text-green-200">
           <CheckIcon class="w-5 h-5" />
-          <span class="font-medium">{{ t('share.shareLinkCreatedSuccess') }}</span>
+          <span class="font-medium">{{
+            t('share.shareLinkCreatedSuccess')
+          }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block mb-2 text-sm font-medium">{{ t('share.shareLink') }}</label>
+        <label class="block mb-2 text-sm font-medium">{{
+          t('share.shareLink')
+        }}</label>
         <div class="flex gap-2">
           <input
             type="text"
@@ -249,7 +268,9 @@ function closeDialog() {
           <button
             @click="copyLink"
             class="px-4 py-2 text-sm font-medium text-white transition rounded-lg"
-            :class="linkCopied ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'"
+            :class="
+              linkCopied ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
+            "
           >
             <ClipboardDocumentIcon v-if="!linkCopied" class="w-5 h-5" />
             <CheckIcon v-else class="w-5 h-5" />
@@ -259,20 +280,40 @@ function closeDialog() {
 
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span class="text-gray-500 dark:text-gray-400">{{ t('share.access') }}</span>
-          <span class="ml-2 font-medium">{{ shareResult.accessMode === 'readonly' ? t('settings.access.readOnly') : t('settings.access.readWrite') }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{
+            t('share.access')
+          }}</span>
+          <span class="ml-2 font-medium">{{
+            shareResult.accessMode === 'readonly'
+              ? t('settings.access.readOnly')
+              : t('settings.access.readWrite')
+          }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400">{{ t('share.type') }}</span>
-          <span class="ml-2 font-medium">{{ shareResult.sharingType === 'anyone' ? t('share.anyoneWithLink') : t('share.specificUsers') }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{
+            t('share.type')
+          }}</span>
+          <span class="ml-2 font-medium">{{
+            shareResult.sharingType === 'anyone'
+              ? t('share.anyoneWithLink')
+              : t('share.specificUsers')
+          }}</span>
         </div>
         <div v-if="shareResult.hasPassword">
-          <span class="text-gray-500 dark:text-gray-400">{{ t('share.password') }}</span>
-          <span class="ml-2 font-medium text-green-600">{{ t('share.protected') }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{
+            t('share.password')
+          }}</span>
+          <span class="ml-2 font-medium text-green-600">{{
+            t('share.protected')
+          }}</span>
         </div>
         <div v-if="shareResult.expiresAt">
-          <span class="text-gray-500 dark:text-gray-400">{{ t('share.expires') }}</span>
-          <span class="ml-2 font-medium">{{ new Date(shareResult.expiresAt).toLocaleDateString() }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{
+            t('share.expires')
+          }}</span>
+          <span class="ml-2 font-medium">{{
+            new Date(shareResult.expiresAt).toLocaleDateString()
+          }}</span>
         </div>
       </div>
 
@@ -288,20 +329,27 @@ function closeDialog() {
 
     <!-- Share creation form -->
     <div v-else class="space-y-4">
-      <div v-if="error" class="p-3 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-red-900/20 dark:text-red-200">
+      <div
+        v-if="error"
+        class="p-3 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-red-900/20 dark:text-red-200"
+      >
         {{ error }}
       </div>
 
       <!-- Source info -->
       <div class="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800">
-        <div class="text-sm text-gray-500 dark:text-gray-400">{{ t('share.sharing') }}</div>
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          {{ t('share.sharing') }}
+        </div>
         <div class="font-medium">{{ item?.name }}</div>
         <div class="text-xs text-gray-500">{{ sourcePath }}</div>
       </div>
 
       <!-- Label -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{ t('share.label') }}</label>
+        <label class="block mb-2 text-sm font-medium">{{
+          t('share.label')
+        }}</label>
         <input
           v-model="label"
           type="text"
@@ -312,23 +360,29 @@ function closeDialog() {
 
       <!-- Access Mode -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{ t('share.accessMode') }}</label>
+        <label class="block mb-2 text-sm font-medium">{{
+          t('share.accessMode')
+        }}</label>
         <div class="grid grid-cols-2 gap-2">
           <button
             @click="accessMode = 'readonly'"
             class="px-4 py-2 text-sm font-medium transition border rounded-lg"
-            :class="accessMode === 'readonly'
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
+            :class="
+              accessMode === 'readonly'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            "
           >
             {{ t('settings.access.readOnly') }}
           </button>
           <button
             @click="accessMode = 'readwrite'"
             class="px-4 py-2 text-sm font-medium transition border rounded-lg"
-            :class="accessMode === 'readwrite'
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
+            :class="
+              accessMode === 'readwrite'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            "
           >
             {{ t('settings.access.readWrite') }}
           </button>
@@ -337,14 +391,18 @@ function closeDialog() {
 
       <!-- Sharing Type -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{ t('share.whoCanAccess') }}</label>
+        <label class="block mb-2 text-sm font-medium">{{
+          t('share.whoCanAccess')
+        }}</label>
         <div class="grid grid-cols-2 gap-2">
           <button
             @click="sharingType = 'anyone'"
             class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition border rounded-lg"
-            :class="sharingType === 'anyone'
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
+            :class="
+              sharingType === 'anyone'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            "
           >
             <GlobeAltIcon class="w-4 h-4" />
             {{ t('share.anyoneWithLink') }}
@@ -352,9 +410,11 @@ function closeDialog() {
           <button
             @click="sharingType = 'users'"
             class="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition border rounded-lg"
-            :class="sharingType === 'users'
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'"
+            :class="
+              sharingType === 'users'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+            "
           >
             <UsersIcon class="w-4 h-4" />
             {{ t('share.specificUsers') }}
@@ -363,10 +423,20 @@ function closeDialog() {
       </div>
 
       <!-- User Selection (if sharing type is 'users') -->
-      <div v-if="sharingType === 'users'" class="p-3 border rounded-lg border-zinc-300 dark:border-zinc-700">
+      <div
+        v-if="sharingType === 'users'"
+        class="p-3 border rounded-lg border-zinc-300 dark:border-zinc-700"
+      >
         <div class="mb-2 text-sm font-medium">{{ t('share.selectUsers') }}</div>
-        <div v-if="loadingUsers" class="text-sm text-gray-500">{{ t('share.loadingUsers') }}</div>
-        <div v-else-if="availableUsers.length === 0" class="text-sm text-gray-500">{{ t('share.noUsersAvailable') }}</div>
+        <div v-if="loadingUsers" class="text-sm text-gray-500">
+          {{ t('share.loadingUsers') }}
+        </div>
+        <div
+          v-else-if="availableUsers.length === 0"
+          class="text-sm text-gray-500"
+        >
+          {{ t('share.noUsersAvailable') }}
+        </div>
         <div v-else class="space-y-2 max-h-40 overflow-y-auto">
           <label
             v-for="user in availableUsers"
@@ -394,7 +464,9 @@ function closeDialog() {
             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
           <LockClosedIcon class="w-4 h-4" />
-          <span class="text-sm font-medium">{{ t('share.passwordProtect') }}</span>
+          <span class="text-sm font-medium">{{
+            t('share.passwordProtect')
+          }}</span>
         </label>
         <input
           v-if="enablePassword"
@@ -414,7 +486,9 @@ function closeDialog() {
             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
           <CalendarIcon class="w-4 h-4" />
-          <span class="text-sm font-medium">{{ t('share.setExpirationDate') }}</span>
+          <span class="text-sm font-medium">{{
+            t('share.setExpirationDate')
+          }}</span>
         </label>
         <input
           v-if="enableExpiry"
@@ -451,7 +525,9 @@ function closeDialog() {
 .dark .flatpickr-calendar {
   background: rgb(24 24 27 / 0.98);
   border-color: rgb(63 63 70);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 10px 10px -5px rgb(0 0 0 / 0.25);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.4),
+    0 10px 10px -5px rgb(0 0 0 / 0.25);
 }
 .dark .flatpickr-months .flatpickr-month,
 .dark .flatpickr-current-month,

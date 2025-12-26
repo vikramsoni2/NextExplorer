@@ -4,14 +4,14 @@ Use ONLYOFFICE Document Server to edit office files (DOCX, XLSX, PPTX, ODT, ODS,
 
 ## Environment variables
 
-| Variable | Required? | Description |
-| --- | --- | --- |
-| `ONLYOFFICE_URL` | Yes | Public URL of your Document Server (e.g., `https://office.example.com`). |
-| `PUBLIC_URL` | Yes | nextExplorer’s public URL so ONLYOFFICE knows where to download files and post callbacks. |
-| `ONLYOFFICE_SECRET` | Yes | JWT secret shared between nextExplorer and ONLYOFFICE for signing requests/responses. |
-| `ONLYOFFICE_LANG` | No (default `en`) | Language code for the editor UI. |
-| `ONLYOFFICE_FORCE_SAVE` | No | When true, users must use the editor’s Save button rather than relying on autosave. |
-| `ONLYOFFICE_FILE_EXTENSIONS` | No | Comma-separated list of extensions you want to surface beyond the defaults. |
+| Variable                     | Required?         | Description                                                                               |
+| ---------------------------- | ----------------- | ----------------------------------------------------------------------------------------- |
+| `ONLYOFFICE_URL`             | Yes               | Public URL of your Document Server (e.g., `https://office.example.com`).                  |
+| `PUBLIC_URL`                 | Yes               | nextExplorer’s public URL so ONLYOFFICE knows where to download files and post callbacks. |
+| `ONLYOFFICE_SECRET`          | Yes               | JWT secret shared between nextExplorer and ONLYOFFICE for signing requests/responses.     |
+| `ONLYOFFICE_LANG`            | No (default `en`) | Language code for the editor UI.                                                          |
+| `ONLYOFFICE_FORCE_SAVE`      | No                | When true, users must use the editor’s Save button rather than relying on autosave.       |
+| `ONLYOFFICE_FILE_EXTENSIONS` | No                | Comma-separated list of extensions you want to surface beyond the defaults.               |
 
 ## How it works
 

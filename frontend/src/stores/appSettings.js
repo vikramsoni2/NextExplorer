@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { getSettings as getSettingsApi, patchSettings as patchSettingsApi } from '@/api';
+import {
+  getSettings as getSettingsApi,
+  patchSettings as patchSettingsApi,
+} from '@/api';
 
 export const useAppSettings = defineStore('appSettings', () => {
   const loaded = ref(false);
@@ -17,8 +20,15 @@ export const useAppSettings = defineStore('appSettings', () => {
     try {
       const s = await getSettingsApi();
       state.value = {
-        thumbnails: { enabled: true, size: 200, quality: 70, ...(s?.thumbnails || {}) },
-        access: { rules: Array.isArray(s?.access?.rules) ? s.access.rules : [] },
+        thumbnails: {
+          enabled: true,
+          size: 200,
+          quality: 70,
+          ...(s?.thumbnails || {}),
+        },
+        access: {
+          rules: Array.isArray(s?.access?.rules) ? s.access.rules : [],
+        },
       };
       loaded.value = true;
     } catch (e) {
@@ -32,8 +42,17 @@ export const useAppSettings = defineStore('appSettings', () => {
     lastError.value = null;
     const updated = await patchSettingsApi(partial);
     state.value = {
-      thumbnails: { enabled: true, size: 200, quality: 70, ...(updated?.thumbnails || {}) },
-      access: { rules: Array.isArray(updated?.access?.rules) ? updated.access.rules : [] },
+      thumbnails: {
+        enabled: true,
+        size: 200,
+        quality: 70,
+        ...(updated?.thumbnails || {}),
+      },
+      access: {
+        rules: Array.isArray(updated?.access?.rules)
+          ? updated.access.rules
+          : [],
+      },
     };
     loaded.value = true;
     return state.value;

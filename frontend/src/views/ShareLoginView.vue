@@ -36,7 +36,11 @@ const verificationError = ref('');
 
 // Computed
 const isExpired = computed(() => shareInfo.value?.isExpired || false);
-const requiresPassword = computed(() => Boolean(shareInfo.value?.hasPassword && shareInfo.value?.sharingType === 'anyone'));
+const requiresPassword = computed(() =>
+  Boolean(
+    shareInfo.value?.hasPassword && shareInfo.value?.sharingType === 'anyone',
+  ),
+);
 const expiryDate = computed(() => {
   if (!shareInfo.value?.expiresAt) return null;
   return new Date(shareInfo.value.expiresAt);
@@ -170,11 +174,15 @@ async function handlePasswordSubmit() {
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-zinc-900">
+  <div
+    class="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-zinc-900"
+  >
     <div class="w-full max-w-md p-8 mx-4">
       <!-- Loading State -->
       <div v-if="loading" class="text-center">
-        <LoadingIcon class="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin" />
+        <LoadingIcon
+          class="w-12 h-12 mx-auto mb-4 text-blue-600 animate-spin"
+        />
         <p class="text-gray-600 dark:text-gray-400">{{ t('loading.share') }}</p>
       </div>
 
@@ -214,13 +222,22 @@ async function handlePasswordSubmit() {
       <div v-else class="p-8 bg-white rounded-lg shadow-lg dark:bg-zinc-800">
         <!-- Header -->
         <div class="mb-6 text-center">
-          <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full dark:bg-blue-900">
+          <div
+            class="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full dark:bg-blue-900"
+          >
             <ShareIcon class="w-8 h-8 text-blue-600 dark:text-blue-400" />
           </div>
           <h2 class="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {{ shareInfo.isDirectory ? t('share.sharedFolder') : t('share.sharedFile') }}
+            {{
+              shareInfo.isDirectory
+                ? t('share.sharedFolder')
+                : t('share.sharedFile')
+            }}
           </h2>
-          <p v-if="shareInfo.label" class="text-lg text-gray-700 dark:text-gray-300">
+          <p
+            v-if="shareInfo.label"
+            class="text-lg text-gray-700 dark:text-gray-300"
+          >
             {{ shareInfo.label }}
           </p>
         </div>
@@ -233,14 +250,21 @@ async function handlePasswordSubmit() {
               class="w-5 h-5 text-gray-500 dark:text-gray-400"
             />
             <span class="text-gray-600 dark:text-gray-300">
-              {{ shareInfo.isDirectory ? t('common.folder') : t('folder.kind') }}
+              {{
+                shareInfo.isDirectory ? t('common.folder') : t('folder.kind')
+              }}
             </span>
           </div>
 
-          <div v-if="shareInfo.expiresAt" class="flex items-center gap-3 text-sm">
+          <div
+            v-if="shareInfo.expiresAt"
+            class="flex items-center gap-3 text-sm"
+          >
             <ClockIcon class="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span class="text-gray-600 dark:text-gray-300">
-              {{ t('share.expiresAt') }} {{ expiryDate.toLocaleDateString() }} at {{ expiryDate.toLocaleTimeString() }}
+              {{ t('share.expiresAt') }}
+              {{ expiryDate.toLocaleDateString() }} at
+              {{ expiryDate.toLocaleTimeString() }}
             </span>
           </div>
 
@@ -255,7 +279,9 @@ async function handlePasswordSubmit() {
         <!-- Password Input (if required) -->
         <div v-if="requiresPassword" class="space-y-4">
           <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               {{ t('share.enterPassword') }}
             </label>
             <input
@@ -267,7 +293,10 @@ async function handlePasswordSubmit() {
             />
           </div>
 
-          <div v-if="verificationError" class="p-3 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-red-900/20 dark:text-red-200">
+          <div
+            v-if="verificationError"
+            class="p-3 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-red-900/20 dark:text-red-200"
+          >
             {{ verificationError }}
           </div>
 
@@ -294,7 +323,12 @@ async function handlePasswordSubmit() {
           </button>
           <button
             v-else
-            @click="router.push({ name: 'auth-login', query: { redirect: `/share/${shareToken}` } })"
+            @click="
+              router.push({
+                name: 'auth-login',
+                query: { redirect: `/share/${shareToken}` },
+              })
+            "
             class="w-full px-6 py-3 font-medium text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
           >
             {{ t('share.signInToAccess') }}

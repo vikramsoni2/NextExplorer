@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-"use strict";
+'use strict';
 
-const fs = require("node:fs");
-const fsp = require("node:fs/promises");
-const path = require("node:path");
-const { Readable } = require("node:stream");
-const { pipeline } = require("node:stream/promises");
-const { spawnSync } = require("node:child_process");
+const fs = require('node:fs');
+const fsp = require('node:fs/promises');
+const path = require('node:path');
+const { Readable } = require('node:stream');
+const { pipeline } = require('node:stream/promises');
+const { spawnSync } = require('node:child_process');
 
 const DEFAULT_SAMPLE_URL =
-  "https://github.com/vikramsoni2/nextExplorer/releases/download/v2.0.0/samples.zip";
+  'https://github.com/vikramsoni2/nextExplorer/releases/download/v2.0.0/samples.zip';
 
 function requireEnv(name, fallback) {
   const value = process.env[name] ?? fallback;
@@ -19,7 +19,7 @@ function requireEnv(name, fallback) {
 
 function envInt(name, fallback) {
   const raw = process.env[name];
-  if (raw == null || raw === "") return fallback;
+  if (raw == null || raw === '') return fallback;
   const value = Number.parseInt(raw, 10);
   if (!Number.isFinite(value) || value < 0) {
     throw new Error(`Invalid integer for ${name}: ${raw}`);
@@ -33,18 +33,18 @@ async function emptyDir(dir) {
 }
 
 function configureFetchNetworking() {
-  const connectTimeoutMs = envInt("SAMPLES_CONNECT_TIMEOUT_MS", 60_000);
-  const headersTimeoutMs = envInt("SAMPLES_HEADERS_TIMEOUT_MS", 60_000);
-  const bodyTimeoutMs = envInt("SAMPLES_BODY_TIMEOUT_MS", 10 * 60_000);
+  const connectTimeoutMs = envInt('SAMPLES_CONNECT_TIMEOUT_MS', 60_000);
+  const headersTimeoutMs = envInt('SAMPLES_HEADERS_TIMEOUT_MS', 60_000);
+  const bodyTimeoutMs = envInt('SAMPLES_BODY_TIMEOUT_MS', 10 * 60_000);
 
   try {
-    const { Agent, setGlobalDispatcher } = require("undici");
+    const { Agent, setGlobalDispatcher } = require('undici');
     setGlobalDispatcher(
       new Agent({
         connectTimeout: connectTimeoutMs,
         headersTimeout: headersTimeoutMs,
         bodyTimeout: bodyTimeoutMs,
-      })
+      }),
     );
   } catch {
     // If undici isn't available for some reason, node's fetch defaults still apply.
@@ -65,9 +65,12 @@ async function downloadToFile(url, filePath, { requestTimeoutMs }) {
   }
 
   if (!response.ok) {
-    throw new Error(`Failed to download ${url}: HTTP ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to download ${url}: HTTP ${response.status} ${response.statusText}`,
+    );
   }
-  if (!response.body) throw new Error(`No response body when downloading ${url}`);
+  if (!response.body)
+    throw new Error(`No response body when downloading ${url}`);
 
   await fsp.mkdir(path.dirname(filePath), { recursive: true });
   const writable = fs.createWriteStream(filePath);
@@ -80,13 +83,17 @@ function sleep(ms) {
 
 function formatCause(err) {
   const cause = err?.cause;
-  if (!cause) return "";
-  const code = cause.code ? ` (${cause.code})` : "";
-  const message = cause.message ? `: ${cause.message}` : "";
+  if (!cause) return '';
+  const code = cause.code ? ` (${cause.code})` : '';
+  const message = cause.message ? `: ${cause.message}` : '';
   return `${code}${message}`;
 }
 
-async function downloadToFileWithRetries(url, filePath, { requestTimeoutMs, retries, backoffMs }) {
+async function downloadToFileWithRetries(
+  url,
+  filePath,
+  { requestTimeoutMs, retries, backoffMs },
+) {
   let lastErr;
   for (let attempt = 1; attempt <= Math.max(1, retries); attempt++) {
     try {
@@ -98,7 +105,7 @@ async function downloadToFileWithRetries(url, filePath, { requestTimeoutMs, retr
       if (attempt >= retries) break;
       const waitMs = backoffMs * attempt;
       console.warn(
-        `WARN: Download attempt ${attempt}/${retries} failed${suffix}; retrying in ${waitMs}ms`
+        `WARN: Download attempt ${attempt}/${retries} failed${suffix}; retrying in ${waitMs}ms`,
       );
       await sleep(waitMs);
     }
@@ -107,7 +114,10 @@ async function downloadToFileWithRetries(url, filePath, { requestTimeoutMs, retr
 }
 
 async function removeMacJunk(rootDir) {
-  await fsp.rm(path.join(rootDir, "__MACOSX"), { recursive: true, force: true });
+  await fsp.rm(path.join(rootDir, '__MACOSX'), {
+    recursive: true,
+    force: true,
+  });
 
   const stack = [rootDir];
   while (stack.length) {
@@ -125,7 +135,7 @@ async function removeMacJunk(rootDir) {
         stack.push(fullPath);
         continue;
       }
-      if (dirent.name === ".DS_Store" || dirent.name.startsWith("._")) {
+      if (dirent.name === '.DS_Store' || dirent.name.startsWith('._')) {
         await fsp.rm(fullPath, { force: true });
       }
     }
@@ -163,13 +173,14 @@ async function chmodReadOnlyRecursive(rootDir) {
 }
 
 async function main() {
-  const sampleUrl = requireEnv("SAMPLE_URL", DEFAULT_SAMPLE_URL);
-  const samplesDir = requireEnv("SAMPLES_DIR", "/mnt/Samples");
-  const tmpDir = process.env.SAMPLES_TMP_DIR || "/tmp/demo-seed";
-  const zipPath = process.env.SAMPLES_ZIP_PATH || path.join(tmpDir, "samples.zip");
-  const retries = envInt("SAMPLES_DOWNLOAD_RETRIES", 5);
-  const backoffMs = envInt("SAMPLES_DOWNLOAD_BACKOFF_MS", 2_000);
-  const requestTimeoutMs = envInt("SAMPLES_REQUEST_TIMEOUT_MS", 10 * 60_000);
+  const sampleUrl = requireEnv('SAMPLE_URL', DEFAULT_SAMPLE_URL);
+  const samplesDir = requireEnv('SAMPLES_DIR', '/mnt/Samples');
+  const tmpDir = process.env.SAMPLES_TMP_DIR || '/tmp/demo-seed';
+  const zipPath =
+    process.env.SAMPLES_ZIP_PATH || path.join(tmpDir, 'samples.zip');
+  const retries = envInt('SAMPLES_DOWNLOAD_RETRIES', 5);
+  const backoffMs = envInt('SAMPLES_DOWNLOAD_BACKOFF_MS', 2_000);
+  const requestTimeoutMs = envInt('SAMPLES_REQUEST_TIMEOUT_MS', 10 * 60_000);
 
   configureFetchNetworking();
 
@@ -184,17 +195,20 @@ async function main() {
   });
 
   console.log(`INFO: Extracting ${zipPath} to ${samplesDir}`);
-  const unzip = spawnSync("unzip", ["-q", zipPath, "-d", samplesDir], { stdio: "inherit" });
+  const unzip = spawnSync('unzip', ['-q', zipPath, '-d', samplesDir], {
+    stdio: 'inherit',
+  });
   if (unzip.error) throw unzip.error;
-  if (unzip.status !== 0) throw new Error(`unzip failed with exit code ${unzip.status}`);
+  if (unzip.status !== 0)
+    throw new Error(`unzip failed with exit code ${unzip.status}`);
 
   await removeMacJunk(samplesDir);
   await chmodReadOnlyRecursive(samplesDir);
 
-  console.log("INFO: Demo samples ready.");
+  console.log('INFO: Demo samples ready.');
 }
 
 main().catch((err) => {
-  console.error("ERROR: downloadSamples failed:", err);
+  console.error('ERROR: downloadSamples failed:', err);
   process.exit(1);
 });

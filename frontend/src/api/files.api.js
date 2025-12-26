@@ -129,7 +129,7 @@ async function search(path = '', q = '', limit) {
   if (normalizedPath) params.set('path', normalizedPath);
   if (typeof q === 'string' && q.trim()) params.set('q', q.trim());
   if (Number.isFinite(limit) && limit > 0) params.set('limit', String(limit));
-  
+
   const endpoint = `/api/search?${params.toString()}`;
   return requestJson(endpoint, { method: 'GET' });
 }
@@ -195,5 +195,5 @@ export {
   getPreviewUrl,
   fetchPermissions,
   changePermissions,
-  changeOwnership
-}
+  changeOwnership,
+};

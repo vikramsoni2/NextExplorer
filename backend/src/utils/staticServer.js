@@ -23,7 +23,10 @@ const configureStaticFiles = (app) => {
     // SPA fallback - serve index.html for all non-API routes
     app.get('*', (req, res, next) => {
       // Skip API routes
-      if (req.path.startsWith('/api') || req.path.startsWith('/static/thumbnails')) {
+      if (
+        req.path.startsWith('/api') ||
+        req.path.startsWith('/static/thumbnails')
+      ) {
         return next();
       }
 
@@ -34,12 +37,12 @@ const configureStaticFiles = (app) => {
 
       res.sendFile(indexFile);
     });
-    
+
     logger.debug('Configured SPA fallback routing');
   } else {
     logger.warn(
-      { frontendDir, indexFile }, 
-      'Frontend directory or index.html not found - skipping static file serving'
+      { frontendDir, indexFile },
+      'Frontend directory or index.html not found - skipping static file serving',
     );
   }
 };

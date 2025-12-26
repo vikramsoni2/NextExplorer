@@ -3,14 +3,13 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-
 /* Themed, thin scrollbars (global) */
 @layer base {
   /* Default (light) theme variables */
   :root {
     --scrollbar-track: transparent; /* nextgray-200 */
     --scrollbar-thumb: #b7b4b4; /* nextgray-400 */
-    --scrollbar-thumb-hover: #BDBDBD;
+    --scrollbar-thumb-hover: #bdbdbd;
 
     --clr-base: #fff;
     --clr-base-muted: #f9f9f9;
@@ -25,7 +24,7 @@
     --clr-base-muted: #181818;
   }
 
-    *,
+  *,
   ::after,
   ::before,
   ::backdrop,
@@ -70,8 +69,6 @@
     @apply min-h-full;
   }
 }
-
-
 
 @theme {
   /* Avoid collision with Tailwind's built-in `text-base` font-size utility. */

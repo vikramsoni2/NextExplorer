@@ -29,7 +29,8 @@ function getTrustProxySetting() {
     return {
       set: true,
       value: 'loopback,uniquelocal',
-      message: "trust proxy defaulted to 'loopback,uniquelocal' (PUBLIC_URL set)",
+      message:
+        "trust proxy defaulted to 'loopback,uniquelocal' (PUBLIC_URL set)",
     };
   }
 

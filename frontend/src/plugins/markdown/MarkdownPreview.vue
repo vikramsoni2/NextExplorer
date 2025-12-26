@@ -7,10 +7,7 @@
     >
       Loading markdown…
     </div>
-    <div
-      v-else-if="error"
-      class="p-6 text-sm text-red-600 dark:text-red-400"
-    >
+    <div v-else-if="error" class="p-6 text-sm text-red-600 dark:text-red-400">
       {{ error }}
     </div>
     <article
@@ -40,15 +37,15 @@ const error = ref('');
 onMounted(async () => {
   loading.value = true;
   error.value = '';
-  
+
   try {
     // Lazy load marked
     const { marked } = await import('marked');
-    
+
     // Fetch content
     const response = await props.api.fetchContent();
     const content = response?.content || '';
-    
+
     // Parse and sanitize
     const rawHtml = marked.parse(content);
     html.value = DOMPurify.sanitize(rawHtml);

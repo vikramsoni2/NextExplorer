@@ -24,33 +24,36 @@ const getAllVolumes = async () => {
     }));
 };
 
-router.get('/volumes', asyncHandler(async (req, res) => {
-  const user = req.user;
-  const isAdmin = user?.roles?.includes('admin');
-  const userVolumesEnabled = features.userVolumes;
+router.get(
+  '/volumes',
+  asyncHandler(async (req, res) => {
+    const user = req.user;
+    const isAdmin = user?.roles?.includes('admin');
+    const userVolumesEnabled = features.userVolumes;
 
-  // If USER_VOLUMES is disabled or user is admin, show all volumes from VOLUME_ROOT
-  if (!userVolumesEnabled || isAdmin) {
-    const volumeData = await getAllVolumes();
-    return res.json(volumeData);
-  }
+    // If USER_VOLUMES is disabled or user is admin, show all volumes from VOLUME_ROOT
+    if (!userVolumesEnabled || isAdmin) {
+      const volumeData = await getAllVolumes();
+      return res.json(volumeData);
+    }
 
-  // For regular users when USER_VOLUMES is enabled, show only assigned volumes
-  if (!user || !user.id) {
-    return res.json([]);
-  }
+    // For regular users when USER_VOLUMES is enabled, show only assigned volumes
+    if (!user || !user.id) {
+      return res.json([]);
+    }
 
-  const userVolumes = await getVolumesForUser(user.id);
+    const userVolumes = await getVolumesForUser(user.id);
 
-  const volumeData = userVolumes.map((vol) => ({
-    name: vol.label,
-    path: vol.label, // Use label as the path identifier for navigation
-    kind: 'volume',
-    accessMode: vol.accessMode,
-    actualPath: vol.path, // Include actual path for reference
-  }));
+    const volumeData = userVolumes.map((vol) => ({
+      name: vol.label,
+      path: vol.label, // Use label as the path identifier for navigation
+      kind: 'volume',
+      accessMode: vol.accessMode,
+      actualPath: vol.path, // Include actual path for reference
+    }));
 
-  res.json(volumeData);
-}));
+    res.json(volumeData);
+  }),
+);
 
 module.exports = router;

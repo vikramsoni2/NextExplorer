@@ -102,8 +102,26 @@ watchEffect(() => {
 });
 
 // Additional type groupings
-const audioExts = new Set(['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus', 'wma']);
-const archiveExts = new Set(['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'tgz']);
+const audioExts = new Set([
+  'mp3',
+  'wav',
+  'flac',
+  'aac',
+  'm4a',
+  'ogg',
+  'opus',
+  'wma',
+]);
+const archiveExts = new Set([
+  'zip',
+  'rar',
+  '7z',
+  'tar',
+  'gz',
+  'bz2',
+  'xz',
+  'tgz',
+]);
 
 // Badge mapping for many common types
 const badge = computed(() => {
@@ -259,7 +277,12 @@ const badge = computed(() => {
   <DirectoryIcon v-if="props.item.kind === 'directory'" />
   <PdfIcon v-else-if="props.item.kind === 'pdf'" />
   <div v-else-if="thumbnailUrl" class="flex items-center justify-center">
-    <img :src="thumbnailUrl" alt="Preview thumbnail" loading="lazy" class="aspect-square object-contain "/>
+    <img
+      :src="thumbnailUrl"
+      alt="Preview thumbnail"
+      loading="lazy"
+      class="aspect-square object-contain"
+    />
   </div>
   <ImageIcon v-else-if="isPreviewableImage(ext)" />
   <VideoIcon v-else-if="isPreviewableVideo(ext)" />

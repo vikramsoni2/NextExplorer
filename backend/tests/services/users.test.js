@@ -54,7 +54,11 @@ test('create local user, login, change password, and enforce lockout', async () 
 
     // Next attempt should throw 423 lockout
     await assert.rejects(
-      () => users.attemptLocalLogin({ email: 'admin@example.com', password: 'nope' }),
+      () =>
+        users.attemptLocalLogin({
+          email: 'admin@example.com',
+          password: 'nope',
+        }),
       (err) => err && err.status === 423,
     );
   } finally {
@@ -72,16 +76,17 @@ test('OIDC: deny login when auto-create disabled and user missing', async () => 
 
   try {
     await assert.rejects(
-      () => users.getOrCreateOidcUser({
-        issuer: 'https://issuer.example.com',
-        sub: 'sub-1',
-        email: 'missing@example.com',
-        emailVerified: true,
-        username: 'missing',
-        displayName: 'Missing',
-        roles: ['user'],
-        autoCreateUsers: false,
-      }),
+      () =>
+        users.getOrCreateOidcUser({
+          issuer: 'https://issuer.example.com',
+          sub: 'sub-1',
+          email: 'missing@example.com',
+          emailVerified: true,
+          username: 'missing',
+          displayName: 'Missing',
+          roles: ['user'],
+          autoCreateUsers: false,
+        }),
       (err) => err && err.statusCode === 403,
     );
   } finally {
@@ -119,7 +124,9 @@ test('OIDC: auto-link to existing local user even when auto-create disabled', as
     assert.equal(linked.id, existing.id);
 
     const methods = await users.getUserAuthMethods(existing.id);
-    const hasOidc = methods.some((m) => m.method_type === 'oidc' && m.provider_sub === 'sub-2');
+    const hasOidc = methods.some(
+      (m) => m.method_type === 'oidc' && m.provider_sub === 'sub-2',
+    );
     assert.equal(hasOidc, true);
   } finally {
     await envContext.cleanup();

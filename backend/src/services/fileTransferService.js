@@ -55,15 +55,23 @@ const transferItems = async (items, destination, operation, options = {}) => {
 
   // Prevent copying/moving items directly to the root path
   if (!destinationRelative || destinationRelative.trim() === '') {
-    throw new Error('Cannot copy or move items to the root path. Please select a specific volume or folder first.');
+    throw new Error(
+      'Cannot copy or move items to the root path. Please select a specific volume or folder first.',
+    );
   }
 
-  const context = { user: options.user || null, guestSession: options.guestSession || null };
+  const context = {
+    user: options.user || null,
+    guestSession: options.guestSession || null,
+  };
 
-  const { accessInfo: destAccess, resolved: destResolved } = await resolvePathWithAccess(context, destinationRelative);
+  const { accessInfo: destAccess, resolved: destResolved } =
+    await resolvePathWithAccess(context, destinationRelative);
 
   if (!destAccess || !destAccess.canAccess || !destAccess.canWrite) {
-    throw new Error(destAccess?.denialReason || 'Destination path is not writable.');
+    throw new Error(
+      destAccess?.denialReason || 'Destination path is not writable.',
+    );
   }
 
   const { absolutePath: destinationAbsolute } = destResolved;
@@ -74,13 +82,18 @@ const transferItems = async (items, destination, operation, options = {}) => {
 
   for (const item of items) {
     const sourceCombined = combineRelativePath(item.path || '', item.name);
-    const { accessInfo: srcAccess, resolved: srcResolved } = await resolvePathWithAccess(context, sourceCombined);
+    const { accessInfo: srcAccess, resolved: srcResolved } =
+      await resolvePathWithAccess(context, sourceCombined);
 
     if (!srcAccess || !srcAccess.canAccess || !srcAccess.canRead) {
-      throw new Error(srcAccess?.denialReason || `Source path not accessible: ${sourceCombined}`);
+      throw new Error(
+        srcAccess?.denialReason ||
+          `Source path not accessible: ${sourceCombined}`,
+      );
     }
 
-    const { relativePath: sourceRelative, absolutePath: sourceAbsolute } = srcResolved;
+    const { relativePath: sourceRelative, absolutePath: sourceAbsolute } =
+      srcResolved;
 
     if (!(await pathExists(sourceAbsolute))) {
       throw new Error(`Source path not found: ${sourceRelative}`);
@@ -100,9 +113,15 @@ const transferItems = async (items, destination, operation, options = {}) => {
     }
 
     const desiredName = item.newName || item.name;
-    const availableName = await findAvailableName(destinationAbsolute, desiredName);
+    const availableName = await findAvailableName(
+      destinationAbsolute,
+      desiredName,
+    );
     const targetAbsolute = path.join(destinationAbsolute, availableName);
-    const targetRelative = combineRelativePath(destinationRelative, availableName);
+    const targetRelative = combineRelativePath(
+      destinationRelative,
+      availableName,
+    );
 
     if (operation === 'copy') {
       await copyEntry(sourceAbsolute, targetAbsolute, stats.isDirectory());
@@ -124,14 +143,27 @@ const deleteItems = async (items = [], options = {}) => {
   }
 
   const results = [];
-  const context = { user: options.user || null, guestSession: options.guestSession || null };
+  const context = {
+    user: options.user || null,
+    guestSession: options.guestSession || null,
+  };
 
   for (const item of items) {
     const combined = combineRelativePath(item.path || '', item.name);
-    const { accessInfo, resolved } = await resolvePathWithAccess(context, combined);
+    const { accessInfo, resolved } = await resolvePathWithAccess(
+      context,
+      combined,
+    );
 
-    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canDelete || !resolved) {
-      throw new Error(accessInfo?.denialReason || 'Cannot delete items from this path.');
+    if (
+      !accessInfo ||
+      !accessInfo.canAccess ||
+      !accessInfo.canDelete ||
+      !resolved
+    ) {
+      throw new Error(
+        accessInfo?.denialReason || 'Cannot delete items from this path.',
+      );
     }
 
     const { relativePath, absolutePath } = resolved;

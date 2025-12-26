@@ -1,6 +1,6 @@
-import { fileURLToPath, URL } from 'node:url'
-import tailwindcss from '@tailwindcss/vite'
-import { mergeConfig } from 'vite'
+import { fileURLToPath, URL } from 'node:url';
+import tailwindcss from '@tailwindcss/vite';
+import { mergeConfig } from 'vite';
 
 /** @type {import('@storybook/vue3-vite').StorybookConfig} */
 export default {
@@ -23,7 +23,6 @@ export default {
           '@': fileURLToPath(new URL('../src', import.meta.url)),
         },
       },
-    })
+    });
   },
-}
-
+};

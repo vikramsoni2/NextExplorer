@@ -22,7 +22,12 @@ import { useDeleteConfirm } from '@/composables/useDeleteConfirm';
 import ModalDialog from '@/components/ModalDialog.vue';
 import ShareDialog from '@/components/ShareDialog.vue';
 import { useFavoritesStore } from '@/stores/favorites';
-import { StarIcon as StarOutline, DocumentTextIcon, ArrowDownTrayIcon, ShareIcon } from '@heroicons/vue/24/outline';
+import {
+  StarIcon as StarOutline,
+  DocumentTextIcon,
+  ArrowDownTrayIcon,
+  ShareIcon,
+} from '@heroicons/vue/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid';
 import { useFavoriteEditor } from '@/composables/useFavoriteEditor';
 // Icons
@@ -81,7 +86,9 @@ const canRename = actions.canRename;
 const locationCanWrite = actions.locationCanWrite;
 const locationCanUpload = actions.locationCanUpload;
 const locationCanDelete = actions.locationCanDelete;
-const canAcceptPasteHere = computed(() => locationCanWrite.value || locationCanUpload.value);
+const canAcceptPasteHere = computed(
+  () => locationCanWrite.value || locationCanUpload.value,
+);
 const isShareDialogOpen = ref(false);
 const itemToShare = ref(null);
 
@@ -95,16 +102,19 @@ const isShareView = computed(() => {
   return p.startsWith('share/');
 });
 
-const locationCanShare = computed(() => fileStore.currentPathData?.canShare ?? true);
+const locationCanShare = computed(
+  () => fileStore.currentPathData?.canShare ?? true,
+);
 
-const canShare = computed(() => (
-  !isVolumesView.value
-  && !isShareView.value
-  && locationCanShare.value
-  && isSingleItemSelected.value
-  && Boolean(primaryItem.value)
-  && primaryItem.value?.kind !== 'volume'
-));
+const canShare = computed(
+  () =>
+    !isVolumesView.value &&
+    !isShareView.value &&
+    locationCanShare.value &&
+    isSingleItemSelected.value &&
+    Boolean(primaryItem.value) &&
+    primaryItem.value?.kind !== 'volume',
+);
 
 const deleteDialogTitle = computed(() => {
   const count = selectedItems.value.length;
@@ -128,12 +138,8 @@ const deleteDialogMessage = computed(() => {
   return t('context.deleteMessage.generic');
 });
 
-const {
-  isDeleteConfirmOpen,
-  isDeleting,
-  requestDelete,
-  confirmDelete,
-} = useDeleteConfirm();
+const { isDeleteConfirmOpen, isDeleting, requestDelete, confirmDelete } =
+  useDeleteConfirm();
 
 const closeMenu = () => {
   isOpen.value = false;
@@ -148,15 +154,17 @@ const getItemKey = (item) => {
 const ensureItemInSelection = (item) => {
   if (!item) return;
   const key = getItemKey(item);
-  const alreadySelected = fileStore.selectedItems
-    .some((selected) => getItemKey(selected) === key);
+  const alreadySelected = fileStore.selectedItems.some(
+    (selected) => getItemKey(selected) === key,
+  );
 
   if (alreadySelected) {
     return;
   }
 
-  const match = fileStore.getCurrentPathItems
-    .find((candidate) => getItemKey(candidate) === key);
+  const match = fileStore.getCurrentPathItems.find(
+    (candidate) => getItemKey(candidate) === key,
+  );
 
   fileStore.selectedItems = match ? [match] : [item];
 };
@@ -255,7 +263,9 @@ const isFavoriteDirectory = computed(() => {
   return favoritesStore.isFavorite(path);
 });
 
-const currentDirectoryPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
+const currentDirectoryPath = computed(() =>
+  normalizePath(fileStore.getCurrentPath || ''),
+);
 const isFavoriteCurrentDirectory = computed(() => {
   const path = currentDirectoryPath.value;
   if (!path) return false;
@@ -322,7 +332,9 @@ const menuSections = computed(() => {
     sections.push([
       mk(
         'fav-current',
-        isFavoriteCurrentDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
+        isFavoriteCurrentDirectory.value
+          ? t('context.removeFromFavorites')
+          : t('context.addToFavorites'),
         isFavoriteCurrentDirectory.value ? StarSolid : StarOutline,
         runToggleFavoriteForCurrent,
         { disabled: !currentDirectoryPath.value || isMutatingFavorite.value },
@@ -331,17 +343,33 @@ const menuSections = computed(() => {
 
     if (locationCanWrite.value) {
       sections.push([
-        mk('new-folder', t('actions.newFolder'), CreateNewFolderRound, runCreateFolder),
-        mk('new-file', t('actions.newFile'), InsertDriveFileRound, runCreateFile),
+        mk(
+          'new-folder',
+          t('actions.newFolder'),
+          CreateNewFolderRound,
+          runCreateFolder,
+        ),
+        mk(
+          'new-file',
+          t('actions.newFile'),
+          InsertDriveFileRound,
+          runCreateFile,
+        ),
       ]);
     }
 
     if (canAcceptPasteHere.value) {
       sections.push([
-        mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoCurrent, {
-          disabled: !actions.canPaste.value,
-          shortcut: `${modKeyLabel}V`,
-        }),
+        mk(
+          'paste',
+          t('actions.paste'),
+          ContentPasteRound,
+          runPasteIntoCurrent,
+          {
+            disabled: !actions.canPaste.value,
+            shortcut: `${modKeyLabel}V`,
+          },
+        ),
       ]);
     }
 
@@ -350,41 +378,65 @@ const menuSections = computed(() => {
 
   const sections = [];
   sections.push([
-    mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, { disabled: !primaryItem.value }),
+    mk('get-info', t('context.getInfo'), InfoRound, runGetInfo, {
+      disabled: !primaryItem.value,
+    }),
   ]);
 
   // Add "Open with Editor" for files only
   if (contextKind.value === 'file') {
     sections.push([
-      mk('open-with-editor', t('context.openWithEditor'), DocumentTextIcon, runOpenWithEditor, { disabled: !primaryItem.value }),
+      mk(
+        'open-with-editor',
+        t('context.openWithEditor'),
+        DocumentTextIcon,
+        runOpenWithEditor,
+        { disabled: !primaryItem.value },
+      ),
     ]);
   }
 
   // Add download option
   sections.push([
-    mk('download', t('actions.download'), ArrowDownTrayIcon, runDownload, { disabled: !hasSelection.value }),
+    mk('download', t('actions.download'), ArrowDownTrayIcon, runDownload, {
+      disabled: !hasSelection.value,
+    }),
   ]);
 
   // Add share option (same availability rules as toolbar)
   if (!isVolumesView.value && !isShareView.value && locationCanShare.value) {
     sections.push([
-      mk('share', t('share.shareSelectedItem'), ShareIcon, runShare, { disabled: !canShare.value }),
+      mk('share', t('share.shareSelectedItem'), ShareIcon, runShare, {
+        disabled: !canShare.value,
+      }),
     ]);
   }
 
   const clipboardSection = [];
   if (locationCanWrite.value && locationCanDelete.value) {
     clipboardSection.push(
-      mk('cut', t('actions.cut'), ContentCutRound, runCut, { disabled: !actions.canCut.value, shortcut: `${modKeyLabel}X` }),
+      mk('cut', t('actions.cut'), ContentCutRound, runCut, {
+        disabled: !actions.canCut.value,
+        shortcut: `${modKeyLabel}X`,
+      }),
     );
   }
   clipboardSection.push(
-    mk('copy', t('actions.copy'), ContentCopyRound, runCopy, { disabled: !actions.canCopy.value, shortcut: `${modKeyLabel}C` }),
+    mk('copy', t('actions.copy'), ContentCopyRound, runCopy, {
+      disabled: !actions.canCopy.value,
+      shortcut: `${modKeyLabel}C`,
+    }),
   );
   if (contextKind.value === 'directory') {
     if (canAcceptPasteHere.value) {
       clipboardSection.push(
-        mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoDirectory, { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` }),
+        mk(
+          'paste',
+          t('actions.paste'),
+          ContentPasteRound,
+          runPasteIntoDirectory,
+          { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` },
+        ),
       );
     }
   }
@@ -394,7 +446,13 @@ const menuSections = computed(() => {
 
   if (locationCanWrite.value) {
     sections.push([
-      mk('rename', t('actions.rename'), DriveFileRenameOutlineRound, runRename, { disabled: !canRename.value }),
+      mk(
+        'rename',
+        t('actions.rename'),
+        DriveFileRenameOutlineRound,
+        runRename,
+        { disabled: !canRename.value },
+      ),
     ]);
   }
 
@@ -402,7 +460,9 @@ const menuSections = computed(() => {
     sections.push([
       mk(
         'fav',
-        isFavoriteDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
+        isFavoriteDirectory.value
+          ? t('context.removeFromFavorites')
+          : t('context.addToFavorites'),
         isFavoriteDirectory.value ? StarSolid : StarOutline,
         runToggleFavoriteForDirectory,
         { disabled: !selectedDirectoryPath.value || isMutatingFavorite.value },
@@ -454,11 +514,15 @@ watch(isOpen, async (open) => {
   update();
 });
 
-watch(pointer, async () => {
-  if (!isOpen.value) return;
-  await nextTick();
-  update();
-}, { deep: true });
+watch(
+  pointer,
+  async () => {
+    if (!isOpen.value) return;
+    await nextTick();
+    update();
+  },
+  { deep: true },
+);
 
 onMounted(() => {
   window.addEventListener('pointerdown', handleGlobalPointerDown);
@@ -497,7 +561,11 @@ provide(explorerContextMenuSymbol, {
       @contextmenu.prevent
       @click.stop
     >
-      <div v-for="(section, sIdx) in menuSections" :key="`section-${sIdx}`" class="flex flex-col">
+      <div
+        v-for="(section, sIdx) in menuSections"
+        :key="`section-${sIdx}`"
+        class="flex flex-col"
+      >
         <button
           v-for="action in section"
           :key="action.id"
@@ -513,8 +581,14 @@ provide(explorerContextMenuSymbol, {
         >
           <component :is="action.icon" class="w-4 h-4 opacity-80" />
           <p class="flex-1 font-medium">{{ action.label }}</p>
-          <span v-if="action.shortcut" class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{{ action.shortcut }}</span>
-          <span v-if="action.disabled" class="sr-only">{{ $t('common.disabled') }}</span>
+          <span
+            v-if="action.shortcut"
+            class="ml-auto text-xs text-zinc-500 dark:text-zinc-400"
+            >{{ action.shortcut }}</span
+          >
+          <span v-if="action.disabled" class="sr-only">{{
+            $t('common.disabled')
+          }}</span>
         </button>
 
         <div
@@ -551,8 +625,5 @@ provide(explorerContextMenuSymbol, {
     </div>
   </ModalDialog>
 
-  <ShareDialog
-    v-model="isShareDialogOpen"
-    :item="itemToShare"
-  />
+  <ShareDialog v-model="isShareDialogOpen" :item="itemToShare" />
 </template>

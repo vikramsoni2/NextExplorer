@@ -15,15 +15,25 @@ const toClientUser = (row) => {
     emailVerified: Boolean(row.email_verified),
     username: row.username,
     displayName: row.display_name || null,
-    roles: (() => { try { return JSON.parse(row.roles || '[]'); } catch { return []; } })(),
+    roles: (() => {
+      try {
+        return JSON.parse(row.roles || '[]');
+      } catch {
+        return [];
+      }
+    })(),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 };
 
-const generateId = () => (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`);
+const generateId = () =>
+  typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`;
 
-const normalizeEmail = (email) => (typeof email === 'string' ? email.trim().toLowerCase() : '');
+const normalizeEmail = (email) =>
+  typeof email === 'string' ? email.trim().toLowerCase() : '';
 
 // Lockout policy
 const MAX_FAILED_ATTEMPTS = Number(process.env.AUTH_MAX_FAILED || 5);
@@ -31,12 +41,20 @@ const LOCKOUT_MINUTES = Number(process.env.AUTH_LOCK_MINUTES || 15);
 
 const getLock = async (key) => {
   const db = await getDb();
-  return db.prepare('SELECT failed_count, locked_until FROM auth_locks WHERE key = ?').get(key) || { failed_count: 0, locked_until: null };
+  return (
+    db
+      .prepare(
+        'SELECT failed_count, locked_until FROM auth_locks WHERE key = ?',
+      )
+      .get(key) || { failed_count: 0, locked_until: null }
+  );
 };
 
 const setLock = async (key, failedCount, lockedUntil) => {
   const db = await getDb();
-  db.prepare('INSERT INTO auth_locks(key, failed_count, locked_until) VALUES(?, ?, ?) ON CONFLICT(key) DO UPDATE SET failed_count = excluded.failed_count, locked_until = excluded.locked_until').run(key, failedCount, lockedUntil);
+  db.prepare(
+    'INSERT INTO auth_locks(key, failed_count, locked_until) VALUES(?, ?, ?) ON CONFLICT(key) DO UPDATE SET failed_count = excluded.failed_count, locked_until = excluded.locked_until',
+  ).run(key, failedCount, lockedUntil);
 };
 
 const clearLock = async (key) => setLock(key, 0, null);
@@ -53,7 +71,9 @@ const incrementFailedAttempts = async (key) => {
   const failed = (Number(current.failed_count) || 0) + 1;
   let lockedUntil = null;
   if (failed >= MAX_FAILED_ATTEMPTS) {
-    lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000).toISOString();
+    lockedUntil = new Date(
+      Date.now() + LOCKOUT_MINUTES * 60 * 1000,
+    ).toISOString();
   }
   await setLock(key, failed, lockedUntil);
 };
@@ -73,7 +93,9 @@ const countAdmins = async () => {
     try {
       const roles = JSON.parse(r.roles || '[]');
       if (Array.isArray(roles) && roles.includes('admin')) count++;
-    } catch (_) { /* ignore */ }
+    } catch (_) {
+      /* ignore */
+    }
   }
   return count;
 };
@@ -86,30 +108,41 @@ const getById = async (id) => {
 
 const getByEmail = async (email) => {
   const db = await getDb();
-  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(normalizeEmail(email));
+  const row = db
+    .prepare('SELECT * FROM users WHERE email = ?')
+    .get(normalizeEmail(email));
   return row || null;
 };
 
 // Get auth methods for a user
 const getUserAuthMethods = async (userId) => {
   const db = await getDb();
-  return db.prepare('SELECT * FROM auth_methods WHERE user_id = ? AND enabled = 1').all(userId);
+  return db
+    .prepare('SELECT * FROM auth_methods WHERE user_id = ? AND enabled = 1')
+    .all(userId);
 };
 
 // Verify local password for a user
 const verifyLocalPassword = async ({ userId, password }) => {
   const db = await getDb();
-  const method = db.prepare(`
+  const method = db
+    .prepare(
+      `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `).get(userId);
+  `,
+    )
+    .get(userId);
 
   if (!method || !method.password_hash) return false;
 
   const ok = bcrypt.compareSync(password || '', method.password_hash);
   if (ok) {
     // Update last_used_at
-    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(nowIso(), method.id);
+    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
+      nowIso(),
+      method.id,
+    );
   }
   return ok;
 };
@@ -122,7 +155,9 @@ const attemptLocalLogin = async ({ email, password }) => {
   if (await isLocked(normEmail)) {
     const lock = await getLock(normEmail);
     const until = lock.locked_until || null;
-    const err = new Error('Account is temporarily locked due to failed login attempts.');
+    const err = new Error(
+      'Account is temporarily locked due to failed login attempts.',
+    );
     err.status = 423;
     err.until = until;
     throw err;
@@ -138,10 +173,14 @@ const attemptLocalLogin = async ({ email, password }) => {
   }
 
   // Find local password auth method
-  const authMethod = db.prepare(`
+  const authMethod = db
+    .prepare(
+      `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `).get(user.id);
+  `,
+    )
+    .get(user.id);
 
   if (!authMethod || !authMethod.password_hash) {
     await incrementFailedAttempts(normEmail);
@@ -157,14 +196,22 @@ const attemptLocalLogin = async ({ email, password }) => {
 
   // Success - clear lockout
   await clearLock(normEmail);
-  db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?')
-    .run(nowIso(), authMethod.id);
+  db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
+    nowIso(),
+    authMethod.id,
+  );
 
   return toClientUser(user);
 };
 
 // Create user with local password authentication
-const createLocalUser = async ({ email, password, username, displayName, roles = ['user'] }) => {
+const createLocalUser = async ({
+  email,
+  password,
+  username,
+  displayName,
+  roles = ['user'],
+}) => {
   const db = await getDb();
   const normEmail = normalizeEmail(email);
 
@@ -185,10 +232,14 @@ const createLocalUser = async ({ email, password, username, displayName, roles =
 
   if (user) {
     // User exists - check if they already have local password
-    const existingAuth = db.prepare(`
+    const existingAuth = db
+      .prepare(
+        `
       SELECT id FROM auth_methods
       WHERE user_id = ? AND method_type = 'local_password'
-    `).get(user.id);
+    `,
+      )
+      .get(user.id);
 
     if (existingAuth) {
       const e = new Error('User already has local password authentication');
@@ -202,10 +253,12 @@ const createLocalUser = async ({ email, password, username, displayName, roles =
     const hash = bcrypt.hashSync(password, 12);
     const authId = generateId();
 
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
       VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-    `).run(authId, user.id, hash, nowIso());
+    `,
+    ).run(authId, user.id, hash, nowIso());
 
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
     return toClientUser(user);
@@ -218,24 +271,32 @@ const createLocalUser = async ({ email, password, username, displayName, roles =
   const hash = bcrypt.hashSync(password, 12);
 
   // Create user
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
     VALUES (?, ?, 0, ?, ?, ?, ?, ?)
-  `).run(userId, normEmail, username, displayName, rolesJson, now, now);
+  `,
+  ).run(userId, normEmail, username, displayName, rolesJson, now, now);
 
   // Create password auth method
   const authId = generateId();
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
     VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-  `).run(authId, userId, hash, now);
+  `,
+  ).run(authId, userId, hash, now);
 
   user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(user);
 };
 
 // Change password for user with local password auth
-const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => {
+const changeLocalPassword = async ({
+  userId,
+  currentPassword,
+  newPassword,
+}) => {
   const db = await getDb();
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   if (!user) {
@@ -245,13 +306,19 @@ const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => 
   }
 
   // Check if user has local password auth
-  const authMethod = db.prepare(`
+  const authMethod = db
+    .prepare(
+      `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `).get(userId);
+  `,
+    )
+    .get(userId);
 
   if (!authMethod) {
-    const e = new Error('Password change is only allowed for users with password authentication.');
+    const e = new Error(
+      'Password change is only allowed for users with password authentication.',
+    );
     e.status = 400;
     throw e;
   }
@@ -269,7 +336,10 @@ const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => 
   }
 
   const hash = bcrypt.hashSync(newPassword, 12);
-  db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(hash, authMethod.id);
+  db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(
+    hash,
+    authMethod.id,
+  );
   return true;
 };
 
@@ -292,21 +362,30 @@ const setLocalPasswordAdmin = async ({ userId, newPassword }) => {
   const hash = bcrypt.hashSync(newPassword, 12);
 
   // Check if user has local password auth
-  const authMethod = db.prepare(`
+  const authMethod = db
+    .prepare(
+      `
     SELECT id FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password'
-  `).get(userId);
+  `,
+    )
+    .get(userId);
 
   if (authMethod) {
     // Update existing password
-    db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(hash, authMethod.id);
+    db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(
+      hash,
+      authMethod.id,
+    );
   } else {
     // Create new password auth method
     const authId = generateId();
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
       VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-    `).run(authId, userId, hash, nowIso());
+    `,
+    ).run(authId, userId, hash, nowIso());
   }
 
   return true;
@@ -323,10 +402,14 @@ const addLocalPassword = async ({ userId, password }) => {
   }
 
   // Check if user already has password auth
-  const existing = db.prepare(`
+  const existing = db
+    .prepare(
+      `
     SELECT id FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password'
-  `).get(userId);
+  `,
+    )
+    .get(userId);
 
   if (existing) {
     const e = new Error('You already have password authentication.');
@@ -343,10 +426,12 @@ const addLocalPassword = async ({ userId, password }) => {
   const hash = bcrypt.hashSync(password, 12);
   const authId = generateId();
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
     VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-  `).run(authId, userId, hash, nowIso());
+  `,
+  ).run(authId, userId, hash, nowIso());
 
   return true;
 };
@@ -362,7 +447,9 @@ const deriveRolesFromClaims = (claims = {}, adminGroups = []) => {
       .map((g) => g.trim().toLowerCase());
 
     const cfgAdmin = Array.isArray(adminGroups)
-      ? adminGroups.map((g) => (typeof g === 'string' ? g.trim().toLowerCase() : '')).filter(Boolean)
+      ? adminGroups
+          .map((g) => (typeof g === 'string' ? g.trim().toLowerCase() : ''))
+          .filter(Boolean)
       : [];
     const isAdmin = cfgAdmin.some((g) => groups.includes(g));
     return isAdmin ? ['admin'] : ['user'];
@@ -396,27 +483,37 @@ const getOrCreateOidcUser = async ({
   }
 
   // Check if this OIDC identity already exists
-  let authMethod = db.prepare(`
+  let authMethod = db
+    .prepare(
+      `
     SELECT * FROM auth_methods
     WHERE provider_issuer = ? AND provider_sub = ? AND method_type = 'oidc'
-  `).get(issuer, sub);
+  `,
+    )
+    .get(issuer, sub);
 
   if (authMethod) {
     // Existing OIDC auth - update last used
-    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?')
-      .run(nowIso(), authMethod.id);
+    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
+      nowIso(),
+      authMethod.id,
+    );
 
     // Update user profile from latest claims
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE users
       SET display_name = COALESCE(?, display_name),
           username = COALESCE(?, username),
           email_verified = 1,
           updated_at = ?
       WHERE id = ?
-    `).run(displayName, username, nowIso(), authMethod.user_id);
+    `,
+    ).run(displayName, username, nowIso(), authMethod.user_id);
 
-    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(authMethod.user_id);
+    const user = db
+      .prepare('SELECT * FROM users WHERE id = ?')
+      .get(authMethod.user_id);
     return toClientUser(user);
   }
 
@@ -428,20 +525,24 @@ const getOrCreateOidcUser = async ({
     console.log(`[Auth] Auto-linking OIDC to existing user: ${user.email}`);
 
     const authId = generateId();
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO auth_methods (id, user_id, method_type, provider_issuer, provider_sub, provider_name, created_at)
       VALUES (?, ?, 'oidc', ?, ?, ?, ?)
-    `).run(authId, user.id, issuer, sub, 'OIDC', nowIso());
+    `,
+    ).run(authId, user.id, issuer, sub, 'OIDC', nowIso());
 
     // Update user info from OIDC claims
-    db.prepare(`
+    db.prepare(
+      `
       UPDATE users
       SET display_name = COALESCE(?, display_name),
           username = COALESCE(?, username),
           email_verified = 1,
           updated_at = ?
       WHERE id = ?
-    `).run(displayName, username, nowIso(), user.id);
+    `,
+    ).run(displayName, username, nowIso(), user.id);
 
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
     return toClientUser(user);
@@ -459,17 +560,21 @@ const getOrCreateOidcUser = async ({
   const rolesJson = JSON.stringify(Array.isArray(roles) ? roles : ['user']);
 
   // Create user
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
     VALUES (?, ?, 1, ?, ?, ?, ?, ?)
-  `).run(userId, normEmail, username, displayName, rolesJson, now, now);
+  `,
+  ).run(userId, normEmail, username, displayName, rolesJson, now, now);
 
   // Create OIDC auth method
   const authId = generateId();
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO auth_methods (id, user_id, method_type, provider_issuer, provider_sub, provider_name, created_at)
     VALUES (?, ?, 'oidc', ?, ?, ?, ?)
-  `).run(authId, userId, issuer, sub, 'OIDC', now);
+  `,
+  ).run(authId, userId, issuer, sub, 'OIDC', now);
 
   user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(user);
@@ -484,7 +589,9 @@ const getRequestUser = async (req) => {
   // Local session
   if (req?.session?.localUserId) {
     const db = await getDb();
-    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.localUserId);
+    const row = db
+      .prepare('SELECT * FROM users WHERE id = ?')
+      .get(req.session.localUserId);
     const user = toClientUser(row);
     if (user) {
       user.provider = 'local';
@@ -493,19 +600,36 @@ const getRequestUser = async (req) => {
   }
 
   // OIDC mapped user
-  if (req?.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated() && req.oidc.user?.sub) {
-    const issuer = (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.issuer) || null;
+  if (
+    req?.oidc &&
+    typeof req.oidc.isAuthenticated === 'function' &&
+    req.oidc.isAuthenticated() &&
+    req.oidc.user?.sub
+  ) {
+    const issuer =
+      (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.issuer) ||
+      null;
     if (!issuer) return null;
-    const autoCreateUsers = (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.autoCreateUsers) ?? true;
+    const autoCreateUsers =
+      (envAuthConfig &&
+        envAuthConfig.oidc &&
+        envAuthConfig.oidc.autoCreateUsers) ??
+      true;
 
     const db = await getDb();
-    const authMethod = db.prepare(`
+    const authMethod = db
+      .prepare(
+        `
       SELECT user_id FROM auth_methods
       WHERE provider_issuer = ? AND provider_sub = ? AND method_type = 'oidc'
-    `).get(issuer, req.oidc.user.sub);
+    `,
+      )
+      .get(issuer, req.oidc.user.sub);
 
     if (authMethod) {
-      const row = db.prepare('SELECT * FROM users WHERE id = ?').get(authMethod.user_id);
+      const row = db
+        .prepare('SELECT * FROM users WHERE id = ?')
+        .get(authMethod.user_id);
       const user = toClientUser(row);
       if (user) {
         user.provider = 'oidc';
@@ -527,12 +651,17 @@ const getRequestUser = async (req) => {
     try {
       const claims = req.oidc.user || {};
       const email = normalizeEmail(claims.email || '');
-      const preferredUsername = claims.preferred_username || claims.username || email || claims.sub;
+      const preferredUsername =
+        claims.preferred_username || claims.username || email || claims.sub;
       const displayName = claims.name || preferredUsername || null;
-      const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
-      const avatarUrl = typeof claims.picture === 'string' && claims.picture.trim()
-        ? claims.picture.trim()
-        : null;
+      const roles = deriveRolesFromClaims(
+        claims,
+        envAuthConfig?.oidc?.adminGroups,
+      );
+      const avatarUrl =
+        typeof claims.picture === 'string' && claims.picture.trim()
+          ? claims.picture.trim()
+          : null;
 
       return {
         id: `oidc:${claims.sub}`,
@@ -558,11 +687,18 @@ const listUsers = async () => {
   const db = await getDb();
   const rows = db.prepare('SELECT * FROM users ORDER BY created_at ASC').all();
 
-  const authMethods = db.prepare('SELECT user_id, method_type, provider_name FROM auth_methods WHERE enabled = 1').all();
+  const authMethods = db
+    .prepare(
+      'SELECT user_id, method_type, provider_name FROM auth_methods WHERE enabled = 1',
+    )
+    .all();
   const authMap = {};
   for (const am of authMethods) {
     if (!authMap[am.user_id]) authMap[am.user_id] = [];
-    authMap[am.user_id].push({ method: am.method_type, provider: am.provider_name });
+    authMap[am.user_id].push({
+      method: am.method_type,
+      provider: am.provider_name,
+    });
   }
 
   return rows.map((r) => {
@@ -584,9 +720,18 @@ const toShareableUser = (row) => {
 
 const listShareableUsers = async ({ excludeUserId } = {}) => {
   const db = await getDb();
-  const rows = typeof excludeUserId === 'string' && excludeUserId.trim()
-    ? db.prepare('SELECT id, email, username, display_name FROM users WHERE id != ? ORDER BY display_name ASC, email ASC').all(excludeUserId)
-    : db.prepare('SELECT id, email, username, display_name FROM users ORDER BY display_name ASC, email ASC').all();
+  const rows =
+    typeof excludeUserId === 'string' && excludeUserId.trim()
+      ? db
+          .prepare(
+            'SELECT id, email, username, display_name FROM users WHERE id != ? ORDER BY display_name ASC, email ASC',
+          )
+          .all(excludeUserId)
+      : db
+          .prepare(
+            'SELECT id, email, username, display_name FROM users ORDER BY display_name ASC, email ASC',
+          )
+          .all();
   return rows.map(toShareableUser).filter(Boolean);
 };
 
@@ -609,7 +754,9 @@ const updateUserProfile = async ({ userId, email, username, displayName }) => {
       err.status = 400;
       throw err;
     }
-    const exists = db.prepare('SELECT id FROM users WHERE email = ? AND id != ?').get(normalizedEmail, userId);
+    const exists = db
+      .prepare('SELECT id FROM users WHERE email = ? AND id != ?')
+      .get(normalizedEmail, userId);
     if (exists) {
       const err = new Error('Email already in use.');
       err.status = 409;
@@ -639,16 +786,26 @@ const updateUserProfile = async ({ userId, email, username, displayName }) => {
   values.push(nowIso());
   values.push(userId);
 
-  db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
+  db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(
+    ...values,
+  );
   const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(updated);
 };
 
 const updateUserRoles = async ({ userId, roles }) => {
   const db = await getDb();
-  const r = Array.isArray(roles) ? roles.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.trim()) : [];
+  const r = Array.isArray(roles)
+    ? roles
+        .filter((x) => typeof x === 'string' && x.trim())
+        .map((x) => x.trim())
+    : [];
   const json = JSON.stringify(r);
-  db.prepare('UPDATE users SET roles = ?, updated_at = ? WHERE id = ?').run(json, nowIso(), userId);
+  db.prepare('UPDATE users SET roles = ?, updated_at = ? WHERE id = ?').run(
+    json,
+    nowIso(),
+    userId,
+  );
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(row);
 };

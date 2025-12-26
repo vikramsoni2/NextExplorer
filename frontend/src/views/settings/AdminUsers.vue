@@ -6,7 +6,7 @@ import {
   updateUser,
   createUser,
   adminSetUserPassword,
-  deleteUser
+  deleteUser,
 } from '@/api';
 import { useAuthStore } from '@/stores/auth';
 import { useI18n } from 'vue-i18n';
@@ -36,10 +36,10 @@ const loadUsers = async () => {
   try {
     const res = await fetchUsers();
     users.value = Array.isArray(res?.users) ? res.users : [];
-    
+
     // If we have a selected user, update their data from the fresh list
     if (selectedUser.value) {
-      const freshUser = users.value.find(u => u.id === selectedUser.value.id);
+      const freshUser = users.value.find((u) => u.id === selectedUser.value.id);
       if (freshUser) {
         selectedUser.value = freshUser;
       } else {
@@ -68,12 +68,14 @@ const handleUpdateUser = async (userData) => {
     const res = await updateUser(userData.id, {
       email: userData.email,
       username: userData.username,
-      displayName: userData.displayName
+      displayName: userData.displayName,
     });
-    
+
     if (res?.user) {
       // Update local list
-      users.value = users.value.map(u => u.id === userData.id ? { ...u, ...res.user } : u);
+      users.value = users.value.map((u) =>
+        u.id === userData.id ? { ...u, ...res.user } : u,
+      );
       selectedUser.value = { ...selectedUser.value, ...res.user };
     }
   } catch (e) {
@@ -100,7 +102,7 @@ const handleMakeAdmin = async (u) => {
 };
 
 const handleRevokeAdmin = async (u) => {
-  const nextRoles = (u.roles || []).filter(r => r !== 'admin');
+  const nextRoles = (u.roles || []).filter((r) => r !== 'admin');
   try {
     const res = await updateUserRoles(u.id, nextRoles);
     const updated = res?.user;
@@ -116,7 +118,9 @@ const handleRevokeAdmin = async (u) => {
 };
 
 const handleResetPassword = async (u) => {
-  const pwd = window.prompt(t('settings.users.promptNewPassword', { user: u.username }));
+  const pwd = window.prompt(
+    t('settings.users.promptNewPassword', { user: u.username }),
+  );
   if (pwd == null) return; // cancelled
   if (pwd.length < 6) {
     alert(t('errors.passwordMin'));
@@ -127,7 +131,7 @@ const handleResetPassword = async (u) => {
     alert(t('status.passwordUpdated'));
     // Ideally we should refresh the user to update "hasLocalAuth" status if we had that info in the API response
     // But for now, we assume it worked.
-    loadUsers(); 
+    loadUsers();
   } catch (e) {
     alert(e?.message || t('errors.resetPassword'));
   }
@@ -138,7 +142,9 @@ const handleDeleteUser = async (u) => {
     alert(t('settings.users.cannotDeleteSelf'));
     return;
   }
-  const ok = window.confirm(t('settings.users.confirmRemove', { user: u.username }));
+  const ok = window.confirm(
+    t('settings.users.confirmRemove', { user: u.username }),
+  );
   if (!ok) return;
   try {
     await deleteUser(u.id);
@@ -177,7 +183,7 @@ const handleCreate = async () => {
       email: newEmail.value.trim(),
       username: newUsername.value.trim() || newEmail.value.trim().split('@')[0],
       password: newPassword.value,
-      roles: newIsAdmin.value ? ['admin'] : []
+      roles: newIsAdmin.value ? ['admin'] : [],
     });
     if (res?.user) {
       users.value = users.value.concat([res.user]);
@@ -192,12 +198,17 @@ const handleCreate = async () => {
   }
 };
 
-onMounted(() => { loadUsers(); });
+onMounted(() => {
+  loadUsers();
+});
 </script>
 
 <template>
   <div class="h-full">
-    <div v-if="errorMsg" class="mb-4 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md">
+    <div
+      v-if="errorMsg"
+      class="mb-4 p-4 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-md"
+    >
       {{ errorMsg }}
     </div>
 
@@ -230,25 +241,47 @@ onMounted(() => { loadUsers(); });
       role="dialog"
       aria-modal="true"
     >
-      <div class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity" @click="closeCreateModal"></div>
-      <div class="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all">
+      <div
+        class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"
+        @click="closeCreateModal"
+      ></div>
+      <div
+        class="relative z-10 w-full max-w-lg overflow-hidden rounded-xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all"
+      >
         <div class="flex items-center justify-between mb-5">
-          <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{{ t('settings.users.createUser') }}</h3>
+          <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            {{ t('settings.users.createUser') }}
+          </h3>
           <button
             type="button"
             class="text-zinc-400 hover:text-zinc-500 dark:hover:text-zinc-300"
             @click="closeCreateModal"
           >
             <span class="sr-only">{{ t('common.dismiss') }}</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            <svg
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
-        
+
         <form class="space-y-4" @submit.prevent="handleCreate">
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.email') }} <span class="text-red-500">*</span></label>
+            <label
+              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >{{ t('common.email') }}
+              <span class="text-red-500">*</span></label
+            >
             <input
               v-model.trim="newEmail"
               type="email"
@@ -258,7 +291,10 @@ onMounted(() => { loadUsers(); });
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.username') }}</label>
+            <label
+              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >{{ t('common.username') }}</label
+            >
             <input
               v-model.trim="newUsername"
               type="text"
@@ -267,7 +303,11 @@ onMounted(() => { loadUsers(); });
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{ t('common.password') }} <span class="text-red-500">*</span></label>
+            <label
+              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >{{ t('common.password') }}
+              <span class="text-red-500">*</span></label
+            >
             <input
               v-model="newPassword"
               type="password"
@@ -275,9 +315,11 @@ onMounted(() => { loadUsers(); });
               placeholder="••••••"
               class="block w-full rounded-md border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs focus:border-zinc-500 focus:ring-zinc-500 sm:text-sm p-2 border"
             />
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ t('errors.passwordMin') }}</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+              {{ t('errors.passwordMin') }}
+            </p>
           </div>
-          
+
           <div class="flex items-start pt-2">
             <div class="flex h-5 items-center">
               <input
@@ -288,8 +330,14 @@ onMounted(() => { loadUsers(); });
               />
             </div>
             <div class="ml-3 text-sm">
-              <label for="is-admin" class="font-medium text-zinc-700 dark:text-zinc-300">{{ t('settings.users.grantAdmin') }}</label>
-              <p class="text-zinc-500 dark:text-zinc-400">Grants full access to all settings and users.</p>
+              <label
+                for="is-admin"
+                class="font-medium text-zinc-700 dark:text-zinc-300"
+                >{{ t('settings.users.grantAdmin') }}</label
+              >
+              <p class="text-zinc-500 dark:text-zinc-400">
+                Grants full access to all settings and users.
+              </p>
             </div>
           </div>
 

@@ -3,7 +3,6 @@ const logger = require('../utils/logger');
 const session = require('express-session');
 const { directories } = require('../config/index');
 
-
 const cacheDir = (directories && directories.cache) || '/cache';
 const dbPath = path.join(cacheDir, 'sessions.db');
 
@@ -16,7 +15,6 @@ const baseStore = new SQLiteStore({
 });
 
 logger.debug({ dbPath }, 'Initialized shared SQLite session store');
-
 
 const localStore = baseStore;
 
@@ -43,4 +41,3 @@ module.exports = {
   oidcStore,
   dbPath,
 };
-

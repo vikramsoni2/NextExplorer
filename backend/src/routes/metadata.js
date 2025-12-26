@@ -10,7 +10,11 @@ const { extensions } = require('../config/index');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const { ValidationError, ForbiddenError, NotFoundError } = require('../errors/AppError');
+const {
+  ValidationError,
+  ForbiddenError,
+  NotFoundError,
+} = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -26,20 +30,27 @@ const loadExifr = () => {
   return exifr;
 };
 
-const probeVideo = (filePath) => new Promise((resolve) => {
-  ffmpeg.ffprobe(filePath, (error, data) => {
-    if (error || !data) { resolve(null); return; }
-    try {
-      const stream = (data.streams || []).find((s) => s.width && s.height) || {};
-      const duration = Number(data.format?.duration) || null;
-      resolve({
-        width: Number(stream.width) || null,
-        height: Number(stream.height) || null,
-        duration,
-      });
-    } catch (_) { resolve(null); }
+const probeVideo = (filePath) =>
+  new Promise((resolve) => {
+    ffmpeg.ffprobe(filePath, (error, data) => {
+      if (error || !data) {
+        resolve(null);
+        return;
+      }
+      try {
+        const stream =
+          (data.streams || []).find((s) => s.width && s.height) || {};
+        const duration = Number(data.format?.duration) || null;
+        resolve({
+          width: Number(stream.width) || null,
+          height: Number(stream.height) || null,
+          duration,
+        });
+      } catch (_) {
+        resolve(null);
+      }
+    });
   });
-});
 
 const sumDirectory = async (dirPath, limit = 200000) => {
   const stack = [dirPath];
@@ -75,26 +86,33 @@ const sumDirectory = async (dirPath, limit = 200000) => {
   return { totalSize, fileCount, dirCount, truncated: visited > limit };
 };
 
-router.get('/metadata/*', asyncHandler(async (req, res) => {
-  const rawPath = req.params[0] || '';
-  const relativePath = normalizeRelativePath(rawPath);
-  if (!relativePath) {
-    throw new ValidationError('A file path is required.');
-  }
+router.get(
+  '/metadata/*',
+  asyncHandler(async (req, res) => {
+    const rawPath = req.params[0] || '';
+    const relativePath = normalizeRelativePath(rawPath);
+    if (!relativePath) {
+      throw new ValidationError('A file path is required.');
+    }
 
-  const context = { user: req.user, guestSession: req.guestSession };
-  let accessInfo;
-  let resolved;
-  try {
-    ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
-  } catch (error) {
-    throw new NotFoundError('Path not found.');
-  }
+    const context = { user: req.user, guestSession: req.guestSession };
+    let accessInfo;
+    let resolved;
+    try {
+      ({ accessInfo, resolved } = await resolvePathWithAccess(
+        context,
+        relativePath,
+      ));
+    } catch (error) {
+      throw new NotFoundError('Path not found.');
+    }
 
-  if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
-    // For metadata, treat denied access as forbidden (explicit signal to caller)
-    throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
-  }
+    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
+      // For metadata, treat denied access as forbidden (explicit signal to caller)
+      throw new ForbiddenError(
+        accessInfo?.denialReason || 'Path is not accessible.',
+      );
+    }
 
     const absolutePath = resolved.absolutePath;
     const logicalPath = resolved.relativePath;
@@ -105,7 +123,7 @@ router.get('/metadata/*', asyncHandler(async (req, res) => {
     const base = {
       path: logicalPath,
       name,
-      kind: stats.isDirectory() ? 'directory' : (ext || 'unknown'),
+      kind: stats.isDirectory() ? 'directory' : ext || 'unknown',
       size: stats.size,
       dateModified: stats.mtime,
       dateCreated: stats.birthtime,
@@ -132,15 +150,29 @@ router.get('/metadata/*', asyncHandler(async (req, res) => {
       }
 
       try {
-        const ex = loadExifr() ? await exifr.parse(absolutePath, { tiff: true, ifd0: true, exif: true, gps: true, iptc: true }) : null;
+        const ex = loadExifr()
+          ? await exifr.parse(absolutePath, {
+              tiff: true,
+              ifd0: true,
+              exif: true,
+              gps: true,
+              iptc: true,
+            })
+          : null;
         if (ex) {
           payload.image = Object.assign(payload.image || {}, {
             cameraMake: ex.Make || ex.make || null,
             cameraModel: ex.Model || ex.model || null,
             lensModel: ex.LensModel || ex.lensModel || null,
             software: ex.Software || null,
-            dateTaken: ex.DateTimeOriginal || ex.CreateDate || ex.ModifyDate || null,
-            gps: (ex.latitude && ex.longitude) ? { lat: ex.latitude, lon: ex.longitude } : (ex.GPSLatitude && ex.GPSLongitude ? { lat: ex.GPSLatitude, lon: ex.GPSLongitude } : null),
+            dateTaken:
+              ex.DateTimeOriginal || ex.CreateDate || ex.ModifyDate || null,
+            gps:
+              ex.latitude && ex.longitude
+                ? { lat: ex.latitude, lon: ex.longitude }
+                : ex.GPSLatitude && ex.GPSLongitude
+                  ? { lat: ex.GPSLatitude, lon: ex.GPSLongitude }
+                  : null,
           });
         }
       } catch (e) {
@@ -151,14 +183,15 @@ router.get('/metadata/*', asyncHandler(async (req, res) => {
       if (v) payload.video = v;
     }
 
-  try {
-    return res.json(payload);
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      throw new NotFoundError('Path not found.');
+    try {
+      return res.json(payload);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        throw new NotFoundError('Path not found.');
+      }
+      throw error;
     }
-    throw error;
-  }
-}));
+  }),
+);
 
 module.exports = router;

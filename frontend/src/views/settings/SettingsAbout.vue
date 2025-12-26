@@ -28,7 +28,7 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-6">
-    <section class="rounded-lg   p-4">
+    <section class="rounded-lg p-4">
       <h2 class="mb-2 text-base font-semibold">{{ t('titles.about') }}</h2>
       <p class="mb-4 text-sm text-neutral-500 dark:text-neutral-400">
         {{ t('settings.about.subtitle') }}
@@ -37,9 +37,13 @@ onMounted(async () => {
       <div class="flex items-center justify-between py-2">
         <div>
           <div class="font-medium">{{ t('settings.about.appVersion') }}</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.appVersionHelp') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">
+            {{ t('settings.about.appVersionHelp') }}
+          </div>
         </div>
-        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
+        <div
+          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
+        >
           <span>v{{ featuresStore.version }}</span>
         </div>
       </div>
@@ -47,11 +51,21 @@ onMounted(async () => {
       <div class="flex items-center justify-between py-2">
         <div>
           <div class="font-medium">{{ t('settings.about.gitCommit') }}</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.gitCommitHelp') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">
+            {{ t('settings.about.gitCommitHelp') }}
+          </div>
         </div>
-        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
+        <div
+          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
+        >
           <template v-if="commitShort">
-            <a v-if="commitUrl" :href="commitUrl" target="_blank" rel="noopener noreferrer" class="underline decoration-dotted underline-offset-4">
+            <a
+              v-if="commitUrl"
+              :href="commitUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="underline decoration-dotted underline-offset-4"
+            >
               {{ commitShort }}
             </a>
             <span v-else>{{ commitShort }}</span>
@@ -63,14 +77,19 @@ onMounted(async () => {
       <div class="flex items-center justify-between py-2">
         <div>
           <div class="font-medium">{{ t('settings.about.branch') }}</div>
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ t('settings.about.branchHelp') }}</div>
+          <div class="text-sm text-neutral-500 dark:text-neutral-400">
+            {{ t('settings.about.branchHelp') }}
+          </div>
         </div>
-        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
-          <span v-if="featuresStore.gitBranch">{{ featuresStore.gitBranch }}</span>
+        <div
+          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
+        >
+          <span v-if="featuresStore.gitBranch">{{
+            featuresStore.gitBranch
+          }}</span>
           <span v-else class="text-neutral-500">{{ t('common.unknown') }}</span>
         </div>
       </div>
     </section>
   </div>
-  
 </template>

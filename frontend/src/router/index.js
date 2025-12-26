@@ -1,33 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import FolderView from '@/views/FolderView.vue'
-import HomeView from '@/views/HomeView.vue'
-import EditorView from '@/views/EditorView.vue'
-import BrowserLayout from '@/layouts/BrowserLayout.vue'
-import EditorLayout from '@/layouts/EditorLayout.vue'
-import SearchResultsView from '@/views/SearchResultsView.vue'
-import SettingsView from '@/views/settings/SettingsView.vue'
-import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue'
-import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue'
-import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue'
-import AdminUsers from '@/views/settings/AdminUsers.vue'
-import SettingsPassword from '@/views/settings/SettingsPassword.vue'
-import SettingsAbout from '@/views/settings/SettingsAbout.vue'
-import AboutView from '@/views/AboutView.vue'
-import AuthSetupView from '@/views/AuthSetupView.vue'
-import AuthLoginView from '@/views/AuthLoginView.vue'
-import ShareLoginView from '@/views/ShareLoginView.vue'
-import SharedWithMeView from '@/views/SharedWithMeView.vue'
-import SharedByMeView from '@/views/SharedByMeView.vue'
-import { useAuthStore } from '@/stores/auth'
-import { useFeaturesStore } from '@/stores/features'
-import { getVolumes } from '@/api'
+import { createRouter, createWebHistory } from 'vue-router';
+import FolderView from '@/views/FolderView.vue';
+import HomeView from '@/views/HomeView.vue';
+import EditorView from '@/views/EditorView.vue';
+import BrowserLayout from '@/layouts/BrowserLayout.vue';
+import EditorLayout from '@/layouts/EditorLayout.vue';
+import SearchResultsView from '@/views/SearchResultsView.vue';
+import SettingsView from '@/views/settings/SettingsView.vue';
+import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue';
+import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue';
+import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue';
+import AdminUsers from '@/views/settings/AdminUsers.vue';
+import SettingsPassword from '@/views/settings/SettingsPassword.vue';
+import SettingsAbout from '@/views/settings/SettingsAbout.vue';
+import AboutView from '@/views/AboutView.vue';
+import AuthSetupView from '@/views/AuthSetupView.vue';
+import AuthLoginView from '@/views/AuthLoginView.vue';
+import ShareLoginView from '@/views/ShareLoginView.vue';
+import SharedWithMeView from '@/views/SharedWithMeView.vue';
+import SharedByMeView from '@/views/SharedByMeView.vue';
+import { useAuthStore } from '@/stores/auth';
+import { useFeaturesStore } from '@/stores/features';
+import { getVolumes } from '@/api';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      redirect: '/browse/'
+      redirect: '/browse/',
     },
     {
       path: '/settings',
@@ -39,14 +39,38 @@ const router = createRouter({
           component: SettingsView,
           children: [
             { path: '', redirect: '/settings/about' },
-            { path: 'files-thumbnails', component: SettingsFilesThumbnails, meta: { requiresAdmin: true } },
+            {
+              path: 'files-thumbnails',
+              component: SettingsFilesThumbnails,
+              meta: { requiresAdmin: true },
+            },
             { path: 'account-password', component: SettingsPassword },
-            { path: 'access-control', component: SettingsAccessControl, meta: { requiresAdmin: true } },
+            {
+              path: 'access-control',
+              component: SettingsAccessControl,
+              meta: { requiresAdmin: true },
+            },
             // Admin-only placeholder routes
-            { path: 'admin-overview', component: SettingsComingSoon, meta: { requiresAdmin: true } },
-            { path: 'admin-users', component: AdminUsers, meta: { requiresAdmin: true } },
-            { path: 'admin-mounts', component: SettingsComingSoon, meta: { requiresAdmin: true } },
-            { path: 'admin-audit', component: SettingsComingSoon, meta: { requiresAdmin: true } },
+            {
+              path: 'admin-overview',
+              component: SettingsComingSoon,
+              meta: { requiresAdmin: true },
+            },
+            {
+              path: 'admin-users',
+              component: AdminUsers,
+              meta: { requiresAdmin: true },
+            },
+            {
+              path: 'admin-mounts',
+              component: SettingsComingSoon,
+              meta: { requiresAdmin: true },
+            },
+            {
+              path: 'admin-audit',
+              component: SettingsComingSoon,
+              meta: { requiresAdmin: true },
+            },
             // Scaffolded routes
             { path: 'general', component: SettingsComingSoon },
             { path: 'appearance', component: SettingsComingSoon },
@@ -77,7 +101,6 @@ const router = createRouter({
           meta: { allowGuest: true }, // Allow guest access for share paths
         },
       ],
-
     },
     {
       path: '/shares',
@@ -100,9 +123,7 @@ const router = createRouter({
       path: '/search',
       component: BrowserLayout,
       meta: { requiresAuth: true },
-      children: [
-        { path: '', component: SearchResultsView },
-      ],
+      children: [{ path: '', component: SearchResultsView }],
     },
     {
       path: '/editor',
@@ -110,15 +131,14 @@ const router = createRouter({
       meta: { requiresAuth: true, allowGuest: true },
       children: [
         {
-          path: ":path(.*)",
+          path: ':path(.*)',
           component: EditorView,
         },
       ],
-
     },
     {
       path: '/about',
-      component: AboutView
+      component: AboutView,
     },
     {
       path: '/auth/setup',
@@ -138,8 +158,8 @@ const router = createRouter({
       component: ShareLoginView,
       meta: { public: true }, // Public route, doesn't require auth
     },
-  ]
-})
+  ],
+});
 
 router.beforeEach(async (to) => {
   const auth = useAuthStore();
@@ -213,7 +233,8 @@ router.beforeEach(async (to) => {
   }
 
   if (to.name === 'auth-setup' && !auth.requiresSetup) {
-    const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
+    const redirect =
+      typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     if (auth.isAuthenticated) {
       return { path: redirect };
     }
@@ -221,7 +242,8 @@ router.beforeEach(async (to) => {
   }
 
   if (to.name === 'auth-login' && auth.isAuthenticated) {
-    const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
+    const redirect =
+      typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     return { path: redirect };
   }
 
@@ -253,7 +275,9 @@ router.beforeEach(async (to) => {
   // Enforce admin-only routes if flagged
   const requiresAdmin = Boolean(to.meta && to.meta.requiresAdmin);
   if (requiresAdmin) {
-    const isAdmin = Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin');
+    const isAdmin =
+      Array.isArray(auth.currentUser?.roles) &&
+      auth.currentUser.roles.includes('admin');
     if (!isAdmin) {
       // send to a non-admin settings landing
       return { path: '/settings/about' };
@@ -263,4 +287,4 @@ router.beforeEach(async (to) => {
   return true;
 });
 
-export default router
+export default router;

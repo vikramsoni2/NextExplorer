@@ -14,9 +14,16 @@
       class="fixed inset-y-0 right-0 z-1500 w-full sm:w-[600px] md:w-[700px] lg:w-[800px] transform transition-transform duration-200 ease-out"
       :class="isOpen ? 'translate-x-0' : 'translate-x-full'"
     >
-      <aside ref="panelRef" class="flex h-full flex-col border-l bg-zinc-900 dark:bg-zinc-950 shadow-2xl dark:border-white/10">
-        <header class="flex items-center justify-between border-b border-white/10 px-5 py-3">
-          <h2 class="text-lg font-semibold text-white">{{ $t('titles.terminal') }}</h2>
+      <aside
+        ref="panelRef"
+        class="flex h-full flex-col border-l bg-zinc-900 dark:bg-zinc-950 shadow-2xl dark:border-white/10"
+      >
+        <header
+          class="flex items-center justify-between border-b border-white/10 px-5 py-3"
+        >
+          <h2 class="text-lg font-semibold text-white">
+            {{ $t('titles.terminal') }}
+          </h2>
           <button
             @click="close"
             class="rounded-lg p-1.5 text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
@@ -100,7 +107,7 @@ const connectToBackend = async () => {
       console.log('Terminal WebSocket connection opened');
     };
 
-    socket.onmessage = event => {
+    socket.onmessage = (event) => {
       console.log('Received data from terminal:', event.data.length, 'bytes');
       term.write(event.data);
     };
@@ -151,7 +158,7 @@ const initTerminal = () => {
       brightMagenta: '#d8b4fe',
       brightCyan: '#67e8f9',
       brightWhite: '#fafafa',
-    }
+    },
   });
   fitAddon = new FitAddon();
   term.loadAddon(fitAddon);
@@ -161,7 +168,7 @@ const initTerminal = () => {
     fitAddon.fit();
   }, 100);
 
-  term.onData(data => {
+  term.onData((data) => {
     sendInput(data);
   });
 

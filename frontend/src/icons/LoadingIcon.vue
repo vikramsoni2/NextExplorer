@@ -13,19 +13,18 @@
     <div class="spinner-blade"></div>
     <div class="spinner-blade"></div>
   </div>
-
 </template>
 <style lang="sass">
 $spinner-color: #888 !default
 $spinner-size: 48px !default
-    
+
 .spinner
   font-size: $spinner-size
   position: relative
   display: inline-block
   width: 1em
   height: 1em
-  
+
   .spinner-blade
     position: absolute
     left: .4629em
@@ -49,4 +48,4 @@ $spinner-size: 48px !default
     background-color: $spinner-color
   100%
     background-color: transparent
-    </style>
+</style>

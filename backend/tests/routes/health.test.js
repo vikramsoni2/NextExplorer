@@ -27,4 +27,3 @@ test('GET /readyz returns ready', async () => {
 
   assert.deepEqual(response.body, { status: 'ready' });
 });
-

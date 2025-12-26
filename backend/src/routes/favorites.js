@@ -26,51 +26,71 @@ router.use('/favorites', requireAuth);
  * GET /api/favorites
  * Get all favorites for the current user
  */
-router.get('/favorites', asyncHandler(async (req, res) => {
-  const favorites = await getFavorites(req.user.id);
-  res.json(favorites);
-}));
+router.get(
+  '/favorites',
+  asyncHandler(async (req, res) => {
+    const favorites = await getFavorites(req.user.id);
+    res.json(favorites);
+  }),
+);
 
 /**
  * POST /api/favorites
  * Add a new favorite for the current user
  */
-router.post('/favorites', asyncHandler(async (req, res) => {
-  const { path, label, icon, color } = req.body || {};
-  const favorite = await addFavorite(req.user, { path, label, icon, color });
-  res.json(favorite);
-}));
+router.post(
+  '/favorites',
+  asyncHandler(async (req, res) => {
+    const { path, label, icon, color } = req.body || {};
+    const favorite = await addFavorite(req.user, { path, label, icon, color });
+    res.json(favorite);
+  }),
+);
 
 /**
  * PATCH /api/favorites/reorder
  * Reorder favorites for the current user
  */
-router.patch('/favorites/reorder', asyncHandler(async (req, res) => {
-  const { order: orderedIds } = req.body || {};
-  const favorites = await reorderFavorites(req.user.id, orderedIds);
-  res.json(favorites);
-}));
+router.patch(
+  '/favorites/reorder',
+  asyncHandler(async (req, res) => {
+    const { order: orderedIds } = req.body || {};
+    const favorites = await reorderFavorites(req.user.id, orderedIds);
+    res.json(favorites);
+  }),
+);
 
 /**
  * PATCH /api/favorites/:id
  * Update a favorite's label or icon
  */
-router.patch('/favorites/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { label, icon, color, position } = req.body || {};
+router.patch(
+  '/favorites/:id',
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { label, icon, color, position } = req.body || {};
 
-  const favorite = await updateFavorite(req.user.id, id, { label, icon, color, position });
-  res.json(favorite);
-}));
+    const favorite = await updateFavorite(req.user.id, id, {
+      label,
+      icon,
+      color,
+      position,
+    });
+    res.json(favorite);
+  }),
+);
 
 /**
  * DELETE /api/favorites
  * Remove a favorite for the current user
  */
-router.delete('/favorites', asyncHandler(async (req, res) => {
-  const { path } = req.body || {};
-  const favorites = await removeFavorite(req.user.id, path);
-  res.json(favorites);
-}));
+router.delete(
+  '/favorites',
+  asyncHandler(async (req, res) => {
+    const { path } = req.body || {};
+    const favorites = await removeFavorite(req.user.id, path);
+    res.json(favorites);
+  }),
+);
 
 module.exports = router;

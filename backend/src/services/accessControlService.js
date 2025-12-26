@@ -5,7 +5,9 @@ const { getSettings, setSettings } = require('../services/settingsService');
 const getPermissionForPath = async (relativePath) => {
   const rel = normalizeRelativePath(relativePath || '');
   const settings = await getSettings();
-  const rules = Array.isArray(settings?.access?.rules) ? settings.access.rules : [];
+  const rules = Array.isArray(settings?.access?.rules)
+    ? settings.access.rules
+    : [];
 
   // first match wins
   for (const rule of rules) {

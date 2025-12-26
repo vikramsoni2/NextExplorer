@@ -70,7 +70,10 @@ test('features route reflects enabled editors, onlyoffice, and volume usage', as
     assert.strictEqual(response.body.navigation.skipHome, true);
     assert.strictEqual(response.body.version.gitCommit, 'abc123');
     assert.strictEqual(response.body.version.gitBranch, 'main');
-    assert.strictEqual(response.body.version.repoUrl, 'https://example.com/repo');
+    assert.strictEqual(
+      response.body.version.repoUrl,
+      'https://example.com/repo',
+    );
   } finally {
     restoreEnv();
   }

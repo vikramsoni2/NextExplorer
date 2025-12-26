@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/stores/settings';
 import FileObject from '@/components/FileObject.vue';
 import { useFileStore } from '@/stores/fileStore';
 import LoadingIcon from '@/icons/LoadingIcon.vue';
@@ -16,30 +16,36 @@ import { FolderOpenIcon } from '@heroicons/vue/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import { useEventListener } from '@vueuse/core';
 
-const settings = useSettingsStore()
-const fileStore = useFileStore()
-const route = useRoute()
-const { gridClasses, gridStyle } = useViewConfig()
-const loading = ref(true)
+const settings = useSettingsStore();
+const fileStore = useFileStore();
+const route = useRoute();
+const { gridClasses, gridStyle } = useViewConfig();
+const loading = ref(true);
 const { clearSelection } = useSelection();
 const contextMenu = useExplorerContextMenu();
 const dropTargetRef = ref(null);
 useUppyDropTarget(dropTargetRef);
 
 const isTouchDevice = computed(() => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
-  const hasCoarsePointer = typeof window.matchMedia === 'function'
-    ? window.matchMedia('(pointer: coarse)').matches
-    : false;
+  if (typeof window === 'undefined' || typeof navigator === 'undefined')
+    return false;
+  const hasTouchPoints =
+    'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  const hasCoarsePointer =
+    typeof window.matchMedia === 'function'
+      ? window.matchMedia('(pointer: coarse)').matches
+      : false;
   const hasTouchEvent = 'ontouchstart' in window;
   return hasTouchPoints || hasCoarsePointer || hasTouchEvent;
 });
 
 const applySelectionFromQuery = () => {
-  const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
+  const selectName =
+    typeof route.query?.select === 'string' ? route.query.select : '';
   if (!selectName) return;
-  const match = fileStore.getCurrentPathItems.find((it) => it?.name === selectName);
+  const match = fileStore.getCurrentPathItems.find(
+    (it) => it?.name === selectName,
+  );
   if (match) {
     fileStore.selectedItems = [match];
   }
@@ -53,23 +59,23 @@ const selectionModel = computed({
     // Note: drag-select might replace the selection.
     // If we want to support modifiers, the library handles 'multiple' prop.
     fileStore.selectedItems = val;
-  }
+  },
 });
 
 const loadFiles = async () => {
-  loading.value = true
-  const path = route.params.path || ''
+  loading.value = true;
+  const path = route.params.path || '';
   try {
-    await fileStore.fetchPathItems(path)
+    await fileStore.fetchPathItems(path);
     applySelectionFromQuery();
   } catch (error) {
-    console.error('Failed to load directory contents', error)
+    console.error('Failed to load directory contents', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
-onMounted(loadFiles)
+onMounted(loadFiles);
 
 const handleBackgroundContextMenu = (event) => {
   if (!contextMenu || !event) return;
@@ -110,10 +116,34 @@ const toggleSort = (by, defaultOrder = 'asc') => {
 };
 
 const listColumns = [
-  { key: 'name', labelKey: 'common.name', by: 'name', defaultOrder: 'asc', widthIndex: 1 },
-  { key: 'size', labelKey: 'common.size', by: 'size', defaultOrder: 'desc', widthIndex: 2 },
-  { key: 'kind', labelKey: 'folder.kind', by: 'kind', defaultOrder: 'asc', widthIndex: 3 },
-  { key: 'dateModified', labelKey: 'folder.dateModified', by: 'dateModified', defaultOrder: 'desc', widthIndex: 4 },
+  {
+    key: 'name',
+    labelKey: 'common.name',
+    by: 'name',
+    defaultOrder: 'asc',
+    widthIndex: 1,
+  },
+  {
+    key: 'size',
+    labelKey: 'common.size',
+    by: 'size',
+    defaultOrder: 'desc',
+    widthIndex: 2,
+  },
+  {
+    key: 'kind',
+    labelKey: 'folder.kind',
+    by: 'kind',
+    defaultOrder: 'asc',
+    widthIndex: 3,
+  },
+  {
+    key: 'dateModified',
+    labelKey: 'folder.dateModified',
+    by: 'dateModified',
+    defaultOrder: 'desc',
+    widthIndex: 4,
+  },
 ];
 
 const sortIndicator = (by) => {
@@ -160,7 +190,6 @@ useEventListener(window, 'pointercancel', stopResize);
 onBeforeUnmount(() => {
   stopResize();
 });
-
 </script>
 
 <template>
@@ -179,20 +208,28 @@ onBeforeUnmount(() => {
         @contextmenu.prevent="handleBackgroundContextMenu"
       >
         <div
-          :class="[gridClasses, 'min-h-full', settings.view === 'list' ? 'overflow-x-auto' : '']"
+          :class="[
+            gridClasses,
+            'min-h-full',
+            settings.view === 'list' ? 'overflow-x-auto' : '',
+          ]"
           :style="gridStyle"
         >
           <!-- Detail view header -->
           <div
             v-if="settings.view === 'list'"
-            :class="['grid items-center',
-            'px-4 py-2 text-xs',
-            'text-neutral-600 dark:text-neutral-300',
-            'uppercase tracking-wide select-none',
-            'bg-white dark:bg-default',
-            'backdrop-blur-sm',
-            'min-w-max']"
-            :style="{ gridTemplateColumns: settings.listViewGridTemplateColumns }"
+            :class="[
+              'grid items-center',
+              'px-4 py-2 text-xs',
+              'text-neutral-600 dark:text-neutral-300',
+              'uppercase tracking-wide select-none',
+              'bg-white dark:bg-default',
+              'backdrop-blur-sm',
+              'min-w-max',
+            ]"
+            :style="{
+              gridTemplateColumns: settings.listViewGridTemplateColumns,
+            }"
           >
             <div></div>
             <div
@@ -206,8 +243,14 @@ onBeforeUnmount(() => {
                 @click="toggleSort(col.by, col.defaultOrder)"
               >
                 <span>{{ $t(col.labelKey) }}</span>
-                <ChevronUpIcon v-if="sortIndicator(col.by) === 'asc'" class="h-3.5 w-3.5" />
-                <ChevronDownIcon v-else-if="sortIndicator(col.by) === 'desc'" class="h-3.5 w-3.5" />
+                <ChevronUpIcon
+                  v-if="sortIndicator(col.by) === 'asc'"
+                  class="h-3.5 w-3.5"
+                />
+                <ChevronDownIcon
+                  v-else-if="sortIndicator(col.by) === 'desc'"
+                  class="h-3.5 w-3.5"
+                />
               </button>
               <div
                 class="absolute -right-2 top-0 h-full w-4 cursor-col-resize touch-none"
@@ -215,7 +258,9 @@ onBeforeUnmount(() => {
                 @pointerdown.stop.prevent="startResize(col.widthIndex, $event)"
                 @dblclick.stop.prevent="settings.resetListViewColumnWidths()"
               >
-                <div class="mx-auto h-full w-px bg-transparent hover:bg-neutral-300 dark:hover:bg-neutral-600"></div>
+                <div
+                  class="mx-auto h-full w-px bg-transparent hover:bg-neutral-300 dark:hover:bg-neutral-600"
+                ></div>
               </div>
             </div>
           </div>
@@ -233,25 +278,40 @@ onBeforeUnmount(() => {
             class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4"
           >
             <div class="text-neutral-400 dark:text-neutral-500 mb-2">
-              
-              <FolderOpenIcon v-if="showEmptyFolderMessage" class="w-16 h-16 mb-4 opacity-30" />
-              <ImagesOutline v-else class="w-20 h-20 mx-auto mb-4 opacity-50"/>
+              <FolderOpenIcon
+                v-if="showEmptyFolderMessage"
+                class="w-16 h-16 mb-4 opacity-30"
+              />
+              <ImagesOutline v-else class="w-20 h-20 mx-auto mb-4 opacity-50" />
             </div>
-            <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              {{ showEmptyFolderMessage ? $t('folder.empty')  : $t('folder.noPhotos') }}
+            <h3
+              class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2"
+            >
+              {{
+                showEmptyFolderMessage
+                  ? $t('folder.empty')
+                  : $t('folder.noPhotos')
+              }}
             </h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">
-              {{ showEmptyFolderMessage ? $t('folder.emptyHint') : $t('folder.noPhotosHint') }}
+              {{
+                showEmptyFolderMessage
+                  ? $t('folder.emptyHint')
+                  : $t('folder.noPhotosHint')
+              }}
             </p>
           </div>
-
         </div>
       </DragSelect>
     </template>
 
     <template v-else>
-      <div class="flex flex-1 items-center justify-center text-sm text-neutral-600 dark:text-neutral-300">
-        <div class="flex items-center pr-4 bg-neutral-200 dark:bg-zinc-700/50 rounded-xl">
+      <div
+        class="flex flex-1 items-center justify-center text-sm text-neutral-600 dark:text-neutral-300"
+      >
+        <div
+          class="flex items-center pr-4 bg-neutral-200 dark:bg-zinc-700/50 rounded-xl"
+        >
           <LoadingIcon /> {{ $t('common.loading') }}
         </div>
       </div>

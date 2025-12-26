@@ -1,18 +1,24 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { XMarkIcon, FolderIcon, ChevronRightIcon, ArrowUpIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
+import {
+  XMarkIcon,
+  FolderIcon,
+  ChevronRightIcon,
+  ArrowUpIcon,
+  ChevronDownIcon,
+} from '@heroicons/vue/24/outline';
 import { browseAdminDirectories, addUserVolume, updateUserVolume } from '@/api';
 
 const props = defineProps({
   userId: {
     type: String,
-    required: true
+    required: true,
   },
   editingVolume: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 });
 
 const emit = defineEmits(['close', 'saved']);
@@ -35,17 +41,21 @@ const browsing = ref(false);
 const browseError = ref('');
 
 // Initialize form when editing
-watch(() => props.editingVolume, (vol) => {
-  if (vol) {
-    label.value = vol.label || '';
-    selectedPath.value = vol.path || '';
-    accessMode.value = vol.accessMode || 'readwrite';
-    // When editing, start browsing from the parent of the current path
-    const pathParts = vol.path.split('/');
-    pathParts.pop();
-    currentPath.value = pathParts.join('/') || '/';
-  }
-}, { immediate: true });
+watch(
+  () => props.editingVolume,
+  (vol) => {
+    if (vol) {
+      label.value = vol.label || '';
+      selectedPath.value = vol.path || '';
+      accessMode.value = vol.accessMode || 'readwrite';
+      // When editing, start browsing from the parent of the current path
+      const pathParts = vol.path.split('/');
+      pathParts.pop();
+      currentPath.value = pathParts.join('/') || '/';
+    }
+  },
+  { immediate: true },
+);
 
 const loadDirectories = async (path = '') => {
   browsing.value = true;
@@ -110,13 +120,13 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       await updateUserVolume(props.userId, props.editingVolume.id, {
         label: label.value.trim(),
-        accessMode: accessMode.value
+        accessMode: accessMode.value,
       });
     } else {
       await addUserVolume(props.userId, {
         label: label.value.trim(),
         path: selectedPath.value,
-        accessMode: accessMode.value
+        accessMode: accessMode.value,
       });
     }
     emit('saved');
@@ -152,11 +162,19 @@ onMounted(() => {
     ></div>
 
     <!-- Modal -->
-    <div class="relative z-10 w-full max-w-2xl overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all">
+    <div
+      class="relative z-10 w-full max-w-2xl overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-900 transform transition-all"
+    >
       <!-- Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div
+        class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800"
+      >
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          {{ isEditing ? t('settings.users.editVolume') : t('settings.users.addVolume') }}
+          {{
+            isEditing
+              ? t('settings.users.editVolume')
+              : t('settings.users.addVolume')
+          }}
         </h3>
         <button
           type="button"
@@ -171,16 +189,25 @@ onMounted(() => {
       <!-- Content -->
       <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
         <!-- Error message -->
-        <div v-if="error" class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm">
+        <div
+          v-if="error"
+          class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-sm"
+        >
           {{ error }}
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5">
-          <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_12rem] gap-5 items-start">
+          <div
+            class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_12rem] gap-5 items-start"
+          >
             <!-- Label -->
             <div>
-              <label for="volume-label" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                {{ t('settings.users.volumeLabel') }} <span class="text-red-500">*</span>
+              <label
+                for="volume-label"
+                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >
+                {{ t('settings.users.volumeLabel') }}
+                <span class="text-red-500">*</span>
               </label>
               <input
                 id="volume-label"
@@ -196,7 +223,10 @@ onMounted(() => {
 
             <!-- Access Mode -->
             <div>
-              <label for="access-mode" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+              <label
+                for="access-mode"
+                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >
                 {{ t('settings.users.accessMode') }}
               </label>
               <div class="relative">
@@ -208,21 +238,31 @@ onMounted(() => {
                   <option value="readwrite">{{ t('common.readwrite') }}</option>
                   <option value="readonly">{{ t('common.readonly') }}</option>
                 </select>
-                <ChevronDownIcon class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                <ChevronDownIcon
+                  class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+                />
               </div>
             </div>
           </div>
 
           <!-- Directory Browser (only when adding) -->
           <div v-if="!isEditing">
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-              {{ t('settings.users.selectDirectory') }} <span class="text-red-500">*</span>
+            <label
+              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
+            >
+              {{ t('settings.users.selectDirectory') }}
+              <span class="text-red-500">*</span>
             </label>
 
             <!-- Current path display -->
             <div class="mb-2 flex items-center gap-2">
-              <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ t('settings.users.currentPath') }}:</span>
-              <code class="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded font-mono">{{ currentPath }}</code>
+              <span class="text-xs text-zinc-500 dark:text-zinc-400"
+                >{{ t('settings.users.currentPath') }}:</span
+              >
+              <code
+                class="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded font-mono"
+                >{{ currentPath }}</code
+              >
               <button
                 v-if="currentPath !== selectedPath"
                 type="button"
@@ -234,7 +274,9 @@ onMounted(() => {
             </div>
 
             <!-- Directory list -->
-            <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
+            <div
+              class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
+            >
               <!-- Parent directory button -->
               <button
                 v-if="parentPath"
@@ -243,21 +285,31 @@ onMounted(() => {
                 class="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-b border-zinc-200 dark:border-zinc-700"
               >
                 <ArrowUpIcon class="w-5 h-5 text-zinc-400" />
-                <span class="text-sm text-zinc-600 dark:text-zinc-400">{{ t('settings.users.parentDirectory') }}</span>
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">{{
+                  t('settings.users.parentDirectory')
+                }}</span>
               </button>
 
               <!-- Loading state -->
               <div v-if="browsing" class="p-8 text-center">
-                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-zinc-900 dark:border-zinc-100 mx-auto"></div>
+                <div
+                  class="animate-spin rounded-full h-6 w-6 border-b-2 border-zinc-900 dark:border-zinc-100 mx-auto"
+                ></div>
               </div>
 
               <!-- Browse error -->
-              <div v-else-if="browseError" class="p-4 text-center text-sm text-red-600 dark:text-red-400">
+              <div
+                v-else-if="browseError"
+                class="p-4 text-center text-sm text-red-600 dark:text-red-400"
+              >
                 {{ browseError }}
               </div>
 
               <!-- Empty state -->
-              <div v-else-if="directories.length === 0" class="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              <div
+                v-else-if="directories.length === 0"
+                class="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400"
+              >
                 {{ t('settings.users.noSubdirectories') }}
               </div>
 
@@ -270,13 +322,15 @@ onMounted(() => {
                     'flex items-center justify-between px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 last:border-0 cursor-pointer transition-colors',
                     selectedPath === dir.path
                       ? 'bg-blue-50 dark:bg-blue-900/20'
-                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-800',
                   ]"
                   @click="selectDirectory(dir)"
                 >
                   <div class="flex items-center gap-3">
                     <FolderIcon class="w-5 h-5 text-zinc-400" />
-                    <span class="text-sm text-zinc-900 dark:text-zinc-100">{{ dir.name }}</span>
+                    <span class="text-sm text-zinc-900 dark:text-zinc-100">{{
+                      dir.name
+                    }}</span>
                   </div>
                   <button
                     type="button"
@@ -291,9 +345,14 @@ onMounted(() => {
             </div>
 
             <!-- Selected path display -->
-            <div v-if="selectedPath" class="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+            <div
+              v-if="selectedPath"
+              class="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
+            >
               <p class="text-sm text-green-700 dark:text-green-400">
-                <span class="font-medium">{{ t('settings.users.selectedPath') }}:</span>
+                <span class="font-medium"
+                  >{{ t('settings.users.selectedPath') }}:</span
+                >
                 <code class="ml-2 font-mono">{{ selectedPath }}</code>
               </p>
             </div>
@@ -301,11 +360,16 @@ onMounted(() => {
 
           <!-- Path display when editing (read-only) -->
           <div v-else>
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+            <label
+              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+            >
               {{ t('settings.users.volumePath') }}
             </label>
             <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-              <code class="text-sm font-mono text-zinc-700 dark:text-zinc-300">{{ selectedPath }}</code>
+              <code
+                class="text-sm font-mono text-zinc-700 dark:text-zinc-300"
+                >{{ selectedPath }}</code
+              >
             </div>
             <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {{ t('settings.users.pathCannotChange') }}
@@ -315,7 +379,9 @@ onMounted(() => {
       </div>
 
       <!-- Footer -->
-      <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
+      <div
+        class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3"
+      >
         <button
           type="button"
           class="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-xs hover:bg-zinc-50 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
@@ -329,7 +395,13 @@ onMounted(() => {
           class="inline-flex justify-center rounded-md border border-transparent bg-zinc-900 px-4 py-2 text-sm font-medium text-white shadow-xs hover:bg-zinc-800 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="handleSubmit"
         >
-          {{ saving ? t('common.saving') : (isEditing ? t('common.save') : t('settings.users.addVolume')) }}
+          {{
+            saving
+              ? t('common.saving')
+              : isEditing
+                ? t('common.save')
+                : t('settings.users.addVolume')
+          }}
         </button>
       </div>
     </div>

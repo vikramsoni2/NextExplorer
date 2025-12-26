@@ -1,26 +1,32 @@
 <template>
   <div class="flex h-full w-full flex-col bg-white dark:bg-default">
     <header
-      class="sticky top-0 z-40 flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white/90 px-4 py-2 shadow-xs backdrop-blur
-             dark:border-neutral-900 dark:bg-default"
+      class="sticky top-0 z-40 flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white/90 px-4 py-2 shadow-xs backdrop-blur dark:border-neutral-900 dark:bg-default"
     >
       <div class="min-w-0">
-        <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">Editing</p>
+        <p
+          class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
+        >
+          Editing
+        </p>
         <h1 class="truncate text-md text-neutral-900 dark:text-white">
           {{ normalizedPath || '—' }}
         </h1>
-        
       </div>
       <div class="ml-auto flex items-center gap-2">
         <span v-if="saveError" class="text-sm text-red-600 dark:text-red-400">
           {{ saveError }}
         </span>
-        <p v-if="hasUnsavedChanges" class="mr-4 text-xs text-amber-600 dark:text-amber-400">Unsaved changes</p>
+        <p
+          v-if="hasUnsavedChanges"
+          class="mr-4 text-xs text-amber-600 dark:text-amber-400"
+        >
+          Unsaved changes
+        </p>
         <div ref="themeMenuRef" class="relative">
           <button
             type="button"
-            class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800
-                   dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+            class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
             aria-haspopup="listbox"
             :aria-expanded="isThemeMenuOpen"
             :aria-label="`Theme: ${currentThemeLabel}`"
@@ -31,8 +37,7 @@
           </button>
           <div
             v-if="isThemeMenuOpen"
-            class="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg
-                   dark:border-neutral-800 dark:bg-neutral-800"
+            class="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-lg dark:border-neutral-800 dark:bg-neutral-800"
             role="listbox"
             :aria-label="`Select editor theme`"
           >
@@ -43,8 +48,7 @@
                 type="button"
                 role="option"
                 :aria-selected="opt.id === themeId"
-                class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100
-                       dark:text-neutral-200 dark:hover:bg-white/10"
+                class="flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-white/10"
                 @click="updateTheme(opt.id)"
               >
                 <span class="min-w-0 truncate">{{ opt.label }}</span>
@@ -62,20 +66,21 @@
           type="button"
           @click="saveFile"
           :disabled="!canSave"
-          class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60
-                 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+          class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
           :aria-label="$t('common.save')"
           :title="$t('common.save')"
         >
-          <ArrowPathIcon v-if="isSaving" class="h-6 w-6 animate-spin shrink-0" />
+          <ArrowPathIcon
+            v-if="isSaving"
+            class="h-6 w-6 animate-spin shrink-0"
+          />
           <Save20Regular v-else class="h-6 w-6 shrink-0" />
         </button>
         <button
           type="button"
           @click="requestClose"
           :disabled="isSaving"
-          class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60
-                 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
+          class="rounded-md p-1 text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white"
           :aria-label="$t('common.close')"
           :title="$t('common.close')"
         >
@@ -119,7 +124,11 @@ import { Codemirror } from 'vue-codemirror';
 import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
 import * as themeBundle from '@fsegurai/codemirror-theme-bundle';
-import { XMarkIcon, ArrowPathIcon, PaintBrushIcon } from '@heroicons/vue/24/outline';
+import {
+  XMarkIcon,
+  ArrowPathIcon,
+  PaintBrushIcon,
+} from '@heroicons/vue/24/outline';
 import { Save20Regular, Color20Regular } from '@vicons/fluent';
 import { onClickOutside, onKeyStroke, useLocalStorage } from '@vueuse/core';
 
@@ -137,44 +146,70 @@ const saveError = ref('');
 const view = shallowRef(null);
 const isThemeMenuOpen = ref(false);
 const themeMenuRef = ref(null);
-onClickOutside(themeMenuRef, () => { isThemeMenuOpen.value = false; });
+onClickOutside(themeMenuRef, () => {
+  isThemeMenuOpen.value = false;
+});
 
 // Theme
 const themeId = useLocalStorage('editor:theme', 'vsCodeDark');
 const themeOptions = Object.keys(themeBundle)
-  .filter(k => !k.includes('Merge'))
-  .map(k => ({ id: k, label: k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, c => c.toUpperCase()) }))
+  .filter((k) => !k.includes('Merge'))
+  .map((k) => ({
+    id: k,
+    label: k
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/^./, (c) => c.toUpperCase()),
+  }))
   .sort((a, b) => a.label.localeCompare(b.label));
 
-const currentThemeLabel = computed(() => themeOptions.find(o => o.id === themeId.value)?.label ?? themeId.value);
+const currentThemeLabel = computed(
+  () =>
+    themeOptions.find((o) => o.id === themeId.value)?.label ?? themeId.value,
+);
 
 // Editor Setup
 const languageComp = new Compartment();
 const themeComp = new Compartment();
 const extensions = [
   languageComp.of([]),
-  themeComp.of(themeBundle[themeId.value] ?? themeBundle.githubDark)
+  themeComp.of(themeBundle[themeId.value] ?? themeBundle.githubDark),
 ];
 
-const handleReady = ({ view: v }) => { view.value = v; };
+const handleReady = ({ view: v }) => {
+  view.value = v;
+};
 
 const updateTheme = (id) => {
   themeId.value = id;
   isThemeMenuOpen.value = false;
   view.value?.dispatch({
-    effects: themeComp.reconfigure(themeBundle[id] ?? themeBundle.githubDark)
+    effects: themeComp.reconfigure(themeBundle[id] ?? themeBundle.githubDark),
   });
 };
 
 // File Info
-const normalizedPath = computed(() => normalizePath(Array.isArray(route.params.path) ? route.params.path.join('/') : (route.params.path || '')));
-const hasUnsavedChanges = computed(() => fileContent.value !== originalContent.value);
-const canSave = computed(() => hasUnsavedChanges.value && !isSaving.value && !isLoading.value && !loadError.value);
+const normalizedPath = computed(() =>
+  normalizePath(
+    Array.isArray(route.params.path)
+      ? route.params.path.join('/')
+      : route.params.path || '',
+  ),
+);
+const hasUnsavedChanges = computed(
+  () => fileContent.value !== originalContent.value,
+);
+const canSave = computed(
+  () =>
+    hasUnsavedChanges.value &&
+    !isSaving.value &&
+    !isLoading.value &&
+    !loadError.value,
+);
 
 // Operations
 const loadFile = async (path) => {
   if (!path) return (fileContent.value = '');
-  
+
   isLoading.value = true;
   loadError.value = '';
   saveError.value = '';
@@ -182,7 +217,7 @@ const loadFile = async (path) => {
   try {
     const { content } = await fetchFileContent(path);
     if (path !== normalizedPath.value) return; // Stale check
-    
+
     fileContent.value = originalContent.value = content || '';
     applyLanguage(path);
   } catch (err) {
@@ -209,8 +244,12 @@ const saveFile = async () => {
 
 const requestClose = () => {
   if (isSaving.value) return;
-  if (hasUnsavedChanges.value && !confirm(t('editor.confirmCloseWithoutSaving'))) return;
-  
+  if (
+    hasUnsavedChanges.value &&
+    !confirm(t('editor.confirmCloseWithoutSaving'))
+  )
+    return;
+
   const parts = normalizedPath.value.split('/').filter(Boolean);
   parts.pop();
   router.push(`/browse${parts.length ? '/' + parts.join('/') : ''}`);
@@ -219,15 +258,20 @@ const requestClose = () => {
 const applyLanguage = async (path) => {
   if (!view.value) return;
   const ext = path.split('.').pop().toLowerCase();
-  
+
   try {
     const { languages } = await import('@codemirror/language-data');
     // Simplified matching: extension -> name -> fallback for frameworks
-    const desc = languages.find(l => l.extensions?.includes(ext) || l.name?.toLowerCase() === ext)
-      ?? (['vue', 'svelte', 'astro'].includes(ext) ? languages.find(l => l.name === 'HTML') : null);
+    const desc =
+      languages.find(
+        (l) => l.extensions?.includes(ext) || l.name?.toLowerCase() === ext,
+      ) ??
+      (['vue', 'svelte', 'astro'].includes(ext)
+        ? languages.find((l) => l.name === 'HTML')
+        : null);
 
     view.value.dispatch({
-      effects: languageComp.reconfigure(desc ? await desc.load() : [])
+      effects: languageComp.reconfigure(desc ? await desc.load() : []),
     });
   } catch (e) {
     console.warn('Language error:', e);
@@ -235,7 +279,9 @@ const applyLanguage = async (path) => {
 };
 
 // Interaction
-onKeyStroke('Escape', () => isThemeMenuOpen.value ? (isThemeMenuOpen.value = false) : requestClose());
+onKeyStroke('Escape', () =>
+  isThemeMenuOpen.value ? (isThemeMenuOpen.value = false) : requestClose(),
+);
 onKeyStroke(['s', 'S'], (e) => {
   if (e.ctrlKey || e.metaKey) {
     e.preventDefault();
@@ -245,5 +291,7 @@ onKeyStroke(['s', 'S'], (e) => {
 
 watch(normalizedPath, loadFile, { immediate: true });
 watch(view, () => applyLanguage(normalizedPath.value));
-watch(fileContent, () => { if (saveError.value) saveError.value = ''; });
+watch(fileContent, () => {
+  if (saveError.value) saveError.value = '';
+});
 </script>

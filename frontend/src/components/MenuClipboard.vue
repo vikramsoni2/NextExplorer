@@ -1,5 +1,9 @@
 <script setup>
-import { ClipboardPaste20Regular, Cut20Filled, Copy20Regular } from '@vicons/fluent';
+import {
+  ClipboardPaste20Regular,
+  Cut20Filled,
+  Copy20Regular,
+} from '@vicons/fluent';
 import { useFileActions } from '@/composables/fileActions';
 
 const {
@@ -20,9 +24,7 @@ const {
       type="button"
       @click="runCut"
       :disabled="!canCut"
-      class="p-[6px] rounded-md transition-colors
-        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{
         'opacity-50 cursor-not-allowed': !canCut,
         'text-sky-500 dark:text-sky-300': isCutActive,
@@ -35,9 +37,7 @@ const {
       type="button"
       @click="runCopy"
       :disabled="!canCopy"
-      class="p-[6px] rounded-md transition-colors
-        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{
         'opacity-50 cursor-not-allowed': !canCopy,
         'text-sky-500 dark:text-sky-300': isCopyActive,
@@ -50,9 +50,7 @@ const {
       type="button"
       @click="runPasteIntoCurrent"
       :disabled="!canPaste"
-      class="p-[6px] rounded-md transition-colors
-        hover:bg-[rgb(239,239,240)] active:bg-zinc-200
-        dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+      class="p-[6px] rounded-md transition-colors hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
       :class="{ 'opacity-50 cursor-not-allowed': !canPaste }"
       :title="$t('actions.paste')"
     >

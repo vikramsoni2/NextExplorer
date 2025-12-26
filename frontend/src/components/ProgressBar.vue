@@ -14,7 +14,7 @@ const props = defineProps({
   size: { type: String, default: 'md' },
   color: { type: String, default: '' },
   dangerAt: { type: Number, default: 90 },
-  warnAt: { type: Number, default: 75 }
+  warnAt: { type: Number, default: 75 },
 });
 
 const pct = computed(() => {
@@ -25,9 +25,12 @@ const pct = computed(() => {
 
 const heightClass = computed(() => {
   switch (props.size) {
-    case 'sm': return 'h-2';
-    case 'lg': return 'h-4';
-    default: return 'h-3';
+    case 'sm':
+      return 'h-2';
+    case 'lg':
+      return 'h-4';
+    default:
+      return 'h-3';
   }
 });
 

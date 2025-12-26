@@ -43,7 +43,9 @@ const getVolumesForUser = async (userId) => {
  */
 const getVolumeById = async (volumeId) => {
   const db = await getDb();
-  const row = db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(volumeId);
+  const row = db
+    .prepare('SELECT * FROM user_volumes WHERE id = ?')
+    .get(volumeId);
   return toClientVolume(row);
 };
 
@@ -92,7 +94,12 @@ const getUserVolumeForPath = async (userId, relativePath) => {
 /**
  * Add a volume to a user
  */
-const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwrite' }) => {
+const addVolumeToUser = async ({
+  userId,
+  label,
+  volumePath,
+  accessMode = 'readwrite',
+}) => {
   const db = await getDb();
 
   // Validate inputs
@@ -157,7 +164,9 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
     .get(userId, label.trim());
 
   if (existingLabel) {
-    const e = new Error('A volume with this label already exists for this user');
+    const e = new Error(
+      'A volume with this label already exists for this user',
+    );
     e.status = 409;
     throw e;
   }
@@ -165,13 +174,15 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
   const id = generateId();
   const now = nowIso();
 
-  db.prepare(`
+  db.prepare(
+    `
     INSERT INTO user_volumes (id, user_id, label, path, access_mode, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run(id, userId, label.trim(), normalizedPath, accessMode, now, now);
+  `,
+  ).run(id, userId, label.trim(), normalizedPath, accessMode, now, now);
 
   return toClientVolume(
-    db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(id)
+    db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(id),
   );
 };
 
@@ -181,7 +192,9 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
 const updateUserVolume = async (volumeId, { label, accessMode }) => {
   const db = await getDb();
 
-  const existing = db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(volumeId);
+  const existing = db
+    .prepare('SELECT * FROM user_volumes WHERE id = ?')
+    .get(volumeId);
   if (!existing) {
     const e = new Error('Volume not found');
     e.status = 404;
@@ -200,11 +213,15 @@ const updateUserVolume = async (volumeId, { label, accessMode }) => {
 
     // Check for duplicate label for this user
     const duplicateLabel = db
-      .prepare('SELECT id FROM user_volumes WHERE user_id = ? AND label = ? AND id != ?')
+      .prepare(
+        'SELECT id FROM user_volumes WHERE user_id = ? AND label = ? AND id != ?',
+      )
       .get(existing.user_id, label.trim(), volumeId);
 
     if (duplicateLabel) {
-      const e = new Error('A volume with this label already exists for this user');
+      const e = new Error(
+        'A volume with this label already exists for this user',
+      );
       e.status = 409;
       throw e;
     }
@@ -233,11 +250,11 @@ const updateUserVolume = async (volumeId, { label, accessMode }) => {
   values.push(volumeId);
 
   db.prepare(`UPDATE user_volumes SET ${updates.join(', ')} WHERE id = ?`).run(
-    ...values
+    ...values,
   );
 
   return toClientVolume(
-    db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(volumeId)
+    db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(volumeId),
   );
 };
 
@@ -247,7 +264,9 @@ const updateUserVolume = async (volumeId, { label, accessMode }) => {
 const removeVolumeFromUser = async (volumeId) => {
   const db = await getDb();
 
-  const existing = db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(volumeId);
+  const existing = db
+    .prepare('SELECT * FROM user_volumes WHERE id = ?')
+    .get(volumeId);
   if (!existing) {
     const e = new Error('Volume not found');
     e.status = 404;

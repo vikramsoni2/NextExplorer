@@ -16,7 +16,12 @@ const busy = ref(false);
 const canSubmit = () => {
   if (!auth.currentUser) return false;
   if (auth.currentUser.provider !== 'local') return false;
-  return newPassword.value && newPassword.value.length >= 6 && newPassword.value === confirmPassword.value && currentPassword.value;
+  return (
+    newPassword.value &&
+    newPassword.value.length >= 6 &&
+    newPassword.value === confirmPassword.value &&
+    currentPassword.value
+  );
 };
 
 const submit = async () => {
@@ -28,7 +33,10 @@ const submit = async () => {
   }
   busy.value = true;
   try {
-    await changePassword({ currentPassword: currentPassword.value, newPassword: newPassword.value });
+    await changePassword({
+      currentPassword: currentPassword.value,
+      newPassword: newPassword.value,
+    });
     successMsg.value = t('settings.password.success');
     currentPassword.value = '';
     newPassword.value = '';
@@ -49,23 +57,52 @@ const submit = async () => {
     </p>
     <form v-else class="space-y-3 max-w-md" @submit.prevent="submit">
       <div>
-        <label class="block text-sm mb-1">{{ t('settings.password.current') }}</label>
-        <input v-model="currentPassword" type="password" class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2" autocomplete="current-password" />
+        <label class="block text-sm mb-1">{{
+          t('settings.password.current')
+        }}</label>
+        <input
+          v-model="currentPassword"
+          type="password"
+          class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2"
+          autocomplete="current-password"
+        />
       </div>
       <div>
-        <label class="block text-sm mb-1">{{ t('settings.password.new') }}</label>
-        <input v-model="newPassword" type="password" class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2" autocomplete="new-password" />
+        <label class="block text-sm mb-1">{{
+          t('settings.password.new')
+        }}</label>
+        <input
+          v-model="newPassword"
+          type="password"
+          class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2"
+          autocomplete="new-password"
+        />
       </div>
       <div>
-        <label class="block text-sm mb-1">{{ t('settings.password.confirm') }}</label>
-        <input v-model="confirmPassword" type="password" class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2" autocomplete="new-password" />
+        <label class="block text-sm mb-1">{{
+          t('settings.password.confirm')
+        }}</label>
+        <input
+          v-model="confirmPassword"
+          type="password"
+          class="w-full rounded-sm border border-white/10 bg-transparent px-3 py-2"
+          autocomplete="new-password"
+        />
       </div>
       <div class="flex gap-3 items-center">
-        <button type="submit" class="rounded-sm bg-accent text-black px-4 py-2 disabled:opacity-50" :disabled="busy || !canSubmit()">
+        <button
+          type="submit"
+          class="rounded-sm bg-accent text-black px-4 py-2 disabled:opacity-50"
+          :disabled="busy || !canSubmit()"
+        >
           {{ busy ? t('common.updating') : t('settings.password.update') }}
         </button>
-        <span v-if="successMsg" class="text-green-500 text-sm">{{ successMsg }}</span>
-        <span v-else-if="errorMsg" class="text-red-500 text-sm">{{ errorMsg }}</span>
+        <span v-if="successMsg" class="text-green-500 text-sm">{{
+          successMsg
+        }}</span>
+        <span v-else-if="errorMsg" class="text-red-500 text-sm">{{
+          errorMsg
+        }}</span>
       </div>
     </form>
   </div>

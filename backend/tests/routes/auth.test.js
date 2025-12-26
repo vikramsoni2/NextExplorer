@@ -41,11 +41,13 @@ const buildApp = ({ authEnabled } = {}) => {
   const authRoutes = envContext.requireFresh('src/routes/auth');
   const app = express();
   app.use(bodyParser.json());
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
 
   // Minimal stub for req.oidc so /status works without EOC
   app.use((req, _res, next) => {

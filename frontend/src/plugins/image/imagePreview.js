@@ -10,10 +10,10 @@ export const imagePreviewPlugin = () => ({
   label: 'Image Preview',
   priority: 20,
   standalone: true, // Renders own modal, bypasses PreviewHost
-  
+
   match: (context) => {
     return isPreviewableImage(context.extension);
   },
-  
+
   component: () => import('./ImagePreview.vue'),
 });

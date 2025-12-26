@@ -5,16 +5,45 @@ const { v4: uuidv4 } = require('uuid');
 const isOidcDocumentRequest = (req) => {
   const path = req?.path || '';
   if (path !== '/callback') return false;
-  const accept = typeof req.headers?.accept === 'string' ? req.headers.accept : '';
-  const secFetchDest = typeof req.headers?.['sec-fetch-dest'] === 'string' ? req.headers['sec-fetch-dest'] : '';
-  const secFetchMode = typeof req.headers?.['sec-fetch-mode'] === 'string' ? req.headers['sec-fetch-mode'] : '';
-  return accept.includes('text/html') || secFetchDest === 'document' || secFetchMode === 'navigate';
+  const accept =
+    typeof req.headers?.accept === 'string' ? req.headers.accept : '';
+  const secFetchDest =
+    typeof req.headers?.['sec-fetch-dest'] === 'string'
+      ? req.headers['sec-fetch-dest']
+      : '';
+  const secFetchMode =
+    typeof req.headers?.['sec-fetch-mode'] === 'string'
+      ? req.headers['sec-fetch-mode']
+      : '';
+  return (
+    accept.includes('text/html') ||
+    secFetchDest === 'document' ||
+    secFetchMode === 'navigate'
+  );
 };
 
 const clearOidcSessionCookies = (res) => {
   // express-openid-connect defaults to "appSession"
-  try { res.clearCookie('appSession', { path: '/', sameSite: 'Lax', secure: true, httpOnly: true }); } catch (_) { /* ignore */ }
-  try { res.clearCookie('appSession', { path: '/', sameSite: 'Lax', secure: false, httpOnly: true }); } catch (_) { /* ignore */ }
+  try {
+    res.clearCookie('appSession', {
+      path: '/',
+      sameSite: 'Lax',
+      secure: true,
+      httpOnly: true,
+    });
+  } catch (_) {
+    /* ignore */
+  }
+  try {
+    res.clearCookie('appSession', {
+      path: '/',
+      sameSite: 'Lax',
+      secure: false,
+      httpOnly: true,
+    });
+  } catch (_) {
+    /* ignore */
+  }
 };
 
 /**
@@ -49,7 +78,7 @@ const errorHandler = (err, req, res, next) => {
     url: req.originalUrl,
     statusCode,
     isOperational,
-    err
+    err,
   };
 
   // Add user info if available
@@ -78,15 +107,15 @@ const errorHandler = (err, req, res, next) => {
       message: message,
       statusCode: statusCode,
       requestId: requestId,
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   };
 
   // Add additional error details for operational errors
   if (isOperational && err.toJSON) {
     const errorJson = err.toJSON();
     // Merge any additional properties (like details, retryAfter, etc.)
-    Object.keys(errorJson).forEach(key => {
+    Object.keys(errorJson).forEach((key) => {
       if (key !== 'message' && key !== 'statusCode' && key !== 'timestamp') {
         errorResponse.error[key] = errorJson[key];
       }
@@ -113,5 +142,5 @@ const notFoundHandler = (req, res, next) => {
 
 module.exports = {
   errorHandler,
-  notFoundHandler
+  notFoundHandler,
 };

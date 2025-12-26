@@ -7,14 +7,14 @@
     >
       PDF preview unavailable.
     </div>
-    
+
     <iframe
       v-else
       :src="viewerUrl"
       class="h-full w-full grow border-0 bg-white"
       title="PDF preview"
     />
-    
+
     <a
       v-if="previewUrl"
       :href="previewUrl"
@@ -41,10 +41,10 @@ const props = defineProps({
 // Add viewer params to hide chrome
 const viewerUrl = computed(() => {
   if (!props.previewUrl) return null;
-  
+
   const params = '#toolbar=0&navpanes=0&statusbar=0';
   const hasHash = props.previewUrl.includes('#');
-  
+
   return hasHash ? props.previewUrl : `${props.previewUrl}${params}`;
 });
 </script>

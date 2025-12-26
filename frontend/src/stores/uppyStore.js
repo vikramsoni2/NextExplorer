@@ -4,11 +4,10 @@ export const useUppyStore = defineStore({
   id: 'uppyStore',
   state: () => ({
     uppy: null,
-    state: {}
+    state: {},
   }),
 
   actions: {
-    
     getState() {
       return this.state;
     },
@@ -20,16 +19,19 @@ export const useUppyStore = defineStore({
       this.state = nextState;
 
       this.$patch({
-        state: nextState
+        state: nextState,
       });
     },
     subscribe(listener) {
-      const unsubscribe = this.$subscribe((mutation, state) => {
-        const patch = mutation.payload;
-        listener(mutation.oldState, state, patch);
-      }, { immediate: true });
+      const unsubscribe = this.$subscribe(
+        (mutation, state) => {
+          const patch = mutation.payload;
+          listener(mutation.oldState, state, patch);
+        },
+        { immediate: true },
+      );
 
       return unsubscribe;
-    }
-  }
+    },
+  },
 });

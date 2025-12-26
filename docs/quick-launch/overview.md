@@ -18,7 +18,7 @@ services:
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=http://localhost:3000

@@ -17,7 +17,8 @@ const normalizeBoolean = (value) => {
 // Supports K, M, G, T suffixes (base 1024). Returns null if cannot parse.
 const parseByteSize = (value) => {
   if (value == null) return null;
-  if (typeof value === 'number' && Number.isFinite(value)) return Math.max(0, Math.floor(value));
+  if (typeof value === 'number' && Number.isFinite(value))
+    return Math.max(0, Math.floor(value));
   if (typeof value !== 'string') return null;
 
   const s = value.trim();
@@ -27,7 +28,16 @@ const parseByteSize = (value) => {
   const num = Number(m[1]);
   if (!Number.isFinite(num)) return null;
   const unit = (m[2] || '').toUpperCase();
-  const pow = unit === 'K' ? 1 : unit === 'M' ? 2 : unit === 'G' ? 3 : unit === 'T' ? 4 : 0;
+  const pow =
+    unit === 'K'
+      ? 1
+      : unit === 'M'
+        ? 2
+        : unit === 'G'
+          ? 3
+          : unit === 'T'
+            ? 4
+            : 0;
   const factor = 1024 ** pow;
   return Math.max(0, Math.floor(num * factor));
 };

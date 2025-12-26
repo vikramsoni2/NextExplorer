@@ -10,12 +10,12 @@ Deploy nextExplorer via Docker Compose for reproducible self-hosted workflows. T
 
 ## Host folder layout
 
-| Purpose | Container path | Notes |
-| --- | --- | --- |
-| Configuration, user DB, extensions | `/config` | Holds SQLite, `app-config.json`, and upgrades. Back this directory up before changes. |
-| Thumbnail/search cache | `/cache` | Regenerable; safe to delete when troubleshooting. |
-| Browsable data | `/mnt/Label` | Each mount appears as a top-level volume with the given label. |
-| Personal user data (optional) | `/srv/users` (or any path set as `USER_ROOT`) | When `USER_DIR_ENABLED=true`, each authenticated user gets their own private folder inside this root. |
+| Purpose                            | Container path                                | Notes                                                                                                 |
+| ---------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Configuration, user DB, extensions | `/config`                                     | Holds SQLite, `app-config.json`, and upgrades. Back this directory up before changes.                 |
+| Thumbnail/search cache             | `/cache`                                      | Regenerable; safe to delete when troubleshooting.                                                     |
+| Browsable data                     | `/mnt/Label`                                  | Each mount appears as a top-level volume with the given label.                                        |
+| Personal user data (optional)      | `/srv/users` (or any path set as `USER_ROOT`) | When `USER_DIR_ENABLED=true`, each authenticated user gets their own private folder inside this root. |
 
 ## Production compose example
 
@@ -26,7 +26,7 @@ services:
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - PUBLIC_URL=https://files.example.com

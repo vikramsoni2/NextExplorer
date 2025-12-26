@@ -10,7 +10,9 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test:unit": "vitest",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",
@@ -72,15 +74,16 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.5",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-vue": "^9.23.0",
     "jsdom": "^24.0.0",
     "postcss": "^8.4.38",
+    "prettier": "^3.6.2",
     "sass": "^1.77.2",
     "storybook": "^8.4.7",
     "tailwindcss": "^4.1.17",
     "vite": "^5.2.8",
     "vite-plugin-vue-devtools": "^7.0.25",
     "vitest": "^1.4.0"
-  },
-  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c"
+  }
 }

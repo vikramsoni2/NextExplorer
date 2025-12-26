@@ -10,7 +10,9 @@ const { toggle, isOpen } = terminalStore;
 
 const auth = useAuthStore();
 const isAdmin = computed(
-  () => Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin'),
+  () =>
+    Array.isArray(auth.currentUser?.roles) &&
+    auth.currentUser.roles.includes('admin'),
 );
 
 const { t } = useI18n();
@@ -21,17 +23,12 @@ const open = ref(true);
 <template>
   <div v-if="isAdmin">
     <h4
-      class="group flex items-center justify-between pt-2 text-sm
-      text-neutral-400 dark:text-neutral-500
-      font-medium"
+      class="group flex items-center justify-between pt-2 text-sm text-neutral-400 dark:text-neutral-500 font-medium"
     >
       {{ t('terminal.menuHeading') }}
       <button
         @click="open = !open"
-        class="hidden group-hover:block
-        active:text-black
-        dark:active:text-white
-        text-neutral-500"
+        class="hidden group-hover:block active:text-black dark:active:text-white text-neutral-500"
       >
         <ChevronDownIcon
           class="h-4 transition-transform duration-300 ease-in-out"
@@ -53,7 +50,7 @@ const open = ref(true);
             @click="toggle"
             :class="[
               'cursor-pointer flex w-full items-center gap-3 my-3 rounded-lg transition-colors duration-200 text-sm',
-              isOpen ? 'dark:text-white' : 'dark:text-neutral-300/90'
+              isOpen ? 'dark:text-white' : 'dark:text-neutral-300/90',
             ]"
           >
             <CommandLineIcon class="h-[1.38rem]" /> {{ t('terminal.menuOpen') }}

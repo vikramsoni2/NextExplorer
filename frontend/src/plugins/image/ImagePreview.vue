@@ -40,7 +40,7 @@ const galleryItems = computed(() => {
 const images = computed(() =>
   galleryItems.value
     .map((it) => ({ src: props.api.getPreviewUrl(it), title: it.name }))
-    .filter((x) => x.src)
+    .filter((x) => x.src),
 );
 
 const currentIndex = computed(() => {

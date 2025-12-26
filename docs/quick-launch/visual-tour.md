@@ -39,13 +39,13 @@ nextExplorer keeps the essentials—authentication, volumes, previews, and setti
 
 ## Capturing the UI
 
-| Image | Caption |
-| --- | --- |
+| Image                                           | Caption                                                               |
+| ----------------------------------------------- | --------------------------------------------------------------------- |
 | ![Workspace password creation](../images/1.png) | The first setup screen protects the workspace with a master password. |
-| ![Unlock modal](../images/2.png) | Unlock trusted sessions when your workspace password is required. |
-| ![Grid view](../images/3.png) | Grid view with thumbnails and folder labels. |
-| ![Light theme view](../images/4.png) | Light theme for bright, collaborative spaces. |
-| ![List view with metadata](../images/5.png) | Detail list view surfaces size, kind, and modification dates. |
-| ![Upload manager](../images/6.png) | Drag or button uploads show per-item progress in the footer.
+| ![Unlock modal](../images/2.png)                | Unlock trusted sessions when your workspace password is required.     |
+| ![Grid view](../images/3.png)                   | Grid view with thumbnails and folder labels.                          |
+| ![Light theme view](../images/4.png)            | Light theme for bright, collaborative spaces.                         |
+| ![List view with metadata](../images/5.png)     | Detail list view surfaces size, kind, and modification dates.         |
+| ![Upload manager](../images/6.png)              | Drag or button uploads show per-item progress in the footer.          |
 
 Use these scenes when introducing nextExplorer to teammates or prepping your own screenshots for branded guides.

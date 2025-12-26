@@ -21,7 +21,12 @@ const { t } = useI18n();
 
 const isExpanded = ref(false);
 
-const displayName = computed(() => auth.currentUser?.displayName || auth.currentUser?.username || t('user.account'));
+const displayName = computed(
+  () =>
+    auth.currentUser?.displayName ||
+    auth.currentUser?.username ||
+    t('user.account'),
+);
 const avatarUrl = computed(() => auth.currentUser?.avatarUrl || null);
 const secondaryLabel = computed(() => {
   if (auth.currentUser?.email) {
@@ -34,12 +39,17 @@ const secondaryLabel = computed(() => {
 });
 
 const avatarLetter = computed(() => {
-  const source = auth.currentUser?.displayName || auth.currentUser?.username || '';
+  const source =
+    auth.currentUser?.displayName || auth.currentUser?.username || '';
   return source ? source.trim().charAt(0).toUpperCase() : '';
 });
 
 const nextThemeMode = computed(() =>
-  settings.themeMode === 'auto' ? 'light' : settings.themeMode === 'light' ? 'dark' : 'auto',
+  settings.themeMode === 'auto'
+    ? 'light'
+    : settings.themeMode === 'light'
+      ? 'dark'
+      : 'auto',
 );
 
 const themeActionLabel = computed(() => {
@@ -50,7 +60,9 @@ const themeActionLabel = computed(() => {
 
 const themeStatusLabel = computed(() => {
   if (settings.themeMode === 'auto') return t('user.systemTheme');
-  return settings.themeMode === 'dark' ? t('user.darkTheme') : t('user.lightTheme');
+  return settings.themeMode === 'dark'
+    ? t('user.darkTheme')
+    : t('user.lightTheme');
 });
 
 const themeIcon = computed(() => {
@@ -78,7 +90,9 @@ const handleLogout = async () => {
   const wasOidcUser = auth.currentUser?.provider === 'oidc';
 
   // Always clear local session on the backend
-  try { await auth.logout(); } catch (_) {}
+  try {
+    await auth.logout();
+  } catch (_) {}
 
   isExpanded.value = false;
 
@@ -98,33 +112,44 @@ const handleLogout = async () => {
 </script>
 
 <template>
-  <div class="transition rounded-lg px-2 hover:bg-white dark:hover:bg-white/10 hover:shadow-md"
-  :class="{ 'bg-white dark:bg-white/10 shadow-md': isExpanded}">
-
+  <div
+    class="transition rounded-lg px-2 hover:bg-white dark:hover:bg-white/10 hover:shadow-md"
+    :class="{ 'bg-white dark:bg-white/10 shadow-md': isExpanded }"
+  >
     <div class="flex flex-col py-2">
-      <div class="rounded-xl text-sm text-neutral-800 dark:text-white  overflow-hidden">
-        <transition 
-          enter-active-class="transition-all duration-500" 
+      <div
+        class="rounded-xl text-sm text-neutral-800 dark:text-white overflow-hidden"
+      >
+        <transition
+          enter-active-class="transition-all duration-500"
           leave-active-class="transition-all duration-500"
-          enter-from-class="-mb-[100%]" 
-          enter-to-class="mb-0" 
-          leave-from-class="mb-0" 
-          leave-to-class="-mb-[100%]">
-          
+          enter-from-class="-mb-[100%]"
+          enter-to-class="mb-0"
+          leave-from-class="mb-0"
+          leave-to-class="-mb-[100%]"
+        >
           <div class="space-y-1 pb-3" v-if="isExpanded">
             <button
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-              type="button" @click="handleThemeToggle">
+              type="button"
+              @click="handleThemeToggle"
+            >
               <component :is="themeIcon" class="h-5 w-5" />
               <div class="flex min-w-0 flex-col">
-                <span class="text-sm font-semibold">{{ themeActionLabel }}</span>
-                <span class="text-xs text-neutral-400 dark:text-white/50">{{ themeStatusLabel }}</span>
+                <span class="text-sm font-semibold">{{
+                  themeActionLabel
+                }}</span>
+                <span class="text-xs text-neutral-400 dark:text-white/50">{{
+                  themeStatusLabel
+                }}</span>
               </div>
             </button>
 
             <button
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900 dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white"
-              type="button" @click="handleSettings">
+              type="button"
+              @click="handleSettings"
+            >
               <Cog8ToothIcon class="h-5 w-5" />
               <span>{{ $t('common.settings') }}</span>
             </button>
@@ -132,7 +157,9 @@ const handleLogout = async () => {
             <button
               v-if="showSignOut"
               class="flex w-full items-center gap-2 rounded-lg p-2 text-left text-red-500 transition hover:bg-red-50 hover:text-red-600 dark:text-red-300 dark:hover:bg-red-500/10 dark:hover:text-red-200"
-              type="button" @click="handleLogout">
+              type="button"
+              @click="handleLogout"
+            >
               <ArrowRightOnRectangleIcon class="h-5 w-5" />
               <span>{{ $t('user.signOut') }}</span>
             </button>
@@ -140,10 +167,15 @@ const handleLogout = async () => {
         </transition>
       </div>
 
-      <div type="button" class="group flex w-full items-center gap-3 text-left transition" @click="toggleMenu"
-        :aria-expanded="isExpanded">
+      <div
+        type="button"
+        class="group flex w-full items-center gap-3 text-left transition"
+        @click="toggleMenu"
+        :aria-expanded="isExpanded"
+      >
         <span
-          class="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20">
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20"
+        >
           <template v-if="avatarUrl">
             <img
               :src="avatarUrl"
@@ -155,13 +187,20 @@ const handleLogout = async () => {
           <UserCircleIcon v-else class="h-6 w-6" />
         </span>
         <div class="flex min-w-0 flex-1 flex-col">
-          <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{ displayName }}</span>
-          <span v-if="secondaryLabel" class="text-xs text-neutral-500 dark:text-white/60 truncate">{{ secondaryLabel
-            }}</span>
+          <span
+            class="text-sm font-semibold text-neutral-900 dark:text-white"
+            >{{ displayName }}</span
+          >
+          <span
+            v-if="secondaryLabel"
+            class="text-xs text-neutral-500 dark:text-white/60 truncate"
+            >{{ secondaryLabel }}</span
+          >
         </div>
         <ChevronUpIcon
           class="h-3 w-3 text-neutral-400 transition group-hover:text-neutral-700 dark:text-white/60 dark:group-hover:text-white/80"
-          :class="{ 'rotate-180': isExpanded }" />
+          :class="{ 'rotate-180': isExpanded }"
+        />
       </div>
     </div>
   </div>

@@ -22,13 +22,14 @@ const paths = computed(() => {
       const shareInfo = fileStore.currentPathData?.shareInfo;
 
       // Display priority: label > sourceFolderName > token
-      const shareDisplayName = shareInfo?.label?.trim() ||
-                               shareInfo?.sourceFolderName?.trim() ||
-                               shareToken;
+      const shareDisplayName =
+        shareInfo?.label?.trim() ||
+        shareInfo?.sourceFolderName?.trim() ||
+        shareToken;
 
       const breadcrumbs = [
         { name: t('breadcrumb.share', 'Share'), path: 'share' },
-        { name: ellipses(shareDisplayName, 28), path: `share/${shareToken}` }
+        { name: ellipses(shareDisplayName, 28), path: `share/${shareToken}` },
       ];
 
       // Add inner path segments (show last 2)
@@ -38,7 +39,7 @@ const paths = computed(() => {
         for (let i = start; i < innerSegments.length; i++) {
           breadcrumbs.push({
             name: ellipses(innerSegments[i], 28),
-            path: segments.slice(0, 3 + i).join('/')
+            path: segments.slice(0, 3 + i).join('/'),
           });
         }
       }
@@ -51,15 +52,17 @@ const paths = computed(() => {
     return segments.slice(start).map((segment, index) => {
       const absoluteIndex = start + index;
       const displayName =
-        absoluteIndex === 0 && te(`drives.${segment}`) ? t(`drives.${segment}`) : segment;
+        absoluteIndex === 0 && te(`drives.${segment}`)
+          ? t(`drives.${segment}`)
+          : segment;
 
       return {
         name: ellipses(displayName, 28),
-        path: segments.slice(0, start + index + 1).join('/')
+        path: segments.slice(0, start + index + 1).join('/'),
       };
     });
   }
-  return [{ name: t('breadcrumb.volumes'), path: ''}];
+  return [{ name: t('breadcrumb.volumes'), path: '' }];
 });
 </script>
 
@@ -69,12 +72,12 @@ const paths = computed(() => {
       <div v-if="index > 0" class="max-lg:hidden">
         <ChevronRight16Filled class="h-4 text-gray-500 dark:text-gray-400" />
       </div>
-      <button 
+      <button
         class="cursor-pointer line-clamp-1 text-ellipsis"
-        :class="[index == paths.length -1? '' :'max-lg:hidden']"
+        :class="[index == paths.length - 1 ? '' : 'max-lg:hidden']"
         @click="openBreadcrumb(path.path)"
-        >
-          {{ path.name || $t('breadcrumb.volumes') }}
+      >
+        {{ path.name || $t('breadcrumb.volumes') }}
       </button>
     </template>
   </div>

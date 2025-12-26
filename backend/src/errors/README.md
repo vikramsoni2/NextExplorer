@@ -5,6 +5,7 @@ This directory contains the centralized error handling system for the backend AP
 ## Overview
 
 The error handling system provides:
+
 - **Custom error classes** for different HTTP error types
 - **Centralized error handler middleware** that formats all errors consistently
 - **AsyncHandler utility** to automatically catch errors in async route handlers
@@ -27,6 +28,7 @@ All errors are returned in this standardized format:
 ```
 
 Additional fields may be included based on the error type:
+
 - `details`: For validation errors with field-specific information
 - `retryAfter`: For rate limit errors indicating when to retry
 - `stack`: Only in development mode for debugging
@@ -34,6 +36,7 @@ Additional fields may be included based on the error type:
 ## Available Error Classes
 
 ### AppError (Base Class)
+
 Base class for all operational errors. Extend this to create custom error types.
 
 ```javascript
@@ -42,6 +45,7 @@ throw new AppError('Something went wrong', 500);
 ```
 
 ### ValidationError (400)
+
 For input validation failures.
 
 ```javascript
@@ -51,11 +55,12 @@ throw new ValidationError('Invalid email format');
 // With field details
 throw new ValidationError('Validation failed', {
   email: 'Invalid format',
-  password: 'Too short'
+  password: 'Too short',
 });
 ```
 
 ### UnauthorizedError (401)
+
 For authentication failures.
 
 ```javascript
@@ -64,6 +69,7 @@ throw new UnauthorizedError('Invalid credentials');
 ```
 
 ### ForbiddenError (403)
+
 For authorization/permission failures.
 
 ```javascript
@@ -72,6 +78,7 @@ throw new ForbiddenError('Path is read-only');
 ```
 
 ### NotFoundError (404)
+
 For missing resources.
 
 ```javascript
@@ -80,6 +87,7 @@ throw new NotFoundError('File not found');
 ```
 
 ### ConflictError (409)
+
 For resource state conflicts.
 
 ```javascript
@@ -88,6 +96,7 @@ throw new ConflictError('User already exists');
 ```
 
 ### RateLimitError (429)
+
 For rate limiting.
 
 ```javascript
@@ -96,6 +105,7 @@ throw new RateLimitError('Too many login attempts', retryAfterSeconds);
 ```
 
 ### InternalError (500)
+
 For unexpected server errors.
 
 ```javascript
@@ -104,6 +114,7 @@ throw new InternalError('Database connection failed');
 ```
 
 ### UnsupportedMediaTypeError (415)
+
 For unsupported file/media types.
 
 ```javascript
@@ -121,21 +132,24 @@ Wrap your route handlers with `asyncHandler` to automatically catch errors:
 const asyncHandler = require('../utils/asyncHandler');
 const { ValidationError, NotFoundError } = require('../errors/AppError');
 
-router.post('/items', asyncHandler(async (req, res) => {
-  const { name } = req.body;
+router.post(
+  '/items',
+  asyncHandler(async (req, res) => {
+    const { name } = req.body;
 
-  if (!name) {
-    throw new ValidationError('Name is required');
-  }
+    if (!name) {
+      throw new ValidationError('Name is required');
+    }
 
-  const item = await createItem(name);
+    const item = await createItem(name);
 
-  if (!item) {
-    throw new NotFoundError('Item not found');
-  }
+    if (!item) {
+      throw new NotFoundError('Item not found');
+    }
 
-  res.json(item);
-}));
+    res.json(item);
+  }),
+);
 ```
 
 ### Method 2: Manual Error Handling
@@ -160,6 +174,7 @@ router.post('/items', async (req, res, next) => {
 ## Logging
 
 All errors are automatically logged with structured context:
+
 - Request ID (for tracing)
 - HTTP method and URL
 - User information (if authenticated)

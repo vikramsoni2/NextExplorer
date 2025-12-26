@@ -1,4 +1,8 @@
-const { parsePathSpace, resolveLogicalPath, combineRelativePath } = require('../utils/pathUtils');
+const {
+  parsePathSpace,
+  resolveLogicalPath,
+  combineRelativePath,
+} = require('../utils/pathUtils');
 const { getPermissionForPath } = require('./accessControlService');
 const {
   getShareByToken,
@@ -200,16 +204,19 @@ const getShareAccess = async (context, shareToken, innerPath) => {
   let underlyingReadOnly = false;
 
   if (share.sourceSpace === 'volume') {
-    const combined = isDirShare && safeInnerPath
-      ? combineRelativePath(share.sourcePath, safeInnerPath)
-      : share.sourcePath;
+    const combined =
+      isDirShare && safeInnerPath
+        ? combineRelativePath(share.sourcePath, safeInnerPath)
+        : share.sourcePath;
     underlyingPermission = await getPermissionForPath(combined);
     if (underlyingPermission === 'hidden') {
       return createDeniedAccess('Path is hidden');
     }
     underlyingReadOnly = underlyingPermission === 'ro';
   } else if (share.sourceSpace === 'user_volume') {
-    const [volumeId, ...rest] = String(share.sourcePath || '').split('/').filter(Boolean);
+    const [volumeId, ...rest] = String(share.sourcePath || '')
+      .split('/')
+      .filter(Boolean);
     if (!volumeId) {
       return createDeniedAccess('Share source volume is invalid');
     }
@@ -222,15 +229,17 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     }
 
     const baseWithinVolume = rest.join('/');
-    const combinedWithinVolume = isDirShare && safeInnerPath
-      ? combineRelativePath(baseWithinVolume, safeInnerPath)
-      : baseWithinVolume;
+    const combinedWithinVolume =
+      isDirShare && safeInnerPath
+        ? combineRelativePath(baseWithinVolume, safeInnerPath)
+        : baseWithinVolume;
     const logicalForRules = `${userVolume.label}${combinedWithinVolume ? `/${combinedWithinVolume}` : ''}`;
     underlyingPermission = await getPermissionForPath(logicalForRules);
     if (underlyingPermission === 'hidden') {
       return createDeniedAccess('Path is hidden');
     }
-    underlyingReadOnly = userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
+    underlyingReadOnly =
+      userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
   }
 
   const isReadWrite = shareReadWrite && !underlyingReadOnly;

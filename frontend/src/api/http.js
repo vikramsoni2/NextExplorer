@@ -1,7 +1,10 @@
 import { useNotificationsStore } from '@/stores/notifications';
 
 const DEFAULT_API_BASE = '/';
-const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
+const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(
+  /\/$/,
+  '',
+);
 
 const buildUrl = (endpoint) => `${apiBase}${endpoint}`;
 
@@ -21,7 +24,6 @@ const normalizePath = (relativePath = '') => {
   // Remove leading and trailing slashes
   return relativePath.replace(/^\/+|\/+$/g, '');
 };
-
 
 const requestRaw = async (endpoint, options = {}) => {
   const method = (options.method || 'GET').toUpperCase();
@@ -67,7 +69,9 @@ const requestRaw = async (endpoint, options = {}) => {
             notificationsStore.addNotification({
               type: 'error',
               heading: errorMessage,
-              body: errorDetails.details ? JSON.stringify(errorDetails.details) : '',
+              body: errorDetails.details
+                ? JSON.stringify(errorDetails.details)
+                : '',
               requestId: errorDetails.requestId,
               statusCode: errorDetails.statusCode || response.status,
             });
@@ -114,7 +118,6 @@ const requestRaw = async (endpoint, options = {}) => {
   }
 };
 
-
 const requestJson = async (endpoint, options = {}) => {
   const response = await requestRaw(endpoint, options);
   if (response.status === 204) {
@@ -129,5 +132,5 @@ export {
   encodePath,
   normalizePath,
   requestJson,
-  requestRaw
-}
+  requestRaw,
+};

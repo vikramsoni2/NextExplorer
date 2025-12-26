@@ -11,11 +11,13 @@ const buildApp = (envContext) => {
   const authRoutes = envContext.requireFresh('src/routes/auth');
   const app = express();
   app.use(bodyParser.json());
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-  }));
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
 
   // Minimal stub for req.oidc so /status works without EOC
   app.use((req, _res, next) => {
@@ -41,7 +43,12 @@ const requireFreshBootstrap = (envContext) => {
 test('env admin bootstrap creates admin and skips setup', async () => {
   const envContext = await setupTestEnv({
     tag: 'admin-bootstrap-env-creates-',
-    modules: ['src/services/db', 'src/services/users', 'src/utils/bootstrap', 'src/routes/auth'],
+    modules: [
+      'src/services/db',
+      'src/services/users',
+      'src/utils/bootstrap',
+      'src/routes/auth',
+    ],
     env: {
       AUTH_ENABLED: 'true',
       AUTH_MODE: 'local',
@@ -94,12 +101,17 @@ test('env admin bootstrap overrides existing password', async () => {
     }
 
     const users = envContext.requireFresh('src/services/users');
-    const ok = await users.attemptLocalLogin({ email: 'admin@example.com', password: 'newpass456' });
+    const ok = await users.attemptLocalLogin({
+      email: 'admin@example.com',
+      password: 'newpass456',
+    });
     assert.ok(ok);
-    const old = await users.attemptLocalLogin({ email: 'admin@example.com', password: 'secret123' });
+    const old = await users.attemptLocalLogin({
+      email: 'admin@example.com',
+      password: 'secret123',
+    });
     assert.equal(old, null);
   } finally {
     await envContext.cleanup();
   }
 });
-
