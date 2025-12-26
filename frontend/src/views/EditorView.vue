@@ -4,9 +4,7 @@
       class="sticky top-0 z-40 flex flex-wrap items-center gap-4 border-b border-neutral-200 bg-white/90 px-4 py-2 shadow-xs backdrop-blur dark:border-neutral-900 dark:bg-default"
     >
       <div class="min-w-0">
-        <p
-          class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-        >
+        <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
           Editing
         </p>
         <h1 class="truncate text-md text-neutral-900 dark:text-white">
@@ -17,10 +15,7 @@
         <span v-if="saveError" class="text-sm text-red-600 dark:text-red-400">
           {{ saveError }}
         </span>
-        <p
-          v-if="hasUnsavedChanges"
-          class="mr-4 text-xs text-amber-600 dark:text-amber-400"
-        >
+        <p v-if="hasUnsavedChanges" class="mr-4 text-xs text-amber-600 dark:text-amber-400">
           Unsaved changes
         </p>
         <div ref="themeMenuRef" class="relative">
@@ -70,10 +65,7 @@
           :aria-label="$t('common.save')"
           :title="$t('common.save')"
         >
-          <ArrowPathIcon
-            v-if="isSaving"
-            class="h-6 w-6 animate-spin shrink-0"
-          />
+          <ArrowPathIcon v-if="isSaving" class="h-6 w-6 animate-spin shrink-0" />
           <Save20Regular v-else class="h-6 w-6 shrink-0" />
         </button>
         <button
@@ -96,10 +88,7 @@
       >
         Loading file…
       </div>
-      <div
-        v-else-if="loadError"
-        class="p-6 text-sm text-red-600 dark:text-red-400"
-      >
+      <div v-else-if="loadError" class="p-6 text-sm text-red-600 dark:text-red-400">
         {{ loadError }}
       </div>
       <div v-else class="h-full">
@@ -124,11 +113,7 @@ import { Codemirror } from 'vue-codemirror';
 import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
 import * as themeBundle from '@fsegurai/codemirror-theme-bundle';
-import {
-  XMarkIcon,
-  ArrowPathIcon,
-  PaintBrushIcon,
-} from '@heroicons/vue/24/outline';
+import { XMarkIcon, ArrowPathIcon, PaintBrushIcon } from '@heroicons/vue/24/outline';
 import { Save20Regular, Color20Regular } from '@vicons/fluent';
 import { onClickOutside, onKeyStroke, useLocalStorage } from '@vueuse/core';
 
@@ -156,15 +141,12 @@ const themeOptions = Object.keys(themeBundle)
   .filter((k) => !k.includes('Merge'))
   .map((k) => ({
     id: k,
-    label: k
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/^./, (c) => c.toUpperCase()),
+    label: k.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (c) => c.toUpperCase()),
   }))
   .sort((a, b) => a.label.localeCompare(b.label));
 
 const currentThemeLabel = computed(
-  () =>
-    themeOptions.find((o) => o.id === themeId.value)?.label ?? themeId.value,
+  () => themeOptions.find((o) => o.id === themeId.value)?.label ?? themeId.value
 );
 
 // Editor Setup
@@ -190,20 +172,12 @@ const updateTheme = (id) => {
 // File Info
 const normalizedPath = computed(() =>
   normalizePath(
-    Array.isArray(route.params.path)
-      ? route.params.path.join('/')
-      : route.params.path || '',
-  ),
+    Array.isArray(route.params.path) ? route.params.path.join('/') : route.params.path || ''
+  )
 );
-const hasUnsavedChanges = computed(
-  () => fileContent.value !== originalContent.value,
-);
+const hasUnsavedChanges = computed(() => fileContent.value !== originalContent.value);
 const canSave = computed(
-  () =>
-    hasUnsavedChanges.value &&
-    !isSaving.value &&
-    !isLoading.value &&
-    !loadError.value,
+  () => hasUnsavedChanges.value && !isSaving.value && !isLoading.value && !loadError.value
 );
 
 // Operations
@@ -244,11 +218,7 @@ const saveFile = async () => {
 
 const requestClose = () => {
   if (isSaving.value) return;
-  if (
-    hasUnsavedChanges.value &&
-    !confirm(t('editor.confirmCloseWithoutSaving'))
-  )
-    return;
+  if (hasUnsavedChanges.value && !confirm(t('editor.confirmCloseWithoutSaving'))) return;
 
   const parts = normalizedPath.value.split('/').filter(Boolean);
   parts.pop();
@@ -263,12 +233,8 @@ const applyLanguage = async (path) => {
     const { languages } = await import('@codemirror/language-data');
     // Simplified matching: extension -> name -> fallback for frameworks
     const desc =
-      languages.find(
-        (l) => l.extensions?.includes(ext) || l.name?.toLowerCase() === ext,
-      ) ??
-      (['vue', 'svelte', 'astro'].includes(ext)
-        ? languages.find((l) => l.name === 'HTML')
-        : null);
+      languages.find((l) => l.extensions?.includes(ext) || l.name?.toLowerCase() === ext) ??
+      (['vue', 'svelte', 'astro'].includes(ext) ? languages.find((l) => l.name === 'HTML') : null);
 
     view.value.dispatch({
       effects: languageComp.reconfigure(desc ? await desc.load() : []),
@@ -280,7 +246,7 @@ const applyLanguage = async (path) => {
 
 // Interaction
 onKeyStroke('Escape', () =>
-  isThemeMenuOpen.value ? (isThemeMenuOpen.value = false) : requestClose(),
+  isThemeMenuOpen.value ? (isThemeMenuOpen.value = false) : requestClose()
 );
 onKeyStroke(['s', 'S'], (e) => {
   if (e.ctrlKey || e.metaKey) {

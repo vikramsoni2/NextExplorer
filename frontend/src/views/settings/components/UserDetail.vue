@@ -46,9 +46,7 @@ const formData = ref({
 });
 
 const hasLocalAuth = computed(() => {
-  return (props.user.authMethods || []).some(
-    (a) => a.method === 'local_password',
-  );
+  return (props.user.authMethods || []).some((a) => a.method === 'local_password');
 });
 
 const oidcProfiles = computed(() => {
@@ -108,9 +106,7 @@ const handleVolumeSaved = () => {
 };
 
 const handleRemoveVolume = async (volume) => {
-  const ok = window.confirm(
-    t('settings.users.confirmRemoveVolume', { label: volume.label }),
-  );
+  const ok = window.confirm(t('settings.users.confirmRemoveVolume', { label: volume.label }));
   if (!ok) return;
 
   try {
@@ -135,7 +131,7 @@ watch(
       loadVolumes();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 onMounted(() => {
@@ -175,9 +171,7 @@ const getInitials = (name) => {
           <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
             {{ user.displayName || user.username }}
           </h2>
-          <div
-            class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400"
-          >
+          <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
             <span>{{ user.email }}</span>
             <span
               v-if="isAdmin"
@@ -243,8 +237,7 @@ const getInitials = (name) => {
           <form @submit.prevent="handleSaveProfile" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
                   >Display Name</label
                 >
                 <input
@@ -254,8 +247,7 @@ const getInitials = (name) => {
                 />
               </div>
               <div>
-                <label
-                  class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+                <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
                   >Username</label
                 >
                 <input
@@ -266,8 +258,7 @@ const getInitials = (name) => {
               </div>
             </div>
             <div>
-              <label
-                class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
                 >Email Address</label
               >
               <input
@@ -299,9 +290,7 @@ const getInitials = (name) => {
             <div>
               <div class="flex items-center gap-2">
                 <ShieldCheckIcon class="w-5 h-5 text-zinc-500" />
-                <span class="font-medium text-zinc-900 dark:text-zinc-100"
-                  >Administrator</span
-                >
+                <span class="font-medium text-zinc-900 dark:text-zinc-100">Administrator</span>
               </div>
               <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1 ml-7">
                 Can access all settings and manage users.
@@ -331,14 +320,11 @@ const getInitials = (name) => {
           v-if="!isCurrentUser"
           class="bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-200 dark:border-red-900/30 p-6"
         >
-          <h3 class="text-lg font-medium text-red-800 dark:text-red-300 mb-4">
-            Danger Zone
-          </h3>
+          <h3 class="text-lg font-medium text-red-800 dark:text-red-300 mb-4">Danger Zone</h3>
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm text-red-700 dark:text-red-400">
-                Permanently remove this user and all their data. This action
-                cannot be undone.
+                Permanently remove this user and all their data. This action cannot be undone.
               </p>
             </div>
             <button
@@ -358,16 +344,12 @@ const getInitials = (name) => {
         <div
           class="bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-6"
         >
-          <h3 class="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">
-            Password
-          </h3>
+          <h3 class="text-lg font-medium text-zinc-900 dark:text-zinc-100 mb-4">Password</h3>
           <div class="flex items-center justify-between">
             <div>
               <div class="flex items-center gap-2">
                 <KeyIcon class="w-5 h-5 text-zinc-500" />
-                <span class="font-medium text-zinc-900 dark:text-zinc-100"
-                  >Local Password</span
-                >
+                <span class="font-medium text-zinc-900 dark:text-zinc-100">Local Password</span>
               </div>
               <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1 ml-7">
                 {{
@@ -405,14 +387,10 @@ const getInitials = (name) => {
                   <CloudIcon class="w-5 h-5 text-zinc-600 dark:text-zinc-400" />
                 </div>
                 <div>
-                  <p
-                    class="text-sm font-medium text-zinc-900 dark:text-zinc-100"
-                  >
+                  <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100">
                     {{ profile.provider || 'OIDC Provider' }}
                   </p>
-                  <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                    Linked Profile
-                  </p>
+                  <p class="text-xs text-zinc-500 dark:text-zinc-400">Linked Profile</p>
                 </div>
               </div>
               <!-- Placeholder for unlink action if needed in future -->
@@ -423,10 +401,7 @@ const getInitials = (name) => {
             </div>
           </div>
 
-          <div
-            v-else
-            class="text-center py-6 text-zinc-500 dark:text-zinc-400 text-sm"
-          >
+          <div v-else class="text-center py-6 text-zinc-500 dark:text-zinc-400 text-sm">
             <CloudIcon class="w-10 h-10 mx-auto mb-2 opacity-20" />
             No OIDC profiles linked to this account.
           </div>
@@ -480,9 +455,7 @@ const getInitials = (name) => {
             >
               <div class="flex items-center gap-4">
                 <div class="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-                  <FolderIcon
-                    class="w-6 h-6 text-zinc-600 dark:text-zinc-400"
-                  />
+                  <FolderIcon class="w-6 h-6 text-zinc-600 dark:text-zinc-400" />
                 </div>
                 <div>
                   <p class="font-medium text-zinc-900 dark:text-zinc-100">
@@ -503,9 +476,7 @@ const getInitials = (name) => {
                   ]"
                 >
                   {{
-                    volume.accessMode === 'readonly'
-                      ? t('common.readonly')
-                      : t('common.readwrite')
+                    volume.accessMode === 'readonly' ? t('common.readonly') : t('common.readwrite')
                   }}
                 </span>
                 <button

@@ -32,8 +32,7 @@ const generateId = () =>
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`;
 
-const normalizeEmail = (email) =>
-  typeof email === 'string' ? email.trim().toLowerCase() : '';
+const normalizeEmail = (email) => (typeof email === 'string' ? email.trim().toLowerCase() : '');
 
 // Lockout policy
 const MAX_FAILED_ATTEMPTS = Number(process.env.AUTH_MAX_FAILED || 5);
@@ -42,18 +41,17 @@ const LOCKOUT_MINUTES = Number(process.env.AUTH_LOCK_MINUTES || 15);
 const getLock = async (key) => {
   const db = await getDb();
   return (
-    db
-      .prepare(
-        'SELECT failed_count, locked_until FROM auth_locks WHERE key = ?',
-      )
-      .get(key) || { failed_count: 0, locked_until: null }
+    db.prepare('SELECT failed_count, locked_until FROM auth_locks WHERE key = ?').get(key) || {
+      failed_count: 0,
+      locked_until: null,
+    }
   );
 };
 
 const setLock = async (key, failedCount, lockedUntil) => {
   const db = await getDb();
   db.prepare(
-    'INSERT INTO auth_locks(key, failed_count, locked_until) VALUES(?, ?, ?) ON CONFLICT(key) DO UPDATE SET failed_count = excluded.failed_count, locked_until = excluded.locked_until',
+    'INSERT INTO auth_locks(key, failed_count, locked_until) VALUES(?, ?, ?) ON CONFLICT(key) DO UPDATE SET failed_count = excluded.failed_count, locked_until = excluded.locked_until'
   ).run(key, failedCount, lockedUntil);
 };
 
@@ -71,9 +69,7 @@ const incrementFailedAttempts = async (key) => {
   const failed = (Number(current.failed_count) || 0) + 1;
   let lockedUntil = null;
   if (failed >= MAX_FAILED_ATTEMPTS) {
-    lockedUntil = new Date(
-      Date.now() + LOCKOUT_MINUTES * 60 * 1000,
-    ).toISOString();
+    lockedUntil = new Date(Date.now() + LOCKOUT_MINUTES * 60 * 1000).toISOString();
   }
   await setLock(key, failed, lockedUntil);
 };
@@ -108,18 +104,14 @@ const getById = async (id) => {
 
 const getByEmail = async (email) => {
   const db = await getDb();
-  const row = db
-    .prepare('SELECT * FROM users WHERE email = ?')
-    .get(normalizeEmail(email));
+  const row = db.prepare('SELECT * FROM users WHERE email = ?').get(normalizeEmail(email));
   return row || null;
 };
 
 // Get auth methods for a user
 const getUserAuthMethods = async (userId) => {
   const db = await getDb();
-  return db
-    .prepare('SELECT * FROM auth_methods WHERE user_id = ? AND enabled = 1')
-    .all(userId);
+  return db.prepare('SELECT * FROM auth_methods WHERE user_id = ? AND enabled = 1').all(userId);
 };
 
 // Verify local password for a user
@@ -130,7 +122,7 @@ const verifyLocalPassword = async ({ userId, password }) => {
       `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `,
+  `
     )
     .get(userId);
 
@@ -139,10 +131,7 @@ const verifyLocalPassword = async ({ userId, password }) => {
   const ok = bcrypt.compareSync(password || '', method.password_hash);
   if (ok) {
     // Update last_used_at
-    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
-      nowIso(),
-      method.id,
-    );
+    db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(nowIso(), method.id);
   }
   return ok;
 };
@@ -155,9 +144,7 @@ const attemptLocalLogin = async ({ email, password }) => {
   if (await isLocked(normEmail)) {
     const lock = await getLock(normEmail);
     const until = lock.locked_until || null;
-    const err = new Error(
-      'Account is temporarily locked due to failed login attempts.',
-    );
+    const err = new Error('Account is temporarily locked due to failed login attempts.');
     err.status = 423;
     err.until = until;
     throw err;
@@ -178,7 +165,7 @@ const attemptLocalLogin = async ({ email, password }) => {
       `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `,
+  `
     )
     .get(user.id);
 
@@ -196,22 +183,13 @@ const attemptLocalLogin = async ({ email, password }) => {
 
   // Success - clear lockout
   await clearLock(normEmail);
-  db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
-    nowIso(),
-    authMethod.id,
-  );
+  db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(nowIso(), authMethod.id);
 
   return toClientUser(user);
 };
 
 // Create user with local password authentication
-const createLocalUser = async ({
-  email,
-  password,
-  username,
-  displayName,
-  roles = ['user'],
-}) => {
+const createLocalUser = async ({ email, password, username, displayName, roles = ['user'] }) => {
   const db = await getDb();
   const normEmail = normalizeEmail(email);
 
@@ -237,7 +215,7 @@ const createLocalUser = async ({
         `
       SELECT id FROM auth_methods
       WHERE user_id = ? AND method_type = 'local_password'
-    `,
+    `
       )
       .get(user.id);
 
@@ -257,7 +235,7 @@ const createLocalUser = async ({
       `
       INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
       VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-    `,
+    `
     ).run(authId, user.id, hash, nowIso());
 
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
@@ -275,7 +253,7 @@ const createLocalUser = async ({
     `
     INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
     VALUES (?, ?, 0, ?, ?, ?, ?, ?)
-  `,
+  `
   ).run(userId, normEmail, username, displayName, rolesJson, now, now);
 
   // Create password auth method
@@ -284,7 +262,7 @@ const createLocalUser = async ({
     `
     INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
     VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-  `,
+  `
   ).run(authId, userId, hash, now);
 
   user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
@@ -292,11 +270,7 @@ const createLocalUser = async ({
 };
 
 // Change password for user with local password auth
-const changeLocalPassword = async ({
-  userId,
-  currentPassword,
-  newPassword,
-}) => {
+const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => {
   const db = await getDb();
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   if (!user) {
@@ -311,14 +285,12 @@ const changeLocalPassword = async ({
       `
     SELECT * FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password' AND enabled = 1
-  `,
+  `
     )
     .get(userId);
 
   if (!authMethod) {
-    const e = new Error(
-      'Password change is only allowed for users with password authentication.',
-    );
+    const e = new Error('Password change is only allowed for users with password authentication.');
     e.status = 400;
     throw e;
   }
@@ -336,10 +308,7 @@ const changeLocalPassword = async ({
   }
 
   const hash = bcrypt.hashSync(newPassword, 12);
-  db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(
-    hash,
-    authMethod.id,
-  );
+  db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(hash, authMethod.id);
   return true;
 };
 
@@ -367,16 +336,13 @@ const setLocalPasswordAdmin = async ({ userId, newPassword }) => {
       `
     SELECT id FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password'
-  `,
+  `
     )
     .get(userId);
 
   if (authMethod) {
     // Update existing password
-    db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(
-      hash,
-      authMethod.id,
-    );
+    db.prepare('UPDATE auth_methods SET password_hash = ? WHERE id = ?').run(hash, authMethod.id);
   } else {
     // Create new password auth method
     const authId = generateId();
@@ -384,7 +350,7 @@ const setLocalPasswordAdmin = async ({ userId, newPassword }) => {
       `
       INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
       VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-    `,
+    `
     ).run(authId, userId, hash, nowIso());
   }
 
@@ -407,7 +373,7 @@ const addLocalPassword = async ({ userId, password }) => {
       `
     SELECT id FROM auth_methods
     WHERE user_id = ? AND method_type = 'local_password'
-  `,
+  `
     )
     .get(userId);
 
@@ -430,7 +396,7 @@ const addLocalPassword = async ({ userId, password }) => {
     `
     INSERT INTO auth_methods (id, user_id, method_type, password_hash, password_algo, created_at)
     VALUES (?, ?, 'local_password', ?, 'bcrypt', ?)
-  `,
+  `
   ).run(authId, userId, hash, nowIso());
 
   return true;
@@ -488,7 +454,7 @@ const getOrCreateOidcUser = async ({
       `
     SELECT * FROM auth_methods
     WHERE provider_issuer = ? AND provider_sub = ? AND method_type = 'oidc'
-  `,
+  `
     )
     .get(issuer, sub);
 
@@ -496,7 +462,7 @@ const getOrCreateOidcUser = async ({
     // Existing OIDC auth - update last used
     db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(
       nowIso(),
-      authMethod.id,
+      authMethod.id
     );
 
     // Update user profile from latest claims
@@ -508,12 +474,10 @@ const getOrCreateOidcUser = async ({
           email_verified = 1,
           updated_at = ?
       WHERE id = ?
-    `,
+    `
     ).run(displayName, username, nowIso(), authMethod.user_id);
 
-    const user = db
-      .prepare('SELECT * FROM users WHERE id = ?')
-      .get(authMethod.user_id);
+    const user = db.prepare('SELECT * FROM users WHERE id = ?').get(authMethod.user_id);
     return toClientUser(user);
   }
 
@@ -529,7 +493,7 @@ const getOrCreateOidcUser = async ({
       `
       INSERT INTO auth_methods (id, user_id, method_type, provider_issuer, provider_sub, provider_name, created_at)
       VALUES (?, ?, 'oidc', ?, ?, ?, ?)
-    `,
+    `
     ).run(authId, user.id, issuer, sub, 'OIDC', nowIso());
 
     // Update user info from OIDC claims
@@ -541,7 +505,7 @@ const getOrCreateOidcUser = async ({
           email_verified = 1,
           updated_at = ?
       WHERE id = ?
-    `,
+    `
     ).run(displayName, username, nowIso(), user.id);
 
     user = db.prepare('SELECT * FROM users WHERE id = ?').get(user.id);
@@ -564,7 +528,7 @@ const getOrCreateOidcUser = async ({
     `
     INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
     VALUES (?, ?, 1, ?, ?, ?, ?, ?)
-  `,
+  `
   ).run(userId, normEmail, username, displayName, rolesJson, now, now);
 
   // Create OIDC auth method
@@ -573,7 +537,7 @@ const getOrCreateOidcUser = async ({
     `
     INSERT INTO auth_methods (id, user_id, method_type, provider_issuer, provider_sub, provider_name, created_at)
     VALUES (?, ?, 'oidc', ?, ?, ?, ?)
-  `,
+  `
   ).run(authId, userId, issuer, sub, 'OIDC', now);
 
   user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
@@ -589,9 +553,7 @@ const getRequestUser = async (req) => {
   // Local session
   if (req?.session?.localUserId) {
     const db = await getDb();
-    const row = db
-      .prepare('SELECT * FROM users WHERE id = ?')
-      .get(req.session.localUserId);
+    const row = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.localUserId);
     const user = toClientUser(row);
     if (user) {
       user.provider = 'local';
@@ -606,15 +568,10 @@ const getRequestUser = async (req) => {
     req.oidc.isAuthenticated() &&
     req.oidc.user?.sub
   ) {
-    const issuer =
-      (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.issuer) ||
-      null;
+    const issuer = (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.issuer) || null;
     if (!issuer) return null;
     const autoCreateUsers =
-      (envAuthConfig &&
-        envAuthConfig.oidc &&
-        envAuthConfig.oidc.autoCreateUsers) ??
-      true;
+      (envAuthConfig && envAuthConfig.oidc && envAuthConfig.oidc.autoCreateUsers) ?? true;
 
     const db = await getDb();
     const authMethod = db
@@ -622,14 +579,12 @@ const getRequestUser = async (req) => {
         `
       SELECT user_id FROM auth_methods
       WHERE provider_issuer = ? AND provider_sub = ? AND method_type = 'oidc'
-    `,
+    `
       )
       .get(issuer, req.oidc.user.sub);
 
     if (authMethod) {
-      const row = db
-        .prepare('SELECT * FROM users WHERE id = ?')
-        .get(authMethod.user_id);
+      const row = db.prepare('SELECT * FROM users WHERE id = ?').get(authMethod.user_id);
       const user = toClientUser(row);
       if (user) {
         user.provider = 'oidc';
@@ -651,17 +606,11 @@ const getRequestUser = async (req) => {
     try {
       const claims = req.oidc.user || {};
       const email = normalizeEmail(claims.email || '');
-      const preferredUsername =
-        claims.preferred_username || claims.username || email || claims.sub;
+      const preferredUsername = claims.preferred_username || claims.username || email || claims.sub;
       const displayName = claims.name || preferredUsername || null;
-      const roles = deriveRolesFromClaims(
-        claims,
-        envAuthConfig?.oidc?.adminGroups,
-      );
+      const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
       const avatarUrl =
-        typeof claims.picture === 'string' && claims.picture.trim()
-          ? claims.picture.trim()
-          : null;
+        typeof claims.picture === 'string' && claims.picture.trim() ? claims.picture.trim() : null;
 
       return {
         id: `oidc:${claims.sub}`,
@@ -688,9 +637,7 @@ const listUsers = async () => {
   const rows = db.prepare('SELECT * FROM users ORDER BY created_at ASC').all();
 
   const authMethods = db
-    .prepare(
-      'SELECT user_id, method_type, provider_name FROM auth_methods WHERE enabled = 1',
-    )
+    .prepare('SELECT user_id, method_type, provider_name FROM auth_methods WHERE enabled = 1')
     .all();
   const authMap = {};
   for (const am of authMethods) {
@@ -724,12 +671,12 @@ const listShareableUsers = async ({ excludeUserId } = {}) => {
     typeof excludeUserId === 'string' && excludeUserId.trim()
       ? db
           .prepare(
-            'SELECT id, email, username, display_name FROM users WHERE id != ? ORDER BY display_name ASC, email ASC',
+            'SELECT id, email, username, display_name FROM users WHERE id != ? ORDER BY display_name ASC, email ASC'
           )
           .all(excludeUserId)
       : db
           .prepare(
-            'SELECT id, email, username, display_name FROM users ORDER BY display_name ASC, email ASC',
+            'SELECT id, email, username, display_name FROM users ORDER BY display_name ASC, email ASC'
           )
           .all();
   return rows.map(toShareableUser).filter(Boolean);
@@ -786,9 +733,7 @@ const updateUserProfile = async ({ userId, email, username, displayName }) => {
   values.push(nowIso());
   values.push(userId);
 
-  db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(
-    ...values,
-  );
+  db.prepare(`UPDATE users SET ${updates.join(', ')} WHERE id = ?`).run(...values);
   const updated = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(updated);
 };
@@ -796,16 +741,10 @@ const updateUserProfile = async ({ userId, email, username, displayName }) => {
 const updateUserRoles = async ({ userId, roles }) => {
   const db = await getDb();
   const r = Array.isArray(roles)
-    ? roles
-        .filter((x) => typeof x === 'string' && x.trim())
-        .map((x) => x.trim())
+    ? roles.filter((x) => typeof x === 'string' && x.trim()).map((x) => x.trim())
     : [];
   const json = JSON.stringify(r);
-  db.prepare('UPDATE users SET roles = ?, updated_at = ? WHERE id = ?').run(
-    json,
-    nowIso(),
-    userId,
-  );
+  db.prepare('UPDATE users SET roles = ?, updated_at = ? WHERE id = ?').run(json, nowIso(), userId);
   const row = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   return toClientUser(row);
 };

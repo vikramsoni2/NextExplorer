@@ -4,8 +4,7 @@ import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import VueDevTools from 'vite-plugin-vue-devtools';
 
-const backendOrigin =
-  process.env.VITE_BACKEND_ORIGIN || 'http://localhost:3001';
+const backendOrigin = process.env.VITE_BACKEND_ORIGIN || 'http://localhost:3001';
 const port = Number(process.env.PORT || 3000);
 
 // https://vitejs.dev/config/
@@ -15,9 +14,7 @@ export default defineConfig({
     // Legacy: Version info is now served from backend /api/features endpoint
     // These build-time constants are kept for backwards compatibility but no longer used
     __APP_VERSION__: JSON.stringify(
-      process.env.VITE_APP_VERSION ||
-        process.env.npm_package_version ||
-        '1.0.5',
+      process.env.VITE_APP_VERSION || process.env.npm_package_version || '1.0.5'
     ),
     __GIT_COMMIT__: JSON.stringify(process.env.VITE_GIT_COMMIT || ''),
     __GIT_BRANCH__: JSON.stringify(process.env.VITE_GIT_BRANCH || ''),

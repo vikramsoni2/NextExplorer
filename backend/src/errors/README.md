@@ -148,7 +148,7 @@ router.post(
     }
 
     res.json(item);
-  }),
+  })
 );
 ```
 

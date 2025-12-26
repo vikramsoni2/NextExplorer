@@ -50,8 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
         const enabled = status?.authEnabled !== false;
         requiresSetup.value = enabled ? Boolean(status.requiresSetup) : false;
         authEnabled.value = enabled;
-        authMode.value =
-          typeof status?.authMode === 'string' ? status.authMode : 'local';
+        authMode.value = typeof status?.authMode === 'string' ? status.authMode : 'local';
         strategies.value = status?.strategies || { local: true, oidc: false };
         currentUser.value = status?.user || null;
 
@@ -63,9 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
         // Cookies hold session; no token adjustments needed
       } catch (error) {
         lastError.value =
-          error instanceof Error
-            ? error.message
-            : 'Failed to load authentication status.';
+          error instanceof Error ? error.message : 'Failed to load authentication status.';
       } finally {
         hasStatus.value = true;
         isLoading.value = false;

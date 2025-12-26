@@ -1,10 +1,4 @@
-import {
-  requestJson,
-  requestRaw,
-  normalizePath,
-  encodePath,
-  buildUrl,
-} from './http';
+import { requestJson, requestRaw, normalizePath, encodePath, buildUrl } from './http';
 
 async function browse(path = '') {
   const normalizedPath = normalizePath(path);

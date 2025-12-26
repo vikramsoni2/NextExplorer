@@ -59,10 +59,7 @@ const load = async () => {
   try {
     const path = props.filePath;
     if (!path) throw new Error('Missing file path.');
-    const { documentServerUrl, config: cfg } = await fetchOnlyOfficeConfig(
-      path,
-      'edit',
-    );
+    const { documentServerUrl, config: cfg } = await fetchOnlyOfficeConfig(path, 'edit');
     serverUrl.value = documentServerUrl;
     console.log('ONLYOFFICE config:', cfg);
     config.value = cfg;
@@ -74,7 +71,7 @@ const load = async () => {
 onMounted(load);
 watch(
   () => props.filePath,
-  () => load(),
+  () => load()
 );
 </script>
 

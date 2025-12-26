@@ -54,7 +54,7 @@ watch(
       currentPath.value = pathParts.join('/') || '/';
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const loadDirectories = async (path = '') => {
@@ -170,11 +170,7 @@ onMounted(() => {
         class="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800"
       >
         <h3 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          {{
-            isEditing
-              ? t('settings.users.editVolume')
-              : t('settings.users.addVolume')
-          }}
+          {{ isEditing ? t('settings.users.editVolume') : t('settings.users.addVolume') }}
         </h3>
         <button
           type="button"
@@ -197,9 +193,7 @@ onMounted(() => {
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5">
-          <div
-            class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_12rem] gap-5 items-start"
-          >
+          <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_12rem] gap-5 items-start">
             <!-- Label -->
             <div>
               <label
@@ -247,9 +241,7 @@ onMounted(() => {
 
           <!-- Directory Browser (only when adding) -->
           <div v-if="!isEditing">
-            <label
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2"
-            >
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
               {{ t('settings.users.selectDirectory') }}
               <span class="text-red-500">*</span>
             </label>
@@ -259,10 +251,9 @@ onMounted(() => {
               <span class="text-xs text-zinc-500 dark:text-zinc-400"
                 >{{ t('settings.users.currentPath') }}:</span
               >
-              <code
-                class="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded font-mono"
-                >{{ currentPath }}</code
-              >
+              <code class="text-xs bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded font-mono">{{
+                currentPath
+              }}</code>
               <button
                 v-if="currentPath !== selectedPath"
                 type="button"
@@ -274,9 +265,7 @@ onMounted(() => {
             </div>
 
             <!-- Directory list -->
-            <div
-              class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden"
-            >
+            <div class="border border-zinc-200 dark:border-zinc-700 rounded-lg overflow-hidden">
               <!-- Parent directory button -->
               <button
                 v-if="parentPath"
@@ -328,9 +317,7 @@ onMounted(() => {
                 >
                   <div class="flex items-center gap-3">
                     <FolderIcon class="w-5 h-5 text-zinc-400" />
-                    <span class="text-sm text-zinc-900 dark:text-zinc-100">{{
-                      dir.name
-                    }}</span>
+                    <span class="text-sm text-zinc-900 dark:text-zinc-100">{{ dir.name }}</span>
                   </div>
                   <button
                     type="button"
@@ -345,14 +332,9 @@ onMounted(() => {
             </div>
 
             <!-- Selected path display -->
-            <div
-              v-if="selectedPath"
-              class="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg"
-            >
+            <div v-if="selectedPath" class="mt-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <p class="text-sm text-green-700 dark:text-green-400">
-                <span class="font-medium"
-                  >{{ t('settings.users.selectedPath') }}:</span
-                >
+                <span class="font-medium">{{ t('settings.users.selectedPath') }}:</span>
                 <code class="ml-2 font-mono">{{ selectedPath }}</code>
               </p>
             </div>
@@ -360,16 +342,13 @@ onMounted(() => {
 
           <!-- Path display when editing (read-only) -->
           <div v-else>
-            <label
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
-            >
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               {{ t('settings.users.volumePath') }}
             </label>
             <div class="p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-              <code
-                class="text-sm font-mono text-zinc-700 dark:text-zinc-300"
-                >{{ selectedPath }}</code
-              >
+              <code class="text-sm font-mono text-zinc-700 dark:text-zinc-300">{{
+                selectedPath
+              }}</code>
             </div>
             <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               {{ t('settings.users.pathCannotChange') }}
@@ -379,9 +358,7 @@ onMounted(() => {
       </div>
 
       <!-- Footer -->
-      <div
-        class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3"
-      >
+      <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
         <button
           type="button"
           class="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-xs hover:bg-zinc-50 focus:outline-hidden focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"

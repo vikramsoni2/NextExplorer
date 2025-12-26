@@ -25,34 +25,21 @@ export function useFileActions() {
   const isSingleItemSelected = computed(() => selectedItems.value.length === 1);
   const primaryItem = computed(() => selectedItems.value[0] ?? null);
 
-  const locationCanWrite = computed(
-    () => fileStore.currentPathData?.canWrite ?? true,
-  );
-  const locationCanUpload = computed(
-    () => fileStore.currentPathData?.canUpload ?? true,
-  );
-  const locationCanDelete = computed(
-    () => fileStore.currentPathData?.canDelete ?? true,
-  );
+  const locationCanWrite = computed(() => fileStore.currentPathData?.canWrite ?? true);
+  const locationCanUpload = computed(() => fileStore.currentPathData?.canUpload ?? true);
+  const locationCanDelete = computed(() => fileStore.currentPathData?.canDelete ?? true);
 
   const canCut = computed(
-    () =>
-      hasSelection.value && locationCanWrite.value && locationCanDelete.value,
+    () => hasSelection.value && locationCanWrite.value && locationCanDelete.value
   );
   const canCopy = computed(() => hasSelection.value);
   const canPaste = computed(
-    () =>
-      fileStore.hasClipboardItems &&
-      (locationCanWrite.value || locationCanUpload.value),
+    () => fileStore.hasClipboardItems && (locationCanWrite.value || locationCanUpload.value)
   );
-  const canDelete = computed(
-    () => hasSelection.value && locationCanDelete.value,
-  );
+  const canDelete = computed(() => hasSelection.value && locationCanDelete.value);
   const canRename = computed(
     () =>
-      isSingleItemSelected.value &&
-      primaryItem.value?.kind !== 'volume' &&
-      locationCanWrite.value,
+      isSingleItemSelected.value && primaryItem.value?.kind !== 'volume' && locationCanWrite.value
   );
 
   const isCutActive = computed(() => fileStore.cutItems.length > 0);

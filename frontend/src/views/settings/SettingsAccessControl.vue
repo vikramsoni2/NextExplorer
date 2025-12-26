@@ -8,16 +8,14 @@ const { t } = useI18n();
 
 const local = reactive({ rules: [] });
 const original = computed(() => appSettings.state.access.rules);
-const dirty = computed(
-  () => JSON.stringify(local.rules) !== JSON.stringify(original.value),
-);
+const dirty = computed(() => JSON.stringify(local.rules) !== JSON.stringify(original.value));
 
 watch(
   () => appSettings.state.access.rules,
   (rules) => {
     local.rules = rules.map((r) => ({ ...r }));
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const addRule = () => {
@@ -90,9 +88,7 @@ const save = async () => {
 
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm">
-          <thead
-            class="text-xs uppercase text-neutral-500 dark:text-neutral-400"
-          >
+          <thead class="text-xs uppercase text-neutral-500 dark:text-neutral-400">
             <tr>
               <th class="p-2">{{ t('common.path') }}</th>
               <th class="p-2">{{ t('settings.access.recursive') }}</th>
@@ -101,11 +97,7 @@ const save = async () => {
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(rule, idx) in local.rules"
-              :key="rule.id"
-              class="border-t border-white/5"
-            >
+            <tr v-for="(rule, idx) in local.rules" :key="rule.id" class="border-t border-white/5">
               <td class="p-2">
                 <input
                   v-model="rule.path"

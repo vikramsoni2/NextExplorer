@@ -41,9 +41,7 @@ onMounted(async () => {
             {{ t('settings.about.appVersionHelp') }}
           </div>
         </div>
-        <div
-          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
-        >
+        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
           <span>v{{ featuresStore.version }}</span>
         </div>
       </div>
@@ -55,9 +53,7 @@ onMounted(async () => {
             {{ t('settings.about.gitCommitHelp') }}
           </div>
         </div>
-        <div
-          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
-        >
+        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
           <template v-if="commitShort">
             <a
               v-if="commitUrl"
@@ -81,12 +77,8 @@ onMounted(async () => {
             {{ t('settings.about.branchHelp') }}
           </div>
         </div>
-        <div
-          class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm"
-        >
-          <span v-if="featuresStore.gitBranch">{{
-            featuresStore.gitBranch
-          }}</span>
+        <div class="rounded-md border border-white/10 bg-transparent px-3 py-1 text-sm">
+          <span v-if="featuresStore.gitBranch">{{ featuresStore.gitBranch }}</span>
           <span v-else class="text-neutral-500">{{ t('common.unknown') }}</span>
         </div>
       </div>

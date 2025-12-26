@@ -4,10 +4,7 @@ const fss = require('fs');
 const multer = require('multer');
 
 const { ensureDir, pathExists } = require('../utils/fsUtils');
-const {
-  normalizeRelativePath,
-  findAvailableName,
-} = require('../utils/pathUtils');
+const { normalizeRelativePath, findAvailableName } = require('../utils/pathUtils');
 const { readMetaField } = require('../utils/requestUtils');
 const { getPermissionForPath } = require('./accessControlService');
 const { resolvePathWithAccess } = require('./accessManager');
@@ -18,19 +15,13 @@ const resolveUploadPaths = async (req, file) => {
   const uploadToMeta = readMetaField(req, 'uploadTo');
 
   const uploadTo = normalizeRelativePath(uploadToMeta);
-  const relativePath =
-    normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
+  const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
 
   const context = { user: req.user, guestSession: req.guestSession };
-  const { accessInfo, resolved } = await resolvePathWithAccess(
-    context,
-    uploadTo,
-  );
+  const { accessInfo, resolved } = await resolvePathWithAccess(context, uploadTo);
 
   if (!accessInfo || !accessInfo.canAccess || !accessInfo.canUpload) {
-    throw new Error(
-      accessInfo?.denialReason || 'Cannot upload files to this path.',
-    );
+    throw new Error(accessInfo?.denialReason || 'Cannot upload files to this path.');
   }
 
   const { absolutePath: destinationRoot, relativePath: logicalBase } = resolved;
@@ -42,9 +33,7 @@ const resolveUploadPaths = async (req, file) => {
     destinationPath,
     destinationDir,
     logicalBase,
-    logicalRelativePath: normalizeRelativePath(
-      path.join(logicalBase, relativePath),
-    ),
+    logicalRelativePath: normalizeRelativePath(path.join(logicalBase, relativePath)),
   };
 };
 
@@ -58,18 +47,18 @@ function CustomStorage() {
 CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
   (async () => {
     try {
-      const { destinationPath, destinationDir, logicalRelativePath } =
-        await resolveUploadPaths(req, file);
+      const { destinationPath, destinationDir, logicalRelativePath } = await resolveUploadPaths(
+        req,
+        file
+      );
 
       // Enforce access control: destination directory must be writable
-      const relDestDir = normalizeRelativePath(
-        path.dirname(logicalRelativePath),
-      );
+      const relDestDir = normalizeRelativePath(path.dirname(logicalRelativePath));
 
       // Prevent uploading directly to the root path (no space / volume selected)
       if (!relDestDir || relDestDir.trim() === '') {
         throw new Error(
-          'Cannot upload files to the root path. Please select a specific volume or folder first.',
+          'Cannot upload files to the root path. Please select a specific volume or folder first.'
         );
       }
 
@@ -83,10 +72,7 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
       let finalPath = destinationPath;
       if (await pathExists(finalPath)) {
         const desiredName = path.basename(destinationPath);
-        const availableName = await findAvailableName(
-          destinationDir,
-          desiredName,
-        );
+        const availableName = await findAvailableName(destinationDir, desiredName);
         finalPath = path.join(destinationDir, availableName);
       }
 
@@ -100,7 +86,7 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
         } catch (cleanupErr) {
           logger.error(
             { temporaryPath, err: cleanupErr },
-            'Failed to remove temporary upload file',
+            'Failed to remove temporary upload file'
           );
         }
       };

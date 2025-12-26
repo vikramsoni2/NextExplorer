@@ -1,14 +1,8 @@
 const crypto = require('crypto');
 const { auth: eocAuth } = require('express-openid-connect');
 
-const {
-  auth: envAuthConfig,
-  public: publicConfig,
-} = require('../config/index');
-const {
-  getOrCreateOidcUser,
-  deriveRolesFromClaims,
-} = require('../services/users');
+const { auth: envAuthConfig, public: publicConfig } = require('../config/index');
+const { getOrCreateOidcUser, deriveRolesFromClaims } = require('../services/users');
 const { fetchUserInfoClaims } = require('../services/oidcService');
 const { oidcStore } = require('../utils/sessionStore');
 const logger = require('../utils/logger');
@@ -20,17 +14,11 @@ const deriveBaseUrl = (oidc) => {
   try {
     if (oidc.callbackUrl && /^https?:\/\//i.test(oidc.callbackUrl)) {
       const u = new URL(oidc.callbackUrl);
-      logger.debug(
-        { baseURL: u.origin, source: 'callbackUrl' },
-        'Derived baseURL',
-      );
+      logger.debug({ baseURL: u.origin, source: 'callbackUrl' }, 'Derived baseURL');
       return u.origin;
     } else if (publicConfig?.url) {
       const u = new URL(publicConfig.url);
-      logger.debug(
-        { baseURL: u.origin, source: 'PUBLIC_URL' },
-        'Derived baseURL',
-      );
+      logger.debug({ baseURL: u.origin, source: 'PUBLIC_URL' }, 'Derived baseURL');
       return u.origin;
     }
   } catch (_) {
@@ -57,9 +45,7 @@ const shouldOidcCookieBeSecure = (baseURL) => {
  */
 const resolveOidcScopes = (oidc) => {
   const scopes =
-    Array.isArray(oidc.scopes) && oidc.scopes.length
-      ? oidc.scopes
-      : ['openid', 'profile', 'email'];
+    Array.isArray(oidc.scopes) && oidc.scopes.length ? oidc.scopes : ['openid', 'profile', 'email'];
 
   const scopeParam = Array.from(new Set(['openid', ...scopes])).join(' ');
   logger.debug({ scopes, scopeParam }, 'OIDC scopes resolved');
@@ -85,7 +71,7 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
           accessTokenPresent: Boolean(accessToken),
           persistIssuer,
         },
-        'OIDC user login state',
+        'OIDC user login state'
       );
 
       let claims = {};
@@ -127,22 +113,16 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
 
       const sub = claims && claims.sub ? claims.sub : null;
       if (!sub) {
-        logger.debug(
-          'afterCallback: no usable claims found; skipping user sync',
-        );
+        logger.debug('afterCallback: no usable claims found; skipping user sync');
         return session;
       }
 
       // Derive user information from claims
       const email = claims.email || null;
       const emailVerified = claims.email_verified || false;
-      const preferredUsername =
-        claims.preferred_username || claims.username || email || sub;
+      const preferredUsername = claims.preferred_username || claims.username || email || sub;
       const displayName = claims.name || preferredUsername || null;
-      const roles = deriveRolesFromClaims(
-        claims,
-        envAuthConfig?.oidc?.adminGroups,
-      );
+      const roles = deriveRolesFromClaims(claims, envAuthConfig?.oidc?.adminGroups);
 
       logger.debug(
         {
@@ -153,7 +133,7 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
           emailVerified,
           roles,
         },
-        'afterCallback: derived user info',
+        'afterCallback: derived user info'
       );
 
       // Persist user to database
@@ -165,8 +145,7 @@ const createAfterCallbackHandler = (oidc, envAuthConfig) => {
         email,
         emailVerified,
         roles,
-        requireEmailVerified:
-          envAuthConfig?.oidc?.requireEmailVerified || false,
+        requireEmailVerified: envAuthConfig?.oidc?.requireEmailVerified || false,
         autoCreateUsers: envAuthConfig?.oidc?.autoCreateUsers ?? true,
       });
 
@@ -204,7 +183,7 @@ const configureOidc = async (app) => {
 
     // Check if OIDC should be enabled
     const eocEnabled = Boolean(
-      oidc.enabled && oidc.issuer && oidc.clientId && sessionSecret && baseURL,
+      oidc.enabled && oidc.issuer && oidc.clientId && sessionSecret && baseURL
     );
 
     logger.debug(
@@ -214,12 +193,12 @@ const configureOidc = async (app) => {
         clientId: !!oidc.clientId,
         baseURL: !!baseURL,
       },
-      'EOC enablement check',
+      'EOC enablement check'
     );
 
     if (!eocEnabled) {
       logger.info(
-        'Express OpenID Connect not configured (missing issuer/client/baseURL/secret or disabled)',
+        'Express OpenID Connect not configured (missing issuer/client/baseURL/secret or disabled)'
       );
       logger.debug(
         {
@@ -229,7 +208,7 @@ const configureOidc = async (app) => {
           hasSecret: Boolean(sessionSecret),
           hasBaseURL: Boolean(baseURL),
         },
-        'EOC configuration details',
+        'EOC configuration details'
       );
       return;
     }
@@ -264,7 +243,7 @@ const configureOidc = async (app) => {
           },
         },
         afterCallback: createAfterCallbackHandler(oidc, envAuthConfig),
-      }),
+      })
     );
 
     logger.info('Express OpenID Connect is configured');

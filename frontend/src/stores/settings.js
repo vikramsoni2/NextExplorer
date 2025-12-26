@@ -35,11 +35,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const cycleTheme = () => {
     themeMode.value =
-      themeMode.value === 'auto'
-        ? 'light'
-        : themeMode.value === 'light'
-          ? 'dark'
-          : 'auto';
+      themeMode.value === 'auto' ? 'light' : themeMode.value === 'light' ? 'dark' : 'auto';
   };
 
   const sortOptions = reactive([
@@ -67,8 +63,7 @@ export const useSettingsStore = defineStore('settings', () => {
       return;
     }
 
-    const nextKey =
-      Math.max(0, ...sortOptions.map((o) => Number(o.key) || 0)) + 1;
+    const nextKey = Math.max(0, ...sortOptions.map((o) => Number(o.key) || 0)) + 1;
     const created = { key: nextKey, name: `${by} ${order}`, by, order };
     sortOptions.push(created);
     sortBy.value = created;
@@ -79,7 +74,7 @@ export const useSettingsStore = defineStore('settings', () => {
 
   const listViewColumnWidths = useStorage(
     'settings:listView:columns',
-    DEFAULT_LIST_VIEW_COLUMN_WIDTHS,
+    DEFAULT_LIST_VIEW_COLUMN_WIDTHS
   );
 
   const coerceListViewColumnWidths = (value) => {
@@ -87,19 +82,14 @@ export const useSettingsStore = defineStore('settings', () => {
     return DEFAULT_LIST_VIEW_COLUMN_WIDTHS.map((defaultWidth, index) => {
       const proposed = Number(existing[index] ?? defaultWidth);
       const minWidth = LIST_VIEW_MIN_WIDTHS[index] ?? 30;
-      return Number.isFinite(proposed)
-        ? Math.max(minWidth, proposed)
-        : defaultWidth;
+      return Number.isFinite(proposed) ? Math.max(minWidth, proposed) : defaultWidth;
     });
   };
 
   const ensureListViewColumnWidths = () => {
     const next = coerceListViewColumnWidths(listViewColumnWidths.value);
-    const current = Array.isArray(listViewColumnWidths.value)
-      ? listViewColumnWidths.value
-      : [];
-    const same =
-      next.length === current.length && next.every((w, i) => w === current[i]);
+    const current = Array.isArray(listViewColumnWidths.value) ? listViewColumnWidths.value : [];
+    const same = next.length === current.length && next.every((w, i) => w === current[i]);
     if (!same) {
       listViewColumnWidths.value = next;
     }

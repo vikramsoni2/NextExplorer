@@ -96,25 +96,19 @@ const createFile = async () => {
         :disabled="isCreating"
         class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <FileOpenOutlined class="w-6 text-orange-400" />{{
-          $t('actions.newFile')
-        }}
+        <FileOpenOutlined class="w-6 text-orange-400" />{{ $t('actions.newFile') }}
       </button>
       <button
         @click="uploadFiles"
         class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white border-b border-gray-300 dark:border-gray-600"
       >
-        <UploadFileOutlined class="w-6 text-sky-400" />{{
-          $t('actions.fileUpload')
-        }}
+        <UploadFileOutlined class="w-6 text-sky-400" />{{ $t('actions.fileUpload') }}
       </button>
       <button
         @click="uploadFolder"
         class="cursor-pointer w-full flex items-center gap-2 p-2 px-4 hover:bg-blue-500 hover:text-white rounded-b-lg"
       >
-        <DriveFolderUploadOutlined class="w-6 text-green-400" />{{
-          $t('actions.folderUpload')
-        }}
+        <DriveFolderUploadOutlined class="w-6 text-green-400" />{{ $t('actions.folderUpload') }}
       </button>
     </div>
   </div>

@@ -68,18 +68,15 @@ router.post(
     // Resolve the path to check if it exists
     let resolved;
     try {
-      const { accessInfo, resolved: resolvedWithAccess } =
-        await resolvePathWithAccess(
-          { user: req.user, guestSession: req.guestSession },
-          sourcePath,
-        );
+      const { accessInfo, resolved: resolvedWithAccess } = await resolvePathWithAccess(
+        { user: req.user, guestSession: req.guestSession },
+        sourcePath
+      );
       if (!accessInfo?.canAccess || !resolvedWithAccess) {
         throw new ForbiddenError(accessInfo?.denialReason || 'Access denied');
       }
       if (accessMode === 'readwrite' && !accessInfo.canWrite) {
-        throw new ValidationError(
-          'Cannot create a read-write share for a read-only path',
-        );
+        throw new ValidationError('Cannot create a read-write share for a read-only path');
       }
       resolved = resolvedWithAccess;
     } catch (error) {
@@ -130,15 +127,14 @@ router.post(
 
     // Generate share URL using PUBLIC_URL if configured, otherwise use request host
     const { public: publicConfig } = require('../config/index');
-    const baseUrl =
-      publicConfig.origin || `${req.protocol}://${req.get('host')}`;
+    const baseUrl = publicConfig.origin || `${req.protocol}://${req.get('host')}`;
     const shareUrl = `${baseUrl}/share/${share.shareToken}`;
 
     res.status(201).json({
       ...share,
       shareUrl,
     });
-  }),
+  })
 );
 
 /**
@@ -154,7 +150,7 @@ router.get(
     const shares = await getSharesByOwnerId(req.user.id);
 
     res.json({ shares });
-  }),
+  })
 );
 
 /**
@@ -170,7 +166,7 @@ router.get(
     const shares = await getSharesForUser(req.user.id);
 
     res.json({ shares });
-  }),
+  })
 );
 
 /**
@@ -201,7 +197,7 @@ router.get(
       ...share,
       stats,
     });
-  }),
+  })
 );
 
 /**
@@ -262,7 +258,7 @@ router.put(
     const updated = await updateShare(share.id, updates);
 
     res.json(updated);
-  }),
+  })
 );
 
 /**
@@ -289,7 +285,7 @@ router.delete(
     await deleteShare(share.id);
 
     res.status(204).end();
-  }),
+  })
 );
 
 /**
@@ -314,7 +310,7 @@ router.get(
       expiresAt: share.expiresAt,
       isExpired: isShareExpired(share),
     });
-  }),
+  })
 );
 
 /**
@@ -398,7 +394,7 @@ router.post(
         requiresAuth: true,
       });
     }
-  }),
+  })
 );
 
 /**
@@ -480,7 +476,7 @@ router.get(
       },
       guestSessionId: req.guestSession?.id || null,
     });
-  }),
+  })
 );
 
 /**
@@ -503,15 +499,10 @@ router.get(
     const shareToken = req.params.token;
     const innerPath = req.params[0] || '';
 
-    const logicalPath = innerPath
-      ? `share/${shareToken}/${innerPath}`
-      : `share/${shareToken}`;
+    const logicalPath = innerPath ? `share/${shareToken}/${innerPath}` : `share/${shareToken}`;
 
     const context = { user: req.user, guestSession: req.guestSession };
-    const { accessInfo, resolved } = await resolvePathWithAccess(
-      context,
-      logicalPath,
-    );
+    const { accessInfo, resolved } = await resolvePathWithAccess(context, logicalPath);
 
     if (!accessInfo || !accessInfo.canAccess || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Access denied');
@@ -537,9 +528,7 @@ router.get(
     // Directory share or navigating inside a directory share
     if (stats.isDirectory()) {
       const files = await fs.readdir(resolved.absolutePath);
-      const filteredFiles = files.filter(
-        (file) => !excludedFiles.includes(file),
-      );
+      const filteredFiles = files.filter((file) => !excludedFiles.includes(file));
 
       const itemsPromises = filteredFiles.map(async (file) => {
         const filePath = path.join(resolved.absolutePath, file);
@@ -665,7 +654,7 @@ router.get(
     }
 
     return res.json(response);
-  }),
+  })
 );
 
 module.exports = router;

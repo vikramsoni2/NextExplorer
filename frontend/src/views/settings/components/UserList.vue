@@ -53,9 +53,7 @@ const getAuthLabel = (auth) => {
 
     <!-- Loading State -->
     <div v-if="loading" class="flex-1 flex items-center justify-center">
-      <div class="animate-pulse text-zinc-400">
-        {{ t('common.loading') }}...
-      </div>
+      <div class="animate-pulse text-zinc-400">{{ t('common.loading') }}...</div>
     </div>
 
     <!-- Empty State -->
@@ -85,18 +83,14 @@ const getAuthLabel = (auth) => {
               <div
                 class="h-10 w-10 rounded-full bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400 font-medium text-sm"
               >
-                {{
-                  getInitials(user.displayName || user.username || user.email)
-                }}
+                {{ getInitials(user.displayName || user.username || user.email) }}
               </div>
             </div>
 
             <!-- User Info -->
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-2">
-                <p
-                  class="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate"
-                >
+                <p class="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
                   {{ user.displayName || user.username }}
                 </p>
                 <span
@@ -127,15 +121,8 @@ const getAuthLabel = (auth) => {
                 />
               </div>
             </div>
-            <div
-              class="text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300"
-            >
-              <svg
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
+            <div class="text-zinc-400 group-hover:text-zinc-600 dark:group-hover:text-zinc-300">
+              <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path
                   fill-rule="evenodd"
                   d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"

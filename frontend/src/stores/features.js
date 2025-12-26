@@ -40,9 +40,7 @@ export const useFeaturesStore = defineStore('features', () => {
 
         // OnlyOffice
         onlyofficeEnabled.value = Boolean(features?.onlyoffice?.enabled);
-        onlyofficeExtensions.value = Array.isArray(
-          features?.onlyoffice?.extensions,
-        )
+        onlyofficeExtensions.value = Array.isArray(features?.onlyoffice?.extensions)
           ? features.onlyoffice.extensions
           : [];
 

@@ -20,30 +20,21 @@ module.exports = {
 
   // CORS
   CORS_ORIGINS:
-    process.env.CORS_ORIGIN ||
-    process.env.CORS_ORIGINS ||
-    process.env.ALLOWED_ORIGINS ||
-    '',
+    process.env.CORS_ORIGIN || process.env.CORS_ORIGINS || process.env.ALLOWED_ORIGINS || '',
 
   // Logging
   LOG_LEVEL: process.env.LOG_LEVEL?.trim().toLowerCase() || null,
   DEBUG: normalizeBoolean(process.env.DEBUG),
-  ENABLE_HTTP_LOGGING:
-    normalizeBoolean(process.env.ENABLE_HTTP_LOGGING) || false,
+  ENABLE_HTTP_LOGGING: normalizeBoolean(process.env.ENABLE_HTTP_LOGGING) || false,
 
   // Auth
   AUTH_ENABLED: normalizeBoolean(process.env.AUTH_ENABLED),
   AUTH_MODE: process.env.AUTH_MODE?.trim().toLowerCase() || null,
-  SESSION_SECRET:
-    process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || null,
+  SESSION_SECRET: process.env.SESSION_SECRET || process.env.AUTH_SESSION_SECRET || null,
   AUTH_MAX_FAILED: Number(process.env.AUTH_MAX_FAILED) || 5,
   AUTH_LOCK_MINUTES: Number(process.env.AUTH_LOCK_MINUTES) || 15,
-  AUTH_ADMIN_EMAIL:
-    process.env.AUTH_ADMIN_EMAIL?.trim() ||
-    process.env.ADMIN_EMAIL?.trim() ||
-    null,
-  AUTH_ADMIN_PASSWORD:
-    process.env.AUTH_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || null,
+  AUTH_ADMIN_EMAIL: process.env.AUTH_ADMIN_EMAIL?.trim() || process.env.ADMIN_EMAIL?.trim() || null,
+  AUTH_ADMIN_PASSWORD: process.env.AUTH_ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || null,
 
   // OIDC
   OIDC_ENABLED: normalizeBoolean(process.env.OIDC_ENABLED),
@@ -53,16 +44,12 @@ module.exports = {
   OIDC_USERINFO_URL: process.env.OIDC_USERINFO_URL || null,
   OIDC_CLIENT_ID: process.env.OIDC_CLIENT_ID || null,
   OIDC_CLIENT_SECRET: process.env.OIDC_CLIENT_SECRET || null,
-  OIDC_CALLBACK_URL:
-    process.env.OIDC_CALLBACK_URL || process.env.OIDC_REDIRECT_URI || null,
+  OIDC_CALLBACK_URL: process.env.OIDC_CALLBACK_URL || process.env.OIDC_REDIRECT_URI || null,
   OIDC_SCOPES: process.env.OIDC_SCOPES || process.env.OIDC_SCOPE || null,
-  OIDC_ADMIN_GROUPS:
-    process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null,
-  OIDC_REQUIRE_EMAIL_VERIFIED:
-    normalizeBoolean(process.env.OIDC_REQUIRE_EMAIL_VERIFIED) || false,
+  OIDC_ADMIN_GROUPS: process.env.OIDC_ADMIN_GROUPS || process.env.OIDC_ADMIN_GROUP || null,
+  OIDC_REQUIRE_EMAIL_VERIFIED: normalizeBoolean(process.env.OIDC_REQUIRE_EMAIL_VERIFIED) || false,
   // When false, OIDC login is only allowed for users that already exist in the DB (local or OIDC-linked).
-  OIDC_AUTO_CREATE_USERS:
-    normalizeBoolean(process.env.OIDC_AUTO_CREATE_USERS) ?? true,
+  OIDC_AUTO_CREATE_USERS: normalizeBoolean(process.env.OIDC_AUTO_CREATE_USERS) ?? true,
 
   // Search
   SEARCH_DEEP: normalizeBoolean(process.env.SEARCH_DEEP),
@@ -73,8 +60,7 @@ module.exports = {
   ONLYOFFICE_URL: process.env.ONLYOFFICE_URL?.trim() || null,
   ONLYOFFICE_SECRET: process.env.ONLYOFFICE_SECRET || null,
   ONLYOFFICE_LANG: process.env.ONLYOFFICE_LANG?.trim() || 'en',
-  ONLYOFFICE_FORCE_SAVE:
-    normalizeBoolean(process.env.ONLYOFFICE_FORCE_SAVE) || false,
+  ONLYOFFICE_FORCE_SAVE: normalizeBoolean(process.env.ONLYOFFICE_FORCE_SAVE) || false,
   ONLYOFFICE_FILE_EXTENSIONS: process.env.ONLYOFFICE_FILE_EXTENSIONS || '',
 
   // Features
@@ -91,19 +77,14 @@ module.exports = {
   FFPROBE_PATH: process.env.FFPROBE_PATH || null,
 
   // Favorites
-  FAVORITES_DEFAULT_ICON:
-    process.env.FAVORITES_DEFAULT_ICON || 'outline:StarIcon',
+  FAVORITES_DEFAULT_ICON: process.env.FAVORITES_DEFAULT_ICON || 'outline:StarIcon',
 
   // Shares
   SHARES_ENABLED: normalizeBoolean(process.env.SHARES_ENABLED) ?? true,
   SHARES_TOKEN_LENGTH: Number(process.env.SHARES_TOKEN_LENGTH) || 10,
   SHARES_MAX_PER_USER: Number(process.env.SHARES_MAX_PER_USER) || 100,
-  SHARES_DEFAULT_EXPIRY_DAYS:
-    Number(process.env.SHARES_DEFAULT_EXPIRY_DAYS) || 30,
-  SHARES_GUEST_SESSION_HOURS:
-    Number(process.env.SHARES_GUEST_SESSION_HOURS) || 24,
-  SHARES_ALLOW_PASSWORD:
-    normalizeBoolean(process.env.SHARES_ALLOW_PASSWORD) ?? true,
-  SHARES_ALLOW_ANONYMOUS:
-    normalizeBoolean(process.env.SHARES_ALLOW_ANONYMOUS) ?? true,
+  SHARES_DEFAULT_EXPIRY_DAYS: Number(process.env.SHARES_DEFAULT_EXPIRY_DAYS) || 30,
+  SHARES_GUEST_SESSION_HOURS: Number(process.env.SHARES_GUEST_SESSION_HOURS) || 24,
+  SHARES_ALLOW_PASSWORD: normalizeBoolean(process.env.SHARES_ALLOW_PASSWORD) ?? true,
+  SHARES_ALLOW_ANONYMOUS: normalizeBoolean(process.env.SHARES_ALLOW_ANONYMOUS) ?? true,
 };

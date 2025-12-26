@@ -17,9 +17,7 @@ const {
 const router = express.Router();
 
 const MAX_EDITOR_FILE_SIZE = config.editor?.maxFileSizeBytes ?? 1 * 1024 * 1024;
-const VIDEO_EXTENSIONS = Array.isArray(config.extensions?.videos)
-  ? config.extensions.videos
-  : [];
+const VIDEO_EXTENSIONS = Array.isArray(config.extensions?.videos) ? config.extensions.videos : [];
 
 function isProbablyBinaryBuffer(buffer) {
   const length = Math.min(buffer.length, 4096);
@@ -52,10 +50,7 @@ router.post(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      ));
+      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
     } catch (error) {
       throw new NotFoundError('A valid file path is required.');
     }
@@ -73,30 +68,26 @@ router.post(
 
     // Enforce a maximum size for the editor to avoid loading huge files
     if (typeof stats.size === 'number' && stats.size > MAX_EDITOR_FILE_SIZE) {
-      throw new ValidationError(
-        'This file is too large to open in the text editor.',
-      );
+      throw new ValidationError('This file is too large to open in the text editor.');
     }
 
     // Obvious non-text types based on extension (videos, documents, etc.)
     const ext = path.extname(absolutePath).slice(1).toLowerCase();
     if (VIDEO_EXTENSIONS.includes(ext)) {
-      throw new UnsupportedMediaTypeError(
-        'This file type cannot be opened in the text editor.',
-      );
+      throw new UnsupportedMediaTypeError('This file type cannot be opened in the text editor.');
     }
 
     // Content-based check for binary files (works for extensionless files)
     const buffer = await fs.readFile(absolutePath);
     if (isProbablyBinaryBuffer(buffer)) {
       throw new UnsupportedMediaTypeError(
-        'This file appears to be binary and cannot be opened in the text editor.',
+        'This file appears to be binary and cannot be opened in the text editor.'
       );
     }
 
     const data = buffer.toString('utf-8');
     res.send({ content: data });
-  }),
+  })
 );
 
 router.put(
@@ -113,7 +104,7 @@ router.put(
     // Check if the file would be created at the root level (no parent directory)
     if (!relativePath.includes('/') && !relativePath.includes(path.sep)) {
       throw new ValidationError(
-        'Cannot create files in the root volume path. Please select a specific volume first.',
+        'Cannot create files in the root volume path. Please select a specific volume first.'
       );
     }
 
@@ -121,18 +112,13 @@ router.put(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      ));
+      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
     } catch (error) {
       throw new NotFoundError('A valid file path is required.');
     }
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canWrite) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'This path is read-only.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'This path is read-only.');
     }
 
     const { absolutePath } = resolved;
@@ -140,7 +126,7 @@ router.put(
     await ensureDir(path.dirname(absolutePath));
     await fs.writeFile(absolutePath, content, { encoding: 'utf-8' });
     res.send({ success: true });
-  }),
+  })
 );
 
 module.exports = router;

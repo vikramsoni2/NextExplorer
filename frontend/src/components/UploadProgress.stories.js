@@ -14,11 +14,7 @@ function seedUppyStore(state) {
   store.setState(state);
 }
 
-function makeDemoState({
-  now = Date.now(),
-  totalProgress = 42,
-  allComplete = false,
-} = {}) {
+function makeDemoState({ now = Date.now(), totalProgress = 42, allComplete = false } = {}) {
   const files = {
     a: {
       id: 'a',

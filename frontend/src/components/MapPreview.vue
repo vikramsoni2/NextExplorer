@@ -11,33 +11,23 @@ const props = defineProps({
 
 // Google Maps embed (no API key needed for simple embed)
 const googleSrc = computed(
-  () =>
-    `https://www.google.com/maps?q=${props.lat},${props.lon}&z=${props.zoom}&output=embed`,
+  () => `https://www.google.com/maps?q=${props.lat},${props.lon}&z=${props.zoom}&output=embed`
 );
 
 // OpenStreetMap embed (no external libs)
 const osmSrc = computed(() => {
   const dLat = 0.01;
   const dLon = 0.01;
-  const bbox = [
-    props.lon - dLon,
-    props.lat - dLat,
-    props.lon + dLon,
-    props.lat + dLat,
-  ].join(',');
+  const bbox = [props.lon - dLon, props.lat - dLat, props.lon + dLon, props.lat + dLat].join(',');
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${props.lat},${props.lon}`;
 });
 
-const src = computed(() =>
-  props.provider === 'osm' ? osmSrc.value : googleSrc.value,
-);
+const src = computed(() => (props.provider === 'osm' ? osmSrc.value : googleSrc.value));
 const frameStyle = computed(() => ({ height: `${props.height}px` }));
 </script>
 
 <template>
-  <div
-    class="w-full overflow-hidden rounded-lg ring-1 ring-black/5 dark:ring-white/10 shadow-xs"
-  >
+  <div class="w-full overflow-hidden rounded-lg ring-1 ring-black/5 dark:ring-white/10 shadow-xs">
     <iframe
       :src="src"
       class="w-full"

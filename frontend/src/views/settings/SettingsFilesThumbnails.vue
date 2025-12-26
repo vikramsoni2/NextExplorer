@@ -19,7 +19,7 @@ const dirty = computed(
     local.enabled !== original.value.enabled ||
     local.quality !== original.value.quality ||
     local.size !== original.value.size ||
-    local.concurrency !== original.value.concurrency,
+    local.concurrency !== original.value.concurrency
 );
 
 watch(
@@ -30,7 +30,7 @@ watch(
     local.size = t.size;
     local.concurrency = t.concurrency ?? 10;
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const reset = () => {
@@ -108,13 +108,7 @@ const save = async () => {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <input
-            type="range"
-            min="1"
-            max="100"
-            v-model.number="local.quality"
-            class="w-64"
-          />
+          <input type="range" min="1" max="100" v-model.number="local.quality" class="w-64" />
           <input
             type="number"
             min="1"
@@ -158,13 +152,7 @@ const save = async () => {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <input
-            type="range"
-            min="1"
-            max="50"
-            v-model.number="local.concurrency"
-            class="w-64"
-          />
+          <input type="range" min="1" max="50" v-model.number="local.concurrency" class="w-64" />
           <input
             type="number"
             min="1"

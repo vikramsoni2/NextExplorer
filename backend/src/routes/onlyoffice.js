@@ -6,21 +6,13 @@ const crypto = require('crypto');
 const axios = require('axios');
 const jwt = require('jsonwebtoken');
 
-const {
-  onlyoffice,
-  public: publicConfig,
-  mimeTypes,
-} = require('../config/index');
+const { onlyoffice, public: publicConfig, mimeTypes } = require('../config/index');
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const {
-  ValidationError,
-  UnauthorizedError,
-  ForbiddenError,
-} = require('../errors/AppError');
+const { ValidationError, UnauthorizedError, ForbiddenError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -29,8 +21,7 @@ const SUPPORTED_TEXT = new Set(['docx', 'doc', 'odt', 'rtf', 'txt']);
 const SUPPORTED_SHEET = new Set(['xlsx', 'xls', 'ods', 'csv']);
 const SUPPORTED_PRESENTATION = new Set(['pptx', 'ppt', 'odp']);
 
-const toExt = (filename = '') =>
-  String(filename).split('.').pop().toLowerCase();
+const toExt = (filename = '') => String(filename).split('.').pop().toLowerCase();
 
 const getDocumentType = (ext) => {
   // ONLYOFFICE expects: 'word' | 'cell' | 'slide'
@@ -43,11 +34,7 @@ const getDocumentType = (ext) => {
 const resolveMime = (ext) => mimeTypes[ext] || 'application/octet-stream';
 
 const getDsJwtFromReq = (req) => {
-  const auth = (
-    req.headers['authorization'] ||
-    req.headers['authorizationjwt'] ||
-    ''
-  ).toString();
+  const auth = (req.headers['authorization'] || req.headers['authorizationjwt'] || '').toString();
   if (auth.toLowerCase().startsWith('bearer ')) {
     return auth.slice(7).trim();
   }
@@ -66,13 +53,11 @@ router.post(
 
     if (!publicConfig?.url) {
       throw new ValidationError(
-        'PUBLIC_URL is required on the server to build absolute URLs for ONLYOFFICE.',
+        'PUBLIC_URL is required on the server to build absolute URLs for ONLYOFFICE.'
       );
     }
     if (!onlyoffice.serverUrl) {
-      throw new ValidationError(
-        'ONLYOFFICE_URL is not configured on the server.',
-      );
+      throw new ValidationError('ONLYOFFICE_URL is not configured on the server.');
     }
 
     if (typeof relativeRaw !== 'string' || !relativeRaw.trim()) {
@@ -81,10 +66,7 @@ router.post(
 
     const relativePath = normalizeRelativePath(relativeRaw);
     const context = { user: req.user, guestSession: req.guestSession };
-    const { accessInfo, resolved } = await resolvePathWithAccess(
-      context,
-      relativePath,
-    );
+    const { accessInfo, resolved } = await resolvePathWithAccess(context, relativePath);
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
@@ -96,8 +78,7 @@ router.post(
     }
 
     // Check if this is a readonly share
-    const isReadonlyShare =
-      resolved.shareInfo && resolved.shareInfo.accessMode === 'readonly';
+    const isReadonlyShare = resolved.shareInfo && resolved.shareInfo.accessMode === 'readonly';
 
     const filename = path.basename(abs);
     const ext = toExt(filename);
@@ -192,7 +173,7 @@ router.post(
       documentServerUrl: onlyoffice.serverUrl,
       config,
     });
-  }),
+  })
 );
 
 // GET /api/onlyoffice/file?path=...
@@ -219,8 +200,7 @@ router.get(
 
     // Optionally, resolve from backend token (supports personal paths)
     let backendCtx = null;
-    const backendToken =
-      typeof req.query?.backend === 'string' ? req.query.backend : null;
+    const backendToken = typeof req.query?.backend === 'string' ? req.query.backend : null;
     if (backendToken && onlyoffice.secret) {
       try {
         const payload = jwt.verify(backendToken, onlyoffice.secret, {
@@ -238,18 +218,11 @@ router.get(
     // - Prefer signed backend context when available (works for personal/share paths)
     // - Fallback to resolving logical path without user for volume-only paths
     let abs = null;
-    if (
-      backendCtx &&
-      typeof backendCtx.absolutePath === 'string' &&
-      backendCtx.absolutePath
-    ) {
+    if (backendCtx && typeof backendCtx.absolutePath === 'string' && backendCtx.absolutePath) {
       abs = backendCtx.absolutePath;
     } else {
       const context = { user: req.user, guestSession: req.guestSession };
-      const { accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      );
+      const { accessInfo, resolved } = await resolvePathWithAccess(context, relativePath);
 
       if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
         throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
@@ -275,7 +248,7 @@ router.get(
       else res.end();
     });
     stream.pipe(res);
-  }),
+  })
 );
 
 // POST /api/onlyoffice/callback?path=...
@@ -303,8 +276,7 @@ router.post(
 
       // Optionally, resolve from backend token (supports personal paths)
       let backendCtx = null;
-      const backendToken =
-        typeof req.query?.backend === 'string' ? req.query.backend : null;
+      const backendToken = typeof req.query?.backend === 'string' ? req.query.backend : null;
       if (backendToken && onlyoffice.secret) {
         try {
           const payload = jwt.verify(backendToken, onlyoffice.secret, {
@@ -314,10 +286,7 @@ router.post(
             backendCtx = payload;
           }
         } catch (e) {
-          logger.warn(
-            { err: e },
-            'ONLYOFFICE backend token verification failed (callback)',
-          );
+          logger.warn({ err: e }, 'ONLYOFFICE backend token verification failed (callback)');
         }
       }
 
@@ -326,23 +295,14 @@ router.post(
       // See ONLYOFFICE callback statuses: 2 - Save, 6 - Force Save
       if ((status === 2 || status === 6) && body.url) {
         let abs = null;
-        if (
-          backendCtx &&
-          typeof backendCtx.absolutePath === 'string' &&
-          backendCtx.absolutePath
-        ) {
+        if (backendCtx && typeof backendCtx.absolutePath === 'string' && backendCtx.absolutePath) {
           abs = backendCtx.absolutePath;
         } else {
           const context = { user: req.user, guestSession: req.guestSession };
-          const { accessInfo, resolved } = await resolvePathWithAccess(
-            context,
-            relativePath,
-          );
+          const { accessInfo, resolved } = await resolvePathWithAccess(context, relativePath);
 
           if (!accessInfo || !accessInfo.canAccess || !accessInfo.canWrite) {
-            throw new ForbiddenError(
-              accessInfo?.denialReason || 'Access denied.',
-            );
+            throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
           }
 
           abs = resolved.absolutePath;
@@ -369,7 +329,7 @@ router.post(
       // Per spec, non-zero error indicates retry; use 1
       return res.status(200).json({ error: 1 });
     }
-  }),
+  })
 );
 
 module.exports = router;

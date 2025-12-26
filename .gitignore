@@ -127,7 +127,9 @@ docs/.vitepress/dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
-.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 # yarn v2
 .yarn/cache
 .yarn/unplugged

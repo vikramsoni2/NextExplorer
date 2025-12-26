@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import {
-  getSettings as getSettingsApi,
-  patchSettings as patchSettingsApi,
-} from '@/api';
+import { getSettings as getSettingsApi, patchSettings as patchSettingsApi } from '@/api';
 
 export const useAppSettings = defineStore('appSettings', () => {
   const loaded = ref(false);
@@ -49,9 +46,7 @@ export const useAppSettings = defineStore('appSettings', () => {
         ...(updated?.thumbnails || {}),
       },
       access: {
-        rules: Array.isArray(updated?.access?.rules)
-          ? updated.access.rules
-          : [],
+        rules: Array.isArray(updated?.access?.rules) ? updated.access.rules : [],
       },
     };
     loaded.value = true;

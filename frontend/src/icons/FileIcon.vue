@@ -102,26 +102,8 @@ watchEffect(() => {
 });
 
 // Additional type groupings
-const audioExts = new Set([
-  'mp3',
-  'wav',
-  'flac',
-  'aac',
-  'm4a',
-  'ogg',
-  'opus',
-  'wma',
-]);
-const archiveExts = new Set([
-  'zip',
-  'rar',
-  '7z',
-  'tar',
-  'gz',
-  'bz2',
-  'xz',
-  'tgz',
-]);
+const audioExts = new Set(['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus', 'wma']);
+const archiveExts = new Set(['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'tgz']);
 
 // Badge mapping for many common types
 const badge = computed(() => {

@@ -158,33 +158,24 @@ async function createShareLink() {
   if (!sourcePath.value) {
     error.value = t(
       'share.errors.invalidSourcePath',
-      'Unable to determine the item path to share.',
+      'Unable to determine the item path to share.'
     );
     return;
   }
 
   if (sharingType.value === 'users' && selectedUserIds.value.length === 0) {
-    error.value = t(
-      'share.errors.selectAtLeastOneUser',
-      'Select at least one user.',
-    );
+    error.value = t('share.errors.selectAtLeastOneUser', 'Select at least one user.');
     return;
   }
 
   if (enableExpiry.value) {
     const date = expiresAtDate.value;
     if (!(date instanceof Date) || Number.isNaN(date.getTime())) {
-      error.value = t(
-        'share.errors.expirationRequired',
-        'Choose a valid expiration date.',
-      );
+      error.value = t('share.errors.expirationRequired', 'Choose a valid expiration date.');
       return;
     }
     if (date.getTime() <= Date.now()) {
-      error.value = t(
-        'share.errors.expirationMustBeFuture',
-        'Expiration must be in the future.',
-      );
+      error.value = t('share.errors.expirationMustBeFuture', 'Expiration must be in the future.');
       return;
     }
   }
@@ -200,9 +191,7 @@ async function createShareLink() {
       password: enablePassword.value ? password.value : null,
       userIds: sharingType.value === 'users' ? selectedUserIds.value : [],
       expiresAt:
-        enableExpiry.value && expiresAtDate.value
-          ? expiresAtDate.value.toISOString()
-          : null,
+        enableExpiry.value && expiresAtDate.value ? expiresAtDate.value.toISOString() : null,
       label: label.value || null,
     };
 
@@ -248,16 +237,12 @@ function closeDialog() {
       <div class="p-4 rounded-lg bg-green-50 dark:bg-green-900/20">
         <div class="flex items-center gap-2 text-green-800 dark:text-green-200">
           <CheckIcon class="w-5 h-5" />
-          <span class="font-medium">{{
-            t('share.shareLinkCreatedSuccess')
-          }}</span>
+          <span class="font-medium">{{ t('share.shareLinkCreatedSuccess') }}</span>
         </div>
       </div>
 
       <div>
-        <label class="block mb-2 text-sm font-medium">{{
-          t('share.shareLink')
-        }}</label>
+        <label class="block mb-2 text-sm font-medium">{{ t('share.shareLink') }}</label>
         <div class="flex gap-2">
           <input
             type="text"
@@ -268,9 +253,7 @@ function closeDialog() {
           <button
             @click="copyLink"
             class="px-4 py-2 text-sm font-medium text-white transition rounded-lg"
-            :class="
-              linkCopied ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
-            "
+            :class="linkCopied ? 'bg-green-600' : 'bg-blue-600 hover:bg-blue-700'"
           >
             <ClipboardDocumentIcon v-if="!linkCopied" class="w-5 h-5" />
             <CheckIcon v-else class="w-5 h-5" />
@@ -280,9 +263,7 @@ function closeDialog() {
 
       <div class="grid grid-cols-2 gap-4 text-sm">
         <div>
-          <span class="text-gray-500 dark:text-gray-400">{{
-            t('share.access')
-          }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('share.access') }}</span>
           <span class="ml-2 font-medium">{{
             shareResult.accessMode === 'readonly'
               ? t('settings.access.readOnly')
@@ -290,9 +271,7 @@ function closeDialog() {
           }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400">{{
-            t('share.type')
-          }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('share.type') }}</span>
           <span class="ml-2 font-medium">{{
             shareResult.sharingType === 'anyone'
               ? t('share.anyoneWithLink')
@@ -300,17 +279,11 @@ function closeDialog() {
           }}</span>
         </div>
         <div v-if="shareResult.hasPassword">
-          <span class="text-gray-500 dark:text-gray-400">{{
-            t('share.password')
-          }}</span>
-          <span class="ml-2 font-medium text-green-600">{{
-            t('share.protected')
-          }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('share.password') }}</span>
+          <span class="ml-2 font-medium text-green-600">{{ t('share.protected') }}</span>
         </div>
         <div v-if="shareResult.expiresAt">
-          <span class="text-gray-500 dark:text-gray-400">{{
-            t('share.expires')
-          }}</span>
+          <span class="text-gray-500 dark:text-gray-400">{{ t('share.expires') }}</span>
           <span class="ml-2 font-medium">{{
             new Date(shareResult.expiresAt).toLocaleDateString()
           }}</span>
@@ -347,9 +320,7 @@ function closeDialog() {
 
       <!-- Label -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{
-          t('share.label')
-        }}</label>
+        <label class="block mb-2 text-sm font-medium">{{ t('share.label') }}</label>
         <input
           v-model="label"
           type="text"
@@ -360,9 +331,7 @@ function closeDialog() {
 
       <!-- Access Mode -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{
-          t('share.accessMode')
-        }}</label>
+        <label class="block mb-2 text-sm font-medium">{{ t('share.accessMode') }}</label>
         <div class="grid grid-cols-2 gap-2">
           <button
             @click="accessMode = 'readonly'"
@@ -391,9 +360,7 @@ function closeDialog() {
 
       <!-- Sharing Type -->
       <div>
-        <label class="block mb-2 text-sm font-medium">{{
-          t('share.whoCanAccess')
-        }}</label>
+        <label class="block mb-2 text-sm font-medium">{{ t('share.whoCanAccess') }}</label>
         <div class="grid grid-cols-2 gap-2">
           <button
             @click="sharingType = 'anyone'"
@@ -431,10 +398,7 @@ function closeDialog() {
         <div v-if="loadingUsers" class="text-sm text-gray-500">
           {{ t('share.loadingUsers') }}
         </div>
-        <div
-          v-else-if="availableUsers.length === 0"
-          class="text-sm text-gray-500"
-        >
+        <div v-else-if="availableUsers.length === 0" class="text-sm text-gray-500">
           {{ t('share.noUsersAvailable') }}
         </div>
         <div v-else class="space-y-2 max-h-40 overflow-y-auto">
@@ -464,9 +428,7 @@ function closeDialog() {
             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
           <LockClosedIcon class="w-4 h-4" />
-          <span class="text-sm font-medium">{{
-            t('share.passwordProtect')
-          }}</span>
+          <span class="text-sm font-medium">{{ t('share.passwordProtect') }}</span>
         </label>
         <input
           v-if="enablePassword"
@@ -486,9 +448,7 @@ function closeDialog() {
             class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
           <CalendarIcon class="w-4 h-4" />
-          <span class="text-sm font-medium">{{
-            t('share.setExpirationDate')
-          }}</span>
+          <span class="text-sm font-medium">{{ t('share.setExpirationDate') }}</span>
         </label>
         <input
           v-if="enableExpiry"

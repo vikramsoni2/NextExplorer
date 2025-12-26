@@ -8,9 +8,7 @@
         v-else
         class="fixed inset-0 z-2000 flex items-center justify-center text-sm text-neutral-200"
       >
-        <div
-          class="flex items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg"
-        >
+        <div class="flex items-center pr-4 bg-neutral-300 dark:bg-black bg-opacity-20 rounded-lg">
           <LoadingIcon /> {{ $t('common.loading') }}
         </div>
       </div>
@@ -33,14 +31,10 @@
             class="flex items-center gap-3 border-b border-neutral-200 bg-white px-4 py-2 shadow-xs dark:border-neutral-700 dark:bg-zinc-800"
           >
             <div class="min-w-0">
-              <p
-                class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-              >
+              <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
                 {{ activePlugin?.label || 'Preview' }}
               </p>
-              <h2
-                class="truncate text-base font-semibold text-neutral-900 dark:text-white"
-              >
+              <h2 class="truncate text-base font-semibold text-neutral-900 dark:text-white">
                 {{ activeItem?.item?.name || '—' }}
               </h2>
             </div>
@@ -78,9 +72,7 @@
           </header>
 
           <!-- Content -->
-          <main
-            class="flex-1 overflow-hidden bg-neutral-50 dark:bg-zinc-950/40"
-          >
+          <main class="flex-1 overflow-hidden bg-neutral-50 dark:bg-zinc-950/40">
             <!-- Minimal floating close button -->
             <button
               v-if="isMinimal"
@@ -91,12 +83,7 @@
               <XMarkIcon class="h-5 w-5" />
             </button>
 
-            <component
-              v-if="component"
-              :is="component"
-              v-bind="activeItem"
-              class="h-full"
-            />
+            <component v-if="component" :is="component" v-bind="activeItem" class="h-full" />
             <div
               v-else
               class="flex h-full items-center justify-center text-sm text-neutral-500 dark:text-neutral-400"
@@ -130,12 +117,7 @@ const isStandalone = computed(() => activePlugin.value?.standalone ?? false);
 const isMinimal = computed(() => activePlugin.value?.minimalHeader ?? false);
 
 const actions = computed(() => {
-  if (
-    !activePlugin.value ||
-    !activeItem.value ||
-    isStandalone.value ||
-    isMinimal.value
-  ) {
+  if (!activePlugin.value || !activeItem.value || isStandalone.value || isMinimal.value) {
     return [];
   }
 
@@ -160,7 +142,7 @@ watch(
       console.error(`Failed to load plugin ${plugin.id}:`, error);
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 // Handlers

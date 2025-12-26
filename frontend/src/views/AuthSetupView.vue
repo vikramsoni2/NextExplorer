@@ -46,7 +46,7 @@ watch(
       redirectToDestination();
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 onMounted(async () => {
@@ -88,9 +88,7 @@ const handleSetupSubmit = async () => {
   try {
     await auth.setupAccount({
       email: setupEmailValue.value.trim(),
-      username:
-        setupUsernameValue.value.trim() ||
-        setupEmailValue.value.trim().split('@')[0],
+      username: setupUsernameValue.value.trim() || setupEmailValue.value.trim().split('@')[0],
       password: setupPasswordValue.value,
     });
     setupEmailValue.value = '';
@@ -99,8 +97,7 @@ const handleSetupSubmit = async () => {
     setupConfirmValue.value = '';
     redirectToDestination();
   } catch (error) {
-    setupError.value =
-      error instanceof Error ? error.message : t('errors.createAccount');
+    setupError.value = error instanceof Error ? error.message : t('errors.createAccount');
   } finally {
     isSubmittingSetup.value = false;
   }
@@ -121,9 +118,7 @@ const handleSetupSubmit = async () => {
 
     <form class="space-y-5" @submit.prevent="handleSetupSubmit">
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{
-          $t('auth.emailAddress')
-        }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('auth.emailAddress') }}</span>
         <input
           id="setup-email"
           v-model="setupEmailValue"
@@ -151,9 +146,7 @@ const handleSetupSubmit = async () => {
       </label>
 
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{
-          $t('common.password')
-        }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('common.password') }}</span>
         <input
           id="setup-password"
           v-model="setupPasswordValue"

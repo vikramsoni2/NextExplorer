@@ -11,8 +11,8 @@
     "build-storybook": "storybook build",
     "test:unit": "vitest",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format": "prettier --config ../prettier.config.cjs --write .",
+    "format:check": "prettier --config ../prettier.config.cjs --check ."
   },
   "dependencies": {
     "@codemirror/lang-javascript": "^6.2.2",

@@ -3,11 +3,7 @@ const path = require('path');
 const fs = require('fs/promises');
 
 const asyncHandler = require('../utils/asyncHandler');
-const {
-  ForbiddenError,
-  NotFoundError,
-  ValidationError,
-} = require('../errors/AppError');
+const { ForbiddenError, NotFoundError, ValidationError } = require('../errors/AppError');
 const { getById } = require('../services/users');
 const { directories, excludedFiles, features } = require('../config/index');
 const {
@@ -61,7 +57,7 @@ router.get(
 
     const volumes = await getVolumesForUser(userId);
     res.json({ volumes });
-  }),
+  })
 );
 
 /**
@@ -88,7 +84,7 @@ router.post(
     });
 
     res.status(201).json({ volume });
-  }),
+  })
 );
 
 /**
@@ -115,7 +111,7 @@ router.patch(
 
     const volume = await updateUserVolume(volumeId, { label, accessMode });
     res.json({ volume });
-  }),
+  })
 );
 
 /**
@@ -141,7 +137,7 @@ router.delete(
 
     await removeVolumeFromUser(volumeId);
     res.status(204).end();
-  }),
+  })
 );
 
 /**
@@ -202,7 +198,7 @@ router.get(
       parent: hasParent ? parentPath : null,
       directories: dirs,
     });
-  }),
+  })
 );
 
 module.exports = router;

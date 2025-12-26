@@ -9,9 +9,7 @@ router.get('/features', (_req, res) => {
   const payload = {
     onlyoffice: {
       enabled: Boolean(onlyoffice && onlyoffice.serverUrl),
-      extensions: Array.isArray(onlyoffice?.extensions)
-        ? onlyoffice.extensions
-        : [],
+      extensions: Array.isArray(onlyoffice?.extensions) ? onlyoffice.extensions : [],
     },
     editor: {
       extensions: Array.isArray(editor?.extensions) ? editor.extensions : [],

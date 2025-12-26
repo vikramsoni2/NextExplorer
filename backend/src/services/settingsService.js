@@ -6,8 +6,7 @@ const { normalizeRelativePath } = require('../utils/pathUtils');
  */
 const sanitizeThumbnails = (thumbnails = {}) => {
   return {
-    enabled:
-      typeof thumbnails.enabled === 'boolean' ? thumbnails.enabled : true,
+    enabled: typeof thumbnails.enabled === 'boolean' ? thumbnails.enabled : true,
     size: Number.isFinite(thumbnails.size)
       ? Math.max(64, Math.min(1024, Math.floor(thumbnails.size)))
       : 200,
@@ -91,10 +90,7 @@ const setSettings = async (partial) => {
   const merged = {
     thumbnails: { ...current.thumbnails, ...(partial.thumbnails || {}) },
     access: {
-      rules:
-        partial.access?.rules !== undefined
-          ? partial.access.rules
-          : current.access.rules,
+      rules: partial.access?.rules !== undefined ? partial.access.rules : current.access.rules,
     },
   };
 

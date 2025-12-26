@@ -10,12 +10,7 @@ import 'codemirror/theme/material.css';
 import 'codemirror/addon/lint/lint';
 import 'codemirror/addon/lint/lint.css';
 
-export default function useCodeMirror({
-  emit,
-  initialValue = '',
-  options = {},
-  textareaRef,
-}) {
+export default function useCodeMirror({ emit, initialValue = '', options = {}, textareaRef }) {
   const state = reactive({
     cm: null,
     dirty: null,
@@ -44,7 +39,7 @@ export default function useCodeMirror({
     state.cm = markRaw(
       CodeMirror.fromTextArea(textareaRef.value, {
         ...unref(options),
-      }),
+      })
     );
 
     // initialize editor with initial value

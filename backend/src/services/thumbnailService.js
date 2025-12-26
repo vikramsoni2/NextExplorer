@@ -15,12 +15,8 @@ const { getRawPreviewJpegPath } = require('./rawPreviewService');
 
 const getThumbOptions = async () => {
   const settings = await getSettings();
-  const size = Number.isFinite(settings?.thumbnails?.size)
-    ? settings.thumbnails.size
-    : 200;
-  const quality = Number.isFinite(settings?.thumbnails?.quality)
-    ? settings.thumbnails.quality
-    : 70;
+  const size = Number.isFinite(settings?.thumbnails?.size) ? settings.thumbnails.size : 200;
+  const quality = Number.isFinite(settings?.thumbnails?.quality) ? settings.thumbnails.quality : 70;
   return { size, quality };
 };
 
@@ -122,7 +118,7 @@ thumbnailQueue.on('active', () => {
       pending: thumbnailQueue.pending,
       concurrency: thumbnailQueue.concurrency,
     },
-    'Thumbnail queue status',
+    'Thumbnail queue status'
   );
 });
 
@@ -184,9 +180,7 @@ const makeVideoThumb = async (srcPath, destPath) => {
 
   const duration = await probeDuration(srcPath);
   const seconds =
-    duration && Number.isFinite(duration)
-      ? Math.max(1, Math.floor(duration * 0.05))
-      : 1;
+    duration && Number.isFinite(duration) ? Math.max(1, Math.floor(duration * 0.05)) : 1;
 
   await new Promise((resolve, reject) => {
     // Size is dynamic; capture inside ffmpeg filter
@@ -199,14 +193,7 @@ const makeVideoThumb = async (srcPath, destPath) => {
     const command = ffmpeg(srcPath)
       .inputOptions(['-hide_banner', '-loglevel', 'error'])
       .seekInput(seconds)
-      .outputOptions([
-        '-frames:v',
-        '1',
-        '-vf',
-        `scale=${size}:-1:flags=lanczos`,
-        '-vcodec',
-        'png',
-      ])
+      .outputOptions(['-frames:v', '1', '-vf', `scale=${size}:-1:flags=lanczos`, '-vcodec', 'png'])
       .format('image2pipe')
       .on('error', reject);
 
@@ -252,9 +239,7 @@ const makeHeicThumb = async (srcPath, destPath) => {
 
     convert.on('exit', (code) => {
       if (code !== 0 && code !== null) {
-        reject(
-          new Error(`ImageMagick convert exited with code ${code}: ${stderr}`),
-        );
+        reject(new Error(`ImageMagick convert exited with code ${code}: ${stderr}`));
       }
     });
 
@@ -370,15 +355,12 @@ const getThumbnail = async (filePath) => {
           // Verify generation succeeded
           try {
             await fsPromises.access(thumbPath, fs.constants.F_OK);
-            logger.debug(
-              { filePath, thumbPath },
-              'Thumbnail generated successfully',
-            );
+            logger.debug({ filePath, thumbPath }, 'Thumbnail generated successfully');
             return `/static/thumbnails/${thumbFile}`;
           } catch (missing) {
             logger.warn(
               { filePath, thumbPath },
-              'Thumbnail generation completed but file not found',
+              'Thumbnail generation completed but file not found'
             );
             return '';
           }

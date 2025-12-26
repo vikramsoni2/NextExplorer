@@ -46,7 +46,7 @@ const buildApp = ({ authEnabled } = {}) => {
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-    }),
+    })
   );
 
   // Minimal stub for req.oidc so /status works without EOC

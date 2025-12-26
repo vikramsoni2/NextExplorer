@@ -51,9 +51,7 @@ const goHome = async () => {
 </script>
 
 <template>
-  <div
-    class="sticky top-0 z-40 bg-white/90 p-3 backdrop-blur dark:bg-default/90"
-  >
+  <div class="sticky top-0 z-40 bg-white/90 p-3 backdrop-blur dark:bg-default/90">
     <div class="flex flex-wrap items-center shrink-0">
       <button
         type="button"
@@ -87,18 +85,12 @@ const goHome = async () => {
         <template v-if="!isVolumesView">
           <MenuItemInfo class="ml-auto" />
           <MenuShare />
-          <div
-            class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
-          ></div>
+          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
           <MenuSortBy />
-          <div
-            class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
-          ></div>
+          <div class="h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
           <ViewMode />
           <PhotoSizeControl v-if="settings.view === 'photos'" />
-          <div
-            class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"
-          ></div>
+          <div class="max-md:hidden h-8 w-px mx-1 md:mx-3 bg-neutral-200 dark:bg-neutral-700"></div>
         </template>
         <NotificationBell />
         <SearchBar />

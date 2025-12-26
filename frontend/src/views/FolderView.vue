@@ -27,10 +27,8 @@ const dropTargetRef = ref(null);
 useUppyDropTarget(dropTargetRef);
 
 const isTouchDevice = computed(() => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined')
-    return false;
-  const hasTouchPoints =
-    'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
   const hasCoarsePointer =
     typeof window.matchMedia === 'function'
       ? window.matchMedia('(pointer: coarse)').matches
@@ -40,12 +38,9 @@ const isTouchDevice = computed(() => {
 });
 
 const applySelectionFromQuery = () => {
-  const selectName =
-    typeof route.query?.select === 'string' ? route.query.select : '';
+  const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
   if (!selectName) return;
-  const match = fileStore.getCurrentPathItems.find(
-    (it) => it?.name === selectName,
-  );
+  const match = fileStore.getCurrentPathItems.find((it) => it?.name === selectName);
   if (match) {
     fileStore.selectedItems = [match];
   }
@@ -208,11 +203,7 @@ onBeforeUnmount(() => {
         @contextmenu.prevent="handleBackgroundContextMenu"
       >
         <div
-          :class="[
-            gridClasses,
-            'min-h-full',
-            settings.view === 'list' ? 'overflow-x-auto' : '',
-          ]"
+          :class="[gridClasses, 'min-h-full', settings.view === 'list' ? 'overflow-x-auto' : '']"
           :style="gridStyle"
         >
           <!-- Detail view header -->
@@ -232,25 +223,15 @@ onBeforeUnmount(() => {
             }"
           >
             <div></div>
-            <div
-              v-for="col in listColumns"
-              :key="col.key"
-              class="relative flex items-center"
-            >
+            <div v-for="col in listColumns" :key="col.key" class="relative flex items-center">
               <button
                 type="button"
                 class="flex items-center gap-1 text-left hover:text-neutral-900 dark:hover:text-white"
                 @click="toggleSort(col.by, col.defaultOrder)"
               >
                 <span>{{ $t(col.labelKey) }}</span>
-                <ChevronUpIcon
-                  v-if="sortIndicator(col.by) === 'asc'"
-                  class="h-3.5 w-3.5"
-                />
-                <ChevronDownIcon
-                  v-else-if="sortIndicator(col.by) === 'desc'"
-                  class="h-3.5 w-3.5"
-                />
+                <ChevronUpIcon v-if="sortIndicator(col.by) === 'asc'" class="h-3.5 w-3.5" />
+                <ChevronDownIcon v-else-if="sortIndicator(col.by) === 'desc'" class="h-3.5 w-3.5" />
               </button>
               <div
                 class="absolute -right-2 top-0 h-full w-4 cursor-col-resize touch-none"
@@ -278,27 +259,14 @@ onBeforeUnmount(() => {
             class="absolute inset-0 flex flex-col items-center justify-center min-h-[400px] text-center px-4"
           >
             <div class="text-neutral-400 dark:text-neutral-500 mb-2">
-              <FolderOpenIcon
-                v-if="showEmptyFolderMessage"
-                class="w-16 h-16 mb-4 opacity-30"
-              />
+              <FolderOpenIcon v-if="showEmptyFolderMessage" class="w-16 h-16 mb-4 opacity-30" />
               <ImagesOutline v-else class="w-20 h-20 mx-auto mb-4 opacity-50" />
             </div>
-            <h3
-              class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2"
-            >
-              {{
-                showEmptyFolderMessage
-                  ? $t('folder.empty')
-                  : $t('folder.noPhotos')
-              }}
+            <h3 class="text-lg font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+              {{ showEmptyFolderMessage ? $t('folder.empty') : $t('folder.noPhotos') }}
             </h3>
             <p class="text-sm text-neutral-500 dark:text-neutral-400">
-              {{
-                showEmptyFolderMessage
-                  ? $t('folder.emptyHint')
-                  : $t('folder.noPhotosHint')
-              }}
+              {{ showEmptyFolderMessage ? $t('folder.emptyHint') : $t('folder.noPhotosHint') }}
             </p>
           </div>
         </div>
@@ -309,9 +277,7 @@ onBeforeUnmount(() => {
       <div
         class="flex flex-1 items-center justify-center text-sm text-neutral-600 dark:text-neutral-300"
       >
-        <div
-          class="flex items-center pr-4 bg-neutral-200 dark:bg-zinc-700/50 rounded-xl"
-        >
+        <div class="flex items-center pr-4 bg-neutral-200 dark:bg-zinc-700/50 rounded-xl">
           <LoadingIcon /> {{ $t('common.loading') }}
         </div>
       </div>

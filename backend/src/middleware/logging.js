@@ -16,7 +16,7 @@ const configureHttpLogging = (app) => {
         if (res.statusCode >= 400) return 'warn';
         return logging.isDebug ? 'debug' : 'info';
       },
-    }),
+    })
   );
 
   logger.debug('HTTP logging middleware configured');

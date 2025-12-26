@@ -15,9 +15,7 @@ export const useFavoritesStore = defineStore('favorites', () => {
   const hasLoaded = ref(false);
   const lastError = ref(null);
 
-  const favoritePaths = computed(() =>
-    favorites.value.map((favorite) => favorite.path),
-  );
+  const favoritePaths = computed(() => favorites.value.map((favorite) => favorite.path));
   const favoriteSet = computed(() => new Set(favoritePaths.value));
 
   const loadFavorites = async () => {
@@ -68,7 +66,7 @@ export const useFavoritesStore = defineStore('favorites', () => {
           };
 
     const currentIndex = favorites.value.findIndex(
-      (entry) => entry.id === favorite.id || entry.path === favorite.path,
+      (entry) => entry.id === favorite.id || entry.path === favorite.path
     );
     if (currentIndex === -1) {
       favorites.value = [...favorites.value, favorite];
@@ -91,9 +89,7 @@ export const useFavoritesStore = defineStore('favorites', () => {
     if (Array.isArray(payload)) {
       favorites.value = payload;
     } else {
-      favorites.value = favorites.value.filter(
-        (entry) => entry.path !== normalizedPath,
-      );
+      favorites.value = favorites.value.filter((entry) => entry.path !== normalizedPath);
     }
 
     return normalizedPath;

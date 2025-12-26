@@ -27,9 +27,7 @@ function detectLocale() {
     if (saved && supportedLocales.includes(saved)) return saved;
   } catch (_) {}
   const nav =
-    (typeof navigator !== 'undefined' &&
-      (navigator.language || navigator.userLanguage)) ||
-    'en';
+    (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) || 'en';
   const normalized = nav.toLowerCase();
   const match = supportedLocales.find((code) => normalized.startsWith(code));
   return match || 'en';

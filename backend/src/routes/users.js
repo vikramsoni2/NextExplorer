@@ -37,7 +37,7 @@ router.get(
     }
     const users = await listShareableUsers({ excludeUserId: req.user.id });
     res.json({ users });
-  }),
+  })
 );
 
 // GET /api/users - list all users (admin only)
@@ -47,7 +47,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const users = await listUsers();
     res.json({ users });
-  }),
+  })
 );
 
 // PATCH /api/users/:id - update roles or profile (admin only)
@@ -66,8 +66,7 @@ router.patch(
     let user = existing;
 
     if (Array.isArray(roles)) {
-      const wasAdmin =
-        Array.isArray(existing.roles) && existing.roles.includes('admin');
+      const wasAdmin = Array.isArray(existing.roles) && existing.roles.includes('admin');
       const willBeAdmin = Array.isArray(roles) && roles.includes('admin');
       if (wasAdmin && !willBeAdmin) {
         throw new ValidationError('Demotion of admin is not allowed.');
@@ -76,7 +75,7 @@ router.patch(
     }
 
     const hasProfileUpdates = ['email', 'username', 'displayName'].some(
-      (key) => typeof payload[key] === 'string',
+      (key) => typeof payload[key] === 'string'
     );
     if (hasProfileUpdates) {
       user = await updateUserProfile({
@@ -88,7 +87,7 @@ router.patch(
     }
 
     res.json({ user });
-  }),
+  })
 );
 
 // POST /api/users - create a new user (admin only)
@@ -106,7 +105,7 @@ router.post(
       roles: r,
     });
     res.status(201).json({ user });
-  }),
+  })
 );
 
 // POST /api/users/:id/password - admin reset local user's password
@@ -118,7 +117,7 @@ router.post(
     const { newPassword } = req.body || {};
     await setLocalPasswordAdmin({ userId: id, newPassword });
     res.status(204).end();
-  }),
+  })
 );
 
 // DELETE /api/users/:id - remove a user (admin only)
@@ -144,7 +143,7 @@ router.delete(
     }
     await deleteUser({ userId: id });
     res.status(204).end();
-  }),
+  })
 );
 
 module.exports = router;

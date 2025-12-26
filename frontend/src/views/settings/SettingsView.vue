@@ -19,9 +19,7 @@ onMounted(() => {
 });
 
 const isAdmin = computed(
-  () =>
-    Array.isArray(auth.currentUser?.roles) &&
-    auth.currentUser.roles.includes('admin'),
+  () => Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin')
 );
 const isLocalUser = computed(() => auth.currentUser?.provider === 'local');
 
@@ -73,8 +71,7 @@ const isActive = (key) => {
 const goCategory = (key) => router.push({ path: `/settings/${key}` });
 const closeSettings = () => {
   const fallback = '/browse/';
-  const prev =
-    typeof route.query?.redirect === 'string' ? route.query.redirect : '';
+  const prev = typeof route.query?.redirect === 'string' ? route.query.redirect : '';
   router.push(prev || fallback);
 };
 </script>
@@ -122,9 +119,7 @@ const closeSettings = () => {
               class="flex gap-2 overflow-x-auto pb-1 md:flex-col md:gap-1 md:overflow-visible md:pb-0"
             >
               <button
-                v-for="c in userCategories.filter(
-                  (c) => !c.requiresLocal || isLocalUser,
-                )"
+                v-for="c in userCategories.filter((c) => !c.requiresLocal || isLocalUser)"
                 :key="c.key"
                 type="button"
                 class="flex min-w-[160px] items-center gap-2 rounded-lg border border-neutral-200/70 bg-white/80 px-3 py-2 text-left text-sm text-neutral-700 shadow-sm transition hover:bg-white dark:border-neutral-700/70 dark:bg-neutral-800/80 dark:text-neutral-200 dark:hover:bg-neutral-700/80 md:min-w-0 md:w-full"
@@ -136,9 +131,7 @@ const closeSettings = () => {
                 @click="goCategory(c.key)"
               >
                 <component :is="c.icon" class="h-4 w-4 shrink-0" />
-                <span class="truncate">{{
-                  t('settings.categories.' + (c.i18nKey || c.key))
-                }}</span>
+                <span class="truncate">{{ t('settings.categories.' + (c.i18nKey || c.key)) }}</span>
               </button>
             </nav>
           </section>
@@ -165,9 +158,7 @@ const closeSettings = () => {
                 @click="goCategory(c.key)"
               >
                 <component :is="c.icon" class="h-4 w-4 shrink-0" />
-                <span class="truncate">{{
-                  t('settings.categories.' + (c.i18nKey || c.key))
-                }}</span>
+                <span class="truncate">{{ t('settings.categories.' + (c.i18nKey || c.key)) }}</span>
               </button>
             </nav>
           </section>

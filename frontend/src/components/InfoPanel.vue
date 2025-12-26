@@ -7,12 +7,7 @@ import { getKindLabel } from '@/utils/fileKinds';
 import FileIcon from '@/icons/FileIcon.vue';
 import MapPreview from '@/components/MapPreview.vue';
 import PermissionsPanel from '@/components/PermissionsPanel.vue';
-import {
-  fetchMetadata,
-  fetchPermissions,
-  changePermissions,
-  changeOwnership,
-} from '@/api';
+import { fetchMetadata, fetchPermissions, changePermissions, changeOwnership } from '@/api';
 import { useI18n } from 'vue-i18n';
 
 const store = useInfoPanelStore();
@@ -123,7 +118,7 @@ const trapFocus = (e) => {
   if (!el.contains(e.target)) {
     e.stopPropagation();
     el.querySelector(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     )?.focus?.();
   }
 };
@@ -172,11 +167,7 @@ onBeforeUnmount(() => {
   <teleport to="body">
     <!-- Backdrop -->
     <transition name="ip-fade">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-1450 bg-black/30"
-        @click="close"
-      />
+      <div v-if="isOpen" class="fixed inset-0 z-1450 bg-black/30" @click="close" />
     </transition>
 
     <!-- Panel -->
@@ -189,18 +180,12 @@ onBeforeUnmount(() => {
         ref="panelRef"
         class="flex h-full flex-col border-l bg-white/90 shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-zinc-900/80"
       >
-        <header
-          class="flex items-start gap-3 border-b px-5 py-4 dark:border-white/5"
-        >
+        <header class="flex items-start gap-3 border-b px-5 py-4 dark:border-white/5">
           <div class="min-w-0">
-            <p
-              class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-            >
+            <p class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
               {{ t('common.details') }}
             </p>
-            <h2
-              class="truncate text-lg font-semibold text-neutral-900 dark:text-white"
-            >
+            <h2 class="truncate text-lg font-semibold text-neutral-900 dark:text-white">
               {{ title }}
             </h2>
           </div>
@@ -219,9 +204,7 @@ onBeforeUnmount(() => {
             <div
               class="rounded-xl border bg-neutral-50 p-3 dark:border-white/10 dark:bg-zinc-800/60"
             >
-              <div
-                class="h-48 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-zinc-800"
-              >
+              <div class="h-48 w-full overflow-hidden rounded-lg bg-neutral-100 dark:bg-zinc-800">
                 <FileIcon v-if="item" :item="item" class="h-full w-full" />
               </div>
             </div>
@@ -332,10 +315,7 @@ onBeforeUnmount(() => {
                   })
                 }}
               </p>
-              <p
-                v-if="details.image.dateTaken"
-                class="text-neutral-900 dark:text-neutral-100"
-              >
+              <p v-if="details.image.dateTaken" class="text-neutral-900 dark:text-neutral-100">
                 {{
                   t('info.dateTaken', {
                     date: formatDate(details.image.dateTaken),
@@ -348,29 +328,19 @@ onBeforeUnmount(() => {
               >
                 {{
                   t('info.camera', {
-                    makeModel: [
-                      details.image.cameraMake,
-                      details.image.cameraModel,
-                    ]
+                    makeModel: [details.image.cameraMake, details.image.cameraModel]
                       .filter(Boolean)
                       .join(' '),
                   })
                 }}
               </p>
-              <p
-                v-if="details.image.lensModel"
-                class="text-neutral-900 dark:text-neutral-100"
-              >
+              <p v-if="details.image.lensModel" class="text-neutral-900 dark:text-neutral-100">
                 {{ t('info.lens', { lens: details.image.lensModel }) }}
               </p>
 
               <!-- Map preview matching theme -->
               <div
-                v-if="
-                  details.image.gps &&
-                  details.image.gps.lat &&
-                  details.image.gps.lon
-                "
+                v-if="details.image.gps && details.image.gps.lat && details.image.gps.lon"
                 class="mt-2"
               >
                 <MapPreview
@@ -415,16 +385,10 @@ onBeforeUnmount(() => {
             </div>
 
             <!-- Loading / error states -->
-            <div
-              v-if="loading"
-              class="text-sm text-neutral-500 dark:text-neutral-400"
-            >
+            <div v-if="loading" class="text-sm text-neutral-500 dark:text-neutral-400">
               {{ t('loading.metadata') }}
             </div>
-            <div
-              v-else-if="errorMsg"
-              class="text-sm text-red-600 dark:text-red-400"
-            >
+            <div v-else-if="errorMsg" class="text-sm text-red-600 dark:text-red-400">
               {{ errorMsg }}
             </div>
 
@@ -436,10 +400,7 @@ onBeforeUnmount(() => {
               @change-permissions="handleChangePermissions"
               @change-owner="handleChangeOwner"
             />
-            <div
-              v-if="permissionsError"
-              class="text-sm text-red-600 dark:text-red-400 mt-2"
-            >
+            <div v-if="permissionsError" class="text-sm text-red-600 dark:text-red-400 mt-2">
               {{ permissionsError }}
             </div>
           </div>

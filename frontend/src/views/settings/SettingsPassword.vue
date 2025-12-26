@@ -57,9 +57,7 @@ const submit = async () => {
     </p>
     <form v-else class="space-y-3 max-w-md" @submit.prevent="submit">
       <div>
-        <label class="block text-sm mb-1">{{
-          t('settings.password.current')
-        }}</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.current') }}</label>
         <input
           v-model="currentPassword"
           type="password"
@@ -68,9 +66,7 @@ const submit = async () => {
         />
       </div>
       <div>
-        <label class="block text-sm mb-1">{{
-          t('settings.password.new')
-        }}</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.new') }}</label>
         <input
           v-model="newPassword"
           type="password"
@@ -79,9 +75,7 @@ const submit = async () => {
         />
       </div>
       <div>
-        <label class="block text-sm mb-1">{{
-          t('settings.password.confirm')
-        }}</label>
+        <label class="block text-sm mb-1">{{ t('settings.password.confirm') }}</label>
         <input
           v-model="confirmPassword"
           type="password"
@@ -97,12 +91,8 @@ const submit = async () => {
         >
           {{ busy ? t('common.updating') : t('settings.password.update') }}
         </button>
-        <span v-if="successMsg" class="text-green-500 text-sm">{{
-          successMsg
-        }}</span>
-        <span v-else-if="errorMsg" class="text-red-500 text-sm">{{
-          errorMsg
-        }}</span>
+        <span v-if="successMsg" class="text-green-500 text-sm">{{ successMsg }}</span>
+        <span v-else-if="errorMsg" class="text-red-500 text-sm">{{ errorMsg }}</span>
       </div>
     </form>
   </div>

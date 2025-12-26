@@ -52,11 +52,7 @@ export function useFileUploader() {
         '';
 
       // Some rare DnD sources may miss name; prefer data.name if present
-      if (
-        !file?.name &&
-        file?.data?.name &&
-        typeof uppy.setFileName === 'function'
-      ) {
+      if (!file?.name && file?.data?.name && typeof uppy.setFileName === 'function') {
         try {
           uppy.setFileName(file.id, file.data.name);
         } catch (_) {
@@ -110,7 +106,7 @@ export function useFileUploader() {
 
       inputRef.value.onchange = (e) => {
         const selectedFiles = Array.from(e.target.files || []).filter(
-          (file) => !isDisallowedUpload(file.name),
+          (file) => !isDisallowedUpload(file.name)
         );
 
         files.value = selectedFiles.map((file) => uppyFile(file));

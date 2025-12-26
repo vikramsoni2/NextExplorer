@@ -36,12 +36,8 @@ const buildApp = () => {
 
   const authRoutes = envContext.requireFresh('src/routes/auth');
   const sharesRoutes = envContext.requireFresh('src/routes/shares');
-  const authMiddleware = envContext.requireFresh(
-    'src/middleware/authMiddleware',
-  );
-  const { errorHandler } = envContext.requireFresh(
-    'src/middleware/errorHandler',
-  );
+  const authMiddleware = envContext.requireFresh('src/middleware/authMiddleware');
+  const { errorHandler } = envContext.requireFresh('src/middleware/errorHandler');
 
   const app = express();
   app.use(express.json());
@@ -50,7 +46,7 @@ const buildApp = () => {
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-    }),
+    })
   );
 
   // Minimal stub for req.oidc so auth middleware doesn't treat requests as EOC-authenticated.
@@ -124,9 +120,7 @@ test('user-specific share links: /api/share/:token/access works when logged in',
     .send({ email: 'recipient@example.com', password: 'secret123' })
     .expect(200);
 
-  const access = await recipientAgent
-    .get(`/api/share/${token}/access`)
-    .expect(200);
+  const access = await recipientAgent.get(`/api/share/${token}/access`).expect(200);
 
   assert.equal(access.body?.share?.shareToken, token);
   assert.equal(access.body?.share?.sourcePath, `share/${token}`);

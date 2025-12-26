@@ -38,10 +38,7 @@ const authMiddleware = async (req, res, next) => {
 
   // Allow public feature flags endpoint (contains no sensitive data)
   // its needed for plugin registrations
-  if (
-    requestPath === '/api/features' ||
-    requestPath.startsWith('/api/features')
-  ) {
+  if (requestPath === '/api/features' || requestPath.startsWith('/api/features')) {
     next();
     return;
   }
@@ -66,8 +63,7 @@ const authMiddleware = async (req, res, next) => {
   }
 
   // Check for guest session (on all routes)
-  const guestSessionId =
-    req.headers['x-guest-session'] || req.cookies?.guestSession;
+  const guestSessionId = req.headers['x-guest-session'] || req.cookies?.guestSession;
   if (guestSessionId) {
     console.log('[DEBUG] Guest session found:', {
       source: req.headers['x-guest-session'] ? 'header' : 'cookie',
@@ -94,18 +90,12 @@ const authMiddleware = async (req, res, next) => {
           path: requestPath,
         });
       } else {
-        console.log(
-          '[DEBUG] Guest session invalid or expired:',
-          guestSessionId,
-        );
+        console.log('[DEBUG] Guest session invalid or expired:', guestSessionId);
       }
     } catch (err) {
       console.error('[DEBUG] Guest session validation failed:', err);
     }
-  } else if (
-    requestPath.startsWith('/api/preview') ||
-    requestPath.startsWith('/api/thumbnails')
-  ) {
+  } else if (requestPath.startsWith('/api/preview') || requestPath.startsWith('/api/thumbnails')) {
     console.log('[DEBUG] No guest session for preview/thumbnail request:', {
       path: requestPath,
       hasHeader: !!req.headers['x-guest-session'],
@@ -121,20 +111,14 @@ const authMiddleware = async (req, res, next) => {
 
   // Accept either EOC session or local session
   const isEocAuthenticated = Boolean(
-    req.oidc &&
-    typeof req.oidc.isAuthenticated === 'function' &&
-    req.oidc.isAuthenticated(),
+    req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated()
   );
   const hasLocalSession = Boolean(req.session && req.session.localUserId);
   if (isEocAuthenticated || hasLocalSession) {
     try {
       const user = await getRequestUser(req);
       if (user) req.user = user;
-      if (
-        isEocAuthenticated &&
-        !user &&
-        (auth?.oidc?.autoCreateUsers ?? true) === false
-      ) {
+      if (isEocAuthenticated && !user && (auth?.oidc?.autoCreateUsers ?? true) === false) {
         // Allow guest/public access without an app user profile.
         if (isPublicShareRoute || req.guestSession) {
           next();

@@ -2,11 +2,7 @@
   <teleport to="body">
     <!-- Backdrop -->
     <transition name="tp-fade">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-1450 bg-black/30 dark:bg-black/50"
-        @click="close"
-      />
+      <div v-if="isOpen" class="fixed inset-0 z-1450 bg-black/30 dark:bg-black/50" @click="close" />
     </transition>
 
     <!-- Panel -->
@@ -18,9 +14,7 @@
         ref="panelRef"
         class="flex h-full flex-col border-l bg-zinc-900 dark:bg-zinc-950 shadow-2xl dark:border-white/10"
       >
-        <header
-          class="flex items-center justify-between border-b border-white/10 px-5 py-3"
-        >
+        <header class="flex items-center justify-between border-b border-white/10 px-5 py-3">
           <h2 class="text-lg font-semibold text-white">
             {{ $t('titles.terminal') }}
           </h2>

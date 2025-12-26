@@ -28,7 +28,7 @@ export const useUppyStore = defineStore({
           const patch = mutation.payload;
           listener(mutation.oldState, state, patch);
         },
-        { immediate: true },
+        { immediate: true }
       );
 
       return unsubscribe;

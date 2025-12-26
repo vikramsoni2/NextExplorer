@@ -6,9 +6,7 @@ import { getVolumes, getUsage } from '@/api';
 import { useNavigation } from '@/composables/navigation';
 import * as OutlineIcons from '@heroicons/vue/24/outline';
 import * as SolidIcons from '@heroicons/vue/24/solid';
-const ProgressBar = defineAsyncComponent(
-  () => import('@/components/ProgressBar.vue'),
-);
+const ProgressBar = defineAsyncComponent(() => import('@/components/ProgressBar.vue'));
 import IconDrive from '@/icons/IconDrive.vue';
 import { formatBytes } from '@/utils';
 const volumes = ref([]);
@@ -23,10 +21,7 @@ const personalEnabled = computed(() => featuresStore.personalEnabled);
 onMounted(async () => {
   try {
     // Ensure features are loaded before checking flags
-    await Promise.all([
-      favoritesStore.ensureLoaded(),
-      featuresStore.ensureLoaded(),
-    ]);
+    await Promise.all([favoritesStore.ensureLoaded(), featuresStore.ensureLoaded()]);
 
     // Load volumes
     volumes.value = await getVolumes();
@@ -74,7 +69,7 @@ const quickAccess = computed(() =>
       iconComponent: resolveIconComponent(favorite.icon),
       color: favorite.color || null,
     };
-  }),
+  })
 );
 
 const handleOpenFavorite = (favorite) => {
@@ -115,9 +110,7 @@ const openPersonal = () => {
             class="h-12 shrink-0"
             :style="{ color: fav.color || 'currentColor' }"
           />
-          <div
-            class="text-sm text-left break-all line-clamp-2 rounded-md px-2 -mx-2"
-          >
+          <div class="text-sm text-left break-all line-clamp-2 rounded-md px-2 -mx-2">
             {{ fav.label }}
           </div>
         </button>
@@ -147,9 +140,7 @@ const openPersonal = () => {
         >
           <IconDrive class="h-16 shrink-0" />
           <div>
-            <div
-              class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white"
-            >
+            <div class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white">
               {{ vol.name }}
             </div>
             <template v-if="showVolumeUsage">
@@ -202,16 +193,10 @@ const openPersonal = () => {
         {{ $t('drives.personal') }}
       </h3>
       <div v-if="!loading">
-        <button
-          type="button"
-          @click="openPersonal"
-          class="flex items-center gap-3 py-4 text-left"
-        >
+        <button type="button" @click="openPersonal" class="flex items-center gap-3 py-4 text-left">
           <component :is="PersonalIcon" class="h-14 w-16 shrink-0" />
           <div>
-            <div
-              class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white"
-            >
+            <div class="mb-1 truncate text-sm font-medium text-neutral-900 dark:text-white">
               {{ $t('drives.personal') }}
             </div>
           </div>

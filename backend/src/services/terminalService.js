@@ -12,9 +12,7 @@ class TerminalService {
 
   createSessionToken(user) {
     if (!user || !user.id) {
-      const err = new Error(
-        'User context is required to create terminal session token.',
-      );
+      const err = new Error('User context is required to create terminal session token.');
       err.status = 400;
       throw err;
     }
@@ -23,9 +21,7 @@ class TerminalService {
     const isAdmin = roles.includes('admin');
 
     if (!isAdmin) {
-      const err = new Error(
-        'Admin privileges required to create terminal session token.',
-      );
+      const err = new Error('Admin privileges required to create terminal session token.');
       err.status = 403;
       throw err;
     }
@@ -80,7 +76,7 @@ class TerminalService {
         if (!session) {
           logger.warn(
             { url: req.url },
-            'Rejected terminal WebSocket connection: invalid or expired token',
+            'Rejected terminal WebSocket connection: invalid or expired token'
           );
           ws.close(1008, 'Invalid or expired terminal session token');
           return;
@@ -93,15 +89,12 @@ class TerminalService {
             userId: session.userId,
             roles: session.roles,
           },
-          'Terminal WebSocket connection established for admin user',
+          'Terminal WebSocket connection established for admin user'
         );
 
         this.handleConnection(ws);
       } catch (error) {
-        logger.error(
-          { err: error },
-          'Error handling terminal WebSocket connection',
-        );
+        logger.error({ err: error }, 'Error handling terminal WebSocket connection');
         try {
           ws.close(1011, 'Internal server error');
         } catch (_) {
@@ -129,7 +122,7 @@ class TerminalService {
         cwd: process.env.HOME,
         wsReadyState: ws.readyState,
       },
-      'Attempting to spawn terminal process',
+      'Attempting to spawn terminal process'
     );
 
     try {
@@ -151,29 +144,23 @@ class TerminalService {
       this.terminals.set(terminalId, ptyProcess);
       logger.info(
         { terminalId, shell, pid: ptyProcess.pid },
-        'Terminal process spawned successfully',
+        'Terminal process spawned successfully'
       );
 
       ptyProcess.on('data', (data) => {
         try {
-          logger.debug(
-            { terminalId, dataLength: data.length },
-            'Received data from PTY',
-          );
+          logger.debug({ terminalId, dataLength: data.length }, 'Received data from PTY');
           if (ws.readyState === WebSocket.OPEN) {
             ws.send(data);
             logger.debug({ terminalId }, 'Sent data to WebSocket client');
           } else {
             logger.warn(
               { terminalId, readyState: ws.readyState },
-              'WebSocket not open, cannot send data',
+              'WebSocket not open, cannot send data'
             );
           }
         } catch (error) {
-          logger.error(
-            { err: error, terminalId },
-            'Error sending data to WebSocket',
-          );
+          logger.error({ err: error, terminalId }, 'Error sending data to WebSocket');
         }
       });
 
@@ -181,7 +168,7 @@ class TerminalService {
         try {
           logger.debug(
             { terminalId, messageLength: message.length },
-            'Received message from WebSocket client',
+            'Received message from WebSocket client'
           );
           ptyProcess.write(message);
         } catch (error) {
@@ -205,18 +192,12 @@ class TerminalService {
   }
 
   cleanup() {
-    logger.info(
-      { count: this.terminals.size },
-      'Cleaning up terminal processes',
-    );
+    logger.info({ count: this.terminals.size }, 'Cleaning up terminal processes');
     this.terminals.forEach((terminal, id) => {
       try {
         terminal.kill();
       } catch (error) {
-        logger.error(
-          { err: error, terminalId: id },
-          'Error killing terminal process',
-        );
+        logger.error({ err: error, terminalId: id }, 'Error killing terminal process');
       }
     });
     this.terminals.clear();

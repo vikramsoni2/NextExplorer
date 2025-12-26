@@ -78,10 +78,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
 
   // Generate unique ID
   function generateId() {
-    return (
-      Math.random().toString(36).substr(2, 9) +
-      new Date().getTime().toString(36)
-    );
+    return Math.random().toString(36).substr(2, 9) + new Date().getTime().toString(36);
   }
 
   // Add notification
@@ -99,8 +96,7 @@ export const useNotificationsStore = defineStore('notifications', () => {
     const id = generateId();
     const timestamp = new Date().toISOString();
     const icon = ICON_MAP[type] || ICON_MAP.info;
-    const duration =
-      durationMs !== undefined ? durationMs : DEFAULT_DURATION[type];
+    const duration = durationMs !== undefined ? durationMs : DEFAULT_DURATION[type];
 
     const newNotification = {
       id,

@@ -41,12 +41,8 @@ const buildApp = () => {
   const authRoutes = envContext.requireFresh('src/routes/auth');
   const sharesRoutes = envContext.requireFresh('src/routes/shares');
   const browseRoutes = envContext.requireFresh('src/routes/browse');
-  const authMiddleware = envContext.requireFresh(
-    'src/middleware/authMiddleware',
-  );
-  const { errorHandler } = envContext.requireFresh(
-    'src/middleware/errorHandler',
-  );
+  const authMiddleware = envContext.requireFresh('src/middleware/authMiddleware');
+  const { errorHandler } = envContext.requireFresh('src/middleware/errorHandler');
 
   const app = express();
   app.use(express.json());
@@ -56,7 +52,7 @@ const buildApp = () => {
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-    }),
+    })
   );
 
   // Minimal stub for req.oidc so auth middleware doesn't treat requests as EOC-authenticated.
@@ -108,9 +104,7 @@ test('authenticated user takes precedence over guest session when browsing volum
   assert.ok(token);
 
   // Simulate a guest opening the share link to create a guest session.
-  const guestAccess = await request(app)
-    .get(`/api/share/${token}/access`)
-    .expect(200);
+  const guestAccess = await request(app).get(`/api/share/${token}/access`).expect(200);
 
   const guestSessionId = guestAccess.body?.guestSessionId;
   assert.ok(guestSessionId);

@@ -1,13 +1,5 @@
 <script setup>
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  provide,
-  ref,
-  watch,
-} from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, provide, ref, watch } from 'vue';
 import { offset, flip, shift, useFloating } from '@floating-ui/vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -86,9 +78,7 @@ const canRename = actions.canRename;
 const locationCanWrite = actions.locationCanWrite;
 const locationCanUpload = actions.locationCanUpload;
 const locationCanDelete = actions.locationCanDelete;
-const canAcceptPasteHere = computed(
-  () => locationCanWrite.value || locationCanUpload.value,
-);
+const canAcceptPasteHere = computed(() => locationCanWrite.value || locationCanUpload.value);
 const isShareDialogOpen = ref(false);
 const itemToShare = ref(null);
 
@@ -102,9 +92,7 @@ const isShareView = computed(() => {
   return p.startsWith('share/');
 });
 
-const locationCanShare = computed(
-  () => fileStore.currentPathData?.canShare ?? true,
-);
+const locationCanShare = computed(() => fileStore.currentPathData?.canShare ?? true);
 
 const canShare = computed(
   () =>
@@ -113,7 +101,7 @@ const canShare = computed(
     locationCanShare.value &&
     isSingleItemSelected.value &&
     Boolean(primaryItem.value) &&
-    primaryItem.value?.kind !== 'volume',
+    primaryItem.value?.kind !== 'volume'
 );
 
 const deleteDialogTitle = computed(() => {
@@ -138,8 +126,7 @@ const deleteDialogMessage = computed(() => {
   return t('context.deleteMessage.generic');
 });
 
-const { isDeleteConfirmOpen, isDeleting, requestDelete, confirmDelete } =
-  useDeleteConfirm();
+const { isDeleteConfirmOpen, isDeleting, requestDelete, confirmDelete } = useDeleteConfirm();
 
 const closeMenu = () => {
   isOpen.value = false;
@@ -154,17 +141,13 @@ const getItemKey = (item) => {
 const ensureItemInSelection = (item) => {
   if (!item) return;
   const key = getItemKey(item);
-  const alreadySelected = fileStore.selectedItems.some(
-    (selected) => getItemKey(selected) === key,
-  );
+  const alreadySelected = fileStore.selectedItems.some((selected) => getItemKey(selected) === key);
 
   if (alreadySelected) {
     return;
   }
 
-  const match = fileStore.getCurrentPathItems.find(
-    (candidate) => getItemKey(candidate) === key,
-  );
+  const match = fileStore.getCurrentPathItems.find((candidate) => getItemKey(candidate) === key);
 
   fileStore.selectedItems = match ? [match] : [item];
 };
@@ -263,9 +246,7 @@ const isFavoriteDirectory = computed(() => {
   return favoritesStore.isFavorite(path);
 });
 
-const currentDirectoryPath = computed(() =>
-  normalizePath(fileStore.getCurrentPath || ''),
-);
+const currentDirectoryPath = computed(() => normalizePath(fileStore.getCurrentPath || ''));
 const isFavoriteCurrentDirectory = computed(() => {
   const path = currentDirectoryPath.value;
   if (!path) return false;
@@ -337,39 +318,23 @@ const menuSections = computed(() => {
           : t('context.addToFavorites'),
         isFavoriteCurrentDirectory.value ? StarSolid : StarOutline,
         runToggleFavoriteForCurrent,
-        { disabled: !currentDirectoryPath.value || isMutatingFavorite.value },
+        { disabled: !currentDirectoryPath.value || isMutatingFavorite.value }
       ),
     ]);
 
     if (locationCanWrite.value) {
       sections.push([
-        mk(
-          'new-folder',
-          t('actions.newFolder'),
-          CreateNewFolderRound,
-          runCreateFolder,
-        ),
-        mk(
-          'new-file',
-          t('actions.newFile'),
-          InsertDriveFileRound,
-          runCreateFile,
-        ),
+        mk('new-folder', t('actions.newFolder'), CreateNewFolderRound, runCreateFolder),
+        mk('new-file', t('actions.newFile'), InsertDriveFileRound, runCreateFile),
       ]);
     }
 
     if (canAcceptPasteHere.value) {
       sections.push([
-        mk(
-          'paste',
-          t('actions.paste'),
-          ContentPasteRound,
-          runPasteIntoCurrent,
-          {
-            disabled: !actions.canPaste.value,
-            shortcut: `${modKeyLabel}V`,
-          },
-        ),
+        mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoCurrent, {
+          disabled: !actions.canPaste.value,
+          shortcut: `${modKeyLabel}V`,
+        }),
       ]);
     }
 
@@ -386,13 +351,9 @@ const menuSections = computed(() => {
   // Add "Open with Editor" for files only
   if (contextKind.value === 'file') {
     sections.push([
-      mk(
-        'open-with-editor',
-        t('context.openWithEditor'),
-        DocumentTextIcon,
-        runOpenWithEditor,
-        { disabled: !primaryItem.value },
-      ),
+      mk('open-with-editor', t('context.openWithEditor'), DocumentTextIcon, runOpenWithEditor, {
+        disabled: !primaryItem.value,
+      }),
     ]);
   }
 
@@ -418,25 +379,22 @@ const menuSections = computed(() => {
       mk('cut', t('actions.cut'), ContentCutRound, runCut, {
         disabled: !actions.canCut.value,
         shortcut: `${modKeyLabel}X`,
-      }),
+      })
     );
   }
   clipboardSection.push(
     mk('copy', t('actions.copy'), ContentCopyRound, runCopy, {
       disabled: !actions.canCopy.value,
       shortcut: `${modKeyLabel}C`,
-    }),
+    })
   );
   if (contextKind.value === 'directory') {
     if (canAcceptPasteHere.value) {
       clipboardSection.push(
-        mk(
-          'paste',
-          t('actions.paste'),
-          ContentPasteRound,
-          runPasteIntoDirectory,
-          { disabled: !actions.canPaste.value, shortcut: `${modKeyLabel}V` },
-        ),
+        mk('paste', t('actions.paste'), ContentPasteRound, runPasteIntoDirectory, {
+          disabled: !actions.canPaste.value,
+          shortcut: `${modKeyLabel}V`,
+        })
       );
     }
   }
@@ -446,13 +404,9 @@ const menuSections = computed(() => {
 
   if (locationCanWrite.value) {
     sections.push([
-      mk(
-        'rename',
-        t('actions.rename'),
-        DriveFileRenameOutlineRound,
-        runRename,
-        { disabled: !canRename.value },
-      ),
+      mk('rename', t('actions.rename'), DriveFileRenameOutlineRound, runRename, {
+        disabled: !canRename.value,
+      }),
     ]);
   }
 
@@ -460,12 +414,10 @@ const menuSections = computed(() => {
     sections.push([
       mk(
         'fav',
-        isFavoriteDirectory.value
-          ? t('context.removeFromFavorites')
-          : t('context.addToFavorites'),
+        isFavoriteDirectory.value ? t('context.removeFromFavorites') : t('context.addToFavorites'),
         isFavoriteDirectory.value ? StarSolid : StarOutline,
         runToggleFavoriteForDirectory,
-        { disabled: !selectedDirectoryPath.value || isMutatingFavorite.value },
+        { disabled: !selectedDirectoryPath.value || isMutatingFavorite.value }
       ),
     ]);
   }
@@ -521,7 +473,7 @@ watch(
     await nextTick();
     update();
   },
-  { deep: true },
+  { deep: true }
 );
 
 onMounted(() => {
@@ -561,11 +513,7 @@ provide(explorerContextMenuSymbol, {
       @contextmenu.prevent
       @click.stop
     >
-      <div
-        v-for="(section, sIdx) in menuSections"
-        :key="`section-${sIdx}`"
-        class="flex flex-col"
-      >
+      <div v-for="(section, sIdx) in menuSections" :key="`section-${sIdx}`" class="flex flex-col">
         <button
           v-for="action in section"
           :key="action.id"
@@ -581,14 +529,10 @@ provide(explorerContextMenuSymbol, {
         >
           <component :is="action.icon" class="w-4 h-4 opacity-80" />
           <p class="flex-1 font-medium">{{ action.label }}</p>
-          <span
-            v-if="action.shortcut"
-            class="ml-auto text-xs text-zinc-500 dark:text-zinc-400"
-            >{{ action.shortcut }}</span
-          >
-          <span v-if="action.disabled" class="sr-only">{{
-            $t('common.disabled')
+          <span v-if="action.shortcut" class="ml-auto text-xs text-zinc-500 dark:text-zinc-400">{{
+            action.shortcut
           }}</span>
+          <span v-if="action.disabled" class="sr-only">{{ $t('common.disabled') }}</span>
         </button>
 
         <div

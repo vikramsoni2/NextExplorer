@@ -73,9 +73,7 @@ const handleUpdateUser = async (userData) => {
 
     if (res?.user) {
       // Update local list
-      users.value = users.value.map((u) =>
-        u.id === userData.id ? { ...u, ...res.user } : u,
-      );
+      users.value = users.value.map((u) => (u.id === userData.id ? { ...u, ...res.user } : u));
       selectedUser.value = { ...selectedUser.value, ...res.user };
     }
   } catch (e) {
@@ -118,9 +116,7 @@ const handleRevokeAdmin = async (u) => {
 };
 
 const handleResetPassword = async (u) => {
-  const pwd = window.prompt(
-    t('settings.users.promptNewPassword', { user: u.username }),
-  );
+  const pwd = window.prompt(t('settings.users.promptNewPassword', { user: u.username }));
   if (pwd == null) return; // cancelled
   if (pwd.length < 6) {
     alert(t('errors.passwordMin'));
@@ -142,9 +138,7 @@ const handleDeleteUser = async (u) => {
     alert(t('settings.users.cannotDeleteSelf'));
     return;
   }
-  const ok = window.confirm(
-    t('settings.users.confirmRemove', { user: u.username }),
-  );
+  const ok = window.confirm(t('settings.users.confirmRemove', { user: u.username }));
   if (!ok) return;
   try {
     await deleteUser(u.id);
@@ -266,21 +260,15 @@ onMounted(() => {
               stroke="currentColor"
               aria-hidden="true"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         <form class="space-y-4" @submit.prevent="handleCreate">
           <div>
-            <label
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
-              >{{ t('common.email') }}
-              <span class="text-red-500">*</span></label
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >{{ t('common.email') }} <span class="text-red-500">*</span></label
             >
             <input
               v-model.trim="newEmail"
@@ -291,10 +279,9 @@ onMounted(() => {
             />
           </div>
           <div>
-            <label
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
-              >{{ t('common.username') }}</label
-            >
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">{{
+              t('common.username')
+            }}</label>
             <input
               v-model.trim="newUsername"
               type="text"
@@ -303,10 +290,8 @@ onMounted(() => {
             />
           </div>
           <div>
-            <label
-              class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
-              >{{ t('common.password') }}
-              <span class="text-red-500">*</span></label
+            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+              >{{ t('common.password') }} <span class="text-red-500">*</span></label
             >
             <input
               v-model="newPassword"
@@ -330,11 +315,9 @@ onMounted(() => {
               />
             </div>
             <div class="ml-3 text-sm">
-              <label
-                for="is-admin"
-                class="font-medium text-zinc-700 dark:text-zinc-300"
-                >{{ t('settings.users.grantAdmin') }}</label
-              >
+              <label for="is-admin" class="font-medium text-zinc-700 dark:text-zinc-300">{{
+                t('settings.users.grantAdmin')
+              }}</label>
               <p class="text-zinc-500 dark:text-zinc-400">
                 Grants full access to all settings and users.
               </p>

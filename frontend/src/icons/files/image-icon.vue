@@ -1,10 +1,5 @@
 <template>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 32 32"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
     <!-- Page fill -->
     <path
       fill="#fff"
@@ -20,15 +15,7 @@
     />
 
     <!-- Image placeholder frame -->
-    <rect
-      x="8"
-      y="11"
-      width="16"
-      height="10"
-      rx="1.5"
-      fill="#E5F3E9"
-      stroke="#34D399"
-    />
+    <rect x="8" y="11" width="16" height="10" rx="1.5" fill="#E5F3E9" stroke="#34D399" />
     <!-- Sun -->
     <circle cx="12.5" cy="14" r="2" fill="#FBBF24" />
     <!-- Mountains -->

@@ -31,7 +31,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const favorites = await getFavorites(req.user.id);
     res.json(favorites);
-  }),
+  })
 );
 
 /**
@@ -44,7 +44,7 @@ router.post(
     const { path, label, icon, color } = req.body || {};
     const favorite = await addFavorite(req.user, { path, label, icon, color });
     res.json(favorite);
-  }),
+  })
 );
 
 /**
@@ -57,7 +57,7 @@ router.patch(
     const { order: orderedIds } = req.body || {};
     const favorites = await reorderFavorites(req.user.id, orderedIds);
     res.json(favorites);
-  }),
+  })
 );
 
 /**
@@ -77,7 +77,7 @@ router.patch(
       position,
     });
     res.json(favorite);
-  }),
+  })
 );
 
 /**
@@ -90,7 +90,7 @@ router.delete(
     const { path } = req.body || {};
     const favorites = await removeFavorite(req.user.id, path);
     res.json(favorites);
-  }),
+  })
 );
 
 module.exports = router;

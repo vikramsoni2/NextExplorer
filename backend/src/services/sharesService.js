@@ -14,8 +14,7 @@ const generateId = () =>
  * Uses base62 encoding for readability (no special characters)
  */
 const generateShareToken = (length = 10) => {
-  const chars =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const bytes = crypto.randomBytes(length * 2);
   let token = '';
   for (let i = 0; i < length; i++) {
@@ -69,10 +68,7 @@ const createShare = async ({
     throw e;
   }
 
-  if (
-    !sourceSpace ||
-    !['volume', 'personal', 'user_volume'].includes(sourceSpace)
-  ) {
+  if (!sourceSpace || !['volume', 'personal', 'user_volume'].includes(sourceSpace)) {
     const e = new Error('Invalid source space');
     e.status = 400;
     throw e;
@@ -96,13 +92,8 @@ const createShare = async ({
     throw e;
   }
 
-  if (
-    sharingType === 'users' &&
-    (!Array.isArray(userIds) || userIds.length === 0)
-  ) {
-    const e = new Error(
-      'At least one user is required for user-specific shares',
-    );
+  if (sharingType === 'users' && (!Array.isArray(userIds) || userIds.length === 0)) {
+    const e = new Error('At least one user is required for user-specific shares');
     e.status = 400;
     throw e;
   }
@@ -121,7 +112,7 @@ const createShare = async ({
       access_mode, sharing_type, password_hash, expires_at, label,
       download_count, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
-  `,
+  `
   ).run(
     shareId,
     shareToken,
@@ -135,7 +126,7 @@ const createShare = async ({
     expiresAt,
     label,
     now,
-    now,
+    now
   );
 
   // Add user permissions if user-specific share
@@ -176,7 +167,7 @@ const getShareById = async (shareId) => {
       .prepare(
         `
       SELECT user_id FROM share_permissions WHERE share_id = ?
-    `,
+    `
       )
       .all(shareId);
     share.permittedUserIds = permissions.map((p) => p.user_id);
@@ -190,9 +181,7 @@ const getShareById = async (shareId) => {
  */
 const getShareByToken = async (token) => {
   const db = await getDb();
-  const row = db
-    .prepare('SELECT * FROM shares WHERE share_token = ?')
-    .get(token);
+  const row = db.prepare('SELECT * FROM shares WHERE share_token = ?').get(token);
   if (!row) return null;
 
   const share = toClientShare(row);
@@ -203,7 +192,7 @@ const getShareByToken = async (token) => {
       .prepare(
         `
       SELECT user_id FROM share_permissions WHERE share_id = ?
-    `,
+    `
       )
       .all(share.id);
     share.permittedUserIds = permissions.map((p) => p.user_id);
@@ -221,7 +210,7 @@ const getSharesByOwnerId = async (ownerId) => {
     .prepare(
       `
     SELECT * FROM shares WHERE owner_id = ? ORDER BY created_at DESC
-  `,
+  `
     )
     .all(ownerId);
 
@@ -234,7 +223,7 @@ const getSharesByOwnerId = async (ownerId) => {
         .prepare(
           `
         SELECT user_id FROM share_permissions WHERE share_id = ?
-      `,
+      `
         )
         .all(share.id);
       share.permittedUserIds = permissions.map((p) => p.user_id);
@@ -256,7 +245,7 @@ const getSharesForUser = async (userId) => {
     INNER JOIN share_permissions sp ON s.id = sp.share_id
     WHERE sp.user_id = ?
     ORDER BY s.created_at DESC
-  `,
+  `
     )
     .all(userId);
 
@@ -310,9 +299,7 @@ const updateShare = async (shareId, updates = {}) => {
   }
 
   if ('password' in updates) {
-    const passwordHash = updates.password
-      ? bcrypt.hashSync(updates.password, 10)
-      : null;
+    const passwordHash = updates.password ? bcrypt.hashSync(updates.password, 10) : null;
     fields.push('password_hash = ?');
     values.push(passwordHash);
   }
@@ -335,9 +322,7 @@ const updateShare = async (shareId, updates = {}) => {
   values.push(nowIso());
   values.push(shareId);
 
-  db.prepare(`UPDATE shares SET ${fields.join(', ')} WHERE id = ?`).run(
-    ...values,
-  );
+  db.prepare(`UPDATE shares SET ${fields.join(', ')} WHERE id = ?`).run(...values);
 
   // Update user permissions if provided and sharing type is 'users'
   if ('userIds' in updates && Array.isArray(updates.userIds)) {
@@ -345,9 +330,7 @@ const updateShare = async (shareId, updates = {}) => {
 
     if (sharingType === 'users') {
       // Remove all existing permissions
-      db.prepare('DELETE FROM share_permissions WHERE share_id = ?').run(
-        shareId,
-      );
+      db.prepare('DELETE FROM share_permissions WHERE share_id = ?').run(shareId);
 
       // Add new permissions
       const insertPerm = db.prepare(`
@@ -385,9 +368,7 @@ const deleteShare = async (shareId) => {
  */
 const verifySharePassword = async (shareId, password) => {
   const db = await getDb();
-  const row = db
-    .prepare('SELECT password_hash FROM shares WHERE id = ?')
-    .get(shareId);
+  const row = db.prepare('SELECT password_hash FROM shares WHERE id = ?').get(shareId);
 
   if (!row) {
     return false;
@@ -410,9 +391,7 @@ const verifySharePassword = async (shareId, password) => {
  */
 const hasUserPermission = async (shareId, userId) => {
   const db = await getDb();
-  const share = db
-    .prepare('SELECT sharing_type, owner_id FROM shares WHERE id = ?')
-    .get(shareId);
+  const share = db.prepare('SELECT sharing_type, owner_id FROM shares WHERE id = ?').get(shareId);
 
   if (!share) {
     return false;
@@ -433,7 +412,7 @@ const hasUserPermission = async (shareId, userId) => {
     .prepare(
       `
     SELECT id FROM share_permissions WHERE share_id = ? AND user_id = ?
-  `,
+  `
     )
     .get(shareId, userId);
 
@@ -466,7 +445,7 @@ const trackShareAccess = async (shareId) => {
     UPDATE shares
     SET last_accessed_at = ?, download_count = download_count + 1
     WHERE id = ?
-  `,
+  `
   ).run(nowIso(), shareId);
 };
 
@@ -483,7 +462,7 @@ const getShareStats = async (shareId) => {
     .prepare(
       `
     SELECT COUNT(*) as count FROM guest_sessions WHERE share_id = ?
-  `,
+  `
     )
     .get(shareId);
 
@@ -503,7 +482,7 @@ const cleanupExpiredShares = async () => {
     .prepare(
       `
     DELETE FROM shares WHERE expires_at IS NOT NULL AND expires_at <= ?
-  `,
+  `
     )
     .run(nowIso());
 
