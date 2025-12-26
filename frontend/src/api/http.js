@@ -1,20 +1,13 @@
 import { useNotificationsStore } from '@/stores/notifications';
 
 const DEFAULT_API_BASE = '/';
-const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(
-  /\/$/,
-  '',
-);
+const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
 const buildUrl = (endpoint) => `${apiBase}${endpoint}`;
 
 const encodePath = (relativePath = '') => {
   if (!relativePath) return '';
-  return relativePath
-    .split('/')
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join('/');
+  return relativePath.split('/').filter(Boolean).map(encodeURIComponent).join('/');
 };
 
 const normalizePath = (relativePath = '') => {
@@ -69,9 +62,7 @@ const requestRaw = async (endpoint, options = {}) => {
             notificationsStore.addNotification({
               type: 'error',
               heading: errorMessage,
-              body: errorDetails.details
-                ? JSON.stringify(errorDetails.details)
-                : '',
+              body: errorDetails.details ? JSON.stringify(errorDetails.details) : '',
               requestId: errorDetails.requestId,
               statusCode: errorDetails.statusCode || response.status,
             });
@@ -126,11 +117,4 @@ const requestJson = async (endpoint, options = {}) => {
   return response.json();
 };
 
-export {
-  apiBase,
-  buildUrl,
-  encodePath,
-  normalizePath,
-  requestJson,
-  requestRaw,
-};
+export { apiBase, buildUrl, encodePath, normalizePath, requestJson, requestRaw };

@@ -11,10 +11,7 @@ const configureSession = (app) => {
     process.env.SESSION_SECRET ||
     crypto.randomBytes(32).toString('hex');
 
-  logger.debug(
-    { hasSessionSecret: Boolean(sessionSecret) },
-    'Session secret resolved',
-  );
+  logger.debug({ hasSessionSecret: Boolean(sessionSecret) }, 'Session secret resolved');
 
   app.locals.sessionStore = localStore;
 
@@ -29,12 +26,10 @@ const configureSession = (app) => {
         sameSite: 'lax',
         secure: 'auto',
       },
-    }),
+    })
   );
 
-  logger.debug(
-    'Express session middleware configured with shared SQLite store',
-  );
+  logger.debug('Express session middleware configured with shared SQLite store');
 };
 
 module.exports = { configureSession };

@@ -13,11 +13,9 @@ const items = ref([]);
 const loading = ref(false);
 const errorMsg = ref('');
 
-const q = computed(() =>
-  typeof route.query.q === 'string' ? route.query.q : '',
-);
+const q = computed(() => (typeof route.query.q === 'string' ? route.query.q : ''));
 const basePath = computed(() =>
-  normalizePath(typeof route.query.path === 'string' ? route.query.path : ''),
+  normalizePath(typeof route.query.path === 'string' ? route.query.path : '')
 );
 
 async function load() {
@@ -43,10 +41,7 @@ function openResult(it) {
   if (!it) return;
   const kind = it.kind === 'dir' ? 'dir' : 'file';
   // Open the matched folder itself for directories; open parent for files
-  const target =
-    kind === 'dir'
-      ? [it.path, it.name].filter(Boolean).join('/')
-      : it.path || '';
+  const target = kind === 'dir' ? [it.path, it.name].filter(Boolean).join('/') : it.path || '';
   const normalized = normalizePath(target || '');
   router.push({ name: 'FolderView', params: { path: normalized } });
 }
@@ -87,10 +82,7 @@ function toIconItem(it) {
       {{ $t('search.searching') }}
     </div>
     <div v-else-if="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</div>
-    <div
-      v-else-if="items.length === 0"
-      class="text-sm text-neutral-500 dark:text-neutral-400"
-    >
+    <div v-else-if="items.length === 0" class="text-sm text-neutral-500 dark:text-neutral-400">
       {{ $t('search.noMatches') }}
     </div>
 
@@ -107,9 +99,7 @@ function toIconItem(it) {
           <FileIcon :item="toIconItem(it)" class="w-12 h-12 shrink-0" />
           <div class="min-w-0">
             <div class="font-medium truncate">{{ it.name }}</div>
-            <div class="text-xs text-neutral-500 font-mono truncate">
-              /{{ it.path }}
-            </div>
+            <div class="text-xs text-neutral-500 font-mono truncate">/{{ it.path }}</div>
             <div
               v-if="it.matchLine"
               class="mt-1 text-xs text-neutral-700 dark:text-neutral-300 font-mono truncate"

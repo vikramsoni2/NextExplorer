@@ -16,7 +16,7 @@ const buildApp = (envContext) => {
       secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-    }),
+    })
   );
 
   // Minimal stub for req.oidc so /status works without EOC
@@ -43,12 +43,7 @@ const requireFreshBootstrap = (envContext) => {
 test('env admin bootstrap creates admin and skips setup', async () => {
   const envContext = await setupTestEnv({
     tag: 'admin-bootstrap-env-creates-',
-    modules: [
-      'src/services/db',
-      'src/services/users',
-      'src/utils/bootstrap',
-      'src/routes/auth',
-    ],
+    modules: ['src/services/db', 'src/services/users', 'src/utils/bootstrap', 'src/routes/auth'],
     env: {
       AUTH_ENABLED: 'true',
       AUTH_MODE: 'local',

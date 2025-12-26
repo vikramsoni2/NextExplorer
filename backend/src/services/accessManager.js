@@ -1,14 +1,6 @@
-const {
-  parsePathSpace,
-  resolveLogicalPath,
-  combineRelativePath,
-} = require('../utils/pathUtils');
+const { parsePathSpace, resolveLogicalPath, combineRelativePath } = require('../utils/pathUtils');
 const { getPermissionForPath } = require('./accessControlService');
-const {
-  getShareByToken,
-  hasUserPermission,
-  isShareExpired,
-} = require('./sharesService');
+const { getShareByToken, hasUserPermission, isShareExpired } = require('./sharesService');
 const { getUserVolumeForPath, getVolumeById } = require('./userVolumesService');
 const { features } = require('../config/index');
 
@@ -238,8 +230,7 @@ const getShareAccess = async (context, shareToken, innerPath) => {
     if (underlyingPermission === 'hidden') {
       return createDeniedAccess('Path is hidden');
     }
-    underlyingReadOnly =
-      userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
+    underlyingReadOnly = userVolume.accessMode === 'readonly' || underlyingPermission === 'ro';
   }
 
   const isReadWrite = shareReadWrite && !underlyingReadOnly;

@@ -60,8 +60,7 @@ const editableExtensionsSet = computed(() => {
   return new Set([...DEFAULT_EDITOR_EXTENSIONS, ...runtimeExtensions]);
 });
 
-const getEditableExtensions = () =>
-  Array.from(editableExtensionsSet.value.values());
+const getEditableExtensions = () => Array.from(editableExtensionsSet.value.values());
 
 const isEditableExtension = (extension = '') => {
   if (!extension) return false;

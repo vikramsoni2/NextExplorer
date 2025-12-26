@@ -4,11 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { onClickOutside } from '@vueuse/core';
 import { useSettingsStore } from '@/stores/settings';
 import { AlignSpaceAroundVertical20Regular } from '@vicons/fluent';
-import {
-  Squares2X2Icon,
-  ListBulletIcon,
-  PhotoIcon,
-} from '@heroicons/vue/24/outline';
+import { Squares2X2Icon, ListBulletIcon, PhotoIcon } from '@heroicons/vue/24/outline';
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/vue/20/solid';
 
 const settings = useSettingsStore();
@@ -53,9 +49,7 @@ const viewOptions = [
 ];
 
 const activeView = computed(
-  () =>
-    viewOptions.find((option) => option.key === settings.view) ??
-    viewOptions[0],
+  () => viewOptions.find((option) => option.key === settings.view) ?? viewOptions[0]
 );
 
 onClickOutside(menuPopup, () => {
@@ -72,8 +66,7 @@ onClickOutside(menuPopup, () => {
         @click="option.activate"
         class="p-1.5 rounded-md hover:bg-[rgb(239,239,240)] active:bg-zinc-200 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
         :class="{
-          'bg-[rgb(239,239,240)] dark:bg-zinc-700':
-            settings.view === option.key,
+          'bg-[rgb(239,239,240)] dark:bg-zinc-700': settings.view === option.key,
         }"
         :title="option.label"
       >
@@ -115,8 +108,7 @@ onClickOutside(menuPopup, () => {
               "
               class="flex items-center gap-2 p-[2px] px-2 rounded-md text-left hover:bg-blue-500 hover:text-white dark:hover:bg-blue-600 dark:active:bg-blue-600 dark:focus:bg-blue-600"
               :class="{
-                'dark:bg-blue-600 bg-blue-500 text-white':
-                  settings.view === option.key,
+                'dark:bg-blue-600 bg-blue-500 text-white': settings.view === option.key,
               }"
             >
               <CheckIcon

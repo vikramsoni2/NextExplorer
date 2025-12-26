@@ -2,19 +2,14 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { setupTestEnv } = require('../helpers/env-test-utils');
 
-const SETTINGS_MODULES = [
-  'src/services/storage/jsonStorage',
-  'src/services/settingsService',
-];
+const SETTINGS_MODULES = ['src/services/storage/jsonStorage', 'src/services/settingsService'];
 
 const createSettingsContext = async () => {
   const envContext = await setupTestEnv({
     tag: 'settings-test-',
     modules: SETTINGS_MODULES,
   });
-  const settingsService = envContext.requireFresh(
-    'src/services/settingsService',
-  );
+  const settingsService = envContext.requireFresh('src/services/settingsService');
   return { envContext, settingsService };
 };
 

@@ -37,9 +37,7 @@ const buildApp = ({ user } = {}) => {
   clearModuleCache('src/config/index');
 
   const sharesRoutes = envContext.requireFresh('src/routes/shares');
-  const { errorHandler } = envContext.requireFresh(
-    'src/middleware/errorHandler',
-  );
+  const { errorHandler } = envContext.requireFresh('src/middleware/errorHandler');
 
   const app = express();
   app.use(express.json());
@@ -57,9 +55,7 @@ const buildApp = ({ user } = {}) => {
 
 test('user volumes: can create and browse share from assigned volume path', async () => {
   const usersService = envContext.requireFresh('src/services/users');
-  const userVolumesService = envContext.requireFresh(
-    'src/services/userVolumesService',
-  );
+  const userVolumesService = envContext.requireFresh('src/services/userVolumesService');
 
   const assignedRoot = path.join(envContext.tmpRoot, 'assigned-volume');
   await fs.mkdir(assignedRoot, { recursive: true });
@@ -98,9 +94,7 @@ test('user volumes: can create and browse share from assigned volume path', asyn
   assert.equal(create.body.sourceSpace, 'user_volume');
   assert.equal(create.body.sourcePath, `${vol.id}/myfolder`);
 
-  const browse = await request(app)
-    .get(`/api/share/${create.body.shareToken}/browse/`)
-    .expect(200);
+  const browse = await request(app).get(`/api/share/${create.body.shareToken}/browse/`).expect(200);
 
   const names = (browse.body.items || []).map((item) => item.name);
   assert.ok(names.includes('hello.txt'));
@@ -108,14 +102,9 @@ test('user volumes: can create and browse share from assigned volume path', asyn
 
 test('user volumes: cannot create read-write share for readonly assigned volume', async () => {
   const usersService = envContext.requireFresh('src/services/users');
-  const userVolumesService = envContext.requireFresh(
-    'src/services/userVolumesService',
-  );
+  const userVolumesService = envContext.requireFresh('src/services/userVolumesService');
 
-  const assignedRoot = path.join(
-    envContext.tmpRoot,
-    'assigned-volume-readonly',
-  );
+  const assignedRoot = path.join(envContext.tmpRoot, 'assigned-volume-readonly');
   await fs.mkdir(assignedRoot, { recursive: true });
   await fs.mkdir(path.join(assignedRoot, 'folder'), { recursive: true });
 
@@ -148,9 +137,7 @@ test('user volumes: cannot create read-write share for readonly assigned volume'
 
 test('share expiry: expired shares cannot be accessed or browsed', async () => {
   const usersService = envContext.requireFresh('src/services/users');
-  const userVolumesService = envContext.requireFresh(
-    'src/services/userVolumesService',
-  );
+  const userVolumesService = envContext.requireFresh('src/services/userVolumesService');
 
   const assignedRoot = path.join(envContext.tmpRoot, 'assigned-volume-expiry');
   await fs.mkdir(assignedRoot, { recursive: true });
@@ -195,18 +182,12 @@ test('share expiry: expired shares cannot be accessed or browsed', async () => {
     .send({ expiresAt: '2000-01-01T00:00:00.000Z' })
     .expect(200);
 
-  const info = await request(app)
-    .get(`/api/share/${shareToken}/info`)
-    .expect(200);
+  const info = await request(app).get(`/api/share/${shareToken}/info`).expect(200);
   assert.equal(info.body.isExpired, true);
 
-  const access = await request(app)
-    .get(`/api/share/${shareToken}/access`)
-    .expect(403);
+  const access = await request(app).get(`/api/share/${shareToken}/access`).expect(403);
   assert.equal(access.body?.error?.message, 'Share has expired');
 
-  const browse = await request(app)
-    .get(`/api/share/${shareToken}/browse/`)
-    .expect(403);
+  const browse = await request(app).get(`/api/share/${shareToken}/browse/`).expect(403);
   assert.equal(browse.body?.error?.message, 'Share has expired');
 });

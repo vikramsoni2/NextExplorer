@@ -1,10 +1,5 @@
 <template>
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 32 32"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" aria-hidden="true">
     <!-- Page fill -->
     <path
       fill="#fff"
@@ -20,15 +15,7 @@
     />
 
     <!-- Video frame -->
-    <rect
-      x="8"
-      y="11.5"
-      width="16"
-      height="9"
-      rx="1.5"
-      fill="#EDE9FE"
-      stroke="#8B5CF6"
-    />
+    <rect x="8" y="11.5" width="16" height="9" rx="1.5" fill="#EDE9FE" stroke="#8B5CF6" />
     <!-- Play button -->
     <polygon points="14,13.5 14,18.5 19,16" fill="#7C3AED" />
 

@@ -67,7 +67,7 @@ const getNextFavoritePosition = (db, userId) => {
     SELECT COALESCE(MAX(position), -1) AS maxPos
     FROM favorites
     WHERE user_id = ?
-  `,
+  `
     )
     .get(userId);
 
@@ -88,7 +88,7 @@ const validatePath = async (relativePath, user) => {
 
   const { accessInfo, resolved } = await resolvePathWithAccess(
     { user: ctxUser, guestSession: null },
-    relativePath,
+    relativePath
   );
   if (!accessInfo?.canAccess || !resolved) {
     const err = new Error(accessInfo?.denialReason || 'Path is not accessible');
@@ -119,7 +119,7 @@ const getFavorites = async (userId) => {
     FROM favorites
     WHERE user_id = ?
     ORDER BY position ASC, created_at ASC
-  `,
+  `
     )
     .all(userId);
 
@@ -130,8 +130,7 @@ const getFavorites = async (userId) => {
  * Add or update a favorite for a user
  */
 const addFavorite = async (userOrId, { path, label, icon, color }) => {
-  const user =
-    userOrId && typeof userOrId === 'object' ? userOrId : { id: userOrId };
+  const user = userOrId && typeof userOrId === 'object' ? userOrId : { id: userOrId };
   const userId = ensureUserId(user?.id);
 
   const favorite = sanitize({ path, label, icon, color });
@@ -157,7 +156,7 @@ const addFavorite = async (userOrId, { path, label, icon, color }) => {
       icon = excluded.icon,
       color = excluded.color,
       updated_at = excluded.updated_at
-  `,
+  `
   ).run(
     id,
     userId,
@@ -167,7 +166,7 @@ const addFavorite = async (userOrId, { path, label, icon, color }) => {
     favorite.color,
     now,
     now,
-    position,
+    position
   );
 
   const row = db
@@ -176,7 +175,7 @@ const addFavorite = async (userOrId, { path, label, icon, color }) => {
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE user_id = ? AND path = ?
-  `,
+  `
     )
     .get(userId, favorite.path);
 
@@ -195,7 +194,7 @@ const removeFavorite = async (userId, path) => {
   db.prepare(
     `
     DELETE FROM favorites WHERE user_id = ? AND path = ?
-  `,
+  `
   ).run(userId, normalizedPath);
 
   // Return updated list
@@ -252,7 +251,7 @@ const updateFavorite = async (userId, favoriteId, updates) => {
     UPDATE favorites
     SET ${fields.join(', ')}
     WHERE id = ? AND user_id = ?
-  `,
+  `
     )
     .run(...values);
 
@@ -268,7 +267,7 @@ const updateFavorite = async (userId, favoriteId, updates) => {
     SELECT id, path, label, icon, color, created_at, updated_at, position
     FROM favorites
     WHERE id = ? AND user_id = ?
-  `,
+  `
     )
     .get(favoriteId, userId);
 
@@ -296,7 +295,7 @@ const reorderFavorites = async (userId, orderedIds) => {
     SELECT id
     FROM favorites
     WHERE user_id = ?
-  `,
+  `
     )
     .all(userId);
 
@@ -352,7 +351,7 @@ const reorderFavorites = async (userId, orderedIds) => {
     FROM favorites
     WHERE user_id = ?
     ORDER BY position ASC, created_at ASC
-  `,
+  `
     )
     .all(userId);
 

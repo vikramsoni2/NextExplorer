@@ -10,12 +10,7 @@ import UserMenu from '@/components/UserMenu.vue';
 import NotificationToastContainer from '@/components/NotificationToastContainer.vue';
 import NotificationPanel from '@/components/NotificationPanel.vue';
 import { RouterView, useRoute, useRouter } from 'vue-router';
-import {
-  useTitle,
-  useStorage,
-  useEventListener,
-  useMediaQuery,
-} from '@vueuse/core';
+import { useTitle, useStorage, useEventListener, useMediaQuery } from '@vueuse/core';
 
 import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
@@ -56,10 +51,7 @@ function onPointerDown(e) {
 useEventListener(window, 'pointermove', (e) => {
   if (!isDragging.value) return;
   const delta = e.clientX - startX;
-  const next = Math.min(
-    maxAsideWidth,
-    Math.max(minAsideWidth, startWidth + delta),
-  );
+  const next = Math.min(maxAsideWidth, Math.max(minAsideWidth, startWidth + delta));
   asideWidth.value = next;
   e.preventDefault();
 });
@@ -93,7 +85,7 @@ watch(
   () => route.fullPath,
   () => {
     closeSidebar();
-  },
+  }
 );
 
 watch(isSidebarOpen, (open) => {
@@ -113,9 +105,7 @@ const currentPathName = computed(() => {
 });
 useTitle(currentPathName);
 
-const showBrowseToolbar = computed(() =>
-  String(route.path || '').startsWith('/browse'),
-);
+const showBrowseToolbar = computed(() => String(route.path || '').startsWith('/browse'));
 
 // Ensure Uppy is initialized app-wide and bound to current path
 useFileUploader();
@@ -147,18 +137,11 @@ const handleGuestLogin = () => {
         class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
       >
         <div class="flex items-start gap-3 mb-3">
-          <InformationCircleIcon
-            class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5"
-          />
+          <InformationCircleIcon class="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
           <div>
-            <h3
-              class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1"
-            >
-              Guest Access
-            </h3>
+            <h3 class="text-sm font-medium text-blue-900 dark:text-blue-100 mb-1">Guest Access</h3>
             <p class="text-xs text-blue-700 dark:text-blue-300">
-              You're viewing a shared item. Sign in to access your files and all
-              features.
+              You're viewing a shared item. Sign in to access your files and all features.
             </p>
           </div>
         </div>
@@ -193,10 +176,7 @@ const handleGuestLogin = () => {
     </div>
 
     <main class="flex min-w-0 flex-col grow relative bg-default shadow-lg">
-      <FolderViewToolbar
-        v-if="showBrowseToolbar"
-        @toggle-sidebar="toggleSidebar"
-      />
+      <FolderViewToolbar v-if="showBrowseToolbar" @toggle-sidebar="toggleSidebar" />
 
       <!-- Mobile-only toggle for non-browse views (keeps existing view layouts unchanged) -->
       <button
@@ -212,11 +192,7 @@ const handleGuestLogin = () => {
       <ExplorerContextMenu>
         <div class="flex min-h-0 flex-1 flex-col">
           <RouterView v-slot="{ Component, route: viewRoute }">
-            <component
-              :is="Component"
-              :key="viewRoute.fullPath"
-              class="min-h-0 flex-1"
-            />
+            <component :is="Component" :key="viewRoute.fullPath" class="min-h-0 flex-1" />
           </RouterView>
         </div>
       </ExplorerContextMenu>

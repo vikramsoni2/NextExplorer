@@ -15,12 +15,8 @@ export function ellipses(input, max = 30, options = {}) {
   const ellipsisLen = ellipsis.length;
   if (max <= ellipsisLen) return ellipsis.slice(0, max);
 
-  let startLen =
-    typeof keepStart === 'number'
-      ? keepStart
-      : Math.ceil((max - ellipsisLen) * 0.6);
-  let endLen =
-    typeof keepEnd === 'number' ? keepEnd : max - ellipsisLen - startLen;
+  let startLen = typeof keepStart === 'number' ? keepStart : Math.ceil((max - ellipsisLen) * 0.6);
+  let endLen = typeof keepEnd === 'number' ? keepEnd : max - ellipsisLen - startLen;
 
   if (startLen < 0) startLen = 0;
   if (endLen < 0) endLen = 0;

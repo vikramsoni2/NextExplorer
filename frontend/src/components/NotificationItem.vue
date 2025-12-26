@@ -81,42 +81,26 @@ const formattedTime = computed(() => {
 <template>
   <div
     class="rounded-lg border p-4 transition-colors duration-200"
-    :class="[
-      read ? 'bg-gray-50 dark:bg-zinc-800/50' : 'bg-white dark:bg-zinc-800',
-      borderClass,
-    ]"
+    :class="[read ? 'bg-gray-50 dark:bg-zinc-800/50' : 'bg-white dark:bg-zinc-800', borderClass]"
   >
     <div class="flex items-start gap-3">
       <!-- Icon -->
-      <component
-        :is="iconComponent"
-        class="h-5 w-5 shrink-0"
-        :class="iconClass"
-      />
+      <component :is="iconComponent" class="h-5 w-5 shrink-0" :class="iconClass" />
 
       <!-- Content -->
       <div class="flex-1 min-w-0">
         <p
           class="text-sm font-medium"
-          :class="
-            read
-              ? 'text-gray-600 dark:text-gray-400'
-              : 'text-gray-900 dark:text-gray-100'
-          "
+          :class="read ? 'text-gray-600 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'"
         >
           {{ heading }}
         </p>
-        <p
-          v-if="body"
-          class="text-xs text-gray-500 dark:text-gray-400 mt-1 wrap-break-word"
-        >
+        <p v-if="body" class="text-xs text-gray-500 dark:text-gray-400 mt-1 wrap-break-word">
           {{ body }}
         </p>
 
         <!-- Metadata -->
-        <div
-          class="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500"
-        >
+        <div class="flex items-center gap-3 mt-2 text-xs text-gray-400 dark:text-gray-500">
           <span>{{ formattedTime }}</span>
           <span v-if="requestId" class="font-mono" :title="requestId">
             {{ requestId.slice(0, 8) }}...

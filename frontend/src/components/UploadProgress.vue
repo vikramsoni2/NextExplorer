@@ -1,18 +1,8 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue';
 import { useI18n } from 'vue-i18n';
-import {
-  useToggle,
-  useDraggable,
-  useElementSize,
-  useWindowSize,
-} from '@vueuse/core';
-import {
-  PauseIcon,
-  PlayIcon,
-  XMarkIcon,
-  ChevronDownIcon,
-} from '@heroicons/vue/24/outline';
+import { useToggle, useDraggable, useElementSize, useWindowSize } from '@vueuse/core';
+import { PauseIcon, PlayIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 import { useUppyStore } from '@/stores/uppyStore';
 import { formatBytes } from '@/utils';
 
@@ -73,15 +63,12 @@ const filesWithProgress = computed(() => {
     .map((file) => {
       const progress = file?.progress ?? {};
       const bytesTotal = progress.bytesTotal ?? file?.size ?? 0;
-      const uploadedRaw = progress.uploadComplete
-        ? bytesTotal
-        : (progress.bytesUploaded ?? 0);
+      const uploadedRaw = progress.uploadComplete ? bytesTotal : (progress.bytesUploaded ?? 0);
       const bytesUploaded = Math.min(uploadedRaw, bytesTotal);
       const percentage = progress.uploadComplete
         ? 100
         : Math.round(
-            progress.percentage ??
-              (bytesTotal > 0 ? (bytesUploaded / bytesTotal) * 100 : 0),
+            progress.percentage ?? (bytesTotal > 0 ? (bytesUploaded / bytesTotal) * 100 : 0)
           );
 
       return {
@@ -115,7 +102,7 @@ const fileStats = computed(() => {
       totalCount: 0,
       activeCount: 0,
       completedCount: 0,
-    },
+    }
   );
 });
 
@@ -131,9 +118,7 @@ const overallBarWidth = computed(() => Math.min(progress.value ?? 0, 100));
 const uploadInProgress = computed(() => {
   if (props.forceVisible) return true;
   const currentUploads = uppyStore.state.currentUploads ?? {};
-  return (
-    Object.keys(currentUploads).length > 0 || fileStats.value.activeCount > 0
-  );
+  return Object.keys(currentUploads).length > 0 || fileStats.value.activeCount > 0;
 });
 
 const totalBytes = computed(() => fileStats.value.totalBytes);
@@ -182,15 +167,9 @@ function toggleDetailsKey(e) {
         <div class="ml-auto flex items-center gap-1.5">
           <button
             type="button"
-            :title="
-              detailsOpen
-                ? t('upload.toggleDetailsHide')
-                : t('upload.toggleDetailsShow')
-            "
+            :title="detailsOpen ? t('upload.toggleDetailsHide') : t('upload.toggleDetailsShow')"
             :aria-label="
-              detailsOpen
-                ? t('upload.toggleDetailsHide')
-                : t('upload.toggleDetailsShow')
+              detailsOpen ? t('upload.toggleDetailsHide') : t('upload.toggleDetailsShow')
             "
             :aria-expanded="detailsOpen"
             @click="toggleDetails()"
@@ -205,12 +184,8 @@ function toggleDetailsKey(e) {
 
           <button
             type="button"
-            :title="
-              isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')
-            "
-            :aria-label="
-              isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')
-            "
+            :title="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
+            :aria-label="isPaused ? t('upload.resumeUploads') : t('upload.pauseUploads')"
             @click="onTogglePause"
             class="h-9 w-9 rounded-full grid place-items-center hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500"
           >
@@ -233,8 +208,7 @@ function toggleDetailsKey(e) {
         {{
           t('upload.uploads', {
             count: fileStats.totalCount,
-            items:
-              fileStats.totalCount === 1 ? t('common.item') : t('common.items'),
+            items: fileStats.totalCount === 1 ? t('common.item') : t('common.items'),
           })
         }}
         <template v-if="destinationFolder">
@@ -254,9 +228,7 @@ function toggleDetailsKey(e) {
             class="h-full rounded-full upload-bar"
             :class="[
               isPaused ? 'opacity-60' : 'upload-bar--animated',
-              roundedProgress === 100
-                ? 'upload-bar--complete'
-                : 'upload-bar--active',
+              roundedProgress === 100 ? 'upload-bar--complete' : 'upload-bar--active',
             ]"
             :style="`width: ${overallBarWidth}%;`"
           />
@@ -264,18 +236,12 @@ function toggleDetailsKey(e) {
       </div>
 
       <!-- Overall stats -->
-      <div
-        class="mt-2 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300"
-      >
+      <div class="mt-2 flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-300">
         <div class="flex items-center gap-2">
           <span v-if="fileStats.completedCount"
             >{{ fileStats.completedCount }} {{ t('common.done') }}</span
           >
-          <span
-            v-if="fileStats.completedCount && fileStats.activeCount"
-            aria-hidden="true"
-            >·</span
-          >
+          <span v-if="fileStats.completedCount && fileStats.activeCount" aria-hidden="true">·</span>
           <span v-if="fileStats.activeCount"
             >{{ fileStats.activeCount }} {{ t('common.remaining') }}</span
           >
@@ -291,23 +257,13 @@ function toggleDetailsKey(e) {
       v-if="detailsOpen"
       class="details-panel border-t border-zinc-200/70 dark:border-zinc-700/50 divide-y divide-zinc-200/70 dark:divide-zinc-700/50"
     >
-      <div
-        v-for="file in filesWithProgress"
-        :key="file.id"
-        class="details-item px-5 py-3"
-      >
+      <div v-for="file in filesWithProgress" :key="file.id" class="details-item px-5 py-3">
         <div class="flex items-start gap-3">
           <!-- File badge -->
           <div
             class="mt-0.5 h-6 w-6 shrink-0 grid place-items-center rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 uppercase text-[10px] font-semibold"
           >
-            {{
-              (file.extension || file.type || 'file')
-                .toString()
-                .split('/')
-                .pop()
-                .slice(0, 3)
-            }}
+            {{ (file.extension || file.type || 'file').toString().split('/').pop().slice(0, 3) }}
           </div>
 
           <!-- Name + per-file stats -->
@@ -321,11 +277,7 @@ function toggleDetailsKey(e) {
               </span>
               <span
                 class="text-xs shrink-0"
-                :class="
-                  file._progress.uploadComplete
-                    ? 'text-emerald-600'
-                    : 'text-zinc-500'
-                "
+                :class="file._progress.uploadComplete ? 'text-emerald-600' : 'text-zinc-500'"
               >
                 {{
                   file._progress.uploadComplete
@@ -343,20 +295,14 @@ function toggleDetailsKey(e) {
               <div
                 class="h-full rounded-full upload-bar"
                 :class="[
-                  !file._progress.uploadComplete && !isPaused
-                    ? 'upload-bar--animated'
-                    : '',
-                  file._progress.uploadComplete
-                    ? 'upload-bar--complete'
-                    : 'upload-bar--active',
+                  !file._progress.uploadComplete && !isPaused ? 'upload-bar--animated' : '',
+                  file._progress.uploadComplete ? 'upload-bar--complete' : 'upload-bar--active',
                 ]"
                 :style="`width: ${file._progress.percentage}%;`"
               />
             </div>
 
-            <div
-              class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400 tabular-nums"
-            >
+            <div class="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400 tabular-nums">
               {{ formatBytes(file._progress.bytesUploaded) }} /
               {{ formatBytes(file._progress.bytesTotal) }}
             </div>

@@ -79,25 +79,13 @@ watch(
       othersExecute.value = others.execute;
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const currentOctal = computed(() => {
-  const owner = flagsToOctal(
-    ownerRead.value,
-    ownerWrite.value,
-    ownerExecute.value,
-  );
-  const group = flagsToOctal(
-    groupRead.value,
-    groupWrite.value,
-    groupExecute.value,
-  );
-  const others = flagsToOctal(
-    othersRead.value,
-    othersWrite.value,
-    othersExecute.value,
-  );
+  const owner = flagsToOctal(ownerRead.value, ownerWrite.value, ownerExecute.value);
+  const group = flagsToOctal(groupRead.value, groupWrite.value, groupExecute.value);
+  const others = flagsToOctal(othersRead.value, othersWrite.value, othersExecute.value);
   return `${owner}${group}${others}`;
 });
 
@@ -156,15 +144,10 @@ const cancelEditGroup = () => {
 <template>
   <div class="space-y-4 pt-4 border-t border-neutral-200 dark:border-white/5">
     <div class="flex items-center justify-between">
-      <p
-        class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400"
-      >
+      <p class="text-xs font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
         Sharing & Permissions
       </p>
-      <p
-        v-if="permissions?.mode"
-        class="text-xs font-mono text-neutral-500 dark:text-neutral-400"
-      >
+      <p v-if="permissions?.mode" class="text-xs font-mono text-neutral-500 dark:text-neutral-400">
         {{ currentOctal }}
       </p>
     </div>
@@ -173,23 +156,16 @@ const cancelEditGroup = () => {
       Loading permissions...
     </div>
 
-    <div
-      v-else-if="!permissions"
-      class="text-sm text-neutral-500 dark:text-neutral-400"
-    >
+    <div v-else-if="!permissions" class="text-sm text-neutral-500 dark:text-neutral-400">
       Unable to load permissions
     </div>
 
     <template v-else>
       <!-- Owner & Group Info -->
-      <div
-        class="space-y-2 pb-3 border-b border-neutral-200 dark:border-white/5"
-      >
+      <div class="space-y-2 pb-3 border-b border-neutral-200 dark:border-white/5">
         <!-- Owner -->
         <div class="flex items-center justify-between">
-          <span class="text-sm text-neutral-600 dark:text-neutral-400"
-            >Owner</span
-          >
+          <span class="text-sm text-neutral-600 dark:text-neutral-400">Owner</span>
           <div v-if="editingOwner" class="flex items-center gap-1">
             <input
               v-model="newOwner"
@@ -222,9 +198,7 @@ const cancelEditGroup = () => {
 
         <!-- Group -->
         <div class="flex items-center justify-between">
-          <span class="text-sm text-neutral-600 dark:text-neutral-400"
-            >Group</span
-          >
+          <span class="text-sm text-neutral-600 dark:text-neutral-400">Group</span>
           <div v-if="editingGroup" class="flex items-center gap-1">
             <input
               v-model="newGroup"
@@ -270,9 +244,7 @@ const cancelEditGroup = () => {
 
         <!-- Owner Row -->
         <div class="grid grid-cols-4 gap-2 items-center py-1">
-          <div class="text-sm text-neutral-700 dark:text-neutral-300 truncate">
-            Owner
-          </div>
+          <div class="text-sm text-neutral-700 dark:text-neutral-300 truncate">Owner</div>
           <div class="flex justify-center">
             <input
               v-model="ownerRead"
@@ -298,9 +270,7 @@ const cancelEditGroup = () => {
 
         <!-- Group Row -->
         <div class="grid grid-cols-4 gap-2 items-center py-1">
-          <div class="text-sm text-neutral-700 dark:text-neutral-300 truncate">
-            Group
-          </div>
+          <div class="text-sm text-neutral-700 dark:text-neutral-300 truncate">Group</div>
           <div class="flex justify-center">
             <input
               v-model="groupRead"
@@ -326,9 +296,7 @@ const cancelEditGroup = () => {
 
         <!-- Others Row -->
         <div class="grid grid-cols-4 gap-2 items-center py-1">
-          <div class="text-sm text-neutral-700 dark:text-neutral-300">
-            Everyone
-          </div>
+          <div class="text-sm text-neutral-700 dark:text-neutral-300">Everyone</div>
           <div class="flex justify-center">
             <input
               v-model="othersRead"
@@ -364,10 +332,7 @@ const cancelEditGroup = () => {
           type="checkbox"
           class="h-4 w-4 rounded border-neutral-300 dark:border-white/10 text-blue-600 focus:ring-blue-500"
         />
-        <label
-          for="apply-to-items"
-          class="text-sm text-neutral-700 dark:text-neutral-300"
-        >
+        <label for="apply-to-items" class="text-sm text-neutral-700 dark:text-neutral-300">
           Apply to enclosed items
         </label>
       </div>

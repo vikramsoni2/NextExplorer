@@ -11,8 +11,7 @@ export function useNavigation() {
   const openItem = (item) => {
     if (!item) return;
 
-    const extensionFromKind =
-      typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
+    const extensionFromKind = typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
     const extensionFromName =
       typeof item.name === 'string' && item.name.includes('.')
         ? item.name.split('.').pop().toLowerCase()
@@ -31,9 +30,7 @@ export function useNavigation() {
       return;
     }
     if (item.kind === 'directory') {
-      const newPath = route.params.path
-        ? `${route.params.path}/${item.name}`
-        : item.name;
+      const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
       withViewTransition(() => {
         router.push({ name: 'FolderView', params: { path: newPath } });
       })();
@@ -45,17 +42,11 @@ export function useNavigation() {
       return;
     }
 
-    if (
-      isEditableExtension(extensionFromKind) ||
-      isEditableExtension(extensionFromName)
-    ) {
+    if (isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)) {
       const basePath = item.path ? `${item.path}/${item.name}` : item.name;
       const fileToEdit = basePath.replace(/^\/+/, '');
       // Encode each segment for editor path
-      const encodedPath = fileToEdit
-        .split('/')
-        .map(encodeURIComponent)
-        .join('/');
+      const encodedPath = fileToEdit.split('/').map(encodeURIComponent).join('/');
       withViewTransition(() => {
         router.push({ path: `/editor/${encodedPath}` });
       })();

@@ -32,15 +32,9 @@ router.get(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        inputRelativePath,
-      ));
+      ({ accessInfo, resolved } = await resolvePathWithAccess(context, inputRelativePath));
     } catch (error) {
-      logger.warn(
-        { path: rawPath, err: error },
-        'Failed to resolve browse path',
-      );
+      logger.warn({ path: rawPath, err: error }, 'Failed to resolve browse path');
       throw new NotFoundError('Path not found.');
     }
 
@@ -76,9 +70,7 @@ router.get(
         throw err;
       }
 
-      let extension = stats.isDirectory()
-        ? 'directory'
-        : path.extname(file).slice(1).toLowerCase();
+      let extension = stats.isDirectory() ? 'directory' : path.extname(file).slice(1).toLowerCase();
       if (extension.length > 10) {
         extension = 'unknown';
       }
@@ -136,7 +128,7 @@ router.get(
     }
 
     res.json(response);
-  }),
+  })
 );
 
 module.exports = router;

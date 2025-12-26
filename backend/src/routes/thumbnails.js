@@ -44,10 +44,7 @@ router.get(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      ));
+      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
     } catch (error) {
       throw new NotFoundError('File not found.');
     }
@@ -77,9 +74,7 @@ router.get(
     }
 
     if (!isThumbnailable(extension)) {
-      throw new ValidationError(
-        'Thumbnails are not available for this file type.',
-      );
+      throw new ValidationError('Thumbnails are not available for this file type.');
     }
 
     let thumbnail = '';
@@ -88,22 +83,21 @@ router.get(
     } catch (error) {
       logger.warn(
         { absolutePath, err: error },
-        'Thumbnail generation failed, falling back to original file',
+        'Thumbnail generation failed, falling back to original file'
       );
     }
 
     // If thumbnail generation failed or produced no result, fall back to the original file
     if (
       !thumbnail &&
-      (extensions.images.includes(extension) ||
-        (extensions.rawImages || []).includes(extension))
+      (extensions.images.includes(extension) || (extensions.rawImages || []).includes(extension))
     ) {
       const previewUrl = `/api/preview?path=${encodeURIComponent(logicalPath)}`;
       return res.json({ thumbnail: previewUrl });
     }
 
     res.json({ thumbnail: thumbnail || '' });
-  }),
+  })
 );
 
 module.exports = router;

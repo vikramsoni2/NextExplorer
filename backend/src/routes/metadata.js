@@ -10,11 +10,7 @@ const { extensions } = require('../config/index');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const {
-  ValidationError,
-  ForbiddenError,
-  NotFoundError,
-} = require('../errors/AppError');
+const { ValidationError, ForbiddenError, NotFoundError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -38,8 +34,7 @@ const probeVideo = (filePath) =>
         return;
       }
       try {
-        const stream =
-          (data.streams || []).find((s) => s.width && s.height) || {};
+        const stream = (data.streams || []).find((s) => s.width && s.height) || {};
         const duration = Number(data.format?.duration) || null;
         resolve({
           width: Number(stream.width) || null,
@@ -99,19 +94,14 @@ router.get(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      ));
+      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
     } catch (error) {
       throw new NotFoundError('Path not found.');
     }
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
       // For metadata, treat denied access as forbidden (explicit signal to caller)
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Path is not accessible.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
 
     const absolutePath = resolved.absolutePath;
@@ -165,8 +155,7 @@ router.get(
             cameraModel: ex.Model || ex.model || null,
             lensModel: ex.LensModel || ex.lensModel || null,
             software: ex.Software || null,
-            dateTaken:
-              ex.DateTimeOriginal || ex.CreateDate || ex.ModifyDate || null,
+            dateTaken: ex.DateTimeOriginal || ex.CreateDate || ex.ModifyDate || null,
             gps:
               ex.latitude && ex.longitude
                 ? { lat: ex.latitude, lon: ex.longitude }
@@ -191,7 +180,7 @@ router.get(
       }
       throw error;
     }
-  }),
+  })
 );
 
 module.exports = router;

@@ -42,12 +42,10 @@ onClickOutside(menuPopup, () => {
         class="absolute right-0 mt-1 w-64 origin-top-right rounded-md bg-zinc-100 dark:bg-neutral-700 shadow-md border border-neutral-200 dark:border-neutral-600 p-3"
       >
         <div class="flex items-center justify-between mb-2">
-          <span
-            class="text-xs text-neutral-600 dark:text-neutral-300 select-none"
-            >{{ t('photos.thumbnailSize') }}</span
-          >
-          <span
-            class="text-xs text-neutral-500 dark:text-neutral-400 select-none"
+          <span class="text-xs text-neutral-600 dark:text-neutral-300 select-none">{{
+            t('photos.thumbnailSize')
+          }}</span>
+          <span class="text-xs text-neutral-500 dark:text-neutral-400 select-none"
             >{{ settings.photoSize }}px</span
           >
         </div>

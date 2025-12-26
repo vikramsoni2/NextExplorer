@@ -33,10 +33,7 @@ router.get(
     const inputRel = normalizeRelativePath(raw);
     const context = { user: req.user, guestSession: req.guestSession };
 
-    const { accessInfo, resolved } = await resolvePathWithAccess(
-      context,
-      inputRel,
-    );
+    const { accessInfo, resolved } = await resolvePathWithAccess(context, inputRel);
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
       // Treat denied access the same as du failing; zero usage
@@ -64,7 +61,7 @@ router.get(
     }
 
     res.json({ path: rel, size, free, total });
-  }),
+  })
 );
 
 module.exports = router;

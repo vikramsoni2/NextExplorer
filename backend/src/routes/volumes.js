@@ -53,7 +53,7 @@ router.get(
     }));
 
     res.json(volumeData);
-  }),
+  })
 );
 
 module.exports = router;

@@ -125,10 +125,7 @@ const handleReorderEnd = async () => {
     try {
       await favoritesStore.loadFavorites();
     } catch (reloadError) {
-      console.error(
-        'Failed to reload favorites after reorder error',
-        reloadError,
-      );
+      console.error('Failed to reload favorites after reorder error', reloadError);
     }
   }
 };
@@ -195,9 +192,7 @@ onBeforeUnmount(() => {
               @end="handleReorderEnd"
             >
               <template #item="{ element: favorite }">
-                <div
-                  class="group/item mb-3 flex items-center gap-2 favorite-drag-handle"
-                >
+                <div class="group/item mb-3 flex items-center gap-2 favorite-drag-handle">
                   <Bars3Icon
                     v-if="isEditMode"
                     class="h-4 w-4 shrink-0 cursor-grab text-neutral-400 group-hover/item:text-white dark:text-neutral-500 dark:group-hover/item:text-neutral-100 transition-colors duration-150"
@@ -218,9 +213,7 @@ onBeforeUnmount(() => {
                       class="h-5 shrink-0"
                       :style="{ color: favorite.color || 'currentColor' }"
                     />
-                    <span class="truncate">{{
-                      getFavoriteLabel(favorite)
-                    }}</span>
+                    <span class="truncate">{{ getFavoriteLabel(favorite) }}</span>
                   </button>
                   <template v-if="isEditMode">
                     <button
@@ -246,13 +239,9 @@ onBeforeUnmount(() => {
             v-else
             class="my-2 rounded-lg border-2 border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 text-xs text-neutral-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-neutral-400"
           >
-            <div
-              class="flex items-center gap-2 text-neutral-500 dark:text-neutral-300"
-            >
+            <div class="flex items-center gap-2 text-neutral-500 dark:text-neutral-300">
               <StarIconOutline class="h-4 w-4" />
-              <span
-                class="text-sm font-medium text-neutral-600 dark:text-neutral-100"
-              >
+              <span class="text-sm font-medium text-neutral-600 dark:text-neutral-100">
                 {{ t('favorites.emptyTitle') }}
               </span>
             </div>

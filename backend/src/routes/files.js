@@ -4,10 +4,7 @@ const fs = require('fs/promises');
 const fss = require('fs');
 const archiver = require('archiver');
 
-const {
-  transferItems,
-  deleteItems,
-} = require('../services/fileTransferService');
+const { transferItems, deleteItems } = require('../services/fileTransferService');
 const {
   normalizeRelativePath,
   combineRelativePath,
@@ -67,20 +64,15 @@ router.post(
     // Prevent creating folders directly in the root path (no space / volume selected)
     if (!parentRelative || parentRelative.trim() === '') {
       throw new ValidationError(
-        'Cannot create folders in the root path. Please select a specific volume or folder first.',
+        'Cannot create folders in the root path. Please select a specific volume or folder first.'
       );
     }
 
     const context = { user: req.user, guestSession: req.guestSession };
-    const { accessInfo, resolved } = await resolvePathWithAccess(
-      context,
-      parentRelative,
-    );
+    const { accessInfo, resolved } = await resolvePathWithAccess(context, parentRelative);
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canCreateFolder) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Cannot create folders in this path.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Cannot create folders in this path.');
     }
 
     const { absolutePath: parentAbsolute } = resolved;
@@ -109,13 +101,9 @@ router.post(
 
     await fs.mkdir(folderAbsolute);
 
-    const item = await buildItemMetadata(
-      folderAbsolute,
-      parentRelative,
-      finalName,
-    );
+    const item = await buildItemMetadata(folderAbsolute, parentRelative, finalName);
     res.status(201).json({ success: true, item });
-  }),
+  })
 );
 
 router.post(
@@ -132,25 +120,25 @@ router.post(
     const parentRelative = normalizeRelativePath(parentPath);
     const context = { user: req.user, guestSession: req.guestSession };
 
-    const { accessInfo: parentAccess, resolved: parentResolved } =
-      await resolvePathWithAccess(context, parentRelative);
+    const { accessInfo: parentAccess, resolved: parentResolved } = await resolvePathWithAccess(
+      context,
+      parentRelative
+    );
 
     if (!parentAccess || !parentAccess.canAccess || !parentAccess.canWrite) {
-      throw new ForbiddenError(
-        parentAccess?.denialReason || 'Destination path is read-only.',
-      );
+      throw new ForbiddenError(parentAccess?.denialReason || 'Destination path is read-only.');
     }
 
     const { absolutePath: parentAbsolute } = parentResolved;
 
     const currentRelative = combineRelativePath(parentRelative, originalName);
-    const { accessInfo: currentAccess, resolved: currentResolved } =
-      await resolvePathWithAccess(context, currentRelative);
+    const { accessInfo: currentAccess, resolved: currentResolved } = await resolvePathWithAccess(
+      context,
+      currentRelative
+    );
 
     if (!currentAccess || !currentAccess.canAccess || !currentAccess.canWrite) {
-      throw new ForbiddenError(
-        currentAccess?.denialReason || 'Cannot rename items in this path.',
-      );
+      throw new ForbiddenError(currentAccess?.denialReason || 'Cannot rename items in this path.');
     }
 
     const { absolutePath: currentAbsolute } = currentResolved;
@@ -159,48 +147,31 @@ router.post(
       throw new NotFoundError('Item not found.');
     }
 
-    const validatedNewName =
-      typeof newNameRaw === 'string' ? ensureValidName(newNameRaw) : null;
+    const validatedNewName = typeof newNameRaw === 'string' ? ensureValidName(newNameRaw) : null;
 
     if (!validatedNewName) {
       throw new ValidationError('A new name is required.');
     }
 
     if (validatedNewName === originalName) {
-      const item = await buildItemMetadata(
-        currentAbsolute,
-        parentRelative,
-        originalName,
-      );
+      const item = await buildItemMetadata(currentAbsolute, parentRelative, originalName);
       res.json({ success: true, item });
       return;
     }
 
-    const targetRelative = combineRelativePath(
-      parentRelative,
-      validatedNewName,
-    );
-    const { resolved: targetResolved } = await resolvePathWithAccess(
-      context,
-      targetRelative,
-    );
+    const targetRelative = combineRelativePath(parentRelative, validatedNewName);
+    const { resolved: targetResolved } = await resolvePathWithAccess(context, targetRelative);
     const { absolutePath: targetAbsolute } = targetResolved;
 
     if (await pathExists(targetAbsolute)) {
-      throw new ConflictError(
-        `The name "${validatedNewName}" is already taken.`,
-      );
+      throw new ConflictError(`The name "${validatedNewName}" is already taken.`);
     }
 
     await fs.rename(currentAbsolute, targetAbsolute);
 
-    const item = await buildItemMetadata(
-      targetAbsolute,
-      parentRelative,
-      validatedNewName,
-    );
+    const item = await buildItemMetadata(targetAbsolute, parentRelative, validatedNewName);
     res.json({ success: true, item });
-  }),
+  })
 );
 
 router.post(
@@ -210,10 +181,7 @@ router.post(
     // validate read on each source (hidden not allowed), write on destination
     for (const item of items) {
       if (!item || !item.name) continue;
-      const srcRel = combineRelativePath(
-        normalizeRelativePath(item.path || ''),
-        item.name,
-      );
+      const srcRel = combineRelativePath(normalizeRelativePath(item.path || ''), item.name);
       const perm = await getPermissionForPath(srcRel);
       if (perm === 'hidden') {
         throw new ForbiddenError('Source path is not accessible.');
@@ -226,7 +194,7 @@ router.post(
       guestSession: req.guestSession,
     });
     res.json({ success: true, ...result });
-  }),
+  })
 );
 
 router.post(
@@ -244,7 +212,7 @@ router.post(
       guestSession: req.guestSession,
     });
     res.json({ success: true, ...result });
-  }),
+  })
 );
 
 router.delete(
@@ -260,7 +228,7 @@ router.delete(
       guestSession: req.guestSession,
     });
     res.json({ success: true, items: results });
-  }),
+  })
 );
 
 const collectInputPaths = (...sources) => {
@@ -355,9 +323,7 @@ const handleDownloadRequest = async (paths, req, res, basePath = '') => {
   }
 
   const normalizedPaths = [
-    ...new Set(
-      paths.map((item) => normalizeRelativePath(item)).filter(Boolean),
-    ),
+    ...new Set(paths.map((item) => normalizeRelativePath(item)).filter(Boolean)),
   ];
   if (normalizedPaths.length === 0) {
     throw new ValidationError('No valid paths provided.');
@@ -369,10 +335,7 @@ const handleDownloadRequest = async (paths, req, res, basePath = '') => {
 
   const targets = await Promise.all(
     normalizedPaths.map(async (relativePath) => {
-      const { accessInfo, resolved } = await resolvePathWithAccess(
-        context,
-        relativePath,
-      );
+      const { accessInfo, resolved } = await resolvePathWithAccess(context, relativePath);
 
       if (
         !accessInfo ||
@@ -381,15 +344,13 @@ const handleDownloadRequest = async (paths, req, res, basePath = '') => {
         !accessInfo.canDownload ||
         !resolved
       ) {
-        throw new ForbiddenError(
-          accessInfo?.denialReason || 'Download not allowed.',
-        );
+        throw new ForbiddenError(accessInfo?.denialReason || 'Download not allowed.');
       }
 
       const { absolutePath, relativePath: logicalPath } = resolved;
       const stats = await fs.stat(absolutePath);
       return { relativePath: logicalPath, absolutePath, stats };
-    }),
+    })
   );
 
   const hasDirectory = targets.some(({ stats }) => stats.isDirectory());
@@ -432,8 +393,7 @@ const handleDownloadRequest = async (paths, req, res, basePath = '') => {
 
     if (baseNormalized) {
       const segments = baseNormalized.split(path.sep).filter(Boolean);
-      const baseName =
-        segments.length > 0 ? segments[segments.length - 1] : baseNormalized;
+      const baseName = segments.length > 0 ? segments[segments.length - 1] : baseNormalized;
       if (baseName) {
         return `${baseName}.zip`;
       }
@@ -479,13 +439,9 @@ router.post(
   '/download',
   asyncHandler(async (req, res) => {
     const basePath = req.body?.basePath || req.body?.currentPath || '';
-    const paths = collectInputPaths(
-      req.body?.path,
-      req.body?.paths,
-      req.body?.items,
-    );
+    const paths = collectInputPaths(req.body?.path, req.body?.paths, req.body?.items);
     await handleDownloadRequest(paths, req, res, basePath);
-  }),
+  })
 );
 
 router.get(
@@ -498,15 +454,10 @@ router.get(
 
     const relativePath = normalizeRelativePath(relative);
     const context = { user: req.user, guestSession: req.guestSession };
-    const { accessInfo, resolved } = await resolvePathWithAccess(
-      context,
-      relativePath,
-    );
+    const { accessInfo, resolved } = await resolvePathWithAccess(context, relativePath);
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Preview not allowed.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Preview not allowed.');
     }
 
     const { absolutePath } = resolved;
@@ -523,13 +474,8 @@ router.get(
       try {
         jpegPath = await getRawPreviewJpegPath(absolutePath);
       } catch (error) {
-        logger.warn(
-          { absolutePath, err: error },
-          'Failed to extract embedded RAW preview',
-        );
-        throw new UnsupportedMediaTypeError(
-          'Preview is not available for this RAW file.',
-        );
+        logger.warn({ absolutePath, err: error }, 'Failed to extract embedded RAW preview');
+        throw new UnsupportedMediaTypeError('Preview is not available for this RAW file.');
       }
 
       const jpegStats = await fs.stat(jpegPath);
@@ -553,15 +499,12 @@ router.get(
     }
 
     if (!extensions.previewable.has(extension)) {
-      throw new UnsupportedMediaTypeError(
-        'Preview is not available for this file type.',
-      );
+      throw new UnsupportedMediaTypeError('Preview is not available for this file type.');
     }
 
     const mimeType = mimeTypes[extension] || 'application/octet-stream';
     const isSeekableMedia =
-      extensions.videos.includes(extension) ||
-      (extensions.audios || []).includes(extension);
+      extensions.videos.includes(extension) || (extensions.audios || []).includes(extension);
 
     const streamFile = (options = undefined) => {
       const stream = options
@@ -587,9 +530,7 @@ router.get(
           return;
         }
 
-        const [startString, endString] = rangeHeader
-          .slice(bytesPrefix.length)
-          .split('-');
+        const [startString, endString] = rangeHeader.slice(bytesPrefix.length).split('-');
         let start = Number(startString);
         let end = endString ? Number(endString) : stats.size - 1;
 
@@ -626,7 +567,7 @@ router.get(
       'Content-Length': stats.size,
     });
     streamFile();
-  }),
+  })
 );
 
 module.exports = router;

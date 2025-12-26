@@ -25,7 +25,7 @@ router.post(
     const token = terminalService.createSessionToken(user);
 
     res.json({ token });
-  }),
+  })
 );
 
 module.exports = router;

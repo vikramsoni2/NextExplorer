@@ -2,8 +2,7 @@
 
 import { requestJson } from './http';
 
-const fetchAuthStatus = () =>
-  requestJson('/api/auth/status', { method: 'GET' });
+const fetchAuthStatus = () => requestJson('/api/auth/status', { method: 'GET' });
 
 const setupAccount = ({ email, username, password }) =>
   requestJson('/api/auth/setup', {
@@ -31,11 +30,4 @@ async function changePassword({ currentPassword, newPassword }) {
   });
 }
 
-export {
-  fetchAuthStatus,
-  setupAccount,
-  fetchCurrentUser,
-  login,
-  logout,
-  changePassword,
-};
+export { fetchAuthStatus, setupAccount, fetchCurrentUser, login, logout, changePassword };

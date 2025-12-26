@@ -1,12 +1,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, shallowRef } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import {
-  useDebounceFn,
-  useMagicKeys,
-  whenever,
-  onKeyStroke,
-} from '@vueuse/core';
+import { useDebounceFn, useMagicKeys, whenever, onKeyStroke } from '@vueuse/core';
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline';
 import { search as searchApi, normalizePath } from '@/api';
 import { useSpotlightStore } from '@/stores/spotlight';
@@ -32,8 +27,7 @@ const basePath = computed(() => {
     route.path.startsWith('/browse') && typeof route.params.path === 'string'
       ? route.params.path
       : '';
-  const fromQuery =
-    typeof route.query.path === 'string' ? route.query.path : '';
+  const fromQuery = typeof route.query.path === 'string' ? route.query.path : '';
   return normalizePath(fromBrowse || fromQuery || '');
 });
 
@@ -63,16 +57,13 @@ const performSearch = useDebounceFn(async () => {
 }, 1000);
 
 function scrollToActiveItem() {
-  if (activeIndex.value < 0 || activeIndex.value >= results.value.length)
-    return;
+  if (activeIndex.value < 0 || activeIndex.value >= results.value.length) return;
 
   nextTick(() => {
     const container = resultsContainerRef.value;
     if (!container) return;
 
-    const activeButton = container.querySelector(
-      `[data-index="${activeIndex.value}"]`,
-    );
+    const activeButton = container.querySelector(`[data-index="${activeIndex.value}"]`);
     if (activeButton) {
       activeButton.scrollIntoView({
         behavior: 'smooth',
@@ -155,8 +146,7 @@ function toIconItem(item) {
 
   const name = String(item.name || '');
   const lastDotIndex = name.lastIndexOf('.');
-  const ext =
-    lastDotIndex > -1 ? name.slice(lastDotIndex + 1).toLowerCase() : '';
+  const ext = lastDotIndex > -1 ? name.slice(lastDotIndex + 1).toLowerCase() : '';
   const kind = ext && ext.length <= 10 ? ext : 'unknown';
 
   // Return frozen object to prevent reactivity
@@ -178,13 +168,11 @@ watch(
       resetSpotlight();
     }
   },
-  { flush: 'post' },
+  { flush: 'post' }
 );
 
 const keys = useMagicKeys();
-const openCombo = computed(
-  () => keys['Meta+K']?.value || keys['Ctrl+K']?.value,
-);
+const openCombo = computed(() => keys['Meta+K']?.value || keys['Ctrl+K']?.value);
 const closeCombo = computed(() => keys.escape?.value && spotlight.isOpen);
 
 whenever(openCombo, () => {
@@ -204,7 +192,7 @@ onKeyStroke(
     e.preventDefault();
     navigateDown();
   },
-  { eventName: 'keydown' },
+  { eventName: 'keydown' }
 );
 
 onKeyStroke(
@@ -214,7 +202,7 @@ onKeyStroke(
     e.preventDefault();
     navigateUp();
   },
-  { eventName: 'keydown' },
+  { eventName: 'keydown' }
 );
 
 onKeyStroke(
@@ -224,7 +212,7 @@ onKeyStroke(
     e.preventDefault();
     selectResult();
   },
-  { eventName: 'keydown' },
+  { eventName: 'keydown' }
 );
 </script>
 
@@ -235,10 +223,7 @@ onKeyStroke(
       v-show="spotlight.isOpen"
       class="fixed inset-0 z-550 flex items-start justify-center pt-[10vh]"
     >
-      <div
-        class="absolute inset-0 bg-black/40 backdrop-blur-xs"
-        @click="spotlight.close()"
-      ></div>
+      <div class="absolute inset-0 bg-black/40 backdrop-blur-xs" @click="spotlight.close()"></div>
 
       <div
         class="relative w-[90%] sm:w-[640px] max-w-[720px] rounded-2xl shadow-2xl border border-neutral-200/70 dark:border-neutral-700/60 bg-white/90 dark:bg-zinc-800/95 overflow-hidden"
@@ -247,9 +232,7 @@ onKeyStroke(
         <div
           class="flex items-center gap-2 px-4 py-3 border-b border-neutral-200/70 dark:border-neutral-800/80"
         >
-          <MagnifyingGlassIcon
-            class="w-5 h-5 text-neutral-500 dark:text-neutral-400"
-          />
+          <MagnifyingGlassIcon class="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           <input
             ref="inputRef"
             v-model="query"
@@ -271,10 +254,7 @@ onKeyStroke(
 
         <!-- Results -->
         <div ref="resultsContainerRef" class="max-h-[60vh] overflow-y-auto">
-          <div
-            v-if="loading"
-            class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400"
-          >
+          <div v-if="loading" class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">
             {{ t('search.searching') }}
           </div>
           <div v-else-if="errorMsg" class="px-4 py-3 text-sm text-red-600">
@@ -294,10 +274,7 @@ onKeyStroke(
             {{ t('search.noMatches') }}
           </div>
 
-          <div
-            v-else
-            class="divide-y divide-neutral-200 dark:divide-neutral-700/50"
-          >
+          <div v-else class="divide-y divide-neutral-200 dark:divide-neutral-700/50">
             <button
               v-for="(item, idx) in results"
               :key="item.path + '/' + item.name"
@@ -318,9 +295,7 @@ onKeyStroke(
                   class="w-8 h-8 shrink-0"
                 />
                 <div class="min-w-0">
-                  <div
-                    class="text-[15px] text-neutral-900 dark:text-neutral-100 truncate"
-                  >
+                  <div class="text-[15px] text-neutral-900 dark:text-neutral-100 truncate">
                     {{ item.name }}
                   </div>
                   <div

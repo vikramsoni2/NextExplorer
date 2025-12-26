@@ -10,10 +10,7 @@ const props = defineProps({
 
 <template>
   <div class="min-h-screen bg-neutral-900 text-neutral-100">
-    <div
-      v-if="props.isLoading"
-      class="flex min-h-screen items-center justify-center px-4 py-12"
-    >
+    <div v-if="props.isLoading" class="flex min-h-screen items-center justify-center px-4 py-12">
       <div class="flex flex-col items-center gap-3">
         <div
           class="h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-accent"
@@ -24,10 +21,7 @@ const props = defineProps({
       </div>
     </div>
 
-    <div
-      v-else
-      class="relative isolate min-h-screen overflow-hidden bg-neutral-900"
-    >
+    <div v-else class="relative isolate min-h-screen overflow-hidden bg-neutral-900">
       <div
         aria-hidden="true"
         class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
@@ -120,9 +114,7 @@ const props = defineProps({
           </div>
         </main>
 
-        <footer
-          class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/80"
-        >
+        <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/80">
           <div class="flex items-center gap-2">
             <div>© {{ new Date().getFullYear() }} NextExplorer</div>
             <span class="text-white">v{{ props.version }}</span>

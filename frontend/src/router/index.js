@@ -233,8 +233,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.name === 'auth-setup' && !auth.requiresSetup) {
-    const redirect =
-      typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
+    const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     if (auth.isAuthenticated) {
       return { path: redirect };
     }
@@ -242,8 +241,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.name === 'auth-login' && auth.isAuthenticated) {
-    const redirect =
-      typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
+    const redirect = typeof to.query?.redirect === 'string' ? to.query.redirect : '/browse/';
     return { path: redirect };
   }
 
@@ -276,8 +274,7 @@ router.beforeEach(async (to) => {
   const requiresAdmin = Boolean(to.meta && to.meta.requiresAdmin);
   if (requiresAdmin) {
     const isAdmin =
-      Array.isArray(auth.currentUser?.roles) &&
-      auth.currentUser.roles.includes('admin');
+      Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin');
     if (!isAdmin) {
       // send to a non-admin settings landing
       return { path: '/settings/about' };

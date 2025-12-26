@@ -100,7 +100,7 @@ const favoriteIconOptions = computed(() =>
   ICON_NAMES.map((iconName) => ({
     value: iconName,
     component: resolveIconComponent(`${editorIconVariant.value}:${iconName}`),
-  })),
+  }))
 );
 </script>
 
@@ -111,9 +111,7 @@ const favoriteIconOptions = computed(() =>
     </template>
     <div class="space-y-4">
       <div>
-        <label
-          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1"
-        >
+        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
           {{ t('common.path') }}
         </label>
         <input
@@ -124,9 +122,7 @@ const favoriteIconOptions = computed(() =>
         />
       </div>
       <div>
-        <label
-          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1"
-        >
+        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-1">
           {{ t('common.name') }}
         </label>
         <input
@@ -136,9 +132,7 @@ const favoriteIconOptions = computed(() =>
         />
       </div>
       <div>
-        <label
-          class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2"
-        >
+        <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-300 mb-2">
           {{ t('favorites.icon') }}
         </label>
 

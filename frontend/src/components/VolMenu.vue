@@ -81,9 +81,7 @@ const openPersonal = () => {
             @click="openPersonal"
             :class="[
               'cursor-pointer flex w-full items-center gap-3 my-3 rounded-lg transition-colors duration-200 text-sm',
-              isActiveVolume('personal')
-                ? 'dark:text-white'
-                : 'dark:text-neutral-300/90',
+              isActiveVolume('personal') ? 'dark:text-white' : 'dark:text-neutral-300/90',
             ]"
           >
             <ServerIcon class="h-[1.38rem]" /> {{ $t('drives.personal') }}
@@ -95,9 +93,7 @@ const openPersonal = () => {
             @click="openItem(volume)"
             :class="[
               'cursor-pointer flex w-full items-center gap-3 my-3 rounded-lg transition-colors duration-200 text-sm',
-              isActiveVolume(volume.name)
-                ? 'dark:text-white'
-                : 'dark:text-neutral-300/90',
+              isActiveVolume(volume.name) ? 'dark:text-white' : 'dark:text-neutral-300/90',
             ]"
           >
             <ServerIcon class="h-[1.38rem]" /> {{ volume.name }}

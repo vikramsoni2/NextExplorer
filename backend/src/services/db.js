@@ -55,7 +55,7 @@ const migrate = (db) => {
       `);
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(1),
+        String(1)
       );
       version = 1;
     }
@@ -69,14 +69,12 @@ const migrate = (db) => {
       `);
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(2),
+        String(2)
       );
       version = 2;
     }
     if (version < 3) {
-      console.log(
-        '[DB Migration] Migrating to v3: Email-centric authentication...',
-      );
+      console.log('[DB Migration] Migrating to v3: Email-centric authentication...');
 
       // Create new tables
       db.exec(`
@@ -109,9 +107,7 @@ const migrate = (db) => {
 
       // Migrate existing users
       const existingUsers = db.prepare('SELECT * FROM users').all();
-      const preMigrationLocalCount = existingUsers.filter(
-        (u) => u.provider === 'local',
-      ).length;
+      const preMigrationLocalCount = existingUsers.filter((u) => u.provider === 'local').length;
       const insertUser = db.prepare(`
         INSERT INTO users_new (id, email, email_verified, username, display_name, roles, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -138,7 +134,7 @@ const migrate = (db) => {
           user.display_name,
           user.roles,
           user.created_at,
-          user.updated_at,
+          user.updated_at
         );
 
         // Insert auth method
@@ -152,7 +148,7 @@ const migrate = (db) => {
             null,
             null,
             null,
-            user.created_at,
+            user.created_at
           );
         } else if (user.provider === 'oidc') {
           insertAuth.run(
@@ -164,7 +160,7 @@ const migrate = (db) => {
             user.oidc_issuer,
             user.oidc_sub,
             'OIDC',
-            user.created_at,
+            user.created_at
           );
         }
       }
@@ -182,7 +178,7 @@ const migrate = (db) => {
       console.log('[DB Migration] Migration to v3 completed successfully!');
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(3),
+        String(3)
       );
       // Set a one-time announcement flag if there were any local users migrated
       try {
@@ -192,9 +188,10 @@ const migrate = (db) => {
             localMigrated: preMigrationLocalCount,
             createdAt: new Date().toISOString(),
           });
-          db.prepare(
-            'INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)',
-          ).run('notice_migration_v3', notice);
+          db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
+            'notice_migration_v3',
+            notice
+          );
         }
       } catch (_) {
         // non-fatal
@@ -227,14 +224,12 @@ const migrate = (db) => {
       console.log('[DB Migration] Migration to v4 completed successfully!');
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(4),
+        String(4)
       );
       version = 4;
     }
     if (version < 5) {
-      console.log(
-        '[DB Migration] Migrating to v5: Adding shares functionality...',
-      );
+      console.log('[DB Migration] Migrating to v5: Adding shares functionality...');
 
       db.exec(`
         CREATE TABLE shares (
@@ -290,14 +285,12 @@ const migrate = (db) => {
       console.log('[DB Migration] Migration to v5 completed successfully!');
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(5),
+        String(5)
       );
       version = 5;
     }
     if (version < 6) {
-      console.log(
-        '[DB Migration] Migrating to v6: Adding user volumes functionality...',
-      );
+      console.log('[DB Migration] Migrating to v6: Adding user volumes functionality...');
 
       db.exec(`
         CREATE TABLE user_volumes (
@@ -318,7 +311,7 @@ const migrate = (db) => {
       console.log('[DB Migration] Migration to v6 completed successfully!');
       db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
         'schema_version',
-        String(6),
+        String(6)
       );
       version = 6;
     }
@@ -334,9 +327,7 @@ const migrateFavoritesFromJson = (db) => {
 
     // Check if app-config.json exists
     if (!fs.existsSync(jsonStoragePath)) {
-      console.log(
-        '[DB Migration] No app-config.json found, skipping favorites migration',
-      );
+      console.log('[DB Migration] No app-config.json found, skipping favorites migration');
       return;
     }
 
@@ -352,9 +343,7 @@ const migrateFavoritesFromJson = (db) => {
     const users = db.prepare('SELECT id FROM users').all();
 
     if (users.length === 0) {
-      console.log(
-        '[DB Migration] No users found, skipping favorites migration',
-      );
+      console.log('[DB Migration] No users found, skipping favorites migration');
       return;
     }
 
@@ -382,28 +371,20 @@ const migrateFavoritesFromJson = (db) => {
           fav.icon || DEFAULT_FAVORITE_ICON,
           now,
           now,
-          index,
+          index
         );
         migratedCount++;
       } catch (err) {
         // Skip duplicates or invalid entries
-        console.log(
-          `[DB Migration] Skipping favorite ${fav.path}: ${err.message}`,
-        );
+        console.log(`[DB Migration] Skipping favorite ${fav.path}: ${err.message}`);
       }
     }
 
-    console.log(
-      `[DB Migration] Migrated ${migratedCount} favorites to user ${targetUserId}`,
-    );
+    console.log(`[DB Migration] Migrated ${migratedCount} favorites to user ${targetUserId}`);
 
     // Clear favorites from app-config.json
     configData.favorites = [];
-    fs.writeFileSync(
-      jsonStoragePath,
-      JSON.stringify(configData, null, 2) + '\n',
-      'utf8',
-    );
+    fs.writeFileSync(jsonStoragePath, JSON.stringify(configData, null, 2) + '\n', 'utf8');
     console.log('[DB Migration] Cleared favorites from app-config.json');
   } catch (err) {
     console.error('[DB Migration] Error migrating favorites:', err);
@@ -424,9 +405,7 @@ const ensureAnonymousUser = (db) => {
       return;
     }
 
-    const existingUser = db
-      .prepare('SELECT id FROM users WHERE id = ?')
-      .get('anonymous');
+    const existingUser = db.prepare('SELECT id FROM users WHERE id = ?').get('anonymous');
 
     if (!existingUser) {
       const now = new Date().toISOString();
@@ -434,7 +413,7 @@ const ensureAnonymousUser = (db) => {
         `
         INSERT INTO users (id, email, email_verified, username, display_name, roles, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+      `
       ).run(
         'anonymous',
         'anonymous@local',
@@ -443,7 +422,7 @@ const ensureAnonymousUser = (db) => {
         'Anonymous User',
         '["admin"]',
         now,
-        now,
+        now
       );
       console.log('[DB] Created anonymous user for AUTH_ENABLED=false mode');
     }

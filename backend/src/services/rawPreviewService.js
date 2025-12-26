@@ -97,10 +97,7 @@ const getRawPreviewJpegPath = async (rawFilePath) => {
 
   const cacheDir = await ensureRawPreviewCacheDir();
   const key = await hashForFile(rawFilePath);
-  const finalPath = path.join(
-    cacheDir,
-    `v${RAW_PREVIEW_CACHE_VERSION}-${key}.jpg`,
-  );
+  const finalPath = path.join(cacheDir, `v${RAW_PREVIEW_CACHE_VERSION}-${key}.jpg`);
 
   if (await pathExists(finalPath)) {
     return finalPath;
@@ -114,12 +111,7 @@ const getRawPreviewJpegPath = async (rawFilePath) => {
 
       const extracted =
         (await tryExtract(exiftool, 'extractPreview', rawFilePath, tmpPath)) ||
-        (await tryExtract(
-          exiftool,
-          'extractThumbnail',
-          rawFilePath,
-          tmpPath,
-        )) ||
+        (await tryExtract(exiftool, 'extractThumbnail', rawFilePath, tmpPath)) ||
         (await tryExtract(exiftool, 'extractJpgFromRaw', rawFilePath, tmpPath));
 
       if (!extracted) {

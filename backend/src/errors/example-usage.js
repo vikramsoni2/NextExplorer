@@ -38,7 +38,7 @@ router.post(
     // Simulate creation
     const item = { id: 1, name, email };
     res.status(201).json({ success: true, item });
-  }),
+  })
 );
 
 // Example 2: Authentication check
@@ -52,7 +52,7 @@ router.get(
     }
 
     res.json({ message: 'Protected data', user });
-  }),
+  })
 );
 
 // Example 3: Permission check
@@ -70,7 +70,7 @@ router.delete(
     }
 
     res.json({ message: 'Admin action completed' });
-  }),
+  })
 );
 
 // Example 4: Resource lookup with 404
@@ -87,7 +87,7 @@ router.get(
     }
 
     res.json(item);
-  }),
+  })
 );
 
 // Example 5: Duplicate resource handling
@@ -104,7 +104,7 @@ router.post(
     }
 
     res.status(201).json({ message: 'User created' });
-  }),
+  })
 );
 
 // Example 6: Rate limiting
@@ -114,14 +114,11 @@ router.post(
     const attempts = 11; // Simulate too many attempts
 
     if (attempts > 10) {
-      throw new RateLimitError(
-        'Too many login attempts. Please try again later.',
-        900,
-      ); // retry after 15 minutes
+      throw new RateLimitError('Too many login attempts. Please try again later.', 900); // retry after 15 minutes
     }
 
     res.json({ message: 'Login successful' });
-  }),
+  })
 );
 
 // Example 7: File upload validation
@@ -133,13 +130,11 @@ router.post(
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
     if (!allowedTypes.includes(fileType)) {
-      throw new UnsupportedMediaTypeError(
-        'Only JPEG, PNG, and GIF images are supported',
-      );
+      throw new UnsupportedMediaTypeError('Only JPEG, PNG, and GIF images are supported');
     }
 
     res.json({ message: 'File uploaded successfully' });
-  }),
+  })
 );
 
 // Example 8: Validation with field-specific details
@@ -166,7 +161,7 @@ router.post(
     }
 
     res.json({ message: 'Validation passed' });
-  }),
+  })
 );
 
 // Example 9: Catching specific errors and re-throwing as custom errors
@@ -187,7 +182,7 @@ router.post(
       // Re-throw unknown errors
       throw error;
     }
-  }),
+  })
 );
 
 // Example 10: Manual error handling (when you need more control)

@@ -33,12 +33,10 @@ router.get(
 
     const { accessInfo, resolved } = await resolvePathWithAccess(
       { user: req.user, guestSession: req.guestSession },
-      relativePath,
+      relativePath
     );
     if (!accessInfo?.canAccess || !resolved) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Path is not accessible.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
 
     try {
@@ -83,7 +81,7 @@ router.get(
       }
       throw error;
     }
-  }),
+  })
 );
 
 /**
@@ -99,9 +97,7 @@ router.post(
     }
 
     if (!mode || !/^[0-7]{3}$/.test(mode)) {
-      throw new ValidationError(
-        'Mode must be a 3-digit octal string (e.g., "755").',
-      );
+      throw new ValidationError('Mode must be a 3-digit octal string (e.g., "755").');
     }
 
     if (!req.user || !req.user.id) {
@@ -114,12 +110,10 @@ router.post(
     const relativePath = normalizeRelativePath(rawPath);
     const { accessInfo, resolved } = await resolvePathWithAccess(
       { user: req.user, guestSession: req.guestSession },
-      relativePath,
+      relativePath
     );
     if (!accessInfo?.canAccess || !resolved) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Path is not accessible.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
     if (!accessInfo.canWrite) {
       throw new ForbiddenError('Path is read-only.');
@@ -153,10 +147,7 @@ router.post(
         }
       }
 
-      logger.info(
-        { path: relativePath, mode, recursive },
-        'Permissions changed',
-      );
+      logger.info({ path: relativePath, mode, recursive }, 'Permissions changed');
 
       res.json({
         success: true,
@@ -172,7 +163,7 @@ router.post(
       }
       throw error;
     }
-  }),
+  })
 );
 
 /**
@@ -201,12 +192,10 @@ router.post(
     const relativePath = normalizeRelativePath(rawPath);
     const { accessInfo, resolved } = await resolvePathWithAccess(
       { user: req.user, guestSession: req.guestSession },
-      relativePath,
+      relativePath
     );
     if (!accessInfo?.canAccess || !resolved) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Path is not accessible.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
     if (!accessInfo.canWrite) {
       throw new ForbiddenError('Path is read-only.');
@@ -231,24 +220,19 @@ router.post(
 
         try {
           await execAsync(chownCmd);
-          logger.info(
-            { path: relativePath, owner, group },
-            'Ownership changed',
-          );
+          logger.info({ path: relativePath, owner, group }, 'Ownership changed');
         } catch (e) {
           logger.error({ err: e }, 'Failed to change ownership');
 
           if (e.message.includes('Operation not permitted')) {
             throw new ForbiddenError(
-              'Permission denied. Changing ownership typically requires root/admin privileges.',
+              'Permission denied. Changing ownership typically requires root/admin privileges.'
             );
           }
           throw new Error('Failed to change ownership: ' + e.message);
         }
       } else {
-        throw new ValidationError(
-          'Changing ownership is not supported on Windows.',
-        );
+        throw new ValidationError('Changing ownership is not supported on Windows.');
       }
 
       res.json({
@@ -263,7 +247,7 @@ router.post(
       }
       throw error;
     }
-  }),
+  })
 );
 
 module.exports = router;

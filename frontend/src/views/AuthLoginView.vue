@@ -91,10 +91,7 @@ const syncErrorFromRoute = (nextRoute) => {
     loginError.value = message;
   }
 
-  if (
-    typeof query.error === 'string' ||
-    typeof query.error_description === 'string'
-  ) {
+  if (typeof query.error === 'string' || typeof query.error_description === 'string') {
     const cleanedQuery = { ...query };
     delete cleanedQuery.error;
     delete cleanedQuery.error_description;
@@ -136,8 +133,7 @@ const handleLoginSubmit = async () => {
     loginPasswordValue.value = '';
     redirectToDestination();
   } catch (error) {
-    loginError.value =
-      error instanceof Error ? error.message : t('errors.signIn');
+    loginError.value = error instanceof Error ? error.message : t('errors.signIn');
   } finally {
     isSubmittingLogin.value = false;
   }
@@ -169,15 +165,9 @@ const handleOidcLogin = () => {
       <p class="mt-2 text-sm text-white/60">{{ $t('auth.login.subtitle') }}</p>
     </template>
 
-    <form
-      v-if="supportsLocal"
-      class="space-y-5"
-      @submit.prevent="handleLoginSubmit"
-    >
+    <form v-if="supportsLocal" class="space-y-5" @submit.prevent="handleLoginSubmit">
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{
-          $t('auth.emailAddress')
-        }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('auth.emailAddress') }}</span>
         <input
           id="login-email"
           v-model="loginEmailValue"
@@ -190,9 +180,7 @@ const handleOidcLogin = () => {
       </label>
 
       <label class="block">
-        <span class="block text-sm font-medium text-white/80">{{
-          $t('common.password')
-        }}</span>
+        <span class="block text-sm font-medium text-white/80">{{ $t('common.password') }}</span>
         <input
           id="login-password"
           v-model="loginPasswordValue"
@@ -231,10 +219,7 @@ const handleOidcLogin = () => {
       </button>
     </form>
 
-    <div
-      v-if="supportsLocal && supportsOidc"
-      class="my-4 flex items-center gap-4"
-    >
+    <div v-if="supportsLocal && supportsOidc" class="my-4 flex items-center gap-4">
       <div class="h-px w-full bg-white/10"></div>
       <span class="text-xs text-white/50">{{ $t('common.or') }}</span>
       <div class="h-px w-full bg-white/10"></div>
@@ -251,11 +236,7 @@ const handleOidcLogin = () => {
       </button>
     </div>
 
-    <p
-      v-if="!supportsLocal && (loginError || statusError)"
-      class="mt-4"
-      :class="helperTextClasses"
-    >
+    <p v-if="!supportsLocal && (loginError || statusError)" class="mt-4" :class="helperTextClasses">
       {{ loginError || statusError }}
     </p>
   </AuthLayout>

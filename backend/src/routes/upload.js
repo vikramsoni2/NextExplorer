@@ -15,11 +15,7 @@ router.post(
   '/upload',
   upload.fields([{ name: 'filedata', maxCount: 50 }]),
   asyncHandler(async (req, res) => {
-    if (
-      !req.files ||
-      !Array.isArray(req.files.filedata) ||
-      req.files.filedata.length === 0
-    ) {
+    if (!req.files || !Array.isArray(req.files.filedata) || req.files.filedata.length === 0) {
       throw new ValidationError('No files were provided.');
     }
 
@@ -46,7 +42,7 @@ router.post(
     }
 
     res.json(fileData);
-  }),
+  })
 );
 
 module.exports = router;

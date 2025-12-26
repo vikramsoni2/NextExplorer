@@ -48,16 +48,13 @@ const renameDraft = computed({
 const isCut = computed(() =>
   fileStore.cutItems.some(
     (cutItem) =>
-      cutItem.name === props.item.name &&
-      (cutItem.path || '') === (props.item.path || ''),
-  ),
+      cutItem.name === props.item.name && (cutItem.path || '') === (props.item.path || '')
+  )
 );
 
 const isTouchDevice = computed(() => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined')
-    return false;
-  const hasTouchPoints =
-    'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
   const hasCoarsePointer =
     typeof window.matchMedia === 'function'
       ? window.matchMedia('(pointer: coarse)').matches
@@ -82,8 +79,7 @@ const handleClick = (event) => {
 
   const alreadySelected = isSelected(props.item);
   const hasAnySelection =
-    Array.isArray(fileStore.selectedItems) &&
-    fileStore.selectedItems.length > 0;
+    Array.isArray(fileStore.selectedItems) && fileStore.selectedItems.length > 0;
 
   // Mobile behavior:
   // - If nothing is selected yet, a tap opens the item.
@@ -196,7 +192,7 @@ if (isTouchDevice.value) {
     {
       delay: 500,
       distanceThreshold: 10,
-    },
+    }
   );
 }
 </script>
@@ -237,8 +233,7 @@ if (isTouchDevice.value) {
       <div
         class="text-sm text-center break-all line-clamp-2 rounded-md px-2 -mx-2"
         :class="{
-          'bg-blue-500 text-white dark:bg-blue-600':
-            isSelected(item) && !isRenaming,
+          'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) && !isRenaming,
         }"
       >
         <template v-if="isRenaming">
@@ -274,8 +269,7 @@ if (isTouchDevice.value) {
       <div
         class="grow rounded-md px-2 -mx-2"
         :class="{
-          'bg-blue-500 text-white dark:bg-blue-600':
-            isSelected(item) && !isRenaming,
+          'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) && !isRenaming,
         }"
       >
         <div class="break-all line-clamp-2">

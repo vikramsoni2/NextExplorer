@@ -11,11 +11,7 @@ const { getPermissionForPath } = require('../services/accessControlService');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
-const {
-  ValidationError,
-  NotFoundError,
-  ForbiddenError,
-} = require('../errors/AppError');
+const { ValidationError, NotFoundError, ForbiddenError } = require('../errors/AppError');
 
 const router = express.Router();
 
@@ -24,9 +20,7 @@ const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'build']);
 const DEFAULT_LIMIT = 100;
 const MAX_LIMIT = 500;
 const CONTENT_FALLBACK_MAX_SIZE =
-  searchConfig?.maxFileSizeBytes > 0
-    ? searchConfig.maxFileSizeBytes
-    : 5 * 1024 * 1024;
+  searchConfig?.maxFileSizeBytes > 0 ? searchConfig.maxFileSizeBytes : 5 * 1024 * 1024;
 
 // Cache ripgrep availability (Optimization #4)
 let ripgrepAvailable = null;
@@ -75,8 +69,7 @@ const normalizePath = (p, relBasePath) => {
   return relBasePath ? path.posix.join(relBasePath, normalized) : normalized;
 };
 
-const shouldIgnore = (name) =>
-  IGNORED_DIRS.has(name) || excludedFiles.includes(name);
+const shouldIgnore = (name) => IGNORED_DIRS.has(name) || excludedFiles.includes(name);
 
 const extractDirMatches = (fullPath, needle) => {
   const dirs = new Set();
@@ -129,19 +122,11 @@ const parseJsonLine = (line) => {
 };
 
 // Optimized: Stream file list results (Optimization #1 & #3)
-async function* streamFileListMatches(
-  baseAbsPath,
-  relBasePath,
-  needle,
-  seenPaths,
-  dirSet,
-) {
+async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet) {
   const globArgs = buildRipgrepArgs();
-  const fileListProcess = spawn(
-    'rg',
-    ['--files', '--hidden', '--no-messages', ...globArgs],
-    { cwd: baseAbsPath },
-  );
+  const fileListProcess = spawn('rg', ['--files', '--hidden', '--no-messages', ...globArgs], {
+    cwd: baseAbsPath,
+  });
 
   const rl = readline.createInterface({
     input: fileListProcess.stdout,
@@ -177,12 +162,7 @@ async function* streamFileListMatches(
 }
 
 // Optimized: Stream content matches with JSON output (Optimization #1 & #2)
-async function* streamContentMatches(
-  baseAbsPath,
-  relBasePath,
-  term,
-  seenPaths,
-) {
+async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) {
   const globArgs = buildRipgrepArgs();
 
   const contentArgs = [
@@ -231,42 +211,20 @@ async function* streamContentMatches(
 }
 
 // Optimized ripgrep with parallel execution (Optimization #1, #2, #3)
-async function* generateRipgrepResults(
-  baseAbsPath,
-  relBasePath,
-  term,
-  deep = true,
-) {
+async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = true) {
   const needle = term.toLowerCase();
   const seenPaths = new Set();
   const dirSet = new Set();
 
   if (!deep) {
     // If no deep search, only run file list matches
-    yield* streamFileListMatches(
-      baseAbsPath,
-      relBasePath,
-      needle,
-      seenPaths,
-      dirSet,
-    );
+    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
     return;
   }
 
   // Optimization #3: Run both searches in parallel
-  const fileListGen = streamFileListMatches(
-    baseAbsPath,
-    relBasePath,
-    needle,
-    seenPaths,
-    dirSet,
-  );
-  const contentGen = streamContentMatches(
-    baseAbsPath,
-    relBasePath,
-    term,
-    seenPaths,
-  );
+  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
+  const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths);
 
   // Yield from file list first (directories and filename matches)
   for await (const result of fileListGen) {
@@ -280,12 +238,7 @@ async function* generateRipgrepResults(
 }
 
 // Optimized fallback with streaming (Optimization #1)
-async function* generateFallbackResults(
-  baseAbsPath,
-  relBasePath,
-  term,
-  deep = true,
-) {
+async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = true) {
   const seenPaths = new Set();
   const needle = term.toLowerCase();
 
@@ -327,10 +280,8 @@ async function* generateFallbackResults(
               const idx = lower.indexOf(needle);
 
               if (idx !== -1) {
-                const lineNumber =
-                  (content.slice(0, idx).match(/\n/g)?.length ?? 0) + 1;
-                const matchedLine =
-                  content.split(/\r?\n/)[lineNumber - 1] || '';
+                const lineNumber = (content.slice(0, idx).match(/\n/g)?.length ?? 0) + 1;
+                const matchedLine = content.split(/\r?\n/)[lineNumber - 1] || '';
                 seenPaths.add(rel);
                 if (await shouldIncludeResult(rel)) {
                   yield formatResult(rel, 'file', matchedLine, lineNumber);
@@ -362,18 +313,13 @@ router.get(
     let accessInfo;
     let resolvedBase;
     try {
-      ({ accessInfo, resolved: resolvedBase } = await resolvePathWithAccess(
-        context,
-        relBaseInput,
-      ));
+      ({ accessInfo, resolved: resolvedBase } = await resolvePathWithAccess(context, relBaseInput));
     } catch (error) {
       throw new NotFoundError('Base path not found.');
     }
 
     if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
-      throw new ForbiddenError(
-        accessInfo?.denialReason || 'Search base is not accessible.',
-      );
+      throw new ForbiddenError(accessInfo?.denialReason || 'Search base is not accessible.');
     }
 
     const baseAbs = resolvedBase.absolutePath;
@@ -402,7 +348,7 @@ router.get(
     }
 
     res.json({ items });
-  }),
+  })
 );
 
 module.exports = router;

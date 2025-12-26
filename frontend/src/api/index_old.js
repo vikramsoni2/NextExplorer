@@ -1,16 +1,9 @@
 const DEFAULT_API_BASE = '/';
-const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(
-  /\/$/,
-  '',
-);
+const apiBase = (import.meta.env.VITE_API_URL || DEFAULT_API_BASE).replace(/\/$/, '');
 
 const encodePath = (relativePath = '') => {
   if (!relativePath) return '';
-  return relativePath
-    .split('/')
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join('/');
+  return relativePath.split('/').filter(Boolean).map(encodeURIComponent).join('/');
 };
 
 const normalizePath = (relativePath = '') => {
@@ -237,8 +230,7 @@ const getPreviewUrl = (relativePath) => {
   return url;
 };
 
-const fetchAuthStatus = () =>
-  requestJson('/api/auth/status', { method: 'GET' });
+const fetchAuthStatus = () => requestJson('/api/auth/status', { method: 'GET' });
 
 const setupAccount = ({ username, password }) =>
   requestJson('/api/auth/setup', {
@@ -300,14 +292,7 @@ async function patchSettings(partial) {
   });
 }
 
-export {
-  getSettings,
-  patchSettings,
-  setupAccount,
-  login,
-  logout,
-  fetchCurrentUser,
-};
+export { getSettings, patchSettings, setupAccount, login, logout, fetchCurrentUser };
 
 // Admin Users API
 async function fetchUsers() {

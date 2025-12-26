@@ -52,12 +52,9 @@ router.get('/status', async (req, res) => {
   const oidcEnv = (auth && auth.oidc) || {};
   const authMode = auth.mode || 'both';
   // Skip setup requirement if AUTH_MODE is 'oidc' only
-  const requiresSetup =
-    auth.enabled && authMode !== 'oidc' ? (await countUsers()) === 0 : false;
+  const requiresSetup = auth.enabled && authMode !== 'oidc' ? (await countUsers()) === 0 : false;
   const isEoc = Boolean(
-    req.oidc &&
-    typeof req.oidc.isAuthenticated === 'function' &&
-    req.oidc.isAuthenticated(),
+    req.oidc && typeof req.oidc.isAuthenticated === 'function' && req.oidc.isAuthenticated()
   );
   const hasLocal = Boolean(req.session && req.session.localUserId);
   const user = await getRequestUser(req);
@@ -65,8 +62,7 @@ router.get('/status', async (req, res) => {
   // Determine available strategies based on auth.mode
   const strategies = {
     local: authMode === 'local' || authMode === 'both',
-    oidc:
-      (authMode === 'oidc' || authMode === 'both') && Boolean(oidcEnv.enabled),
+    oidc: (authMode === 'oidc' || authMode === 'both') && Boolean(oidcEnv.enabled),
   };
 
   res.json({
@@ -90,9 +86,7 @@ router.post(
   setupLimiter,
   asyncHandler(async (req, res) => {
     if ((await countUsers()) > 0) {
-      throw new ValidationError(
-        'Aoolication Already configured. Skkipping Setup.',
-      );
+      throw new ValidationError('Aoolication Already configured. Skkipping Setup.');
     }
     const { email, password, username } = req.body || {};
     const user = await createLocalUser({
@@ -108,7 +102,7 @@ router.post(
     res.clearCookie('guestSession', { path: '/api' });
 
     res.status(201).json({ user });
-  }),
+  })
 );
 
 // Local login with email + password
@@ -138,7 +132,7 @@ router.post(
     res.clearCookie('guestSession', { path: '/api' });
 
     res.json({ user });
-  }),
+  })
 );
 
 // Change password (for users with password auth)
@@ -154,7 +148,7 @@ router.post(
     const { currentPassword, newPassword } = req.body || {};
     await changeLocalPassword({ userId: me.id, currentPassword, newPassword });
     res.status(204).end();
-  }),
+  })
 );
 
 // Add password authentication to current user (for OIDC-only users)
@@ -171,7 +165,7 @@ router.post(
     await addLocalPassword({ userId: user.id, password });
 
     res.json({ message: 'Password authentication added successfully.' });
-  }),
+  })
 );
 
 // Get available auth methods for current user
@@ -189,14 +183,12 @@ router.get(
       methods: methods.map((m) => ({
         id: m.id,
         type: m.method_type,
-        provider:
-          m.provider_name ||
-          (m.method_type === 'local_password' ? 'Password' : 'Unknown'),
+        provider: m.provider_name || (m.method_type === 'local_password' ? 'Password' : 'Unknown'),
         lastUsedAt: m.last_used_at,
         createdAt: m.created_at,
       })),
     });
-  }),
+  })
 );
 
 router.post('/logout', (req, res) => {
@@ -238,17 +230,14 @@ router.get('/me', async (req, res) => {
   await respondWithUser(req, res);
 });
 
-router.post('/token', (req, res) =>
-  res.status(400).json({ error: 'Token minting is disabled.' }),
-);
+router.post('/token', (req, res) => res.status(400).json({ error: 'Token minting is disabled.' }));
 
 router.get(
   '/oidc/login',
   asyncHandler(async (req, res) => {
     try {
       if (res.oidc && typeof res.oidc.login === 'function') {
-        const redirect =
-          typeof req.query?.redirect === 'string' ? req.query.redirect : '/';
+        const redirect = typeof req.query?.redirect === 'string' ? req.query.redirect : '/';
         await res.oidc.login({ returnTo: redirect });
         return;
       }
@@ -256,7 +245,7 @@ router.get(
       // ignore
     }
     throw new NotFoundError('OIDC is not configured.');
-  }),
+  })
 );
 
 module.exports = router;

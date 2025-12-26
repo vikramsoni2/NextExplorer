@@ -13,9 +13,7 @@ const createAccessContext = async () => {
     tag: 'access-control-test-',
     modules: ACCESS_MODULES,
   });
-  const accessControlService = envContext.requireFresh(
-    'src/services/accessControlService',
-  );
+  const accessControlService = envContext.requireFresh('src/services/accessControlService');
   return { envContext, accessControlService };
 };
 
@@ -32,22 +30,13 @@ test('accessControlService honors rule order and recursion', async () => {
     assert.strictEqual(rules.length, 2);
     assert.strictEqual(rules[0].path, 'parent/child');
 
-    assert.strictEqual(
-      await accessControlService.getPermissionForPath('parent/child'),
-      'hidden',
-    );
+    assert.strictEqual(await accessControlService.getPermissionForPath('parent/child'), 'hidden');
     assert.strictEqual(
       await accessControlService.getPermissionForPath('parent/child/file.txt'),
-      'ro',
+      'ro'
     );
-    assert.strictEqual(
-      await accessControlService.getPermissionForPath('parent/other'),
-      'ro',
-    );
-    assert.strictEqual(
-      await accessControlService.getPermissionForPath('unmatched/path'),
-      'rw',
-    );
+    assert.strictEqual(await accessControlService.getPermissionForPath('parent/other'), 'ro');
+    assert.strictEqual(await accessControlService.getPermissionForPath('unmatched/path'), 'rw');
   } finally {
     await envContext.cleanup();
   }

@@ -16,23 +16,17 @@ const parseScopes = (raw) => {
 const volumeDir = path.resolve(env.VOLUME_ROOT);
 const configDir = path.resolve(env.CONFIG_DIR);
 const cacheDir = path.resolve(env.CACHE_DIR);
-const userRootDir = env.USER_ROOT
-  ? path.resolve(env.USER_ROOT)
-  : path.join(volumeDir, '_users');
+const userRootDir = env.USER_ROOT ? path.resolve(env.USER_ROOT) : path.join(volumeDir, '_users');
 
 const directories = {
   volume: volumeDir,
-  volumeWithSep: volumeDir.endsWith(path.sep)
-    ? volumeDir
-    : `${volumeDir}${path.sep}`,
+  volumeWithSep: volumeDir.endsWith(path.sep) ? volumeDir : `${volumeDir}${path.sep}`,
   config: configDir,
   cache: cacheDir,
   thumbnails: path.join(cacheDir, 'thumbnails'),
   extensions: path.join(configDir, 'extensions'),
   userRoot: userRootDir,
-  userRootWithSep: userRootDir.endsWith(path.sep)
-    ? userRootDir
-    : `${userRootDir}${path.sep}`,
+  userRootWithSep: userRootDir.endsWith(path.sep) ? userRootDir : `${userRootDir}${path.sep}`,
 };
 
 // --- Public URL ---
@@ -84,9 +78,7 @@ const determineAuthMode = () => {
   if (env.AUTH_MODE) {
     const validModes = ['local', 'oidc', 'both', 'disabled'];
     if (!validModes.includes(env.AUTH_MODE)) {
-      console.warn(
-        `[Config] Invalid AUTH_MODE="${env.AUTH_MODE}". Using "both" as default.`,
-      );
+      console.warn(`[Config] Invalid AUTH_MODE="${env.AUTH_MODE}". Using "both" as default.`);
       return 'both';
     }
     return env.AUTH_MODE;
@@ -108,8 +100,7 @@ const auth = {
     userInfoURL: env.OIDC_USERINFO_URL,
     clientId: env.OIDC_CLIENT_ID,
     clientSecret: env.OIDC_CLIENT_SECRET,
-    callbackUrl:
-      env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
+    callbackUrl: env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),
     scopes: parseScopes(env.OIDC_SCOPES) || null,
     adminGroups: parseScopes(env.OIDC_ADMIN_GROUPS) || null,
     requireEmailVerified: env.OIDC_REQUIRE_EMAIL_VERIFIED,

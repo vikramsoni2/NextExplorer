@@ -12,7 +12,7 @@ const languages = computed(() =>
   supportedLocaleOptions.map(({ code, labelKey }) => ({
     code,
     label: t(labelKey),
-  })),
+  }))
 );
 
 const currentLanguage = computed(() => {

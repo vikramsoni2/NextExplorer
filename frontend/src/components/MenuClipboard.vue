@@ -1,9 +1,5 @@
 <script setup>
-import {
-  ClipboardPaste20Regular,
-  Cut20Filled,
-  Copy20Regular,
-} from '@vicons/fluent';
+import { ClipboardPaste20Regular, Cut20Filled, Copy20Regular } from '@vicons/fluent';
 import { useFileActions } from '@/composables/fileActions';
 
 const {

@@ -13,28 +13,8 @@ const IMAGE_EXTENSIONS = [
   'heic',
 ];
 const RAW_IMAGE_EXTENSIONS = ['nef', 'dng', 'arw', 'cr2', 'raf'];
-const VIDEO_EXTENSIONS = [
-  'mp4',
-  'mov',
-  'mkv',
-  'webm',
-  'm4v',
-  'avi',
-  'wmv',
-  'flv',
-  'mpg',
-  'mpeg',
-];
-const AUDIO_EXTENSIONS = [
-  'mp3',
-  'wav',
-  'flac',
-  'aac',
-  'm4a',
-  'ogg',
-  'opus',
-  'wma',
-];
+const VIDEO_EXTENSIONS = ['mp4', 'mov', 'mkv', 'webm', 'm4v', 'avi', 'wmv', 'flv', 'mpg', 'mpeg'];
+const AUDIO_EXTENSIONS = ['mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus', 'wma'];
 const DOCUMENT_EXTENSIONS = ['pdf'];
 const EXCLUDED_FILES = ['thumbs.db', '.DS_Store', '_users'];
 

@@ -7,12 +7,10 @@
       (() => {
         try {
           const mode = localStorage.getItem('settings:theme') || 'auto';
-          const prefersDark = window.matchMedia?.(
-            '(prefers-color-scheme: dark)',
-          ).matches;
+          const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
           document.documentElement.classList.toggle(
             'dark',
-            mode === 'dark' || (mode === 'auto' && prefersDark),
+            mode === 'dark' || (mode === 'auto' && prefersDark)
           );
         } catch (_) {}
       })();

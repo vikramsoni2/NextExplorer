@@ -5,21 +5,12 @@ const { v4: uuidv4 } = require('uuid');
 const isOidcDocumentRequest = (req) => {
   const path = req?.path || '';
   if (path !== '/callback') return false;
-  const accept =
-    typeof req.headers?.accept === 'string' ? req.headers.accept : '';
+  const accept = typeof req.headers?.accept === 'string' ? req.headers.accept : '';
   const secFetchDest =
-    typeof req.headers?.['sec-fetch-dest'] === 'string'
-      ? req.headers['sec-fetch-dest']
-      : '';
+    typeof req.headers?.['sec-fetch-dest'] === 'string' ? req.headers['sec-fetch-dest'] : '';
   const secFetchMode =
-    typeof req.headers?.['sec-fetch-mode'] === 'string'
-      ? req.headers['sec-fetch-mode']
-      : '';
-  return (
-    accept.includes('text/html') ||
-    secFetchDest === 'document' ||
-    secFetchMode === 'navigate'
-  );
+    typeof req.headers?.['sec-fetch-mode'] === 'string' ? req.headers['sec-fetch-mode'] : '';
+  return accept.includes('text/html') || secFetchDest === 'document' || secFetchMode === 'navigate';
 };
 
 const clearOidcSessionCookies = (res) => {

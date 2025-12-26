@@ -50,10 +50,4 @@ async function removeFavorite(path) {
   });
 }
 
-export {
-  fetchFavorites,
-  addFavorite,
-  updateFavorite,
-  reorderFavorites,
-  removeFavorite,
-};
+export { fetchFavorites, addFavorite, updateFavorite, reorderFavorites, removeFavorite };

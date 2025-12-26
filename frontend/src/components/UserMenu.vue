@@ -22,10 +22,7 @@ const { t } = useI18n();
 const isExpanded = ref(false);
 
 const displayName = computed(
-  () =>
-    auth.currentUser?.displayName ||
-    auth.currentUser?.username ||
-    t('user.account'),
+  () => auth.currentUser?.displayName || auth.currentUser?.username || t('user.account')
 );
 const avatarUrl = computed(() => auth.currentUser?.avatarUrl || null);
 const secondaryLabel = computed(() => {
@@ -39,17 +36,12 @@ const secondaryLabel = computed(() => {
 });
 
 const avatarLetter = computed(() => {
-  const source =
-    auth.currentUser?.displayName || auth.currentUser?.username || '';
+  const source = auth.currentUser?.displayName || auth.currentUser?.username || '';
   return source ? source.trim().charAt(0).toUpperCase() : '';
 });
 
 const nextThemeMode = computed(() =>
-  settings.themeMode === 'auto'
-    ? 'light'
-    : settings.themeMode === 'light'
-      ? 'dark'
-      : 'auto',
+  settings.themeMode === 'auto' ? 'light' : settings.themeMode === 'light' ? 'dark' : 'auto'
 );
 
 const themeActionLabel = computed(() => {
@@ -60,9 +52,7 @@ const themeActionLabel = computed(() => {
 
 const themeStatusLabel = computed(() => {
   if (settings.themeMode === 'auto') return t('user.systemTheme');
-  return settings.themeMode === 'dark'
-    ? t('user.darkTheme')
-    : t('user.lightTheme');
+  return settings.themeMode === 'dark' ? t('user.darkTheme') : t('user.lightTheme');
 });
 
 const themeIcon = computed(() => {
@@ -117,9 +107,7 @@ const handleLogout = async () => {
     :class="{ 'bg-white dark:bg-white/10 shadow-md': isExpanded }"
   >
     <div class="flex flex-col py-2">
-      <div
-        class="rounded-xl text-sm text-neutral-800 dark:text-white overflow-hidden"
-      >
+      <div class="rounded-xl text-sm text-neutral-800 dark:text-white overflow-hidden">
         <transition
           enter-active-class="transition-all duration-500"
           leave-active-class="transition-all duration-500"
@@ -136,9 +124,7 @@ const handleLogout = async () => {
             >
               <component :is="themeIcon" class="h-5 w-5" />
               <div class="flex min-w-0 flex-col">
-                <span class="text-sm font-semibold">{{
-                  themeActionLabel
-                }}</span>
+                <span class="text-sm font-semibold">{{ themeActionLabel }}</span>
                 <span class="text-xs text-neutral-400 dark:text-white/50">{{
                   themeStatusLabel
                 }}</span>
@@ -177,20 +163,15 @@ const handleLogout = async () => {
           class="flex h-9 w-9 items-center justify-center rounded-full bg-accent/15 text-base font-semibold uppercase text-accent transition group-hover:bg-accent/25 dark:bg-white/10 dark:text-white dark:group-hover:bg-white/20"
         >
           <template v-if="avatarUrl">
-            <img
-              :src="avatarUrl"
-              alt="User avatar"
-              class="h-9 w-9 rounded-full object-cover"
-            />
+            <img :src="avatarUrl" alt="User avatar" class="h-9 w-9 rounded-full object-cover" />
           </template>
           <template v-else-if="avatarLetter">{{ avatarLetter }}</template>
           <UserCircleIcon v-else class="h-6 w-6" />
         </span>
         <div class="flex min-w-0 flex-1 flex-col">
-          <span
-            class="text-sm font-semibold text-neutral-900 dark:text-white"
-            >{{ displayName }}</span
-          >
+          <span class="text-sm font-semibold text-neutral-900 dark:text-white">{{
+            displayName
+          }}</span>
           <span
             v-if="secondaryLabel"
             class="text-xs text-neutral-500 dark:text-white/60 truncate"

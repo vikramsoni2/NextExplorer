@@ -23,9 +23,7 @@ const paths = computed(() => {
 
       // Display priority: label > sourceFolderName > token
       const shareDisplayName =
-        shareInfo?.label?.trim() ||
-        shareInfo?.sourceFolderName?.trim() ||
-        shareToken;
+        shareInfo?.label?.trim() || shareInfo?.sourceFolderName?.trim() || shareToken;
 
       const breadcrumbs = [
         { name: t('breadcrumb.share', 'Share'), path: 'share' },
@@ -52,9 +50,7 @@ const paths = computed(() => {
     return segments.slice(start).map((segment, index) => {
       const absoluteIndex = start + index;
       const displayName =
-        absoluteIndex === 0 && te(`drives.${segment}`)
-          ? t(`drives.${segment}`)
-          : segment;
+        absoluteIndex === 0 && te(`drives.${segment}`) ? t(`drives.${segment}`) : segment;
 
       return {
         name: ellipses(displayName, 28),

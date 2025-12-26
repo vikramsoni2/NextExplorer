@@ -67,9 +67,7 @@ const getPermittedUsers = (share) => {
   if (!share.permittedUserIds || share.permittedUserIds.length === 0) {
     return [];
   }
-  return share.permittedUserIds
-    .map((userId) => usersMap.value[userId])
-    .filter(Boolean); // Filter out any undefined users
+  return share.permittedUserIds.map((userId) => usersMap.value[userId]).filter(Boolean); // Filter out any undefined users
 };
 
 const isExpired = (share) => {
@@ -217,9 +215,7 @@ onMounted(async () => {
         </div>
 
         <!-- Filters -->
-        <div
-          class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-md p-0.5"
-        >
+        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-md p-0.5">
           <button
             v-for="mode in ['active', 'expired', 'all']"
             :key="mode"
@@ -269,16 +265,11 @@ onMounted(async () => {
     <div class="flex-1 overflow-y-auto px-2">
       <!-- Loading -->
       <div v-if="loading" class="flex h-full items-center justify-center">
-        <div
-          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
-        ></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
 
       <!-- Error -->
-      <div
-        v-else-if="error"
-        class="flex h-full flex-col items-center justify-center text-red-500"
-      >
+      <div v-else-if="error" class="flex h-full flex-col items-center justify-center text-red-500">
         <p>{{ error }}</p>
         <button @click="loadShares" class="mt-2 text-blue-500 hover:underline">
           {{ t('common.tryAgain') }}
@@ -332,9 +323,7 @@ onMounted(async () => {
 
             <!-- Name & Path -->
             <div class="min-w-0">
-              <div
-                class="font-medium text-neutral-900 dark:text-neutral-100 truncate"
-              >
+              <div class="font-medium text-neutral-900 dark:text-neutral-100 truncate">
                 {{ getShareLabel(share) }}
               </div>
               <div class="text-xs text-neutral-400 truncate font-mono mt-0.5">
@@ -359,25 +348,16 @@ onMounted(async () => {
                 >
                   {{ user.displayName || user.username }}
                 </div>
-                <span
-                  v-if="getPermittedUsers(share).length > 3"
-                  class="text-xs text-neutral-400"
-                >
+                <span v-if="getPermittedUsers(share).length > 3" class="text-xs text-neutral-400">
                   +{{ getPermittedUsers(share).length - 3 }}
                 </span>
               </div>
             </div>
 
             <!-- Access -->
-            <div
-              class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300"
-            >
+            <div class="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-300">
               <component
-                :is="
-                  share.accessMode === 'readonly'
-                    ? LockClosedIcon
-                    : LockOpenIcon
-                "
+                :is="share.accessMode === 'readonly' ? LockClosedIcon : LockOpenIcon"
                 class="w-4 h-4"
               />
               <span>
@@ -392,11 +372,7 @@ onMounted(async () => {
             <!-- Expires -->
             <div class="text-neutral-600 dark:text-neutral-300">
               <span :class="{ 'text-red-500': isExpired(share) }">
-                {{
-                  share.expiresAt
-                    ? formatDate(share.expiresAt)
-                    : t('common.noExpiration')
-                }}
+                {{ share.expiresAt ? formatDate(share.expiresAt) : t('common.noExpiration') }}
               </span>
             </div>
 
@@ -408,9 +384,7 @@ onMounted(async () => {
                 :title="t('actions.copy')"
               >
                 <component
-                  :is="
-                    copiedId === share.id ? CheckIcon : ClipboardDocumentIcon
-                  "
+                  :is="copiedId === share.id ? CheckIcon : ClipboardDocumentIcon"
                   class="w-4 h-4"
                   :class="{ 'text-green-500': copiedId === share.id }"
                 />

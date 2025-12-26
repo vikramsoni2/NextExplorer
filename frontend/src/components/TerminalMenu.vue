@@ -10,9 +10,7 @@ const { toggle, isOpen } = terminalStore;
 
 const auth = useAuthStore();
 const isAdmin = computed(
-  () =>
-    Array.isArray(auth.currentUser?.roles) &&
-    auth.currentUser.roles.includes('admin'),
+  () => Array.isArray(auth.currentUser?.roles) && auth.currentUser.roles.includes('admin')
 );
 
 const { t } = useI18n();

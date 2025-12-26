@@ -15,15 +15,9 @@ const buildDiscoveryUrl = (issuer) => {
   return `${normalized}/.well-known/openid-configuration`;
 };
 
-const fetchJson = async (
-  url,
-  { timeoutMs = 5000, headers = {}, method = 'GET' } = {},
-) => {
-  const controller =
-    typeof AbortController !== 'undefined' ? new AbortController() : null;
-  const id = controller
-    ? setTimeout(() => controller.abort(), timeoutMs)
-    : null;
+const fetchJson = async (url, { timeoutMs = 5000, headers = {}, method = 'GET' } = {}) => {
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const id = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
   try {
     const response = await fetch(url, {
@@ -36,9 +30,7 @@ const fetchJson = async (
     });
 
     if (!response.ok) {
-      const err = new Error(
-        `Failed request to ${url}: ${response.status} ${response.statusText}`,
-      );
+      const err = new Error(`Failed request to ${url}: ${response.status} ${response.statusText}`);
       err.status = response.status;
       throw err;
     }
@@ -54,10 +46,7 @@ const discoverOpenIdConfiguration = async ({
   forceRefresh = false,
   timeoutMs = 5000,
 } = {}) => {
-  logger.debug(
-    { issuer, forceRefresh, timeoutMs },
-    'Starting OIDC configuration discovery',
-  );
+  logger.debug({ issuer, forceRefresh, timeoutMs }, 'Starting OIDC configuration discovery');
 
   const normalized = normalizeIssuer(issuer);
   if (!normalized) {
@@ -85,8 +74,7 @@ const discoverOpenIdConfiguration = async ({
   }
 
   const ttlMs = Number(configuration.configuration_ttl || DEFAULT_TTL_MS);
-  const expiresAt =
-    Date.now() + (Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS);
+  const expiresAt = Date.now() + (Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : DEFAULT_TTL_MS);
 
   discoveryCache.set(normalized, { configuration, expiresAt });
   return configuration;
@@ -100,13 +88,13 @@ const fetchUserInfoClaims = async ({
 } = {}) => {
   logger.debug(
     { issuer, timeoutMs, hasOverride: Boolean(userInfoURL) },
-    'Starting userinfo claims fetch',
+    'Starting userinfo claims fetch'
   );
 
   if (!issuer || !accessToken) {
     logger.debug(
       { issuer: !!issuer, hasToken: !!accessToken },
-      'Missing required parameters for userinfo fetch',
+      'Missing required parameters for userinfo fetch'
     );
     return null;
   }
@@ -121,10 +109,7 @@ const fetchUserInfoClaims = async ({
         logger.debug({ endpoint }, 'Using overridden OIDC userinfo URL');
       }
     } catch (e) {
-      logger.warn(
-        { err: e, userInfoURL },
-        'Invalid OIDC userinfo override URL provided',
-      );
+      logger.warn({ err: e, userInfoURL }, 'Invalid OIDC userinfo override URL provided');
     }
   }
 
@@ -136,19 +121,14 @@ const fetchUserInfoClaims = async ({
     });
     logger.debug(
       { issuer, hasConfiguration: Boolean(configuration) },
-      'Received OIDC configuration',
+      'Received OIDC configuration'
     );
     endpoint =
-      configuration && configuration.userinfo_endpoint
-        ? configuration.userinfo_endpoint
-        : null;
+      configuration && configuration.userinfo_endpoint ? configuration.userinfo_endpoint : null;
   }
 
   if (!endpoint) {
-    logger.warn(
-      { issuer },
-      'No userinfo endpoint available (override or discovery)',
-    );
+    logger.warn({ issuer }, 'No userinfo endpoint available (override or discovery)');
     return null;
   }
 

@@ -14,7 +14,7 @@ router.get(
   asyncHandler(async (req, res) => {
     const settings = await getSettings();
     res.json(settings);
-  }),
+  })
 );
 
 /**
@@ -53,7 +53,7 @@ router.patch(
 
     const updated = await setSettings(updates);
     res.json(updated);
-  }),
+  })
 );
 
 module.exports = router;
