@@ -90,3 +90,11 @@ export async function browseAdminDirectories(dirPath = '') {
     method: 'GET',
   });
 }
+
+// Search users for @ mentions in Collabora
+export async function searchUsersForMention(query) {
+  const response = await requestJson(`/api/users/search?q=${encodeURIComponent(query || '')}`, {
+    method: 'GET',
+  });
+  return response?.users || [];
+}
