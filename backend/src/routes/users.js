@@ -11,6 +11,7 @@ const {
   countAdmins,
 } = require('../services/users');
 const asyncHandler = require('../utils/asyncHandler');
+const { searchLocalUsers } = require('../services/userSearchService');
 const {
   ForbiddenError,
   NotFoundError,
@@ -36,6 +37,19 @@ router.get(
       throw new UnauthorizedError('Authentication required');
     }
     const users = await listShareableUsers({ excludeUserId: req.user.id });
+    res.json({ users });
+  })
+);
+
+// GET /api/users/search?q=... - search users for mentions (authenticated)
+router.get(
+  '/users/search',
+  asyncHandler(async (req, res) => {
+    if (!req.user || !req.user.id) {
+      throw new UnauthorizedError('Authentication required');
+    }
+    const query = req.query.q || '';
+    const users = await searchLocalUsers(query, 10);
     res.json({ users });
   })
 );
