@@ -28,6 +28,7 @@ nextExplorer is configured almost entirely through environment variables. The ba
 | `CONFIG_DIR`  | `/config`                         | Location for SQLite, `app-config.json`, extensions, and settings.                                                      |
 | `CACHE_DIR`   | `/cache`                          | Location for thumbnails, ripgrep indexes, and temporary data.                                                          |
 | `USER_ROOT`   | `<VOLUME_ROOT>/_users` when unset | Root directory for **per-user personal folders**. Each authenticated user gets their own subdirectory under this path. |
+| `USER_FOLDER_NAME_ORDER` | `id,username,email_local` | Controls how per-user folder names are derived for personal folders (e.g. set `username,id` to reuse `/home/<username>` when `USER_ROOT=/home`). |
 
 ## Authentication
 

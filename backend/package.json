@@ -15,6 +15,7 @@
   "dependencies": {
     "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
     "archiver": "^6.0.2",
+    "adm-zip": "^0.5.16",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.5.0",

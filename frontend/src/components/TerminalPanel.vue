@@ -55,10 +55,34 @@ const panelRef = ref(null);
 let term;
 let socket;
 let fitAddon;
+let resizeObserver;
+let pendingResize;
+
+// Prefix used to send control messages (like resize) over the same WS channel as raw terminal input.
+// This avoids collisions with normal shell input (xterm sends raw keystrokes).
+const CONTROL_PREFIX = '\u001e';
 
 const sendInput = (data) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(data);
+  }
+};
+
+const sendResize = (cols, rows) => {
+  const safeCols = Number.isFinite(cols) ? Math.max(1, Math.floor(cols)) : null;
+  const safeRows = Number.isFinite(rows) ? Math.max(1, Math.floor(rows)) : null;
+  if (!safeCols || !safeRows) return;
+
+  pendingResize = { cols: safeCols, rows: safeRows };
+
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      `${CONTROL_PREFIX}${JSON.stringify({
+        type: 'resize',
+        cols: safeCols,
+        rows: safeRows,
+      })}`
+    );
   }
 };
 
@@ -99,6 +123,9 @@ const connectToBackend = async () => {
 
     socket.onopen = () => {
       console.log('Terminal WebSocket connection opened');
+      if (pendingResize) {
+        sendResize(pendingResize.cols, pendingResize.rows);
+      }
     };
 
     socket.onmessage = (event) => {
@@ -158,9 +185,22 @@ const initTerminal = () => {
   term.loadAddon(fitAddon);
   term.open(terminaldiv.value);
 
-  setTimeout(() => {
+  term.onResize(({ cols, rows }) => {
+    sendResize(cols, rows);
+  });
+
+  resizeObserver = new ResizeObserver(() => {
+    // Defer to ensure layout has settled (esp. during panel open/resize).
+    requestAnimationFrame(() => {
+      fitAddon?.fit();
+    });
+  });
+  resizeObserver.observe(terminaldiv.value);
+
+  // Initial fit (also triggers `onResize` -> sends size to backend).
+  requestAnimationFrame(() => {
     fitAddon.fit();
-  }, 100);
+  });
 
   term.onData((data) => {
     sendInput(data);
@@ -187,6 +227,9 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
   if (socket) {
     socket.close();
   }

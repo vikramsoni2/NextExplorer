@@ -16,6 +16,7 @@ module.exports = {
   CONFIG_DIR: process.env.CONFIG_DIR || '/config',
   CACHE_DIR: process.env.CACHE_DIR || '/cache',
   USER_ROOT: process.env.USER_ROOT || '',
+  USER_FOLDER_NAME_ORDER: process.env.USER_FOLDER_NAME_ORDER?.trim() || null,
 
   // Public URL & Network
   PUBLIC_URL: process.env.PUBLIC_URL?.trim() || null,

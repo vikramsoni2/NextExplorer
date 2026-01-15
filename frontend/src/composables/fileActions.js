@@ -29,6 +29,25 @@ export function useFileActions() {
   const locationCanUpload = computed(() => fileStore.currentPathData?.canUpload ?? true);
   const locationCanDelete = computed(() => fileStore.currentPathData?.canDelete ?? true);
 
+  const isZipSelected = computed(() => {
+    if (!isSingleItemSelected.value || !primaryItem.value) return false;
+    const kind = String(primaryItem.value.kind || '').toLowerCase();
+    if (kind === 'zip') return true;
+    const name = String(primaryItem.value.name || '').toLowerCase();
+    return name.endsWith('.zip');
+  });
+
+  const selectionHasUniformParent = computed(() => {
+    if (!hasSelection.value) return false;
+    const parents = new Set(
+      selectedItems.value.map((item) => normalizePath(item?.path || '')).filter(Boolean)
+    );
+    if (parents.size === 1) return true;
+    // Special case: items in the root of a volume have empty parent path ("")
+    const rawParents = new Set(selectedItems.value.map((item) => normalizePath(item?.path || '')));
+    return rawParents.size === 1;
+  });
+
   const canCut = computed(
     () => hasSelection.value && locationCanWrite.value && locationCanDelete.value
   );
@@ -40,6 +59,16 @@ export function useFileActions() {
   const canRename = computed(
     () =>
       isSingleItemSelected.value && primaryItem.value?.kind !== 'volume' && locationCanWrite.value
+  );
+  const canExtractZip = computed(
+    () => isZipSelected.value && locationCanWrite.value && primaryItem.value?.kind !== 'volume'
+  );
+  const canCompressToZip = computed(
+    () =>
+      hasSelection.value &&
+      locationCanWrite.value &&
+      selectionHasUniformParent.value &&
+      selectedItems.value.every((item) => item?.kind !== 'volume')
   );
 
   const isCutActive = computed(() => fileStore.cutItems.length > 0);
@@ -61,6 +90,18 @@ export function useFileActions() {
   const runRename = () => {
     if (!canRename.value || !primaryItem.value) return;
     fileStore.beginRename(primaryItem.value);
+  };
+
+  const runExtractZip = async () => {
+    if (!canExtractZip.value || !primaryItem.value) return;
+    const zipPath = resolveItemPath(primaryItem.value);
+    if (!zipPath) return;
+    await fileStore.extractZipArchive(zipPath);
+  };
+
+  const runCompressToZip = async () => {
+    if (!canCompressToZip.value) return;
+    await fileStore.compressSelectionToZip();
   };
 
   const deleteNow = async () => {
@@ -126,6 +167,8 @@ export function useFileActions() {
     canPaste,
     canDelete,
     canRename,
+    canExtractZip,
+    canCompressToZip,
     isCutActive,
     isCopyActive,
     // helpers
@@ -137,6 +180,8 @@ export function useFileActions() {
     runPasteToDestination,
     runPasteIntoCurrent,
     runRename,
+    runExtractZip,
+    runCompressToZip,
     deleteNow,
     runDownload,
   };

@@ -88,6 +88,8 @@
     "paste": "Paste",
     "rename": "Rename",
     "download": "Download",
+    "extractZip": "Extract ZIP",
+    "compressToZip": "Compress to ZIP",
     "search": "Search",
     "sortBy": "Sort by",
     "addRule": "Add rule",

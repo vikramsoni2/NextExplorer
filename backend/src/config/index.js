@@ -5,11 +5,32 @@ const constants = require('./constants');
 const loggingConfig = require('./logging');
 const { parseByteSize } = require('../utils/env');
 
+const parseCommaOrSpaceList = (raw) => {
+  if (!raw) return [];
+  const parts = String(raw).includes(',') ? String(raw).split(',') : String(raw).split(/\s+/);
+  return parts.map((s) => s.trim()).filter(Boolean);
+};
+
 // Helper: Parse comma/space-separated scopes
 const parseScopes = (raw) => {
-  if (!raw) return null;
-  const parts = raw.includes(',') ? raw.split(',') : raw.split(/\s+/);
-  return parts.map((s) => s.trim()).filter(Boolean);
+  const list = parseCommaOrSpaceList(raw);
+  return list.length ? list : null;
+};
+
+// --- Personal folder naming ---
+const DEFAULT_USER_FOLDER_NAME_ORDER = ['id', 'username', 'email_local'];
+const VALID_USER_FOLDER_NAME_TOKENS = new Set(['id', 'username', 'email', 'email_local', 'displayname']);
+
+const parseUserFolderNameOrder = (raw) => {
+  const requested = parseCommaOrSpaceList(raw).map((token) => token.toLowerCase());
+  const order = [];
+
+  for (const token of requested) {
+    if (!VALID_USER_FOLDER_NAME_TOKENS.has(token)) continue;
+    if (!order.includes(token)) order.push(token);
+  }
+
+  return order.length ? order : DEFAULT_USER_FOLDER_NAME_ORDER;
 };
 
 // --- Paths ---
@@ -166,6 +187,11 @@ const favorites = {
   defaultIcon: env.FAVORITES_DEFAULT_ICON,
 };
 
+// --- Personal folders ---
+const personal = {
+  userFolderNameOrder: parseUserFolderNameOrder(env.USER_FOLDER_NAME_ORDER),
+};
+
 // --- Shares ---
 const shares = {
   enabled: env.SHARES_ENABLED,
@@ -233,4 +259,6 @@ module.exports = {
     isDebug: loggingConfig.isDebug,
     enableHttpLogging: loggingConfig.enableHttpLogging,
   },
+
+  personal,
 };

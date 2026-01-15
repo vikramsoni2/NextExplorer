@@ -86,6 +86,8 @@
     "paste": "पेस्ट",
     "rename": "नाम बदलें",
     "download": "डाउनलोड",
+    "extractZip": "ZIP निकालें",
+    "compressToZip": "ZIP में संपीड़ित करें",
     "search": "खोजें",
     "sortBy": "क्रमबद्ध करें",
     "addRule": "नियम जोड़ें",

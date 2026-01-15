@@ -13,6 +13,7 @@ This section explains how it works and how to enable it.
   - Volume paths: `Projects/file.txt` → `<VOLUME_ROOT>/Projects/file.txt`.
   - Personal paths: `personal/docs/file.txt` → `<USER_ROOT>/<userFolder>/docs/file.txt`.
 - The `<userFolder>` name is derived from the user’s identity (id / username / email) and sanitized so it is safe as a directory name.
+  - You can control which identity fields are preferred with `USER_FOLDER_NAME_ORDER` (see below).
 - Access control rules, favorites, search and previews work on the **logical** path:
   - You can define access rules for `personal/...` if you want to further restrict or hide parts of the personal tree.
 
@@ -33,6 +34,7 @@ In addition to your usual `VOLUME_ROOT`/`CONFIG_DIR`/`CACHE_DIR` settings, confi
 ```yaml
 USER_DIR_ENABLED=true
 USER_ROOT=/srv/users
+USER_FOLDER_NAME_ORDER=id,username,email_local
 ```
 
 - `USER_DIR_ENABLED`:
@@ -42,6 +44,12 @@ USER_ROOT=/srv/users
   - Default: `<VOLUME_ROOT>/_users` when unset.
   - Root directory on disk where all per-user folders are stored.
   - For each user, nextExplorer creates (or reuses) a subdirectory under this path when they first access their personal space.
+- `USER_FOLDER_NAME_ORDER`:
+  - Default: `id,username,email_local`.
+  - Controls how `<userFolder>` is chosen for personal folders. Valid values: `id`, `username`, `email`, `email_local`, `displayname`.
+  - Example (reuse existing Linux home directories): set `USER_ROOT=/home` and `USER_FOLDER_NAME_ORDER=username,id`.
+
+> Note: Changing `USER_FOLDER_NAME_ORDER` after users already have personal folders will make nextExplorer look in a different location. Move/rename directories (or create symlinks) if you need to migrate existing data.
 
 > Note: The personal folder UI will not appear unless `USER_DIR_ENABLED=true`. The app also refuses to resolve `personal/...` when this flag is off.
 

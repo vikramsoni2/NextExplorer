@@ -88,6 +88,8 @@
     "paste": "Lipește",
     "rename": "Redenumește",
     "download": "Descarcă",
+    "extractZip": "Extrage ZIP",
+    "compressToZip": "Comprimă în ZIP",
     "search": "Caută",
     "sortBy": "Sortează după",
     "addRule": "Adaugă regulă",

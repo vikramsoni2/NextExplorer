@@ -3,6 +3,8 @@ const pty = require('@homebridge/node-pty-prebuilt-multiarch');
 const WebSocket = require('ws');
 const logger = require('../utils/logger');
 
+const CONTROL_PREFIX = '\u001e';
+
 class TerminalService {
   constructor() {
     this.terminals = new Map();
@@ -170,7 +172,39 @@ class TerminalService {
             { terminalId, messageLength: message.length },
             'Received message from WebSocket client'
           );
-          ptyProcess.write(message);
+
+          const messageText =
+            typeof message === 'string' ? message : Buffer.from(message).toString('utf8');
+
+          if (messageText.startsWith(CONTROL_PREFIX)) {
+            const payloadText = messageText.slice(CONTROL_PREFIX.length);
+            let payload;
+            try {
+              payload = JSON.parse(payloadText);
+            } catch (error) {
+              logger.warn({ err: error, terminalId }, 'Invalid terminal control message JSON');
+              return;
+            }
+
+            if (payload?.type === 'resize') {
+              const cols = Number.isFinite(payload.cols) ? Math.max(1, Math.floor(payload.cols)) : null;
+              const rows = Number.isFinite(payload.rows) ? Math.max(1, Math.floor(payload.rows)) : null;
+              if (!cols || !rows) return;
+
+              try {
+                ptyProcess.resize(cols, rows);
+                logger.debug({ terminalId, cols, rows }, 'Resized PTY');
+              } catch (error) {
+                logger.warn({ err: error, terminalId, cols, rows }, 'Failed to resize PTY');
+              }
+              return;
+            }
+
+            logger.debug({ terminalId, type: payload?.type }, 'Ignored terminal control message');
+            return;
+          }
+
+          ptyProcess.write(messageText);
         } catch (error) {
           logger.error({ err: error, terminalId }, 'Error writing to terminal');
         }

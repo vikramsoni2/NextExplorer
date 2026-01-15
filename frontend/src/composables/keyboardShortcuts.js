@@ -14,7 +14,13 @@ function useAltCombo(keys, key) {
 }
 
 export function useKeyboardShortcuts(options = {}) {
-  const { clipboard = true, spotlight = true, view = true, ignoreWhenEditable = true } = options;
+  const {
+    clipboard = true,
+    spotlight = true,
+    view = true,
+    rename = true,
+    ignoreWhenEditable = true,
+  } = options;
 
   const actions = useFileActions();
   const settings = useSettingsStore();
@@ -98,6 +104,15 @@ export function useKeyboardShortcuts(options = {}) {
     whenever(photosViewPressed, () => {
       if (shouldIgnore()) return;
       settings.photosView();
+    });
+  }
+
+  if (rename) {
+    const renamePressed = computed(() => keys.f2?.value);
+    whenever(renamePressed, () => {
+      if (shouldIgnore()) return;
+      if (!actions.canRename.value) return;
+      actions.runRename();
     });
   }
 }

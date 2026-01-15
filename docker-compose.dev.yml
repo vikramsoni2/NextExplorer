@@ -21,7 +21,7 @@ services:
       - CACHE_DIR=/cache
       - PUBLIC_URL=https://files.vsoni.com
       - SESSION_SECRET=dev-change-me
-      
+
       - OIDC_ENABLED=true
       - OIDC_ISSUER=https://auth.vsoni.com/application/o/next/
       - OIDC_CLIENT_ID=6HBh3lMneUwWCAeutdEgwNZ6myXzFc93clojdfmQ
@@ -29,10 +29,16 @@ services:
       - OIDC_SCOPES=openid,profile,email,groups
       - OIDC_ADMIN_GROUPS=next-admin,admins
 
-      - ONLYOFFICE_URL=https://office.vsoni.com
-      - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
-      - ONLYOFFICE_LANG=en
-      
+      # - ONLYOFFICE_URL=https://office.vsoni.com
+      # - ONLYOFFICE_SECRET=ha96M546Hl5oSSvrjvabmXK1D6qlRH15
+      # - ONLYOFFICE_LANG=en
+
+      - COLLABORA_URL=https://collabora.vsoni.com
+      - COLLABORA_DISCOVERY_URL=https://collabora.vsoni.com/hosting/discovery
+      - COLLABORA_SECRET=dev-collabora-secret-change-me
+      # - COLLABORA_LANG=en
+      # - COLLABORA_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,csv
+
       - USER_DIR_ENABLED=true
       - USER_ROOT=/srv/users
 
@@ -50,7 +56,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       # Vite proxies API requests to the backend container
       - VITE_BACKEND_ORIGIN=http://backend:3001

@@ -86,6 +86,8 @@
     "paste": "Klistra in",
     "rename": "Byt namn",
     "download": "Ladda ner",
+    "extractZip": "Extrahera ZIP",
+    "compressToZip": "Komprimera till ZIP",
     "search": "Sök",
     "sortBy": "Sortera efter",
     "addRule": "Lägg till regel",

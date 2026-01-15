@@ -63,6 +63,45 @@ test('findAvailableName and findAvailableFolderName avoid collisions', async () 
   assert.strictEqual(folderName, 'Untitled Folder 2');
 });
 
+test('getUserFolderName defaults to stable id-first ordering', () => {
+  const name = pathUtils.getUserFolderName({
+    id: '11111111-2222-3333-4444-555555555555',
+    username: 'alice',
+    email: 'alice@example.com',
+  });
+  assert.strictEqual(name, '11111111-2222-3333-4444-555555555555');
+});
+
+test('getUserFolderName respects USER_FOLDER_NAME_ORDER', async () => {
+  const customEnv = await setupTestEnv({
+    tag: 'path-utils-user-folder-order-',
+    modules: ['src/utils/pathUtils'],
+    env: {
+      USER_FOLDER_NAME_ORDER: 'username,id',
+    },
+  });
+
+  try {
+    const customPathUtils = customEnv.requireFresh('src/utils/pathUtils');
+
+    const fromUsername = customPathUtils.getUserFolderName({
+      id: '11111111-2222-3333-4444-555555555555',
+      username: 'alice',
+      email: 'alice@example.com',
+    });
+    assert.strictEqual(fromUsername, 'alice');
+
+    const fallsBackToId = customPathUtils.getUserFolderName({
+      id: '11111111-2222-3333-4444-555555555555',
+      username: 'bad/name',
+      email: 'alice@example.com',
+    });
+    assert.strictEqual(fallsBackToId, '11111111-2222-3333-4444-555555555555');
+  } finally {
+    await customEnv.cleanup();
+  }
+});
+
 test('resolveItemPaths returns normalized relative and absolute paths', async () => {
   const item = { name: 'file.txt', path: 'docs/reports' };
   const resolved = await pathUtils.resolveItemPaths(item);

@@ -86,6 +86,8 @@
     "paste": "Wklej",
     "rename": "Zmień nazwę",
     "download": "Pobierz",
+    "extractZip": "Wypakuj ZIP",
+    "compressToZip": "Spakuj do ZIP",
     "search": "Szukaj",
     "sortBy": "Sortuj według",
     "addRule": "Dodaj regułę",

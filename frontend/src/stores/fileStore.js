@@ -10,6 +10,8 @@ import {
   renameItem as renameItemApi,
   saveFileContent as saveFileContentApi,
   fetchThumbnail as fetchThumbnailApi,
+  extractZip as extractZipApi,
+  compressToZip as compressToZipApi,
   browseShare,
 } from '@/api';
 import { useSettingsStore } from '@/stores/settings';
@@ -187,6 +189,53 @@ export const useFileStore = defineStore('fileStore', () => {
     }
 
     return { success: true, name: candidate };
+  };
+
+  const extractZipArchive = async (relativePath) => {
+    const normalized = normalizePath(relativePath || '');
+    if (!normalized) return null;
+
+    const response = await extractZipApi(normalized);
+
+    const parent = (() => {
+      const idx = normalized.lastIndexOf('/');
+      return idx >= 0 ? normalized.slice(0, idx) : '';
+    })();
+
+    await fetchPathItems(parent);
+
+    const createdName = response?.item?.name;
+    if (createdName) {
+      const createdKey = `${normalizePath(parent)}::${createdName}`;
+      const createdItem = findItemByKey(createdKey);
+      if (createdItem) {
+        selectedItems.value = [createdItem];
+      }
+    }
+
+    return response;
+  };
+
+  const compressSelectionToZip = async (name) => {
+    const destination = normalizePath(currentPath.value || '');
+    const payload = serializeItems(selectedItems.value);
+    if (payload.length === 0) return null;
+
+    const response = await compressToZipApi(payload, destination, name);
+    const createdName = response?.item?.name;
+
+    await fetchPathItems(destination);
+
+    if (createdName) {
+      const createdKey = `${destination}::${createdName}`;
+      const createdItem = findItemByKey(createdKey);
+      if (createdItem) {
+        selectedItems.value = [createdItem];
+        beginRename(createdItem, { isNew: true });
+      }
+    }
+
+    return response;
   };
 
   const beginRename = (item, options = {}) => {
@@ -455,6 +504,8 @@ export const useFileStore = defineStore('fileStore', () => {
     resetClipboard,
     createFolder,
     createFile,
+    extractZipArchive,
+    compressSelectionToZip,
     renameState,
     beginRename,
     setRenameDraft,

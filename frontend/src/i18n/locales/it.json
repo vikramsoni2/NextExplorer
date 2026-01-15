@@ -88,6 +88,8 @@
     "paste": "Incolla",
     "rename": "Rinomina",
     "download": "Scarica",
+    "extractZip": "Estrai ZIP",
+    "compressToZip": "Comprimi in ZIP",
     "search": "Cerca",
     "sortBy": "Ordina per",
     "addRule": "Aggiungi regola",

@@ -25,7 +25,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, watch, computed } from 'vue';
+import { useEventListener } from '@vueuse/core';
 import { fetchCollaboraConfig, searchUsersForMention } from '@/api';
 
 const props = defineProps({
@@ -150,14 +151,9 @@ const load = async () => {
   }
 };
 
-onMounted(() => {
-  load();
-  window.addEventListener('message', handlePostMessage);
-});
-
-onUnmounted(() => {
-  window.removeEventListener('message', handlePostMessage);
-});
+// Initialize load and set up event listener
+load();
+useEventListener(window, 'message', handlePostMessage);
 
 watch(
   () => props.filePath,

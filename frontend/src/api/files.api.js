@@ -117,6 +117,32 @@ async function downloadItems(paths, basePath = '') {
   });
 }
 
+async function extractZip(relativePath) {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    throw new Error('A zip file path is required.');
+  }
+  return requestJson('/api/files/zip/extract', {
+    method: 'POST',
+    body: JSON.stringify({ path: normalizedPath }),
+  });
+}
+
+async function compressToZip(items, destination = '', name) {
+  const payload = {
+    items: Array.isArray(items) ? items : [],
+    destination: normalizePath(destination || ''),
+  };
+  if (typeof name === 'string' && name.trim()) {
+    payload.name = name.trim();
+  }
+
+  return requestJson('/api/files/zip/compress', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 async function search(path = '', q = '', limit) {
   const normalizedPath = normalizePath(path || '');
   const params = new URLSearchParams();
@@ -185,6 +211,8 @@ export {
   fetchThumbnail,
   fetchMetadata,
   downloadItems,
+  extractZip,
+  compressToZip,
   search,
   getPreviewUrl,
   fetchPermissions,

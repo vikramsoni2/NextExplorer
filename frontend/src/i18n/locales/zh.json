@@ -86,6 +86,8 @@
     "paste": "粘贴",
     "rename": "重命名",
     "download": "下载",
+    "extractZip": "解压 ZIP",
+    "compressToZip": "压缩为 ZIP",
     "search": "搜索",
     "sortBy": "排序方式",
     "addRule": "添加规则",

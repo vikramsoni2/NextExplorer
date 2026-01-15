@@ -19,6 +19,8 @@ import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
   ShareIcon,
+  ArchiveBoxArrowDownIcon,
+  ArrowUpOnSquareIcon,
 } from '@heroicons/vue/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/vue/24/solid';
 import { useFavoriteEditor } from '@/composables/useFavoriteEditor';
@@ -208,6 +210,9 @@ const runRename = () => actions.runRename();
 
 const runDownload = () => actions.runDownload();
 
+const runExtractZip = () => actions.runExtractZip();
+const runCompressToZip = () => actions.runCompressToZip();
+
 const runShare = () => {
   if (!canShare.value) return;
   itemToShare.value = primaryItem.value;
@@ -364,6 +369,39 @@ const menuSections = computed(() => {
     }),
   ]);
 
+  // Add zip archive actions
+  if (!isVolumesView.value) {
+    const archiveSection = [];
+
+    if (actions.primaryItem.value && contextKind.value === 'file') {
+      const kind = String(actions.primaryItem.value.kind || '').toLowerCase();
+      if (
+        kind === 'zip' ||
+        String(actions.primaryItem.value.name || '')
+          .toLowerCase()
+          .endsWith('.zip')
+      ) {
+        archiveSection.push(
+          mk('extract-zip', t('actions.extractZip'), ArrowUpOnSquareIcon, runExtractZip, {
+            disabled: !actions.canExtractZip.value,
+          })
+        );
+      }
+    }
+
+    if (hasSelection.value) {
+      archiveSection.push(
+        mk('compress-zip', t('actions.compressToZip'), ArchiveBoxArrowDownIcon, runCompressToZip, {
+          disabled: !actions.canCompressToZip.value,
+        })
+      );
+    }
+
+    if (archiveSection.length) {
+      sections.push(archiveSection);
+    }
+  }
+
   // Add share option (same availability rules as toolbar)
   if (!isVolumesView.value && !isShareView.value && locationCanShare.value) {
     sections.push([
@@ -406,6 +444,7 @@ const menuSections = computed(() => {
     sections.push([
       mk('rename', t('actions.rename'), DriveFileRenameOutlineRound, runRename, {
         disabled: !canRename.value,
+        shortcut: 'F2',
       }),
     ]);
   }
