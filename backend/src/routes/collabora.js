@@ -219,6 +219,8 @@ router.get(
       SupportsUpdate: true,
       SupportsLocks: true,
       SupportsGetLock: true,
+      // Required for PostMessage API (enables features like @ mentions)
+      PostMessageOrigin: publicConfig?.url || '*',
     });
   })
 );
