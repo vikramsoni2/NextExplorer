@@ -15,6 +15,7 @@ import { useUppyDropTarget } from '@/composables/fileUploader';
 import { FolderOpenIcon } from '@heroicons/vue/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import { useEventListener } from '@vueuse/core';
+import { useInputMode } from '@/composables/useInputMode';
 
 const settings = useSettingsStore();
 const fileStore = useFileStore();
@@ -26,16 +27,7 @@ const contextMenu = useExplorerContextMenu();
 const dropTargetRef = ref(null);
 useUppyDropTarget(dropTargetRef);
 
-const isTouchDevice = computed(() => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
-  const hasCoarsePointer =
-    typeof window.matchMedia === 'function'
-      ? window.matchMedia('(pointer: coarse)').matches
-      : false;
-  const hasTouchEvent = 'ontouchstart' in window;
-  return hasTouchPoints || hasCoarsePointer || hasTouchEvent;
-});
+const { isTouchDevice } = useInputMode();
 
 const applySelectionFromQuery = () => {
   const selectName = typeof route.query?.select === 'string' ? route.query.select : '';

@@ -14,15 +14,18 @@ import { useSettingsStore } from '@/stores/settings';
 import { DragSelectOption } from '@coleqiu/vue-drag-select';
 import MiddleEllipsis from '@/components/MiddleEllipsis.vue';
 import { ellipses } from '@/utils/ellipses';
+import { useInputMode } from '@/composables/useInputMode';
+import { CheckIcon } from '@heroicons/vue/20/solid';
 
 const props = defineProps(['item', 'view']);
 const settings = useSettingsStore();
 
 const { openItem } = useNavigation();
-const { handleSelection, isSelected } = useSelection();
+const { handleSelection, isSelected, toggleSelection } = useSelection();
 const fileStore = useFileStore();
-const { renameState } = storeToRefs(fileStore);
+const { renameState, selectionMode } = storeToRefs(fileStore);
 const contextMenu = useExplorerContextMenu();
+const { isTouchDevice } = useInputMode();
 
 const renameInputRef = ref(null);
 const rootRef = ref(null);
@@ -52,18 +55,24 @@ const isCut = computed(() =>
   )
 );
 
-const isTouchDevice = computed(() => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
-  const hasTouchPoints = 'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0;
-  const hasCoarsePointer =
-    typeof window.matchMedia === 'function'
-      ? window.matchMedia('(pointer: coarse)').matches
-      : false;
-  const hasTouchEvent = 'ontouchstart' in window;
-  return hasTouchPoints || hasCoarsePointer || hasTouchEvent;
-});
+const showSelectionControl = computed(() => !isTouchDevice.value || selectionMode.value);
+
+const selectionButtonBaseClass =
+  'flex items-center justify-center border ring-1 ring-inset shadow-sm backdrop-blur-sm transition-opacity focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400';
+
+const selectionButtonStateClass = (selected) =>
+  selected
+    ? 'border-blue-600 bg-blue-600 text-white ring-blue-600 dark:border-blue-500 dark:bg-blue-500 dark:ring-blue-500'
+    : 'border-neutral-300 bg-white/80 text-transparent ring-neutral-200 dark:border-neutral-600 dark:bg-zinc-900/60 dark:ring-neutral-700';
 
 const longPressActive = ref(false);
+
+const handleToggleSelection = (event) => {
+  if (isRenaming.value) return;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  toggleSelection(props.item);
+};
 
 const handleClick = (event) => {
   if (isRenaming.value) return;
@@ -77,25 +86,20 @@ const handleClick = (event) => {
     return;
   }
 
-  const alreadySelected = isSelected(props.item);
-  const hasAnySelection =
-    Array.isArray(fileStore.selectedItems) && fileStore.selectedItems.length > 0;
-
   // Mobile behavior:
-  // - If nothing is selected yet, a tap opens the item.
-  // - If there is an active selection and the tapped item is not selected, treat it as a selection tap.
-  // - If the tapped item is already selected, open it.
-  if (!hasAnySelection) {
-    openItem(props.item);
-  } else if (!alreadySelected) {
-    handleSelection(props.item, event);
-  } else {
-    openItem(props.item);
+  // - Normal mode: tap opens.
+  // - Selection mode: tap toggles selection (no open).
+  if (selectionMode.value) {
+    toggleSelection(props.item);
+    return;
   }
+
+  openItem(props.item);
 };
 
 const handleDblClick = () => {
   if (isRenaming.value) return;
+  if (isTouchDevice.value && selectionMode.value) return;
   openItem(props.item);
 };
 
@@ -216,6 +220,23 @@ if (isTouchDevice.value) {
         'opacity-60': isCut,
       }"
     >
+      <button
+        v-if="showSelectionControl"
+        type="button"
+        :class="[
+          selectionButtonBaseClass,
+          selectionButtonStateClass(isSelected(item)),
+          selectionMode || isSelected(item)
+            ? 'opacity-100'
+            : 'opacity-0 group-hover/item:opacity-100',
+          'absolute right-2 top-2 z-10 h-5 w-5 rounded-md',
+        ]"
+        :aria-label="`Select ${item.name}`"
+        @click="handleToggleSelection"
+        @dblclick.stop.prevent
+      >
+        <CheckIcon class="h-4 w-4" />
+      </button>
       <FileIcon :item="item" class="w-full h-full" />
     </div>
 
@@ -226,12 +247,32 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
-      class="flex flex-col items-center gap-2 p-4 rounded-md cursor-pointer select-none"
-      :class="{ 'opacity-60': isCut }"
+      class="relative flex flex-col items-center gap-2 p-2 rounded-xl cursor-pointer select-none"
+      :class="[
+        { 'opacity-60': isCut },
+        isSelected(item) ? 'bg-zinc-200/70 dark:bg-zinc-700/60' : '',
+      ]"
     >
+      <button
+        v-if="showSelectionControl"
+        type="button"
+        :class="[
+          selectionButtonBaseClass,
+          selectionButtonStateClass(isSelected(item)),
+          selectionMode || isSelected(item)
+            ? 'opacity-100'
+            : 'opacity-0 group-hover/item:opacity-100',
+          'absolute right-2 top-2 z-10 h-5 w-5 rounded-md',
+        ]"
+        :aria-label="`Select ${item.name}`"
+        @click="handleToggleSelection"
+        @dblclick.stop.prevent
+      >
+        <CheckIcon class="h-4 w-4" />
+      </button>
       <FileIcon :item="item" class="h-16 shrink-0" />
       <div
-        class="text-sm text-center break-all line-clamp-2 rounded-md px-2 -mx-2"
+        class="text-sm text-center break-all line-clamp-2 rounded-md"
         :class="{
           'bg-blue-500 text-white dark:bg-blue-600': isSelected(item) && !isRenaming,
         }"
@@ -262,9 +303,29 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
-      class="flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
-      :class="{ 'opacity-60': isCut }"
+      class="relative flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
+      :class="[
+        { 'opacity-60': isCut },
+        isSelected(item) ? 'bg-zinc-200/70 dark:bg-zinc-700/60' : '',
+      ]"
     >
+      <button
+        v-if="showSelectionControl"
+        type="button"
+        :class="[
+          selectionButtonBaseClass,
+          selectionButtonStateClass(isSelected(item)),
+          selectionMode || isSelected(item)
+            ? 'opacity-100'
+            : 'opacity-0 group-hover/item:opacity-100',
+          'absolute right-2 top-2 z-10 h-5 w-5 rounded-md',
+        ]"
+        :aria-label="`Select ${item.name}`"
+        @click="handleToggleSelection"
+        @dblclick.stop.prevent
+      >
+        <CheckIcon class="h-4 w-4" />
+      </button>
       <FileIcon :item="item" class="w-16 shrink-0" />
       <div
         class="grow rounded-md px-2 -mx-2"
@@ -315,7 +376,26 @@ if (isTouchDevice.value) {
       ]"
       :style="{ gridTemplateColumns: settings.listViewGridTemplateColumns }"
     >
-      <FileIcon :item="item" class="w-6 shrink-0" />
+      <div class="relative flex items-center justify-center">
+        <FileIcon :item="item" class="w-6 shrink-0" />
+        <button
+          v-if="showSelectionControl"
+          type="button"
+          :class="[
+            selectionButtonBaseClass,
+            selectionButtonStateClass(isSelected(item)),
+            selectionMode || isSelected(item)
+              ? 'opacity-100'
+              : 'opacity-0 group-hover/item:opacity-100',
+            'absolute left-1/2 top-1/2 z-10 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-md',
+          ]"
+          :aria-label="`Select ${item.name}`"
+          @click="handleToggleSelection"
+          @dblclick.stop.prevent
+        >
+          <CheckIcon class="h-4 w-4" />
+        </button>
+      </div>
       <div :title="item.name" class="min-w-0 overflow-hidden text-sm">
         <template v-if="isRenaming">
           <input
