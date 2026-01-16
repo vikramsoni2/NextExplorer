@@ -15,12 +15,14 @@ import { useAuthStore } from '@/stores/auth';
 import { useFileStore } from '@/stores/fileStore';
 import { useRoute, useRouter } from 'vue-router';
 import { Bars3Icon, HomeIcon } from '@heroicons/vue/24/outline';
+import { useInputMode } from '@/composables/useInputMode';
 
 const settings = useSettingsStore();
 const auth = useAuthStore();
 const fileStore = useFileStore();
 const route = useRoute();
 const router = useRouter();
+const { isTouchDevice } = useInputMode();
 
 defineEmits(['toggle-sidebar']);
 
@@ -47,6 +49,10 @@ const canCreate = computed(() => {
 
 const goHome = async () => {
   await router.push('/browse/');
+};
+
+const toggleSelectionMode = () => {
+  fileStore.toggleSelectionMode({ clearOnDisable: true });
 };
 </script>
 
@@ -78,7 +84,20 @@ const goHome = async () => {
           <HomeIcon class="h-5 w-5" />
         </button>
         <NavButtons />
-        <BreadCrumb class="ml-2" />
+        <BreadCrumb class="ml-2 mr-auto" />
+        <button
+          v-if="isTouchDevice && !isVolumesView"
+          type="button"
+          class="ml-2 shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
+          :class="
+            fileStore.selectionMode
+              ? 'bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600'
+              : 'bg-white text-neutral-700 hover:bg-neutral-100 dark:bg-neutral-900/40 dark:text-neutral-200 dark:hover:bg-neutral-800'
+          "
+          @click="toggleSelectionMode"
+        >
+          {{ fileStore.selectionMode ? $t('common.done') : $t('common.select') }}
+        </button>
       </div>
 
       <div class="flex items-center ml-auto">

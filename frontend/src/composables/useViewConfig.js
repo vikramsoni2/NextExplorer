@@ -16,7 +16,7 @@ export function useViewConfig() {
       case 'grid':
         // Use auto-fill so a small number of items don't stretch to full row width.
         // Empty tracks still participate in layout, keeping item widths consistent.
-        return 'grid content-start items-start grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-2';
+        return 'grid content-start items-start grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-4';
       case 'tab':
         return 'grid content-start items-start grid-cols-[repeat(auto-fill,20rem)] gap-2';
       case 'photos':

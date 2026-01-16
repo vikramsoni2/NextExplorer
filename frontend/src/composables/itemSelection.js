@@ -55,7 +55,16 @@ export function useSelection() {
   };
 
   const clearSelection = () => {
+    if (typeof fileStore.clearSelection === 'function') {
+      fileStore.clearSelection();
+      return;
+    }
     fileStore.selectedItems = [];
+  };
+
+  const selectOnly = (item) => {
+    clearSelection();
+    toggleSelection(item);
   };
 
   const handleSelection = (item, event) => {
@@ -64,8 +73,7 @@ export function useSelection() {
     } else if (event?.shiftKey && fileStore.selectedItems.length > 0) {
       selectRange(item);
     } else {
-      clearSelection();
-      toggleSelection(item);
+      selectOnly(item);
     }
   };
 
@@ -73,5 +81,8 @@ export function useSelection() {
     isSelected,
     handleSelection,
     clearSelection,
+    toggleSelection,
+    selectOnly,
+    selectRange,
   };
 }

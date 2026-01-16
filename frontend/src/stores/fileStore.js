@@ -23,6 +23,7 @@ export const useFileStore = defineStore('fileStore', () => {
   const currentPathItems = ref([]);
   const currentPathData = ref(null);
   const selectedItems = ref([]);
+  const selectionMode = ref(false);
   const renameState = ref(null);
 
   const clipboardOperation = ref(null);
@@ -35,6 +36,23 @@ export const useFileStore = defineStore('fileStore', () => {
   const hasClipboardItems = computed(
     () => copiedItems.value.length > 0 || cutItems.value.length > 0
   );
+
+  const clearSelection = () => {
+    selectedItems.value = [];
+  };
+
+  const setSelectionMode = (enabled, options = {}) => {
+    selectionMode.value = Boolean(enabled);
+
+    const clearOnDisable = options?.clearOnDisable ?? true;
+    if (!selectionMode.value && clearOnDisable) {
+      clearSelection();
+    }
+  };
+
+  const toggleSelectionMode = (options = {}) => {
+    setSelectionMode(!selectionMode.value, options);
+  };
 
   const itemKey = (item) => {
     if (!item || !item.name) {
@@ -127,7 +145,7 @@ export const useFileStore = defineStore('fileStore', () => {
     if (payload.length === 0) return;
 
     await deleteItems(payload);
-    selectedItems.value = [];
+    clearSelection();
     await fetchPathItems(currentPath.value);
   };
 
@@ -283,18 +301,14 @@ export const useFileStore = defineStore('fileStore', () => {
 
     const targetPath = state.path;
 
-    try {
-      const response = await renameItemApi(targetPath, state.originalName, newName);
-      const renamedName = response?.item?.name ?? newName;
-      renameState.value = null;
-      await fetchPathItems(targetPath);
-      const renamedKey = `${targetPath}::${renamedName}`;
-      const renamedItem = findItemByKey(renamedKey);
-      if (renamedItem) {
-        selectedItems.value = [renamedItem];
-      }
-    } catch (error) {
-      throw error;
+    const response = await renameItemApi(targetPath, state.originalName, newName);
+    const renamedName = response?.item?.name ?? newName;
+    renameState.value = null;
+    await fetchPathItems(targetPath);
+    const renamedKey = `${targetPath}::${renamedName}`;
+    const renamedItem = findItemByKey(renamedKey);
+    if (renamedItem) {
+      selectedItems.value = [renamedItem];
     }
   };
 
@@ -405,7 +419,9 @@ export const useFileStore = defineStore('fileStore', () => {
 
     const normalizedPath = normalizePath(typeof path === 'string' ? path : currentPath.value);
     currentPath.value = normalizedPath;
-    selectedItems.value = [];
+    clearSelection();
+    // When changing folders, exit selection mode (mobile UX).
+    setSelectionMode(false, { clearOnDisable: false });
 
     let response;
 
@@ -492,6 +508,10 @@ export const useFileStore = defineStore('fileStore', () => {
     getCurrentPathItems,
     fetchPathItems,
     selectedItems,
+    selectionMode,
+    setSelectionMode,
+    toggleSelectionMode,
+    clearSelection,
     clipboardOperation,
     copiedItems,
     cutItems,
