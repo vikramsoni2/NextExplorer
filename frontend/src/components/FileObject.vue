@@ -16,6 +16,7 @@ import MiddleEllipsis from '@/components/MiddleEllipsis.vue';
 import { ellipses } from '@/utils/ellipses';
 import { useInputMode } from '@/composables/useInputMode';
 import { CheckIcon } from '@heroicons/vue/20/solid';
+import { useFileDragDrop } from '@/composables/useFileDragDrop';
 
 const props = defineProps(['item', 'view']);
 const settings = useSettingsStore();
@@ -24,6 +25,7 @@ const { openItem } = useNavigation();
 const { handleSelection, isSelected, toggleSelection } = useSelection();
 const fileStore = useFileStore();
 const { renameState, selectionMode } = storeToRefs(fileStore);
+const { canDragDrop, handleDragStart } = useFileDragDrop();
 const contextMenu = useExplorerContextMenu();
 const { isTouchDevice } = useInputMode();
 
@@ -214,10 +216,13 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
+      @dragstart="(e) => handleDragStart(e, item)"
+      :draggable="canDragDrop() && !isRenaming"
       class="photo-cell relative w-full rounded-md overflow-hidden cursor-pointer select-none bg-neutral-100 dark:bg-zinc-800/60 hover:brightness-105"
       :class="{
         'ring-2 ring-blue-500 dark:ring-blue-400': isSelected(item),
         'opacity-60': isCut,
+        'cursor-move': canDragDrop() && !isRenaming,
       }"
     >
       <button
@@ -247,10 +252,13 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
+      @dragstart="(e) => handleDragStart(e, item)"
+      :draggable="canDragDrop() && !isRenaming"
       class="relative flex flex-col items-center gap-2 p-2 rounded-xl cursor-pointer select-none"
       :class="[
         { 'opacity-60': isCut },
         isSelected(item) ? 'bg-zinc-200/70 dark:bg-zinc-700/60' : '',
+        canDragDrop() && !isRenaming ? 'cursor-move' : '',
       ]"
     >
       <button
@@ -303,10 +311,13 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
+      @dragstart="(e) => handleDragStart(e, item)"
+      :draggable="canDragDrop() && !isRenaming"
       class="relative flex items-center gap-2 p-4 rounded-md cursor-pointer select-none"
       :class="[
         { 'opacity-60': isCut },
         isSelected(item) ? 'bg-zinc-200/70 dark:bg-zinc-700/60' : '',
+        canDragDrop() && !isRenaming ? 'cursor-move' : '',
       ]"
     >
       <button
@@ -363,6 +374,8 @@ if (isTouchDevice.value) {
       @click="handleClick"
       @dblclick="handleDblClick"
       @contextmenu.prevent.stop="handleContextMenu"
+      @dragstart="(e) => handleDragStart(e, item)"
+      :draggable="canDragDrop() && !isRenaming"
       :class="[
         'grid select-none items-center',
         'cursor-pointer auto-cols-fr p-1 px-4 rounded-md',
@@ -372,6 +385,7 @@ if (isTouchDevice.value) {
           'text-white dark:text-white bg-blue-600 dark:bg-blue-600/80 group-even/item:bg-blue-600! dark:group-even/item:bg-blue-600/80!':
             isSelected(item),
           'opacity-60': isCut && !isSelected(item),
+          'cursor-move': canDragDrop() && !isRenaming,
         },
       ]"
       :style="{ gridTemplateColumns: settings.listViewGridTemplateColumns }"

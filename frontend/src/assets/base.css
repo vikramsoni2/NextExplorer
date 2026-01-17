@@ -57,7 +57,7 @@
 }
 
 @layer components {
-  /* Make vue-drag-select behave like its “Drag To Scroll” story:
+  /* Make vue-drag-select behave like its "Drag To Scroll" story:
      root wrapper is the scroll container, and the inner
      .drag-select area fills its height so you can start a drag
      anywhere in the visible region (even with few items). */
@@ -67,6 +67,29 @@
 
   .drag-select {
     @apply min-h-full;
+  }
+
+  /* Drag and drop image with badge */
+  .file-drag-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .file-drag-badge {
+    background-color: rgb(37 99 235); /* blue-600 */
+    color: white;
+    border-radius: 9999px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+    min-width: 1.5rem;
+    text-align: center;
   }
 }
 

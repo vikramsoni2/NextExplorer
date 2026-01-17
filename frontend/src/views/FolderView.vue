@@ -16,6 +16,7 @@ import { FolderOpenIcon } from '@heroicons/vue/24/outline';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/20/solid';
 import { useEventListener } from '@vueuse/core';
 import { useInputMode } from '@/composables/useInputMode';
+import { useFileDragDrop } from '@/composables/useFileDragDrop';
 
 const settings = useSettingsStore();
 const fileStore = useFileStore();
@@ -28,6 +29,7 @@ const dropTargetRef = ref(null);
 useUppyDropTarget(dropTargetRef);
 
 const { isTouchDevice } = useInputMode();
+const { handleDragOver, handleDragLeave, handleDrop, isDragTarget } = useFileDragDrop();
 
 const applySelectionFromQuery = () => {
   const selectName = typeof route.query?.select === 'string' ? route.query.select : '';
@@ -244,6 +246,15 @@ onBeforeUnmount(() => {
             :key="(item.path || '') + '::' + item.name"
             :item="item"
             :view="settings.view"
+            :class="[
+              'relative',
+              item.kind === 'directory' && isDragTarget(item)
+                ? 'ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-2 dark:ring-offset-zinc-800 rounded-lg'
+                : '',
+            ]"
+            @dragover="(e) => item.kind === 'directory' && handleDragOver(e, item)"
+            @dragleave="(e) => item.kind === 'directory' && handleDragLeave(e, item)"
+            @drop="(e) => item.kind === 'directory' && handleDrop(e, item)"
           />
 
           <!-- No photos message -->
