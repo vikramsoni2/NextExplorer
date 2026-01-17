@@ -70,15 +70,49 @@
   }
 
   /* Drag and drop image with badge */
+  /* Drag and drop image with badge */
   .file-drag-image {
     position: absolute;
-    top: 0;
-    left: 0;
-    pointer-events: none;
+    top: -1000px;
+    left: -1000px;
     z-index: 9999;
+    display: inline-block;
+  }
+
+  .file-drag-stack {
+    position: relative;
+    display: grid;
+    place-items: start;
+    padding-right: 0.5rem; /* Space for the badge overlap */
+    padding-top: 0.5rem;
+  }
+
+  .file-drag-card {
+    grid-area: 1 / 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 12rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: white;
+    border: 1px solid #e5e5e5;
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -2px rgb(0 0 0 / 0.1);
+    color: #171717;
+  }
+
+  .dark .file-drag-card {
+    background-color: #27272a;
+    border-color: #3f3f46;
+    color: white;
   }
 
   .file-drag-badge {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.25rem;
     background-color: rgb(37 99 235); /* blue-600 */
     color: white;
     border-radius: 9999px;
@@ -90,6 +124,7 @@
       0 2px 4px -2px rgb(0 0 0 / 0.1);
     min-width: 1.5rem;
     text-align: center;
+    z-index: 50;
   }
 }
 
