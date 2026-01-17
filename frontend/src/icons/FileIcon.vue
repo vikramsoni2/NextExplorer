@@ -258,14 +258,11 @@ const badge = computed(() => {
 <template>
   <DirectoryIcon v-if="props.item.kind === 'directory'" />
   <PdfIcon v-else-if="props.item.kind === 'pdf'" />
-  <div v-else-if="thumbnailUrl" class="flex items-center justify-center">
-    <img
-      :src="thumbnailUrl"
-      alt="Preview thumbnail"
-      loading="lazy"
-      class="aspect-square object-contain"
-    />
-  </div>
+  <div
+    v-else-if="thumbnailUrl"
+    class="aspect-square bg-contain bg-center bg-no-repeat"
+    :style="{ backgroundImage: `url('${thumbnailUrl}')` }"
+  />
   <ImageIcon v-else-if="isPreviewableImage(ext)" />
   <VideoIcon v-else-if="isPreviewableVideo(ext)" />
   <AudioIcon v-else-if="audioExts.has(ext)" />
