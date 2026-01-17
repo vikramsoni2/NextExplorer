@@ -189,6 +189,7 @@ onBeforeUnmount(() => {
       <DragSelect
         v-model="selectionModel"
         :click-option-to-select="false"
+        :draggable-on-option="false"
         :disabled="isTouchDevice || !!fileStore.renameState"
         class="grow px-2"
         @click.self="clearSelection()"
