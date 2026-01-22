@@ -5,12 +5,24 @@ const { directories } = require('../config/index');
 const logger = require('./logger');
 
 /**
- * Configures static file serving for thumbnails and frontend
+ * Configures static file serving for thumbnails, logos, and frontend
  */
 const configureStaticFiles = (app) => {
   // Serve thumbnails
   app.use('/static/thumbnails', express.static(directories.thumbnails));
   logger.debug('Mounted /static/thumbnails');
+
+  // Serve custom logos
+  const logosDir = path.join(directories.config, 'logos');
+  if (!fs.existsSync(logosDir)) {
+    try {
+      fs.mkdirSync(logosDir, { recursive: true });
+    } catch (error) {
+      logger.warn('Failed to create logos directory', { error: error.message });
+    }
+  }
+  app.use('/static/logos', express.static(logosDir));
+  logger.debug('Mounted /static/logos');
 
   // Serve frontend SPA
   const frontendDir = path.resolve(__dirname, '..', 'public');
@@ -22,8 +34,8 @@ const configureStaticFiles = (app) => {
 
     // SPA fallback - serve index.html for all non-API routes
     app.get('*', (req, res, next) => {
-      // Skip API routes
-      if (req.path.startsWith('/api') || req.path.startsWith('/static/thumbnails')) {
+      // Skip API routes and static asset routes
+      if (req.path.startsWith('/api') || req.path.startsWith('/static/')) {
         return next();
       }
 

@@ -6,6 +6,7 @@ import BrowserLayout from '@/layouts/BrowserLayout.vue';
 import EditorLayout from '@/layouts/EditorLayout.vue';
 import SearchResultsView from '@/views/SearchResultsView.vue';
 import SettingsView from '@/views/settings/SettingsView.vue';
+import SettingsBranding from '@/views/settings/SettingsBranding.vue';
 import SettingsFilesThumbnails from '@/views/settings/SettingsFilesThumbnails.vue';
 import SettingsAccessControl from '@/views/settings/SettingsAccessControl.vue';
 import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue';
@@ -37,13 +38,18 @@ const router = createRouter({
         {
           path: '',
           component: SettingsView,
-          children: [
-            { path: '', redirect: '/settings/about' },
-            {
-              path: 'files-thumbnails',
-              component: SettingsFilesThumbnails,
-              meta: { requiresAdmin: true },
-            },
+           children: [
+             { path: '', redirect: '/settings/about' },
+             {
+               path: 'branding',
+               component: SettingsBranding,
+               meta: { requiresAdmin: true },
+             },
+             {
+               path: 'files-thumbnails',
+               component: SettingsFilesThumbnails,
+               meta: { requiresAdmin: true },
+             },
             { path: 'account-password', component: SettingsPassword },
             {
               path: 'access-control',

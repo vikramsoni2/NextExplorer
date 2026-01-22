@@ -42,6 +42,11 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       },
+      '/static/logos': {
+        target: backendOrigin,
+        changeOrigin: true,
+        secure: false,
+      },
       // Proxy EOC routes to backend so /login, /callback, /logout work on the public origin
       '/login': { target: backendOrigin, changeOrigin: true, secure: false },
       '/callback': { target: backendOrigin, changeOrigin: true, secure: false },

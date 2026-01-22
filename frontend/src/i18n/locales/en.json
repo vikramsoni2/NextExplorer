@@ -155,6 +155,7 @@
     "terminal": "Terminal",
     "settings": "Settings",
     "about": "About",
+    "branding": "Branding",
     "thumbnails": "Thumbnails",
     "authentication": "Authentication",
     "folderRules": "Folder Rules",
@@ -309,10 +310,10 @@
         "sso": "Seamless Single Sign-On with your IdP."
       }
     },
-    "login": {
-      "welcome": "Welcome back",
-      "subtitle": "Log in to access NextExplorer.",
-      "announcementConfirm": "Mark as read",
+     "login": {
+       "welcome": "Welcome back",
+       "subtitle": "Log in to access {appName}.",
+       "announcementConfirm": "Mark as read",
       "submit": "Log In",
       "announcementMigration": {
         "title": "We've updated how you sign in",
@@ -360,23 +361,42 @@
     "menuOpen": "Terminal"
   },
   "settings": {
-    "categories": {
-      "accountPassword": "Change Password",
-      "about": "About",
-      "filesThumbnails": "Files & Thumbnails",
-      "security": "Security",
-      "accessControl": "Access Control",
-      "adminUsers": "User Management"
-    },
-    "about": {
-      "subtitle": "View build information for this application.",
-      "appVersion": "App version",
-      "appVersionHelp": "The build version currently running.",
-      "gitCommit": "Git commit",
-      "gitCommitHelp": "Source revision embedded at build time.",
-      "branch": "Branch",
-      "branchHelp": "Git branch at build time."
-    },
+     "categories": {
+       "accountPassword": "Change Password",
+       "about": "About",
+       "branding": "Branding",
+       "filesThumbnails": "Files & Thumbnails",
+       "security": "Security",
+       "accessControl": "Access Control",
+       "adminUsers": "User Management"
+     },
+     "about": {
+       "subtitle": "View build information for this application.",
+       "appVersion": "App version",
+       "appVersionHelp": "The build version currently running.",
+       "gitCommit": "Git commit",
+       "gitCommitHelp": "Source revision embedded at build time.",
+       "branch": "Branch",
+       "branchHelp": "Git branch at build time."
+     },
+     "branding": {
+       "subtitle": "Customize the application name and logo displayed throughout the interface.",
+       "appName": "Application Name",
+       "appNameHelp": "The name displayed in headers, login page, and footer (max 100 characters).",
+       "appLogoUrl": "Logo Image",
+       "appLogoUrlHelp": "Upload an SVG, PNG, or JPG file for your custom logo (max 2MB).",
+       "logo": "Logo Image",
+       "logoHelp": "Upload an SVG, PNG, or JPG file for your custom logo (max 2MB).",
+       "uploading": "Uploading...",
+       "uploadSuccess": "Logo uploaded successfully",
+       "uploadError": "Failed to upload logo",
+       "invalidFileType": "Please upload SVG, PNG, or JPG",
+        "logoError": "File must be smaller than 2MB",
+        "fileTooLargeForDataUri": "File is too large. Please use a smaller image (under 500KB for best results)",
+        "preview": "Preview",
+        "showPoweredBy": "Display attribution link",
+        "showPoweredByHelp": "Show a 'Powered by nextExplorer' link in the footer to help support the project"
+     },
     "thumbs": {
       "subtitle": "Customize preview thumbnails for images and videos.",
       "enable": "Enable thumbnails",

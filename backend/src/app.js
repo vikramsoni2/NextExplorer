@@ -23,14 +23,14 @@ let server = null;
 const initializeApp = async () => {
   logger.debug('Application initialization started');
 
-  configureTrustProxy(app);
-  configureHttpLogging(app);
+   configureTrustProxy(app);
+   configureHttpLogging(app);
 
-  configureCors(app);
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-  logger.debug('Mounted cookie parser middleware');
+   configureCors(app);
+   app.use(express.json({ limit: '50mb' }));
+   app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+   app.use(cookieParser());
+   logger.debug('Mounted cookie parser middleware');
 
   await bootstrap();
 

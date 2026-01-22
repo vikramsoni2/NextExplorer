@@ -7,6 +7,7 @@ import App from './App.vue';
 import router from './router';
 import { installPreviewPlugins } from '@/plugins';
 import { useFeaturesStore } from '@/stores/features';
+import { useAppSettings } from '@/stores/appSettings';
 import i18n from './i18n';
 
 const pinia = createPinia();
@@ -18,6 +19,15 @@ const featuresStore = useFeaturesStore(pinia);
 featuresStore.initialize().catch((err) => {
   console.debug('Failed to load features at startup:', err);
 });
+
+// Initialize app settings - load public branding first (works on login page)
+const appSettings = useAppSettings(pinia);
+appSettings.loadBranding().catch((err) => {
+  console.debug('Failed to load branding at startup:', err);
+});
+
+// After authentication, the full settings (thumbnails, access rules) will be loaded
+// This happens in the router guard or after successful login
 
 // Install preview plugins
 // Option 1: Basic usage (installs all core + ONLYOFFICE)

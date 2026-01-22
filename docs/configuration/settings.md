@@ -1,6 +1,14 @@
 # Runtime Settings
 
-In-app settings expose many server-side toggles you’ll also find in the environment reference. Admin sections unlock once your user has the `admin` role or matches `OIDC_ADMIN_GROUPS`.
+In-app settings expose many server-side toggles you'll also find in the environment reference. Admin sections unlock once your user has the `admin` role or matches `OIDC_ADMIN_GROUPS`.
+
+## Branding
+
+Customize the appearance and branding of your nextExplorer instance:
+
+- **Application name:** Display a custom name in the header, login page, and browser title (e.g., "SPRINTR" instead of "Explorer").
+- **Logo upload:** Upload a custom logo (SVG, PNG, or JPG; max 2MB). Perfect size is 200×200px. Displays in the header and login page.
+- **Attribution link:** Toggle the optional "Powered by nextExplorer" footer link. When enabled, users see a link crediting the original project.
 
 ## Files & Thumbnails
 

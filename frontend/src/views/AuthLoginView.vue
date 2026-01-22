@@ -8,9 +8,11 @@ import { apiBase } from '@/api';
 import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '@/stores/auth';
 import { useFeaturesStore } from '@/stores/features';
+import { useAppSettings } from '@/stores/appSettings';
 
 const auth = useAuthStore();
 const featuresStore = useFeaturesStore();
+const appSettings = useAppSettings();
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -162,7 +164,7 @@ const handleOidcLogin = () => {
     </template>
 
     <template #subtitle>
-      <p class="mt-2 text-sm text-white/60">{{ $t('auth.login.subtitle') }}</p>
+      <p class="mt-2 text-sm text-white/60">{{ t('auth.login.subtitle', { appName: appSettings.state.branding.appName }) }}</p>
     </template>
 
     <form v-if="supportsLocal" class="space-y-5" @submit.prevent="handleLoginSubmit">

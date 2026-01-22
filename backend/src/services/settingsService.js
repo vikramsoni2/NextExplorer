@@ -55,6 +55,23 @@ const sanitizeAccessRules = (rules = []) => {
 };
 
 /**
+ * Sanitize branding settings
+ */
+const sanitizeBranding = (branding = {}) => {
+  return {
+    appName: typeof branding.appName === 'string' 
+      ? branding.appName.trim().slice(0, 100) 
+      : 'Explorer',
+    appLogoUrl: typeof branding.appLogoUrl === 'string' 
+      ? branding.appLogoUrl.trim().slice(0, 500) 
+      : '/logo.svg',
+    showPoweredBy: typeof branding.showPoweredBy === 'boolean' 
+      ? branding.showPoweredBy 
+      : false,
+  };
+};
+
+/**
  * Sanitize complete settings object
  */
 const sanitize = (settings) => {
@@ -63,6 +80,7 @@ const sanitize = (settings) => {
     access: {
       rules: sanitizeAccessRules(settings?.access?.rules),
     },
+    branding: sanitizeBranding(settings?.branding),
   };
 };
 
@@ -75,6 +93,7 @@ const getSettings = async () => {
     data.settings || {
       thumbnails: { enabled: true, size: 200, quality: 70, concurrency: 10 },
       access: { rules: [] },
+      branding: { appName: 'Explorer', appLogoUrl: '/logo.svg', showPoweredBy: false },
     }
   );
 };
@@ -92,6 +111,7 @@ const setSettings = async (partial) => {
     access: {
       rules: partial.access?.rules !== undefined ? partial.access.rules : current.access.rules,
     },
+    branding: { ...current.branding, ...(partial.branding || {}) },
   };
 
   // Sanitize and save

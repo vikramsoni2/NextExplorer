@@ -2,6 +2,10 @@
 
 import { requestJson } from './http';
 
+export async function getBranding() {
+  return requestJson('/api/branding', { method: 'GET' });
+}
+
 export async function getSettings() {
   return requestJson('/api/settings', { method: 'GET' });
 }

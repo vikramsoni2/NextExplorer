@@ -17,6 +17,7 @@ import PreviewHost from '@/plugins/preview/PreviewHost.vue';
 import ExplorerContextMenu from '@/components/ExplorerContextMenu.vue';
 import TerminalPanel from '@/components/TerminalPanel.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useAppSettings } from '@/stores/appSettings';
 import InfoPanel from '@/components/InfoPanel.vue';
 import { useFileUploader } from '@/composables/fileUploader';
 import { useKeyboardShortcuts } from '@/composables/keyboardShortcuts';
@@ -32,6 +33,7 @@ import FolderViewToolbar from '@/components/FolderViewToolbar.vue';
 const route = useRoute();
 const router = useRouter();
 const auth = useAuthStore();
+const appSettings = useAppSettings();
 
 // Resizable aside state
 const asideWidth = useStorage('browser-aside-width', 230);
@@ -130,7 +132,7 @@ const handleGuestLogin = () => {
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       :style="{ width: asideWidth + 'px' }"
     >
-      <HeaderLogo appname="Explorer" />
+      <HeaderLogo :appname="appSettings.state.branding.appName" :logoUrl="appSettings.state.branding.appLogoUrl" />
 
       <!-- Guest Info Card -->
       <div
@@ -216,6 +218,18 @@ const handleGuestLogin = () => {
     <NotificationToastContainer />
     <NotificationPanel />
     <TerminalPanel />
+    
+    <!-- Footer with powered by link -->
+    <footer v-if="appSettings.state.branding.showPoweredBy" class="fixed bottom-0 right-0 p-2 sm:p-4 text-xs text-neutral-500 dark:text-neutral-400">
+      <a
+        href="https://explorer.nxz.ai"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 underline-offset-2 hover:underline"
+      >
+        Powered by nextExplorer
+      </a>
+    </footer>
   </div>
 </template>
 

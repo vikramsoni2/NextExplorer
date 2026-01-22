@@ -43,6 +43,12 @@ const authMiddleware = async (req, res, next) => {
     return;
   }
 
+  // Allow public branding endpoint (no sensitive data, used on login page)
+  if (requestPath === '/api/branding') {
+    next();
+    return;
+  }
+
   // Allow ONLYOFFICE server callbacks and file fetches (token-guarded in route)
   // Only when ONLYOFFICE integration is enabled
   let isOnlyofficeGuest = false;
