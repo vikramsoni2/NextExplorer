@@ -2,6 +2,7 @@
 import { computed, reactive, watch, ref } from 'vue';
 import { useAppSettings } from '@/stores/appSettings';
 import { useI18n } from 'vue-i18n';
+import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 const appSettings = useAppSettings();
 const { t } = useI18n();
@@ -11,7 +12,8 @@ const local = reactive({
   showPoweredBy: false,
 });
 
-const logoPreviewUrl = ref('/logo.svg');
+const DEFAULT_LOGO_URL = '/logo.svg';
+const logoPreviewUrl = ref(DEFAULT_LOGO_URL);
 const isUploading = ref(false);
 const uploadMessage = ref('');
 const uploadMessageType = ref(''); // 'success' or 'error'
@@ -78,7 +80,8 @@ const handleLogoSelect = async (event) => {
   // Validate file type
   const validTypes = ['image/svg+xml', 'image/png', 'image/jpeg'];
   if (!validTypes.includes(file.type)) {
-    uploadMessage.value = t('settings.branding.invalidFileType') || 'Please upload SVG, PNG, or JPG';
+    uploadMessage.value =
+      t('settings.branding.invalidFileType') || 'Please upload SVG, PNG, or JPG';
     uploadMessageType.value = 'error';
     return;
   }
@@ -104,7 +107,7 @@ const handleLogoSelect = async (event) => {
     });
 
     console.log('Upload response status:', response.status);
-    
+
     const data = await response.json();
     console.log('Upload response data:', data);
 
@@ -116,9 +119,9 @@ const handleLogoSelect = async (event) => {
       logoPreviewUrl.value = data.logoUrl;
       uploadMessage.value = t('settings.branding.uploadSuccess') || 'Logo uploaded successfully!';
       uploadMessageType.value = 'success';
-      
+
       console.log('Logo uploaded successfully:', data.logoUrl);
-      
+
       // Auto clear message after 3 seconds
       setTimeout(() => {
         uploadMessage.value = '';
@@ -143,6 +146,20 @@ const handleLogoSelect = async (event) => {
 const triggerFileInput = () => {
   fileInputRef.value?.click();
 };
+
+const useDefaultLogo = () => {
+  logoPreviewUrl.value = DEFAULT_LOGO_URL;
+  uploadMessage.value =
+    t('settings.branding.defaultLogoSelected') || 'Default logo selected. Click Save to apply.';
+  uploadMessageType.value = 'success';
+  setTimeout(() => {
+    uploadMessage.value = '';
+    uploadMessageType.value = '';
+  }, 3000);
+  if (fileInputRef.value) {
+    fileInputRef.value.value = '';
+  }
+};
 </script>
 
 <template>
@@ -154,7 +171,7 @@ const triggerFileInput = () => {
         'rounded-md border p-3 text-sm',
         uploadMessageType === 'success'
           ? 'border-green-400/30 bg-green-100/40 text-green-900 dark:border-green-400/20 dark:bg-green-500/10 dark:text-green-200'
-          : 'border-red-400/30 bg-red-100/40 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200'
+          : 'border-red-400/30 bg-red-100/40 text-red-900 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200',
       ]"
     >
       {{ uploadMessage }}
@@ -188,93 +205,136 @@ const triggerFileInput = () => {
       </p>
 
       <div class="space-y-6">
-        <!-- App Name -->
-        <div class="border-b border-neutral-200 pb-6 dark:border-neutral-700">
-          <div class="mb-3">
-            <label class="block text-sm font-medium">
-              {{ t('settings.branding.appName') || 'Application Name' }}
-            </label>
-            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {{ t('settings.branding.appNameHelp') || 'The name displayed in the header and login page' }}
-            </p>
+        <div class="grid gap-6 md:grid-cols-2">
+          <!-- Logo (left) -->
+          <div>
+            <div class="mb-3">
+              <label class="block text-sm font-medium">
+                {{ t('settings.branding.logo') || 'Logo Image' }}
+              </label>
+              <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                {{
+                  t('settings.branding.logoHelp') ||
+                  'Upload SVG, PNG, or JPG file for your custom logo'
+                }}
+              </p>
+            </div>
+
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept=".svg,.png,.jpg,.jpeg"
+              style="display: none"
+              @change="handleLogoSelect"
+            />
+
+            <div class="max-w-sm">
+              <div
+                class="group relative flex items-center justify-center rounded-lg border border-neutral-200 bg-neutral-50 p-6 dark:border-neutral-700 dark:bg-neutral-900/50"
+              >
+                <img
+                  :src="logoPreviewUrl"
+                  :alt="local.appName + ' logo'"
+                  class="h-24 w-auto max-w-full"
+                />
+                <button
+                  v-if="logoPreviewUrl !== DEFAULT_LOGO_URL"
+                  type="button"
+                  :title="t('common.remove') || 'Remove'"
+                  class="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-neutral-700 shadow-sm opacity-0 transition hover:bg-white hover:text-neutral-900 focus:opacity-100 dark:bg-neutral-800/90 dark:text-neutral-200 group-hover:opacity-100"
+                  @click="useDefaultLogo"
+                >
+                  <XMarkIcon class="h-4 w-4" />
+                </button>
+              </div>
+
+              <div class="mt-3 flex flex-col gap-2">
+                <button
+                  :disabled="isUploading"
+                  class="w-full rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  @click="triggerFileInput"
+                >
+                  <span v-if="!isUploading">
+                    {{
+                      logoPreviewUrl === DEFAULT_LOGO_URL ? 'Upload logo' : 'Upload another file'
+                    }}
+                  </span>
+                  <span v-else>{{ t('settings.branding.uploading') || 'Uploading...' }}</span>
+                </button>
+
+                <button
+                  v-if="logoPreviewUrl !== DEFAULT_LOGO_URL"
+                  type="button"
+                  class="w-full rounded-md border border-neutral-300 bg-white px-4 py-2 text-neutral-800 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700/70 md:hidden"
+                  @click="useDefaultLogo"
+                >
+                  {{ t('common.remove') || 'Remove' }}
+                </button>
+              </div>
+            </div>
           </div>
-          <input
-            v-model="local.appName"
-            type="text"
-            maxlength="100"
-            placeholder="Explorer"
-            class="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
-          />
-          <p class="mt-2 text-xs text-neutral-400">
-            {{ local.appName.length }}/100
-          </p>
+
+          <!-- App Name (right) -->
+          <div>
+            <div class="mb-3">
+              <label class="block text-sm font-medium">
+                {{ t('settings.branding.appName') || 'Application Name' }}
+              </label>
+              <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                {{
+                  t('settings.branding.appNameHelp') ||
+                  'The name displayed in the header and login page'
+                }}
+              </p>
+            </div>
+            <input
+              v-model="local.appName"
+              type="text"
+              maxlength="100"
+              placeholder="Explorer"
+              class="w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+            />
+            <p class="mt-2 text-xs text-neutral-400">{{ local.appName.length }}/100</p>
+          </div>
         </div>
 
-        <!-- Logo Upload -->
-        <div>
-          <div class="mb-3">
-            <label class="block text-sm font-medium">
-              {{ t('settings.branding.logo') || 'Logo Image' }}
-            </label>
-            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-              {{ t('settings.branding.logoHelp') || 'Upload SVG, PNG, or JPG file for your custom logo' }}
-            </p>
+        <!-- Preview -->
+        <div
+          class="mt-4 rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50"
+        >
+          <p class="mb-3 text-xs font-medium text-neutral-600 dark:text-neutral-300">
+            {{ t('settings.branding.preview') || 'Preview' }}
+          </p>
+          <div class="flex items-center gap-3">
+            <img
+              :src="logoPreviewUrl"
+              :alt="local.appName + ' logo'"
+              class="h-10 w-auto"
+              @error="$event.target.style.display = 'none'"
+            />
+            <span class="text-lg font-bold">{{ local.appName }}</span>
           </div>
-
-          <!-- Hidden file input -->
-          <input
-            ref="fileInputRef"
-            type="file"
-            accept=".svg,.png,.jpg,.jpeg"
-            style="display: none"
-            @change="handleLogoSelect"
-          />
-
-          <!-- Upload button -->
-          <button
-            :disabled="isUploading"
-            class="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            @click="triggerFileInput"
-          >
-            <span v-if="!isUploading">{{ t('common.select') || 'Select Logo' }}</span>
-            <span v-else>{{ t('settings.branding.uploading') || 'Uploading...' }}</span>
-          </button>
-
-           <!-- Preview -->
-           <div class="mt-4 rounded-md border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900/50">
-             <p class="mb-3 text-xs font-medium text-neutral-600 dark:text-neutral-300">
-               {{ t('settings.branding.preview') || 'Preview' }}
-             </p>
-             <div class="flex items-center gap-3">
-               <img
-                 :src="logoPreviewUrl"
-                 :alt="local.appName + ' logo'"
-                 class="h-10 w-auto"
-                 @error="$event.target.style.display = 'none'"
-               />
-               <span class="text-lg font-bold">{{ local.appName }}</span>
-             </div>
-           </div>
-
-           <!-- Powered By Checkbox -->
-           <div class="mt-6">
-             <label class="flex items-center gap-3 cursor-pointer">
-               <input
-                 v-model="local.showPoweredBy"
-                 type="checkbox"
-                 class="h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-neutral-600"
-               />
-               <div>
-                 <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-                   {{ t('settings.branding.showPoweredBy') || 'Show Powered by NextExplorer' }}
-                 </span>
-                 <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                   {{ t('settings.branding.showPoweredByHelp') || 'Display a link to NextExplorer in the footer' }}
-                 </p>
-               </div>
-             </label>
-           </div>
-         </div>
+        </div>
+        <div class="mt-6">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              v-model="local.showPoweredBy"
+              type="checkbox"
+              class="h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500 dark:border-neutral-600"
+            />
+            <div>
+              <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                {{ t('settings.branding.showPoweredBy') || 'Show Powered by NextExplorer' }}
+              </span>
+              <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                {{
+                  t('settings.branding.showPoweredByHelp') ||
+                  'Display a link to NextExplorer in the footer'
+                }}
+              </p>
+            </div>
+          </label>
+        </div>
       </div>
     </section>
   </div>
