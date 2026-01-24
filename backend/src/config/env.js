@@ -88,6 +88,7 @@ module.exports = {
   FFPROBE_PATH: process.env.FFPROBE_PATH || null,
   FFMPEG_HWACCEL: process.env.FFMPEG_HWACCEL?.trim() || null,
   FFMPEG_HWACCEL_DEVICE: process.env.FFMPEG_HWACCEL_DEVICE?.trim() || null,
+  FFMPEG_HWACCEL_OUTPUT_FORMAT: process.env.FFMPEG_HWACCEL_OUTPUT_FORMAT?.trim() || null,
 
   // Favorites
   FAVORITES_DEFAULT_ICON: process.env.FAVORITES_DEFAULT_ICON || 'outline:StarIcon',

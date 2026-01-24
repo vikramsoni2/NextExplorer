@@ -200,6 +200,10 @@ const makeVideoThumb = async (srcPath, destPath) => {
     if (env.FFMPEG_HWACCEL_DEVICE) {
       inputOptions.push('-hwaccel_device', env.FFMPEG_HWACCEL_DEVICE);
     }
+    
+    if (env.FFMPEG_HWACCEL_OUTPUT_FORMAT) {
+      inputOptions.push('-hwaccel_output_format', env.FFMPEG_HWACCEL_OUTPUT_FORMAT);
+    }
 
     const command = ffmpeg(srcPath)
       .inputOptions(inputOptions)

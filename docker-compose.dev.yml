@@ -51,6 +51,15 @@ services:
       # - OIDC_SCOPES=openid profile email
       # - OIDC_ADMIN_GROUPS=next-admin admins
 
+      # Hardware Acceleration Config
+      # Uncomment and configure based on your hardware:
+      # - FFMPEG_HWACCEL=vaapi
+      # - FFMPEG_HWACCEL_DEVICE=/dev/dri/renderD128
+      # - FFMPEG_HWACCEL_OUTPUT_FORMAT=nv12
+    # Pass GPU devices to container (required for HW accel)
+    # devices:
+    #  - /dev/dri:/dev/dri
+
   frontend:
     build:
       context: ./frontend
