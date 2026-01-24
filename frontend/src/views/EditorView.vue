@@ -239,7 +239,7 @@ const requestClose = () => {
 
   const parts = normalizedPath.value.split('/').filter(Boolean);
   parts.pop();
-  router.push(`/browse${parts.length ? '/' + parts.join('/') : ''}`);
+  router.replace(`/browse${parts.length ? '/' + parts.join('/') : ''}`);
 };
 
 const applyLanguage = async (path) => {
