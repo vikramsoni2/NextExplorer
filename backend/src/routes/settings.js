@@ -9,6 +9,27 @@ const { ForbiddenError } = require('../errors/AppError');
 
 const router = express.Router();
 
+const DEFAULT_LOGO_URL = '/logo.svg';
+
+const deleteCustomLogoFiles = async () => {
+  const configDir = process.env.CONFIG_DIR || '/config';
+  const logoDir = path.join(configDir, 'logos');
+  const candidates = ['custom-logo.svg', 'custom-logo.png', 'custom-logo.jpg'];
+
+  await Promise.all(
+    candidates.map(async (filename) => {
+      const filePath = path.join(logoDir, filename);
+      try {
+        await fs.unlink(filePath);
+        logger.info('Deleted custom logo file', { filename });
+      } catch (error) {
+        if (error && error.code === 'ENOENT') return;
+        logger.warn('Failed to delete custom logo file', { filename, error: error?.message });
+      }
+    })
+  );
+};
+
 // Middleware to check if user is admin
 const requireAdmin = (req, res, next) => {
   const roles = Array.isArray(req.user?.roles) ? req.user.roles : [];
@@ -162,6 +183,14 @@ router.patch(
      }
 
     const updated = await setSettings(updates);
+
+    const requestedLogoUrl =
+      typeof updates.branding?.appLogoUrl === 'string' ? updates.branding.appLogoUrl.trim() : null;
+    const resetToDefault = requestedLogoUrl != null && (requestedLogoUrl === '' || requestedLogoUrl === DEFAULT_LOGO_URL);
+    if (resetToDefault) {
+      await deleteCustomLogoFiles();
+    }
+
     res.json(updated);
   })
 );
