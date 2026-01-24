@@ -9,6 +9,7 @@ import zh from './locales/zh.json';
 import hi from './locales/hi.json';
 import pl from './locales/pl.json';
 import sv from './locales/sv.json';
+import ru from './locales/ru.json';
 
 export const supportedLocaleOptions = [
   { code: 'en', labelKey: 'i18n.english' },
@@ -21,6 +22,7 @@ export const supportedLocaleOptions = [
   { code: 'hi', labelKey: 'i18n.hindi' },
   { code: 'pl', labelKey: 'i18n.polish' },
   { code: 'sv', labelKey: 'i18n.swedish' },
+  { code: 'ru', labelKey: 'i18n.russian' },
 ];
 
 export const supportedLocales = supportedLocaleOptions.map(({ code }) => code);
@@ -42,7 +44,7 @@ const i18n = createI18n({
   globalInjection: true,
   locale: detectLocale(),
   fallbackLocale: 'en',
-  messages: { en, es, fr, de, it, ro, zh, hi, pl, sv },
+  messages: { en, es, fr, de, it, ro, zh, hi, pl, sv, ru },
 });
 
 export default i18n;
