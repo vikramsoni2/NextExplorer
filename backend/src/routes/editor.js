@@ -37,56 +37,70 @@ function isProbablyBinaryBuffer(buffer) {
   return suspicious / length > 0.3;
 }
 
+async function readTextFileBuffer(req, relative) {
+  if (typeof relative !== 'string' || !relative) {
+    throw new ValidationError('A valid file path is required.');
+  }
+
+  const relativePath = normalizeRelativePath(relative);
+  const context = { user: req.user, guestSession: req.guestSession };
+  let accessInfo;
+  let resolved;
+  try {
+    ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
+  } catch (error) {
+    throw new NotFoundError('A valid file path is required.');
+  }
+
+  if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
+    throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
+  }
+
+  const { absolutePath } = resolved;
+  const stats = await fs.stat(absolutePath);
+
+  if (stats.isDirectory()) {
+    throw new ValidationError('Cannot open a directory in the editor.');
+  }
+
+  if (typeof stats.size === 'number' && stats.size > MAX_EDITOR_FILE_SIZE) {
+    throw new ValidationError('This file is too large to open in the text editor.');
+  }
+
+  const ext = path.extname(absolutePath).slice(1).toLowerCase();
+  if (VIDEO_EXTENSIONS.includes(ext)) {
+    throw new UnsupportedMediaTypeError('This file type cannot be opened in the text editor.');
+  }
+
+  const buffer = await fs.readFile(absolutePath);
+  if (isProbablyBinaryBuffer(buffer)) {
+    throw new UnsupportedMediaTypeError(
+      'This file appears to be binary and cannot be opened in the text editor.'
+    );
+  }
+
+  return { buffer, absolutePath };
+}
+
 router.post(
   '/editor',
   asyncHandler(async (req, res) => {
     const { path: relative = '' } = req.body || {};
-    if (typeof relative !== 'string' || !relative) {
-      throw new ValidationError('A valid file path is required.');
-    }
-
-    const relativePath = normalizeRelativePath(relative);
-    const context = { user: req.user, guestSession: req.guestSession };
-    let accessInfo;
-    let resolved;
-    try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
-    } catch (error) {
-      throw new NotFoundError('A valid file path is required.');
-    }
-
-    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
-      throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
-    }
-
-    const { absolutePath } = resolved;
-    const stats = await fs.stat(absolutePath);
-
-    if (stats.isDirectory()) {
-      throw new ValidationError('Cannot open a directory in the editor.');
-    }
-
-    // Enforce a maximum size for the editor to avoid loading huge files
-    if (typeof stats.size === 'number' && stats.size > MAX_EDITOR_FILE_SIZE) {
-      throw new ValidationError('This file is too large to open in the text editor.');
-    }
-
-    // Obvious non-text types based on extension (videos, documents, etc.)
-    const ext = path.extname(absolutePath).slice(1).toLowerCase();
-    if (VIDEO_EXTENSIONS.includes(ext)) {
-      throw new UnsupportedMediaTypeError('This file type cannot be opened in the text editor.');
-    }
-
-    // Content-based check for binary files (works for extensionless files)
-    const buffer = await fs.readFile(absolutePath);
-    if (isProbablyBinaryBuffer(buffer)) {
-      throw new UnsupportedMediaTypeError(
-        'This file appears to be binary and cannot be opened in the text editor.'
-      );
-    }
-
+    const { buffer } = await readTextFileBuffer(req, relative);
     const data = buffer.toString('utf-8');
     res.send({ content: data });
+  })
+);
+
+router.get(
+  '/raw',
+  asyncHandler(async (req, res) => {
+    const relative = req.query?.path;
+    const { buffer } = await readTextFileBuffer(req, relative);
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.send(buffer.toString('utf-8'));
   })
 );
 

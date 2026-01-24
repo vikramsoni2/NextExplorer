@@ -18,6 +18,16 @@
         <p v-if="hasUnsavedChanges" class="mr-4 text-xs text-amber-600 dark:text-amber-400">
           Unsaved changes
         </p>
+        <button
+          type="button"
+          @click="openRaw"
+          :disabled="isLoading || !normalizedPath"
+          class="rounded-md px-2 py-1 text-xs font-semibold uppercase tracking-wide text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-800 disabled:cursor-not-allowed disabled:opacity-60 dark:text-neutral-300 dark:hover:bg-white/10 dark:hover:text-white border dark:border-zinc-700"
+          aria-label="Raw"
+          title="Raw"
+        >
+          Raw
+        </button>
         <div ref="themeMenuRef" class="relative">
           <button
             type="button"
@@ -57,6 +67,7 @@
             </div>
           </div>
         </div>
+
         <button
           type="button"
           @click="saveFile"
@@ -111,7 +122,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { Codemirror } from 'vue-codemirror';
 import { Compartment } from '@codemirror/state';
-import { fetchFileContent, saveFileContent, normalizePath } from '@/api';
+import { fetchFileContent, saveFileContent, getRawFileUrl, normalizePath } from '@/api';
 import * as themeBundle from '@fsegurai/codemirror-theme-bundle';
 import { XMarkIcon, ArrowPathIcon, PaintBrushIcon } from '@heroicons/vue/24/outline';
 import { Save20Regular, Color20Regular } from '@vicons/fluent';
@@ -214,6 +225,12 @@ const saveFile = async () => {
   } finally {
     isSaving.value = false;
   }
+};
+
+const openRaw = () => {
+  if (!normalizedPath.value) return;
+  const url = getRawFileUrl(normalizedPath.value);
+  window.open(url, '_blank', 'noopener,noreferrer');
 };
 
 const requestClose = () => {

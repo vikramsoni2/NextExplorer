@@ -78,6 +78,16 @@ async function saveFileContent(path, content) {
   });
 }
 
+function getRawFileUrl(path) {
+  const normalizedPath = normalizePath(path);
+  if (!normalizedPath) {
+    throw new Error('A file path is required.');
+  }
+
+  const params = new URLSearchParams({ path: normalizedPath });
+  return buildUrl(`/api/raw?${params.toString()}`);
+}
+
 async function fetchThumbnail(relativePath) {
   const normalizedPath = normalizePath(relativePath);
   if (!normalizedPath) {
@@ -208,6 +218,7 @@ export {
   renameItem,
   fetchFileContent,
   saveFileContent,
+  getRawFileUrl,
   fetchThumbnail,
   fetchMetadata,
   downloadItems,
