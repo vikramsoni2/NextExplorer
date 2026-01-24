@@ -9,6 +9,7 @@ const PQueue = require('p-queue').default;
 
 const { ensureDir } = require('../utils/fsUtils');
 const { directories, extensions } = require('../config/index');
+const env = require('../config/env');
 const { getSettings } = require('../services/settingsService');
 const logger = require('../utils/logger');
 const { getRawPreviewJpegPath } = require('./rawPreviewService');
@@ -26,13 +27,13 @@ sharp.cache({ memory: 256, files: 0 });
 
 const EXECUTABLE_CANDIDATES = {
   ffmpeg: [
-    process.env.FFMPEG_PATH,
+    env.FFMPEG_PATH,
     '/usr/local/bin/ffmpeg',
     '/usr/bin/ffmpeg',
     '/opt/homebrew/bin/ffmpeg',
   ],
   ffprobe: [
-    process.env.FFPROBE_PATH,
+    env.FFPROBE_PATH,
     '/usr/local/bin/ffprobe',
     '/usr/bin/ffprobe',
     '/opt/homebrew/bin/ffprobe',
@@ -190,8 +191,18 @@ const makeVideoThumb = async (srcPath, destPath) => {
         size = sz;
       })
       .catch(() => {});
+    const inputOptions = ['-hide_banner', '-loglevel', 'error'];
+
+    if (env.FFMPEG_HWACCEL) {
+      inputOptions.push('-hwaccel', env.FFMPEG_HWACCEL);
+    }
+
+    if (env.FFMPEG_HWACCEL_DEVICE) {
+      inputOptions.push('-hwaccel_device', env.FFMPEG_HWACCEL_DEVICE);
+    }
+
     const command = ffmpeg(srcPath)
-      .inputOptions(['-hide_banner', '-loglevel', 'error'])
+      .inputOptions(inputOptions)
       .seekInput(seconds)
       .outputOptions(['-frames:v', '1', '-vf', `scale=${size}:-1:flags=lanczos`, '-vcodec', 'png'])
       .format('image2pipe')

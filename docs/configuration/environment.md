@@ -86,6 +86,8 @@ The sharing system (toolbar **Share** button, guest links such as `/share/:token
 | `ONLYOFFICE_FORCE_SAVE`       | `false`            | When true, OnlyOffice forces users to save via the editor UI.                  |
 | `ONLYOFFICE_FILE_EXTENSIONS`  | _default list_     | Extra file extensions to surface to the Document Server.                       |
 | `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn't suit your needs.          |
+| `FFMPEG_HWACCEL`              | _none_             | Optional ffmpeg `-hwaccel` value used for video thumbnail generation when supported by your ffmpeg build (e.g. `vaapi`, `qsv`, `cuda`). |
+| `FFMPEG_HWACCEL_DEVICE`       | _none_             | Optional ffmpeg `-hwaccel_device` value used with `FFMPEG_HWACCEL` (e.g. `0` or `/dev/dri/renderD128`). |
 
 ## Collabora (WOPI)
 
