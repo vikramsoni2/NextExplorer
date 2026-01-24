@@ -228,7 +228,8 @@
     "quickAccessEmpty": "Pin folders as favorites to access them quickly here."
   },
   "drives": {
-    "personal": "My Files"
+    "personal": "Personal",
+    "myfiles": "My Files"
   },
   "browser": {
     "resizeSidebar": "Resize sidebar",
