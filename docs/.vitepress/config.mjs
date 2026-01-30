@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitepress';
 
+const githubRepoUrl = 'https://github.com/vikramsoni2/nextExplorer';
+
 export default defineConfig({
   lang: 'en-US',
   title: 'nextExplorer',
@@ -8,6 +10,11 @@ export default defineConfig({
     logo: '/images/logo.png',
     search: {
       provider: 'local',
+    },
+    socialLinks: [{ icon: 'github', link: githubRepoUrl }],
+    editLink: {
+      pattern: `${githubRepoUrl}/blob/main/docs/:path`,
+      text: 'View this page on GitHub',
     },
     nav: [
       {

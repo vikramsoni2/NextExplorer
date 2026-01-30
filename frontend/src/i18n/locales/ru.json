@@ -167,18 +167,7 @@
     "locations": "Локации"
   },
   "i18n": {
-    "language": "Язык",
-    "english": "Английский",
-    "spanish": "Испанский",
-    "french": "Французский",
-    "german": "Немецкий",
-    "chinese": "Китайский",
-    "hindi": "Хинди",
-    "polish": "Польский",
-    "swedish": "Шведский",
-    "italian": "Итальянский",
-    "romanian": "Румынский",
-    "russian": "Русский"
+    "language": "Язык"
   },
   "search": {
     "openShortcutTitle": "Открыть поиск (⌘/Ctrl + K)",
