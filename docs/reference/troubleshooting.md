@@ -13,7 +13,7 @@ Keep this page handy when deployment, authentication, or UI behaviors need quick
 
 - **Path marked read-only or hidden:** Check Settings → Access Control for matching rules; `hidden` and `ro` rules block writes even if user has permission.
 - **Missing volume entries:** Confirm your `docker-compose` mounts include `/mnt/Label` entries and the container has read access.
-- **Path not found after remounting:** Restart the container whenever you change `docker-compose.yml` mounts so the app rescans volumes.
+- **Path not found after remounting:** Restart the container whenever you change `docker/docker-compose.yml` mounts so the app rescans volumes.
 
 ## Search & thumbnails
 

@@ -1,0 +1,62 @@
+# nextExplorer Docker Compose - No Authentication Setup
+# 
+# INSTRUCTIONS:
+# 1. Edit this file and configure settings below
+# 2. Update the volumes section to mount your directories
+# 3. Run from repo root: docker-compose -f docker/docker-compose.no-auth.yml up -d
+#
+# WARNING: This setup disables authentication entirely. All APIs are public.
+# Only use this in trusted environments or behind a reverse proxy with authentication.
+#
+# This setup is useful for:
+# - Internal networks with network-level security
+# - Development/testing environments
+# - Public read-only file sharing (with appropriate access control rules)
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      # Mount your directories here - update these paths to match your system
+      - /path/to/your/data:/mnt/data
+      - /path/to/your/config:/config
+      - /path/to/your/cache:/cache
+    environment:
+      # ============================================
+      # REQUIRED SETTINGS
+      # ============================================
+      # External public URL (no trailing slash)
+      - PUBLIC_URL=https://your-domain.com
+      
+      # Session secret (still recommended even without auth for session management)
+      # - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
+      
+      # ============================================
+      # PATHS & VOLUMES
+      # ============================================
+      - VOLUME_ROOT=/mnt
+      - CONFIG_DIR=/config
+      - CACHE_DIR=/cache
+      
+      # ============================================
+      # CONTAINER USER MAPPING
+      # ============================================
+      - PUID=1000
+      - PGID=1000
+      
+      # ============================================
+      # AUTHENTICATION DISABLED
+      # ============================================
+      # Disable authentication entirely - all APIs are public
+      # Users can access the app without logging in
+      # Use Settings → Access Control to restrict access to specific paths if needed
+      - AUTH_MODE=disabled
+      
+      # Alternative (deprecated but still works):
+      # - AUTH_ENABLED=false
+
+    restart: unless-stopped

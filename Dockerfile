@@ -56,7 +56,7 @@ ENV REPO_URL=${REPO_URL}
 COPY --from=backend_deps /app/node_modules ./node_modules
 COPY --from=backend_deps /app/package.json ./
 COPY backend/src ./src
-COPY healthcheck.js ./healthcheck.js
+COPY docker/healthcheck.js ./healthcheck.js
 
 # Copy the built frontend assets only.
 RUN mkdir -p src/public
@@ -67,7 +67,7 @@ COPY --from=frontend_build /app/frontend/dist/ ./src/public/
 RUN chmod -R a+rX /app/src
 
 # Bootstrap entrypoint script responsible for dynamic user mapping.
-COPY entrypoint.sh /usr/local/bin/
+COPY docker/entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 VOLUME ["/config", "/cache"]
