@@ -1,0 +1,78 @@
+# nextExplorer Docker Compose - User Directories Setup
+# 
+# INSTRUCTIONS:
+# 1. Edit this file and configure settings below
+# 2. Update the volumes section to mount your directories
+# 3. Ensure the USER_ROOT directory exists and is writable
+# 4. Run from repo root: docker-compose -f docker/docker-compose.user-dirs.yml up -d
+#
+# This setup enables personal "My Files" directories for each authenticated user.
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      # Mount your directories here - update these paths to match your system
+      - /path/to/your/data:/mnt/data
+      - /path/to/your/config:/config
+      - /path/to/your/cache:/cache
+      # Mount user directories root - REQUIRED for user directories feature
+      - /path/to/user/directories:/srv/users
+    environment:
+      # ============================================
+      # REQUIRED SETTINGS
+      # ============================================
+      # External public URL (no trailing slash)
+      - PUBLIC_URL=https://your-domain.com
+      
+      # Session secret (REQUIRED in production)
+      - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
+      
+      # ============================================
+      # PATHS & VOLUMES
+      # ============================================
+      - VOLUME_ROOT=/mnt
+      - CONFIG_DIR=/config
+      - CACHE_DIR=/cache
+      
+      # Root directory for per-user personal folders - REQUIRED
+      # Each authenticated user gets their own subdirectory under this path
+      # The frontend shows a "My Files" entry when USER_DIR_ENABLED=true
+      - USER_ROOT=/srv/users
+      
+      # Controls how per-user folder names are derived
+      # Options: id,username,email_local (comma-separated, e.g., "username,id")
+      # Default: id,username,email_local
+      # Example: Set to "username,id" to use /srv/users/<username> when USER_ROOT=/srv/users
+      # - USER_FOLDER_NAME_ORDER=id,username,email_local
+      
+      # ============================================
+      # CONTAINER USER MAPPING
+      # ============================================
+      - PUID=1000
+      - PGID=1000
+      
+      # ============================================
+      # AUTHENTICATION
+      # ============================================
+      - AUTH_MODE=local
+      # Optional: Bootstrap the first admin user
+      # - AUTH_ADMIN_EMAIL=admin@example.com
+      # - AUTH_ADMIN_PASSWORD=please-change-me
+      
+      # ============================================
+      # USER DIRECTORIES FEATURE
+      # ============================================
+      # Enable personal "My Files" space for each authenticated user
+      # When enabled, the frontend shows a "My Files" entry in the sidebar
+      # Each user gets their own directory under USER_ROOT
+      - USER_DIR_ENABLED=true
+      
+      # Optional: When true, non-admin users only see volumes assigned to them by an admin
+      # - USER_VOLUMES=false
+
+    restart: unless-stopped
