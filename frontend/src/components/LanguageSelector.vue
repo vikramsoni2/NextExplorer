@@ -8,10 +8,23 @@ import { EarthSharp } from '@vicons/ionicons5';
 
 const { t, locale } = useI18n();
 
+function formatLanguageLabel(code) {
+  const upper = code ? code.toUpperCase() : '';
+  try {
+    const autonym = new Intl.DisplayNames([code], {
+      type: 'language',
+      languageDisplay: 'standard',
+    }).of(code);
+    return autonym ? `${autonym}` : upper;
+  } catch {
+    return upper || code;
+  }
+}
+
 const languages = computed(() =>
-  supportedLocaleOptions.map(({ code, labelKey }) => ({
+  supportedLocaleOptions.map(({ code }) => ({
     code,
-    label: t(labelKey),
+    label: formatLanguageLabel(code),
   }))
 );
 
@@ -19,7 +32,7 @@ const currentLanguage = computed(() => {
   const list = languages.value;
   return (
     list.find((lang) => lang.code === locale.value) ||
-    list[0] || { code: locale.value, label: locale.value.toUpperCase() }
+    list[0] || { code: locale.value, label: formatLanguageLabel(locale.value) }
   );
 });
 
@@ -73,8 +86,8 @@ onClickOutside(languageSwitcherRef, () => {
           languageMenuOpen = false;
         "
       >
+        <span>{{ lang.label }}</span>
         <span>{{ lang.code.toUpperCase() }}</span>
-        <span>{{ lang.label }} </span>
       </button>
     </div>
   </div>

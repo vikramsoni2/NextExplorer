@@ -167,18 +167,7 @@
     "locations": "位置"
   },
   "i18n": {
-    "language": "语言",
-    "english": "英语",
-    "spanish": "西班牙语",
-    "french": "法语",
-    "german": "德语",
-    "chinese": "中文",
-    "hindi": "印地语",
-    "polish": "波兰语",
-    "swedish": "瑞典",
-    "italian": "意大利语",
-    "romanian": "罗马尼亚语",
-    "russian": "俄语"
+    "language": "语言"
   },
   "search": {
     "openShortcutTitle": "打开搜索 (⌘/Ctrl + K)",

@@ -167,18 +167,7 @@
     "locations": "Locații"
   },
   "i18n": {
-    "language": "Limbă",
-    "english": "Engleză",
-    "spanish": "Spaniolă",
-    "french": "Franceză",
-    "german": "Germană",
-    "chinese": "Chineză",
-    "hindi": "Hindi",
-    "polish": "Poloneză",
-    "swedish": "Suedeză",
-    "italian": "Italiană",
-    "romanian": "Română",
-    "russian": "Rusă"
+    "language": "Limbă"
   },
   "search": {
     "openShortcutTitle": "Deschide căutarea (⌘/Ctrl + K)",

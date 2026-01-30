@@ -1,50 +1,59 @@
 import { createI18n } from 'vue-i18n';
-import en from './locales/en.json';
-import es from './locales/es.json';
-import fr from './locales/fr.json';
-import de from './locales/de.json';
-import it from './locales/it.json';
-import ro from './locales/ro.json';
-import zh from './locales/zh.json';
-import hi from './locales/hi.json';
-import pl from './locales/pl.json';
-import sv from './locales/sv.json';
-import ru from './locales/ru.json';
+
+const localeModules = import.meta.glob('./locales/*.json', { eager: true });
+
+const messages = Object.fromEntries(
+  Object.entries(localeModules).map(([path, mod]) => {
+    const match = path.match(/\.\/locales\/(.*)\.json$/);
+    if (!match) return [path, mod?.default ?? mod];
+    return [match[1], mod?.default ?? mod];
+  })
+);
+
+const preferredLocaleOrder = ['en', 'es', 'fr', 'de', 'it', 'ro', 'zh', 'hi', 'pl', 'sv', 'ru'];
 
 export const supportedLocaleOptions = [
-  { code: 'en', labelKey: 'i18n.english' },
-  { code: 'es', labelKey: 'i18n.spanish' },
-  { code: 'fr', labelKey: 'i18n.french' },
-  { code: 'de', labelKey: 'i18n.german' },
-  { code: 'it', labelKey: 'i18n.italian' },
-  { code: 'ro', labelKey: 'i18n.romanian' },
-  { code: 'zh', labelKey: 'i18n.chinese' },
-  { code: 'hi', labelKey: 'i18n.hindi' },
-  { code: 'pl', labelKey: 'i18n.polish' },
-  { code: 'sv', labelKey: 'i18n.swedish' },
-  { code: 'ru', labelKey: 'i18n.russian' },
-];
+  ...preferredLocaleOrder.filter((code) => Object.prototype.hasOwnProperty.call(messages, code)),
+  ...Object.keys(messages)
+    .filter((code) => !preferredLocaleOrder.includes(code))
+    .sort(),
+].map((code) => ({ code }));
 
 export const supportedLocales = supportedLocaleOptions.map(({ code }) => code);
 
-function detectLocale() {
+function detectLocale(supportedLocales) {
   try {
     const saved = localStorage.getItem('locale');
     if (saved && supportedLocales.includes(saved)) return saved;
   } catch (_) {}
-  const nav =
-    (typeof navigator !== 'undefined' && (navigator.language || navigator.userLanguage)) || 'en';
-  const normalized = nav.toLowerCase();
-  const match = supportedLocales.find((code) => normalized.startsWith(code));
-  return match || 'en';
+
+  const prefs =
+    typeof navigator !== 'undefined' &&
+    Array.isArray(navigator.languages) &&
+    navigator.languages.length
+      ? navigator.languages
+      : [typeof navigator !== 'undefined' ? navigator.language : 'en'];
+
+  const normalized = prefs
+    .filter(Boolean)
+    .map((l) => l.toLowerCase())
+    .filter(Boolean);
+
+  for (const p of normalized) {
+    const base = p.split('-')[0];
+    if (supportedLocales.includes(p)) return p;
+    if (supportedLocales.includes(base)) return base;
+  }
+
+  return 'en';
 }
 
 const i18n = createI18n({
   legacy: false,
   globalInjection: true,
-  locale: detectLocale(),
+  locale: detectLocale(supportedLocales),
   fallbackLocale: 'en',
-  messages: { en, es, fr, de, it, ro, zh, hi, pl, sv, ru },
+  messages,
 });
 
 export default i18n;
