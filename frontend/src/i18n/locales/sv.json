@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Ändra lösenord",
       "about": "Om",
+      "userPreferences": "Preferenser",
       "branding": "Profilering",
       "filesThumbnails": "Filer och miniatyrbilder",
       "security": "Säkerhet",
@@ -387,6 +388,23 @@
       "preview": "Förhandsgranskning",
       "showPoweredBy": "Visa attribueringslänk",
       "showPoweredByHelp": "Visa en \"Powered by nextExplorer\"-länk i sidfoten för att stödja projektet"
+    },
+    "userPreferences": {
+      "title": "Användarpreferenser",
+      "subtitle": "Anpassa dina personliga inställningar.",
+      "showHiddenFiles": "Visa dolda filer",
+      "showHiddenFilesHelp": "Visar filer och mappar som börjar med punkt (.) i Utforskaren.",
+      "showThumbnails": "Visa miniatyrbilder",
+      "showThumbnailsHelp": "Visar förhandsgranskningar av bilder och videor i miniatyrformat.",
+      "defaultShareExpiration": "Standardutgång för delningar",
+      "defaultShareExpirationHelp": "Ställ in en standardperiod för nya delningar. Utlösningsdatumet fylls i automatiskt baserat på detta val.",
+      "expirationValue": "Värde",
+      "days": "Dagar",
+      "weeks": "Veckor",
+      "months": "Månader",
+      "skipHome": "Hoppa över startsidan",
+      "skipHomeHelp": "Omdirigerar automatiskt till den första volymen när startsidan öppnas. Om inget anges används serverinställningen.",
+      "useEnvSetting": "Använd serverinställning"
     },
     "thumbs": {
       "subtitle": "Anpassa förhandsvisningsminiatyrer för bilder och videor.",

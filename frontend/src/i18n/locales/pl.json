@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Zmień hasło",
       "about": "Informacje",
+      "userPreferences": "Preferencje",
       "branding": "Branding",
       "filesThumbnails": "Pliki i miniatury",
       "security": "Bezpieczeństwo",
@@ -387,6 +388,23 @@
       "preview": "Podgląd",
       "showPoweredBy": "Wyświetl link z atrybucją",
       "showPoweredByHelp": "Pokaż w stopce link „Powered by nextExplorer”, aby wesprzeć projekt"
+    },
+    "userPreferences": {
+      "title": "Preferencje użytkownika",
+      "subtitle": "Dostosuj swoje osobiste ustawienia.",
+      "showHiddenFiles": "Pokaż ukryte pliki",
+      "showHiddenFilesHelp": "Pokazuje pliki i foldery zaczynające się od kropki (.) w eksploratorze.",
+      "showThumbnails": "Pokaż miniatury",
+      "showThumbnailsHelp": "Wyświetla miniatury obrazów i filmów w przeglądarce.",
+      "defaultShareExpiration": "Domyślny czas wygaśnięcia udostępnień",
+      "defaultShareExpirationHelp": "Ustaw domyślny okres dla nowych udostępnień. Data wygaśnięcia zostanie wstępnie ustawiona zgodnie z tym okresem.",
+      "expirationValue": "Wartość",
+      "days": "Dni",
+      "weeks": "Tygodnie",
+      "months": "Miesiące",
+      "skipHome": "Pomiń stronę główną",
+      "skipHomeHelp": "Automatycznie przekierowuje do pierwszego wolumenu przy otwieraniu strony głównej. Jeśli nie ustawiono, stosuje konfigurację serwera.",
+      "useEnvSetting": "Użyj ustawień serwera"
     },
     "thumbs": {
       "subtitle": "Dostosuj miniatury podglądu dla obrazów i filmów.",

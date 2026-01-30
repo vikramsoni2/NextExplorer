@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Changer le mot de passe",
       "about": "À propos",
+      "userPreferences": "Préférences",
       "branding": "Identité visuelle",
       "filesThumbnails": "Fichiers et vignettes",
       "security": "Sécurité",
@@ -387,6 +388,23 @@
       "preview": "Aperçu",
       "showPoweredBy": "Afficher le lien d’attribution",
       "showPoweredByHelp": "Afficher un lien « Powered by nextExplorer » dans le pied de page pour aider à soutenir le projet"
+    },
+    "userPreferences": {
+      "title": "Préférences utilisateur",
+      "subtitle": "Personnalisez vos réglages personnels.",
+      "showHiddenFiles": "Afficher les fichiers cachés",
+      "showHiddenFilesHelp": "Affiche les fichiers et dossiers commençant par un point (.) dans l’explorateur.",
+      "showThumbnails": "Afficher les miniatures",
+      "showThumbnailsHelp": "Affiche des aperçus miniatures pour les images et vidéos.",
+      "defaultShareExpiration": "Expiration par défaut des partages",
+      "defaultShareExpirationHelp": "Définissez un délai par défaut pour les nouveaux partages. La date d’expiration est pré-remplie selon ce délai.",
+      "expirationValue": "Valeur",
+      "days": "Jours",
+      "weeks": "Semaines",
+      "months": "Mois",
+      "skipHome": "Passer l’accueil",
+      "skipHomeHelp": "Redirige automatiquement vers le premier volume depuis l’accueil. Si non défini, utilise la configuration serveur.",
+      "useEnvSetting": "Utiliser la configuration serveur"
     },
     "thumbs": {
       "subtitle": "Personnalisez les vignettes d'aperçu pour les images et les vidéos.",

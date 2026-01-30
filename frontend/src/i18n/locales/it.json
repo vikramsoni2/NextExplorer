@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Cambia password",
       "about": "Informazioni",
+      "userPreferences": "Preferenze",
       "branding": "Branding",
       "filesThumbnails": "File e miniature",
       "security": "Sicurezza",
@@ -387,6 +388,23 @@
       "preview": "Anteprima",
       "showPoweredBy": "Mostra link di attribuzione",
       "showPoweredByHelp": "Mostra nel piè di pagina un link 'Powered by nextExplorer' per supportare il progetto"
+    },
+    "userPreferences": {
+      "title": "Preferenze utente",
+      "subtitle": "Personalizza le impostazioni personali.",
+      "showHiddenFiles": "Mostra file nascosti",
+      "showHiddenFilesHelp": "Mostra file e cartelle che iniziano con un punto (.) nell'esploratore.",
+      "showThumbnails": "Mostra miniature",
+      "showThumbnailsHelp": "Mostra anteprime miniatura per immagini e video.",
+      "defaultShareExpiration": "Scadenza predefinita per la condivisione",
+      "defaultShareExpirationHelp": "Imposta un intervallo predefinito per le nuove condivisioni. La data di scadenza viene precompilata secondo questo valore.",
+      "expirationValue": "Valore",
+      "days": "Giorni",
+      "weeks": "Settimane",
+      "months": "Mesi",
+      "skipHome": "Salta la home",
+      "skipHomeHelp": "Reindirizza automaticamente al primo volume quando si visita la home. Se non impostato, usa la configurazione del server.",
+      "useEnvSetting": "Usa impostazione del server"
     },
     "thumbs": {
       "subtitle": "Personalizza le miniature di anteprima per immagini e video.",

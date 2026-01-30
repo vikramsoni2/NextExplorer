@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Cambiar contraseña",
       "about": "Acerca de",
+      "userPreferences": "Preferencias",
       "branding": "Marca",
       "filesThumbnails": "Archivos y miniaturas",
       "security": "Seguridad",
@@ -387,6 +388,23 @@
       "preview": "Vista previa",
       "showPoweredBy": "Mostrar enlace de atribución",
       "showPoweredByHelp": "Muestra un enlace 'Powered by nextExplorer' en el pie de página para ayudar a apoyar el proyecto"
+    },
+    "userPreferences": {
+      "title": "Preferencias de usuario",
+      "subtitle": "Personaliza tus ajustes personales.",
+      "showHiddenFiles": "Mostrar archivos ocultos",
+      "showHiddenFilesHelp": "Muestra archivos y carpetas que comienzan con puntuación (.) en el explorador.",
+      "showThumbnails": "Mostrar miniaturas",
+      "showThumbnailsHelp": "Muestra previsualizaciones en miniatura para imágenes y vídeos.",
+      "defaultShareExpiration": "Caducidad predeterminada para compartir",
+      "defaultShareExpirationHelp": "Establece un período por defecto para nuevas comparticiones. La fecha de caducidad se rellena automáticamente basándose en este valor.",
+      "expirationValue": "Valor",
+      "days": "Días",
+      "weeks": "Semanas",
+      "months": "Meses",
+      "skipHome": "Saltar inicio",
+      "skipHomeHelp": "Redirige automáticamente a la primera unidad al visitar la pantalla de inicio. Si no se establece, usa la configuración del servidor.",
+      "useEnvSetting": "Usar configuración del servidor"
     },
     "thumbs": {
       "subtitle": "Personaliza las miniaturas de vista previa para imágenes y vídeos.",

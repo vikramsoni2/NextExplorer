@@ -13,7 +13,7 @@ const local = reactive({
   concurrency: 10,
 });
 
-const original = computed(() => appSettings.state.thumbnails);
+const original = computed(() => appSettings.systemSettings?.thumbnails || appSettings.state.thumbnails);
 const dirty = computed(
   () =>
     local.enabled !== original.value.enabled ||
@@ -23,22 +23,26 @@ const dirty = computed(
 );
 
 watch(
-  () => appSettings.state.thumbnails,
+  () => appSettings.systemSettings?.thumbnails || appSettings.state.thumbnails,
   (t) => {
-    local.enabled = t.enabled;
-    local.quality = t.quality;
-    local.size = t.size;
-    local.concurrency = t.concurrency ?? 10;
+    if (t) {
+      local.enabled = t.enabled;
+      local.quality = t.quality;
+      local.size = t.size;
+      local.concurrency = t.concurrency ?? 10;
+    }
   },
   { immediate: true }
 );
 
 const reset = () => {
-  const t = appSettings.state.thumbnails;
-  local.enabled = t.enabled;
-  local.quality = t.quality;
-  local.size = t.size;
-  local.concurrency = t.concurrency ?? 10;
+  const t = appSettings.systemSettings?.thumbnails || appSettings.state.thumbnails;
+  if (t) {
+    local.enabled = t.enabled;
+    local.quality = t.quality;
+    local.size = t.size;
+    local.concurrency = t.concurrency ?? 10;
+  }
 };
 
 const save = async () => {

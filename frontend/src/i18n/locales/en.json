@@ -32,6 +32,7 @@
     "remaining": "remaining",
     "unknown": "unknown",
     "optional": "Optional",
+    "clear": "Clear",
     "name": "Name",
     "size": "Size",
     "type": "Type",
@@ -355,6 +356,7 @@
     "categories": {
       "accountPassword": "Change Password",
       "about": "About",
+      "userPreferences": "Preferences",
       "branding": "Branding",
       "filesThumbnails": "Files & Thumbnails",
       "security": "Security",
@@ -387,6 +389,23 @@
       "preview": "Preview",
       "showPoweredBy": "Display attribution link",
       "showPoweredByHelp": "Show a 'Powered by nextExplorer' link in the footer to help support the project"
+    },
+    "userPreferences": {
+      "title": "User Preferences",
+      "subtitle": "Customize your personal settings and preferences.",
+      "showHiddenFiles": "Show hidden files",
+      "showHiddenFilesHelp": "Display files and folders that start with a dot (.) in the file browser.",
+      "showThumbnails": "Show thumbnails",
+      "showThumbnailsHelp": "Display thumbnail previews for images and videos in the file browser.",
+      "defaultShareExpiration": "Default share expiration",
+      "defaultShareExpirationHelp": "Set a default expiration period for new shares. When creating a share, the expiration date will be pre-filled based on this setting.",
+      "expirationValue": "Value",
+      "days": "Days",
+      "weeks": "Weeks",
+      "months": "Months",
+      "skipHome": "Skip home page",
+      "skipHomeHelp": "Automatically redirect to the first volume when visiting the home page. If not set, follows the server configuration.",
+      "useEnvSetting": "Use server setting"
     },
     "thumbs": {
       "subtitle": "Customize preview thumbnails for images and videos.",

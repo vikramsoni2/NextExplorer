@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Schimbă parola",
       "about": "Despre",
+      "userPreferences": "Preferințe",
       "branding": "Branding",
       "filesThumbnails": "Fișiere și miniaturi",
       "security": "Securitate",
@@ -387,6 +388,23 @@
       "preview": "Previzualizare",
       "showPoweredBy": "Afișează linkul de atribuire",
       "showPoweredByHelp": "Afișează în subsol un link „Powered by nextExplorer” pentru a ajuta la susținerea proiectului"
+    },
+    "userPreferences": {
+      "title": "Preferințe utilizator",
+      "subtitle": "Personalizează setările personale.",
+      "showHiddenFiles": "Afișează fișierele ascunse",
+      "showHiddenFilesHelp": "Afișează fișierele și folderele care încep cu punct (.) în navigator.",
+      "showThumbnails": "Afișează miniaturi",
+      "showThumbnailsHelp": "Afișează previzualizări în miniatură pentru imagini și videoclipuri.",
+      "defaultShareExpiration": "Expirare implicită pentru partajare",
+      "defaultShareExpirationHelp": "Setează o perioadă implicită pentru noile partajări. Data de expirare este completată în prealabil pe baza acestei valori.",
+      "expirationValue": "Valoare",
+      "days": "Zile",
+      "weeks": "Săptămâni",
+      "months": "Luni",
+      "skipHome": "Sari peste pagina principală",
+      "skipHomeHelp": "Redirectează automat către primul volum la deschiderea paginii principale. Dacă nu este setat, se folosește configurația serverului.",
+      "useEnvSetting": "Folosește setarea serverului"
     },
     "thumbs": {
       "subtitle": "Personalizează miniaturile de previzualizare pentru imagini și video.",

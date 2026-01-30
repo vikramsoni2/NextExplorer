@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "修改密码",
       "about": "关于",
+      "userPreferences": "偏好",
       "branding": "品牌",
       "filesThumbnails": "文件和缩略图",
       "security": "安全",
@@ -387,6 +388,23 @@
       "preview": "预览",
       "showPoweredBy": "显示署名链接",
       "showPoweredByHelp": "在页脚显示 “Powered by nextExplorer” 链接以支持项目"
+    },
+    "userPreferences": {
+      "title": "用户偏好",
+      "subtitle": "自定义你的个人设置。",
+      "showHiddenFiles": "显示隐藏文件",
+      "showHiddenFilesHelp": "在文件浏览器中显示以点 (.) 开头的文件和文件夹。",
+      "showThumbnails": "显示缩略图",
+      "showThumbnailsHelp": "在浏览器中显示图像和视频的缩略预览。",
+      "defaultShareExpiration": "分享默认过期时间",
+      "defaultShareExpirationHelp": "为新的分享设置默认期限。创建分享时将自动填充到期日期。",
+      "expirationValue": "值",
+      "days": "天",
+      "weeks": "周",
+      "months": "月",
+      "skipHome": "跳过首页",
+      "skipHomeHelp": "访问首页时自动重定向到第一个卷。未设置时遵循服务器配置。",
+      "useEnvSetting": "使用服务器设置"
     },
     "thumbs": {
       "subtitle": "自定义图片和视频的预览缩略图。",

@@ -332,13 +332,19 @@ export const useFileStore = defineStore('fileStore', () => {
       return null;
     }
 
-    // Respect app settings: if thumbnails disabled or settings not yet loaded, skip
+    // Respect app settings: if thumbnails disabled, skip
+    // Note: For non-admin users, system settings (thumbnails) may not be available
+    // In that case, we default to showing thumbnails (fail open)
     try {
       const appSettings = useAppSettings();
-      if (!appSettings.loaded) {
-        if (!appSettings.loading) await appSettings.load();
+      // Check system settings first (if available - admin users only)
+      // If system thumbnails are disabled, don't show thumbnails regardless of user preference
+      if (appSettings.systemSettings?.thumbnails?.enabled === false) {
+        return null;
       }
-      if (appSettings.loaded && appSettings.state.thumbnails?.enabled === false) {
+      // Check user preference for showing thumbnails
+      // For non-admin users, this is the only check (systemSettings won't exist)
+      if (appSettings.userSettings?.showThumbnails === false) {
         return null;
       }
     } catch (e) {

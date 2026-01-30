@@ -355,6 +355,7 @@
     "categories": {
       "accountPassword": "Passwort ändern",
       "about": "Info",
+      "userPreferences": "Präferenzen",
       "branding": "Branding",
       "filesThumbnails": "Dateien & Miniaturansichten",
       "security": "Sicherheit",
@@ -387,6 +388,23 @@
       "preview": "Vorschau",
       "showPoweredBy": "Attributionslink anzeigen",
       "showPoweredByHelp": "Zeigt in der Fußzeile einen Link 'Powered by nextExplorer', um das Projekt zu unterstützen"
+    },
+    "userPreferences": {
+      "title": "Benutzereinstellungen",
+      "subtitle": "Passen Sie Ihre persönlichen Einstellungen an.",
+      "showHiddenFiles": "Versteckte Dateien anzeigen",
+      "showHiddenFilesHelp": "Zeigt Dateien und Ordner mit führendem Punkt (.) im Browser an.",
+      "showThumbnails": "Vorschaubilder anzeigen",
+      "showThumbnailsHelp": "Zeigt Vorschaubilder für Bilder und Videos im Explorer an.",
+      "defaultShareExpiration": "Standard-Ablaufdatum für Freigaben",
+      "defaultShareExpirationHelp": "Legen Sie einen Standardzeitraum für neue Freigaben fest. Das Ablaufdatum wird beim Erstellen automatisch entsprechend vorbelegt.",
+      "expirationValue": "Wert",
+      "days": "Tage",
+      "weeks": "Wochen",
+      "months": "Monate",
+      "skipHome": "Startseite überspringen",
+      "skipHomeHelp": "Leitet beim Besuch der Startseite automatisch zur ersten Volume weiter. Wenn nicht gesetzt, wird die Serverkonfiguration verwendet.",
+      "useEnvSetting": "Servereinstellung verwenden"
     },
     "thumbs": {
       "subtitle": "Vorschau-Miniaturen für Bilder und Videos anpassen.",

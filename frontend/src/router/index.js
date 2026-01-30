@@ -13,6 +13,7 @@ import SettingsComingSoon from '@/views/settings/SettingsComingSoon.vue';
 import AdminUsers from '@/views/settings/AdminUsers.vue';
 import SettingsPassword from '@/views/settings/SettingsPassword.vue';
 import SettingsAbout from '@/views/settings/SettingsAbout.vue';
+import SettingsUserPreferences from '@/views/settings/SettingsUserPreferences.vue';
 import AboutView from '@/views/AboutView.vue';
 import AuthSetupView from '@/views/AuthSetupView.vue';
 import AuthLoginView from '@/views/AuthLoginView.vue';
@@ -51,6 +52,7 @@ const router = createRouter({
                meta: { requiresAdmin: true },
              },
             { path: 'account-password', component: SettingsPassword },
+            { path: 'user-preferences', component: SettingsUserPreferences },
             {
               path: 'access-control',
               component: SettingsAccessControl,
@@ -255,13 +257,26 @@ router.beforeEach(async (to) => {
   // jump straight into the only available volume (single-volume setups).
   if (to.name === 'HomeView') {
     const featuresStore = useFeaturesStore();
+    const { useAppSettings } = await import('@/stores/appSettings');
+    const appSettings = useAppSettings();
+    
     try {
       await featuresStore.ensureLoaded();
+      // Ensure user settings are loaded
+      if (!appSettings.loaded && !appSettings.loading) {
+        await appSettings.load();
+      }
     } catch (_) {
       // Ignore feature loading errors; fall back to normal home view.
     }
 
-    if (featuresStore.skipHome) {
+    // Check user preference first, then fall back to env var
+    const userSkipHome = appSettings.userSettings?.skipHome;
+    const shouldSkipHome = userSkipHome !== null && userSkipHome !== undefined
+      ? userSkipHome
+      : featuresStore.skipHome;
+
+    if (shouldSkipHome) {
       try {
         const volumes = await getVolumes();
         if (Array.isArray(volumes)) {
