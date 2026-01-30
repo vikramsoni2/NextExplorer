@@ -137,3 +137,6 @@ docs/.vitepress/dist
 .yarn/install-state.gz
 .pnp.*
 .DS_Store
+
+docker-compose.yml
+docker-compose-dev.yml
