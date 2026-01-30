@@ -2,16 +2,76 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#212121" media="(prefers-color-scheme: dark)" />
+    <meta id="theme-color" name="theme-color" content="#ffffff" />
+
+    <style>
+      /* Prevent a white flash before the app CSS loads in Vite dev. */
+      html {
+        background-color: #ffffff;
+        color-scheme: light;
+      }
+      html.dark {
+        background-color: #212121;
+        color-scheme: dark;
+      }
+      body {
+        background-color: transparent;
+      }
+
+      .logo-loader {
+        width: 64px;
+        height: 64px;
+        display: inline-block;
+        perspective: 800px;
+      }
+
+      .logo-loader__img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        transform-style: preserve-3d;
+        animation: logoFlip 2.4s linear infinite;
+        will-change: transform;
+      }
+
+      /* Flip horizontally (Y axis) and slow down when facing the viewer. */
+      @keyframes logoFlip {
+        0% {
+          transform: rotateY(0deg);
+          animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+        }
+        50% {
+          transform: rotateY(180deg);
+          animation-timing-function: cubic-bezier(0.5, 0, 0.5, 1);
+        }
+        100% {
+          transform: rotateY(360deg);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .logo-loader__img {
+          animation: none;
+        }
+      }
+    </style>
 
     <script>
       (() => {
         try {
           const mode = localStorage.getItem('settings:theme') || 'auto';
           const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
-          document.documentElement.classList.toggle(
-            'dark',
-            mode === 'dark' || (mode === 'auto' && prefersDark)
-          );
+
+          const isDark = mode === 'dark' || (mode === 'auto' && prefersDark);
+
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+
+          const themeColorMeta = document.querySelector('meta#theme-color');
+          themeColorMeta?.setAttribute('content', isDark ? '#212121' : '#ffffff');
         } catch (_) {}
       })();
     </script>
@@ -28,7 +88,21 @@
     <title>Explorer</title>
   </head>
   <body class="text-neutral-900 dark:text-neutral-300 bg-white dark:bg-default">
-    <div id="app" class="min-h-dvh w-full font-normal"></div>
+    <div id="app" class="min-h-dvh w-full font-normal">
+      <div
+        style="
+          width: 100dvw;
+          height: 100dvh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div class="logo-loader" role="status" aria-label="Loading">
+          <img class="logo-loader__img" src="/logo.svg" alt="" />
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

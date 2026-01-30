@@ -167,18 +167,7 @@
     "locations": "स्थान"
   },
   "i18n": {
-    "language": "भाषा",
-    "english": "अंग्रेज़ी",
-    "spanish": "स्पैनिश",
-    "french": "फ़्रेंच",
-    "german": "जर्मन",
-    "chinese": "चीनी",
-    "hindi": "हिन्दी",
-    "polish": "पोलिश",
-    "swedish": "स्वीडिश",
-    "italian": "इतालवी",
-    "romanian": "रोमानियाई",
-    "russian": "रूसी"
+    "language": "भाषा"
   },
   "search": {
     "openShortcutTitle": "खोज खोलें (⌘/Ctrl + K)",

@@ -167,18 +167,7 @@
     "locations": "Locations"
   },
   "i18n": {
-    "language": "Språk",
-    "english": "Engelska",
-    "spanish": "Spanska",
-    "french": "Franska",
-    "german": "Tyska",
-    "chinese": "Kinesiska",
-    "hindi": "Hindi",
-    "polish": "Polska",
-    "swedish": "Svenska",
-    "italian": "Italienska",
-    "romanian": "Rumänska",
-    "russian": "Ryska"
+    "language": "Språk"
   },
   "search": {
     "openShortcutTitle": "Öppna sökning (⌘/Ctrl + K)",
