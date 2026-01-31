@@ -315,11 +315,14 @@ const configureOidc = async (app) => {
         session: {
           store: oidcStore,
           rolling: true,
+          // Convert milliseconds to seconds for absoluteDuration
+          absoluteDuration: Math.floor(
+            ((envAuthConfig && envAuthConfig.sessionMaxAgeMs) || 30 * 24 * 60 * 60 * 1000) / 1000
+          ), // Default: 30 days in seconds
           cookie: {
             sameSite: 'Lax',
             secure: eocCookieSecure,
             httpOnly: true,
-            maxAge: (envAuthConfig && envAuthConfig.sessionMaxAgeMs) || 30 * 24 * 60 * 60 * 1000, // Default: 30 days
           },
         },
         afterCallback: createAfterCallbackHandler(oidc, envAuthConfig),
