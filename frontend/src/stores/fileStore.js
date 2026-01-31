@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { useStorage } from '@vueuse/core';
 import {
   browse,
   copyItems,
@@ -28,8 +29,8 @@ export const useFileStore = defineStore('fileStore', () => {
 
   const clipboardOperation = ref(null);
 
-  const copiedItems = ref([]);
-  const cutItems = ref([]);
+  const copiedItems = useStorage('nextExplorer_clipboard_copied', []);
+  const cutItems = useStorage('nextExplorer_clipboard_cut', []);
   const thumbnailRequests = new Map();
 
   const hasSelection = computed(() => selectedItems.value.length > 0);
