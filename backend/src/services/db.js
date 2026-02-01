@@ -315,7 +315,128 @@ const migrate = (db) => {
       );
       version = 6;
     }
+    if (version < 8) {
+      console.log('[DB Migration] Migrating to v7: Adding settings tables...');
+
+      db.exec(`
+        CREATE TABLE system_settings (
+          id TEXT PRIMARY KEY,
+          category TEXT NOT NULL CHECK(category IN ('branding', 'system')),
+          key TEXT NOT NULL,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          UNIQUE(category, key)
+        );
+
+        CREATE TABLE user_settings (
+          id TEXT PRIMARY KEY,
+          user_id TEXT NOT NULL,
+          key TEXT NOT NULL,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+          UNIQUE(user_id, key)
+        );
+
+        CREATE INDEX idx_system_settings_category ON system_settings(category);
+        CREATE INDEX idx_user_settings_user ON user_settings(user_id);
+      `);
+
+      // Migrate existing settings from JSON to database
+      migrateSettingsFromJson(db);
+
+      console.log('[DB Migration] Migration to v7 completed successfully!');
+      db.prepare('INSERT OR REPLACE INTO meta(key, value) VALUES (?, ?)').run(
+        'schema_version',
+        String(8)
+      );
+      version = 8;
+    }
   })();
+};
+
+/**
+ * Migrate settings from app-config.json to SQLite
+ */
+const migrateSettingsFromJson = (db) => {
+  try {
+    const jsonStoragePath = files.passwordConfig;
+
+    // Check if app-config.json exists
+    if (!fs.existsSync(jsonStoragePath)) {
+      console.log('[DB Migration] No app-config.json found, skipping settings migration');
+      return;
+    }
+
+    const configData = JSON.parse(fs.readFileSync(jsonStoragePath, 'utf8'));
+    const oldSettings = configData.settings || {};
+
+    if (!oldSettings || Object.keys(oldSettings).length === 0) {
+      console.log('[DB Migration] No settings to migrate');
+      return;
+    }
+
+    const insertSystemSetting = db.prepare(`
+      INSERT OR REPLACE INTO system_settings (id, category, key, value, updated_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const now = new Date().toISOString();
+    let migratedCount = 0;
+
+    // Migrate branding settings
+    if (oldSettings.branding) {
+      try {
+        insertSystemSetting.run(
+          generateId(),
+          'branding',
+          'branding',
+          JSON.stringify(oldSettings.branding),
+          now
+        );
+        migratedCount++;
+      } catch (err) {
+        console.log(`[DB Migration] Error migrating branding: ${err.message}`);
+      }
+    }
+
+    // Migrate thumbnail settings
+    if (oldSettings.thumbnails) {
+      try {
+        insertSystemSetting.run(
+          generateId(),
+          'system',
+          'thumbnails',
+          JSON.stringify(oldSettings.thumbnails),
+          now
+        );
+        migratedCount++;
+      } catch (err) {
+        console.log(`[DB Migration] Error migrating thumbnails: ${err.message}`);
+      }
+    }
+
+    // Migrate access control rules
+    if (oldSettings.access) {
+      try {
+        insertSystemSetting.run(
+          generateId(),
+          'system',
+          'access',
+          JSON.stringify(oldSettings.access),
+          now
+        );
+        migratedCount++;
+      } catch (err) {
+        console.log(`[DB Migration] Error migrating access rules: ${err.message}`);
+      }
+    }
+
+    console.log(`[DB Migration] Migrated ${migratedCount} settings to database`);
+  } catch (err) {
+    console.error('[DB Migration] Error migrating settings:', err);
+    // Non-fatal, continue
+  }
 };
 
 /**

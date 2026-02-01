@@ -8,32 +8,34 @@ export function useNavigation() {
   const route = useRoute();
   const previewManager = usePreviewManager();
 
+  const navigate = withViewTransition((to) => router.push(to));
+  const goPrev = withViewTransition(() => router.back());
+  const goNext = withViewTransition(() => router.forward());
+
   const openItem = (item) => {
     if (!item) return;
 
-    const extensionFromKind = typeof item.kind === 'string' ? item.kind.toLowerCase() : '';
-    const extensionFromName =
-      typeof item.name === 'string' && item.name.includes('.')
-        ? item.name.split('.').pop().toLowerCase()
-        : '';
+    const kind = typeof item.kind === 'string' ? item.kind : '';
+    const name = typeof item.name === 'string' ? item.name : '';
+    if (!name && kind !== 'personal') return;
+    const currentPath =
+      typeof route.params.path === 'string'
+        ? route.params.path
+        : Array.isArray(route.params.path)
+          ? route.params.path.join('/')
+          : '';
 
-    if (item.kind === 'volume') {
-      withViewTransition(() => {
-        router.push({ name: 'FolderView', params: { path: item.name } });
-      })();
+    if (kind === 'volume') {
+      navigate({ name: 'FolderView', params: { path: name } });
       return;
     }
-    if (item.kind === 'personal') {
-      withViewTransition(() => {
-        router.push({ name: 'FolderView', params: { path: 'personal' } });
-      })();
+    if (kind === 'personal') {
+      navigate({ name: 'FolderView', params: { path: 'personal' } });
       return;
     }
-    if (item.kind === 'directory') {
-      const newPath = route.params.path ? `${route.params.path}/${item.name}` : item.name;
-      withViewTransition(() => {
-        router.push({ name: 'FolderView', params: { path: newPath } });
-      })();
+    if (kind === 'directory') {
+      const newPath = currentPath ? `${currentPath}/${name}` : name;
+      navigate({ name: 'FolderView', params: { path: newPath } });
       return;
     }
 
@@ -42,43 +44,49 @@ export function useNavigation() {
       return;
     }
 
+    const extensionFromKind = kind.toLowerCase();
+    const extensionFromName = name.includes('.') ? name.split('.').pop().toLowerCase() : '';
+
     if (isEditableExtension(extensionFromKind) || isEditableExtension(extensionFromName)) {
-      const basePath = item.path ? `${item.path}/${item.name}` : item.name;
+      const basePath = item.path ? `${item.path}/${name}` : name;
       const fileToEdit = basePath.replace(/^\/+/, '');
       // Encode each segment for editor path
       const encodedPath = fileToEdit.split('/').map(encodeURIComponent).join('/');
-      withViewTransition(() => {
-        router.push({ path: `/editor/${encodedPath}` });
-      })();
+      navigate({ path: `/editor/${encodedPath}` });
       return;
     }
   };
 
-  const openBreadcrumb = withViewTransition((path) => {
+  const openBreadcrumb = (path) => {
     if (path === 'share') {
-      router.push({ name: 'SharedWithMe' });
+      navigate({ name: 'SharedWithMe' });
       return;
     }
-    router.push({ name: 'FolderView', params: { path } });
-  });
-
-  const goNext = withViewTransition(() => router.go(1));
-
-  const goPrev = withViewTransition(() => router.go(-1));
-
-  const goUp = withViewTransition(() => {
-    const currentPath = route.params.path || '';
-    const segments = currentPath.split('/').filter(Boolean);
-    if (segments.length > 0) {
-      segments.pop();
-      const newPath = segments.join('/');
-      if (newPath) {
-        router.push({ name: 'FolderView', params: { path: newPath } });
-      } else {
-        router.push({ name: 'HomeView' });
-      }
+    if (!path) {
+      navigate({ name: 'HomeView' });
+      return;
     }
-  });
+    navigate({ name: 'FolderView', params: { path } });
+  };
+
+  const goUp = () => {
+    const currentPath =
+      typeof route.params.path === 'string'
+        ? route.params.path
+        : Array.isArray(route.params.path)
+          ? route.params.path.join('/')
+          : '';
+    const segments = currentPath.split('/').filter(Boolean);
+    if (segments.length === 0) return;
+
+    segments.pop();
+    const newPath = segments.join('/');
+    if (newPath) {
+      navigate({ name: 'FolderView', params: { path: newPath } });
+      return;
+    }
+    navigate({ name: 'HomeView' });
+  };
 
   return {
     openItem,
@@ -88,25 +96,3 @@ export function useNavigation() {
     goUp,
   };
 }
-
-// const goForward = ()=>{
-//   router.go(1);
-// }
-
-// const goBackward = ()=>{
-//   router.go(-1);
-// }
-
-// const goUpward = ()=>{
-//   const path = route.params.path.split('/');
-//   path.pop();
-//   const new_path = path.join('/');
-//   router.push({ name: 'browse', params: {path: new_path} });
-// }
-
-// const canGoForward = ()=>{
-
-//   //check in router object if the route can go forward.
-//   return router.currentRoute.value.meta.canGoForward;
-
-// }

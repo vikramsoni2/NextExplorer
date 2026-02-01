@@ -6,8 +6,8 @@ This document covers local development, testing, and release workflows for nextE
 - `frontend/` – Vue 3 + Vite SPA (Pinia, TailwindCSS).
 - `backend/` – Express server exposing the file-system API, thumbnail generation, uploads, and terminal bridge.
 - `Dockerfile` – Multi-stage build that bakes the frontend into the backend image.
-- `docker-compose.yml` – Two-service stack for running frontend and backend with live reload.
-- `docker-compose.fullstack.yml` – Single container that ships the production bundle.
+- `docker/docker-compose.yml` – Production single-container setup.
+- `docker/docker-compose.dev.yml` – Two-service stack for running frontend and backend with live reload.
 
 ## Prerequisites
 - Node.js 18 or later and npm 9 or later.
@@ -38,7 +38,7 @@ npm start
     - `OIDC_CLIENT_ID` / `OIDC_CLIENT_SECRET`
     - `OIDC_SCOPES` – e.g. `openid profile email` (add `groups` if your provider supports it)
     - `SESSION_SECRET` – optional; if omitted the backend generates a strong secret at startup (used for sessions and EOC cookies)
-    - Optional overrides: `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL`, `OIDC_CALLBACK_URL`
+    - Optional overrides: `OIDC_AUTHORIZATION_URL`, `OIDC_TOKEN_URL`, `OIDC_USERINFO_URL`, `OIDC_LOGOUT_URL`, `OIDC_CALLBACK_URL`
   - Runtime features (loaded via centralized features store):
     - `EDITOR_EXTENSIONS` – comma-separated list of additional file extensions to support in the inline editor (e.g. `toml,proto,graphql`). These are added to the default list of supported extensions.
     - `SHOW_VOLUME_USAGE` – `true` to enable volume usage progress bar and used/total labels on the Volumes page. Defaults to `false`.
@@ -133,12 +133,12 @@ VITE_BACKEND_ORIGIN=http://localhost:3001 npm run dev
 
 Docker (two services, one exposed port):
 ```bash
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker/docker-compose.dev.yml up --build
 ```
 - Only `http://localhost:3000` is exposed; backend listens on 3001 internally.
 - Update the host volume paths under the `backend` service to match directories you want to expose.
 
-If you run the dev stack behind a local reverse proxy, set `PUBLIC_URL` for the backend to the proxy URL (defaults to `http://localhost:3000` in `docker-compose.dev.yml`). This centralizes:
+If you run the dev stack behind a local reverse proxy, set `PUBLIC_URL` for the backend to the proxy URL (defaults to `http://localhost:3000` in `docker/docker-compose.dev.yml`). This centralizes:
 - CORS origin (derived from the origin of `PUBLIC_URL` unless `CORS_ORIGINS` is set)
 - OIDC callback URL (defaults to `PUBLIC_URL + /api/auth/oidc/callback` unless `OIDC_CALLBACK_URL` is set)
 

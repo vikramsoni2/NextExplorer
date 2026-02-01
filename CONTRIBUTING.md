@@ -29,7 +29,7 @@ Thanks for helping improve nextExplorer! This guide keeps contributions smooth, 
 
 Option A — single-port dev via Compose (recommended):
 ```
-docker compose -f docker-compose.dev.yml up --build
+docker compose -f docker/docker-compose.dev.yml up --build
 ```
 - Frontend served at `http://localhost:3000`.
 - Backend listens on `3001` inside the Compose network; Vite proxies API calls.

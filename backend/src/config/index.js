@@ -118,6 +118,7 @@ const authMode = determineAuthMode();
 const auth = {
   enabled: authMode === 'disabled' ? false : env.AUTH_ENABLED !== false,
   sessionSecret: env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
+  sessionMaxAgeMs: env.SESSION_MAX_AGE_DAYS * 24 * 60 * 60 * 1000, // Convert days to milliseconds
   mode: authMode,
   oidc: {
     enabled: env.OIDC_ENABLED ?? null,
@@ -125,6 +126,7 @@ const auth = {
     authorizationURL: env.OIDC_AUTHORIZATION_URL,
     tokenURL: env.OIDC_TOKEN_URL,
     userInfoURL: env.OIDC_USERINFO_URL,
+    logoutURL: env.OIDC_LOGOUT_URL,
     clientId: env.OIDC_CLIENT_ID,
     clientSecret: env.OIDC_CLIENT_SECRET,
     callbackUrl: env.OIDC_CALLBACK_URL || (publicUrl ? `${publicUrl}/callback` : null),

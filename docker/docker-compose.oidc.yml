@@ -1,0 +1,95 @@
+# nextExplorer Docker Compose - OIDC/SSO Setup
+# 
+# INSTRUCTIONS:
+# 1. Edit this file and configure OIDC settings below
+# 2. Update the volumes section to mount your directories
+# 3. Run from repo root: docker-compose -f docker/docker-compose.oidc.yml up -d
+#
+# This setup enables OIDC/SSO authentication with your identity provider.
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      # Mount your directories here - update these paths to match your system
+      - /path/to/your/data:/mnt/data
+      - /path/to/your/config:/config
+      - /path/to/your/cache:/cache
+    environment:
+      # ============================================
+      # REQUIRED SETTINGS
+      # ============================================
+      # External public URL (no trailing slash) - REQUIRED for OIDC
+      - PUBLIC_URL=https://your-domain.com
+      
+      # Session secret (REQUIRED in production)
+      - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
+      
+      # ============================================
+      # PATHS & VOLUMES
+      # ============================================
+      - VOLUME_ROOT=/mnt
+      - CONFIG_DIR=/config
+      - CACHE_DIR=/cache
+      
+      # ============================================
+      # CONTAINER USER MAPPING
+      # ============================================
+      - PUID=1000
+      - PGID=1000
+      
+      # ============================================
+      # OIDC & SSO CONFIGURATION
+      # ============================================
+      # Enable OIDC authentication
+      - OIDC_ENABLED=true
+      
+      # IdP issuer URL (discovery endpoint) - REQUIRED
+      # Examples:
+      #   Keycloak: https://auth.example.com/realms/your-realm
+      #   Authentik: https://auth.example.com/application/o/next/
+      #   Authelia: https://auth.example.com/
+      - OIDC_ISSUER=https://auth.example.com/application/o/next/
+      
+      # IdP client credentials - REQUIRED
+      - OIDC_CLIENT_ID=your-client-id
+      - OIDC_CLIENT_SECRET=your-client-secret
+      
+      # OIDC scopes (space or comma-separated)
+      # Default: openid profile email
+      # Add 'groups' if your provider supports it and you want group-based admin assignment
+      - OIDC_SCOPES=openid,profile,email,groups
+      
+      # Space/comma-separated group names that grant admin rights
+      # When a user's groups/roles/entitlements contain any of these, they get admin access
+      - OIDC_ADMIN_GROUPS=next-admin,admins
+      
+      # Optional: Override discovery endpoints (usually not needed)
+      # - OIDC_AUTHORIZATION_URL=https://auth.example.com/application/o/authorize/
+      # - OIDC_TOKEN_URL=https://auth.example.com/application/o/token/
+      # - OIDC_USERINFO_URL=https://auth.example.com/application/o/userinfo/
+      
+      # Optional: Custom IdP logout URL
+      # - OIDC_LOGOUT_URL=https://auth.example.com/application/o/next/end-session/
+      
+      # Optional: Explicit callback path (defaults to ${PUBLIC_URL}/callback)
+      # - OIDC_CALLBACK_URL=https://your-domain.com/callback
+      
+      # Require email verification from IdP before allowing user creation
+      # Some providers like newer Authentik versions set email_verified to false by default
+      # - OIDC_REQUIRE_EMAIL_VERIFIED=false
+      
+      # When false, OIDC login is only allowed for users that already exist in the DB
+      # - OIDC_AUTO_CREATE_USERS=true
+      
+      # ============================================
+      # AUTHENTICATION MODE
+      # ============================================
+      # Use 'oidc' for SSO only, or 'both' to allow both OIDC and local auth
+      - AUTH_MODE=oidc
+
+    restart: unless-stopped

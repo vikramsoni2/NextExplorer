@@ -34,7 +34,8 @@ Administrators control users, folders, and security policies through Settings. T
 ## Security & logging
 
 - Authentication can be fully disabled for trusted networks via **Settings → Security**, but enabling protects all API routes.
-- Session lockdown uses `SESSION_SECRET`; set this environment variable to ensure sessions persist across container restarts and multi-node deployments.
+- Session persistence uses `SESSION_SECRET`; set this environment variable to ensure sessions persist across container restarts and multi-node deployments.
+- **Persistent sessions:** By default, users stay logged in for 30 days even after closing their browser. Configure `SESSION_MAX_AGE_DAYS` to adjust this duration (e.g., `7` for weekly re-authentication, `90` for extended sessions).
 - Http logging toggles (`ENABLE_HTTP_LOGGING`, `LOG_LEVEL`, `DEBUG`) help surface suspicious activity; send container logs to a centralized system for audits.
 
 ## Backups & persistence

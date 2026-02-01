@@ -24,6 +24,11 @@
     --clr-base-muted: #181818;
   }
 
+  html,
+  body {
+    background-color: var(--clr-base);
+  }
+
   *,
   ::after,
   ::before,

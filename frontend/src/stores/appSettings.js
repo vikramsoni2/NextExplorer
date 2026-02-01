@@ -1,23 +1,44 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { getBranding as getBrandingApi, getSettings as getSettingsApi, patchSettings as patchSettingsApi } from '@/api';
+import { useAuthStore } from '@/stores/auth';
 
 export const useAppSettings = defineStore('appSettings', () => {
   const loaded = ref(false);
   const loading = ref(false);
   const lastError = ref(null);
-  const state = ref({
-    thumbnails: { enabled: true, size: 200, quality: 70 },
-    access: { rules: [] },
+  
+  // Three-tier settings structure
+  const publicSettings = ref({
     branding: { appName: 'Explorer', appLogoUrl: '/logo.svg', showPoweredBy: false },
   });
+  
+  const userSettings = ref({
+    showHiddenFiles: false,
+    showThumbnails: true,
+    defaultShareExpiration: null, // { value: number, unit: 'days' | 'weeks' | 'months' }
+    skipHome: null, // null = use env var, true/false = override
+  });
+  
+  const systemSettings = ref({
+    thumbnails: { enabled: true, size: 200, quality: 70 },
+    access: { rules: [] },
+  });
+
+  // Computed state that combines all settings (for backward compatibility)
+  const state = computed(() => ({
+    branding: publicSettings.value.branding,
+    user: userSettings.value,
+    thumbnails: systemSettings.value.thumbnails,
+    access: systemSettings.value.access,
+  }));
 
   // Load public branding (no auth required) - can be called on login page
   const loadBranding = async () => {
     lastError.value = null;
     try {
       const b = await getBrandingApi();
-      state.value.branding = {
+      publicSettings.value.branding = {
         appName: 'Explorer',
         appLogoUrl: '/logo.svg',
         showPoweredBy: false,
@@ -29,32 +50,66 @@ export const useAppSettings = defineStore('appSettings', () => {
     }
   };
 
-  // Load all settings (admin only) - requires authentication
+  // Load settings based on user role
+  // - No auth: branding only
+  // - Authenticated user: branding + user settings
+  // - Admin: branding + user settings + system settings
   const load = async () => {
     loading.value = true;
     lastError.value = null;
     try {
       const s = await getSettingsApi();
-      state.value = {
-        thumbnails: {
-          enabled: true,
-          size: 200,
-          quality: 70,
-          ...(s?.thumbnails || {}),
-        },
-        access: {
-          rules: Array.isArray(s?.access?.rules) ? s.access.rules : [],
-        },
-         branding: {
+      
+      // Always update branding (public)
+      if (s?.branding) {
+        publicSettings.value.branding = {
           appName: 'Explorer',
           appLogoUrl: '/logo.svg',
           showPoweredBy: false,
-          ...(s?.branding || {}),
-        },
-      };
+          ...s.branding,
+        };
+      }
+
+      // Update user settings if present (authenticated users)
+      if (s?.user && typeof s.user === 'object') {
+        userSettings.value = {
+          showHiddenFiles: false,
+          showThumbnails: true,
+          defaultShareExpiration: null,
+          skipHome: null,
+          ...s.user,
+        };
+      }
+
+      // Update system settings if present (admin only)
+      if (s?.thumbnails) {
+        systemSettings.value.thumbnails = {
+          enabled: true,
+          size: 200,
+          quality: 70,
+          ...s.thumbnails,
+        };
+      }
+      if (s?.access) {
+        systemSettings.value.access = {
+          rules: Array.isArray(s.access.rules) ? s.access.rules : [],
+        };
+      }
+
       loaded.value = true;
     } catch (e) {
-      lastError.value = e?.message || 'Failed to load settings';
+      // For non-admin users, 403 errors are expected for system settings
+      // But we should still have branding loaded
+      const authStore = useAuthStore();
+      const isAdmin = authStore.currentUser && Array.isArray(authStore.currentUser?.roles) && authStore.currentUser.roles.includes('admin');
+      
+      if (!isAdmin && e?.status === 403) {
+        // Non-admin user - this is expected, just ensure branding is loaded
+        await loadBranding();
+        loaded.value = true;
+      } else {
+        lastError.value = e?.message || 'Failed to load settings';
+      }
     } finally {
       loading.value = false;
     }
@@ -62,27 +117,59 @@ export const useAppSettings = defineStore('appSettings', () => {
 
   const save = async (partial) => {
     lastError.value = null;
-    const updated = await patchSettingsApi(partial);
-    state.value = {
-      thumbnails: {
-        enabled: true,
-        size: 200,
-        quality: 70,
-        ...(updated?.thumbnails || {}),
-      },
-      access: {
-        rules: Array.isArray(updated?.access?.rules) ? updated.access.rules : [],
-      },
-       branding: {
-         appName: 'Explorer',
-         appLogoUrl: '/logo.svg',
-         showPoweredBy: false,
-         ...(updated?.branding || {}),
-       },
-    };
-    loaded.value = true;
-    return state.value;
+    try {
+      const updated = await patchSettingsApi(partial);
+      
+      // Update local state based on what was returned
+      if (updated?.branding) {
+        publicSettings.value.branding = {
+          appName: 'Explorer',
+          appLogoUrl: '/logo.svg',
+          showPoweredBy: false,
+          ...updated.branding,
+        };
+      }
+      
+      if (updated?.user) {
+        userSettings.value = {
+          ...userSettings.value,
+          ...updated.user,
+        };
+      }
+      
+      if (updated?.thumbnails) {
+        systemSettings.value.thumbnails = {
+          enabled: true,
+          size: 200,
+          quality: 70,
+          ...updated.thumbnails,
+        };
+      }
+      
+      if (updated?.access) {
+        systemSettings.value.access = {
+          rules: Array.isArray(updated.access.rules) ? updated.access.rules : [],
+        };
+      }
+      
+      loaded.value = true;
+      return state.value;
+    } catch (e) {
+      lastError.value = e?.message || 'Failed to save settings';
+      throw e;
+    }
   };
 
-  return { state, loaded, loading, lastError, load, loadBranding, save };
+  return { 
+    state, 
+    publicSettings, 
+    userSettings, 
+    systemSettings,
+    loaded, 
+    loading, 
+    lastError, 
+    load, 
+    loadBranding, 
+    save 
+  };
 });

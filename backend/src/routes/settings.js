@@ -1,5 +1,12 @@
 const express = require('express');
-const { getSettings, setSettings } = require('../services/settingsService');
+const {
+  getPublicSettings,
+  getSettingsForUser,
+  setUserSetting,
+  setSystemSetting,
+  getSettings,
+  setSettings,
+} = require('../services/settingsService');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
 const path = require('path');
@@ -61,23 +68,22 @@ const upload = multer({
 router.get(
   '/branding',
   asyncHandler(async (req, res) => {
-    const settings = await getSettings();
-    // Only return branding, not other admin settings
-    res.json(
-      settings.branding || { appName: 'Explorer', appLogoUrl: '/logo.svg', showPoweredBy: false }
-    );
+    const publicSettings = await getPublicSettings();
+    res.json(publicSettings.branding);
   })
 );
 
 /**
  * GET /api/settings
- * Returns current user-configurable settings (admin only)
+ * Returns settings based on user role:
+ * - No auth: public settings (branding only)
+ * - Authenticated user: branding + user settings
+ * - Admin: branding + user settings + system settings
  */
 router.get(
   '/settings',
-  requireAdmin,
   asyncHandler(async (req, res) => {
-    const settings = await getSettings();
+    const settings = await getSettingsForUser(req.user);
     res.json(settings);
   })
 );
@@ -135,63 +141,119 @@ router.post(
 
 /**
  * PATCH /api/settings
- * Update settings with partial data (admin only)
- * Validates and merges with existing settings
+ * Update settings with partial data
+ * - Users can update their own user settings (user.*)
+ * - Admins can update system settings (thumbnails, access, branding)
  */
 router.patch(
   '/settings',
-  requireAdmin,
   asyncHandler(async (req, res) => {
     const payload = req.body || {};
+    const user = req.user;
+    const isAdmin = user && Array.isArray(user.roles) && user.roles.includes('admin');
+    const updated = {};
 
-    // Build partial update object
-    const updates = {};
-
-    // Thumbnails settings
-    if (payload.thumbnails && typeof payload.thumbnails === 'object') {
-      updates.thumbnails = {};
-      if (payload.thumbnails.enabled != null) {
-        updates.thumbnails.enabled = Boolean(payload.thumbnails.enabled);
+    // User settings (all authenticated users can update)
+    if (payload.user && typeof payload.user === 'object' && user && user.id) {
+      const userUpdates = {};
+      for (const [key, value] of Object.entries(payload.user)) {
+        if (
+          key === 'showHiddenFiles' ||
+          key === 'showThumbnails' ||
+          key === 'defaultShareExpiration' ||
+          key === 'skipHome'
+        ) {
+          await setUserSetting(user.id, key, value);
+          userUpdates[key] = value;
+        }
       }
-      if (Number.isFinite(payload.thumbnails.size)) {
-        updates.thumbnails.size = payload.thumbnails.size;
-      }
-      if (Number.isFinite(payload.thumbnails.quality)) {
-        updates.thumbnails.quality = payload.thumbnails.quality;
-      }
-    }
-
-    // Access control rules
-    if (payload.access && typeof payload.access === 'object') {
-      if (Array.isArray(payload.access.rules)) {
-        updates.access = { rules: payload.access.rules };
+      if (Object.keys(userUpdates).length > 0) {
+        updated.user = userUpdates;
       }
     }
 
-     // Branding settings
-     if (payload.branding && typeof payload.branding === 'object') {
-       updates.branding = {};
-       if (typeof payload.branding.appName === 'string') {
-         updates.branding.appName = payload.branding.appName;
-       }
-       if (typeof payload.branding.appLogoUrl === 'string') {
-         updates.branding.appLogoUrl = payload.branding.appLogoUrl;
-       }
-       if (typeof payload.branding.showPoweredBy === 'boolean') {
-         updates.branding.showPoweredBy = payload.branding.showPoweredBy;
-       }
-     }
+    // System settings (admin only)
+    if (isAdmin) {
+      const systemUpdates = {};
 
-    const updated = await setSettings(updates);
+      // Thumbnails settings
+      if (payload.thumbnails && typeof payload.thumbnails === 'object') {
+        const thumbnailsUpdate = {};
+        if (payload.thumbnails.enabled != null) {
+          thumbnailsUpdate.enabled = Boolean(payload.thumbnails.enabled);
+        }
+        if (Number.isFinite(payload.thumbnails.size)) {
+          thumbnailsUpdate.size = payload.thumbnails.size;
+        }
+        if (Number.isFinite(payload.thumbnails.quality)) {
+          thumbnailsUpdate.quality = payload.thumbnails.quality;
+        }
+        if (Number.isFinite(payload.thumbnails.concurrency)) {
+          thumbnailsUpdate.concurrency = payload.thumbnails.concurrency;
+        }
+        if (Object.keys(thumbnailsUpdate).length > 0) {
+          const current = await getSettings();
+          await setSystemSetting('system', 'thumbnails', {
+            ...current.thumbnails,
+            ...thumbnailsUpdate,
+          });
+          systemUpdates.thumbnails = { ...current.thumbnails, ...thumbnailsUpdate };
+        }
+      }
 
-    const requestedLogoUrl =
-      typeof updates.branding?.appLogoUrl === 'string' ? updates.branding.appLogoUrl.trim() : null;
-    const resetToDefault = requestedLogoUrl != null && (requestedLogoUrl === '' || requestedLogoUrl === DEFAULT_LOGO_URL);
-    if (resetToDefault) {
-      await deleteCustomLogoFiles();
+      // Access control rules
+      if (payload.access && typeof payload.access === 'object') {
+        if (Array.isArray(payload.access.rules)) {
+          await setSystemSetting('system', 'access', { rules: payload.access.rules });
+          systemUpdates.access = { rules: payload.access.rules };
+        }
+      }
+
+      // Branding settings
+      if (payload.branding && typeof payload.branding === 'object') {
+        const brandingUpdate = {};
+        if (typeof payload.branding.appName === 'string') {
+          brandingUpdate.appName = payload.branding.appName;
+        }
+        if (typeof payload.branding.appLogoUrl === 'string') {
+          brandingUpdate.appLogoUrl = payload.branding.appLogoUrl;
+        }
+        if (typeof payload.branding.showPoweredBy === 'boolean') {
+          brandingUpdate.showPoweredBy = payload.branding.showPoweredBy;
+        }
+        if (Object.keys(brandingUpdate).length > 0) {
+          const current = await getSettings();
+          await setSystemSetting('branding', 'branding', {
+            ...current.branding,
+            ...brandingUpdate,
+          });
+          systemUpdates.branding = { ...current.branding, ...brandingUpdate };
+        }
+      }
+
+      if (Object.keys(systemUpdates).length > 0) {
+        Object.assign(updated, systemUpdates);
+      }
+
+      // Handle logo deletion if resetting to default
+      const requestedLogoUrl =
+        typeof payload.branding?.appLogoUrl === 'string'
+          ? payload.branding.appLogoUrl.trim()
+          : null;
+      const resetToDefault =
+        requestedLogoUrl != null &&
+        (requestedLogoUrl === '' || requestedLogoUrl === DEFAULT_LOGO_URL);
+      if (resetToDefault) {
+        await deleteCustomLogoFiles();
+      }
+    } else if (payload.thumbnails || payload.access || payload.branding) {
+      // Non-admin trying to update system settings
+      return res.status(403).json({ error: 'Admin access required for system settings.' });
     }
 
-    res.json(updated);
+    // Return updated settings
+    const finalSettings = await getSettingsForUser(user);
+    res.json(finalSettings);
   })
 );
 

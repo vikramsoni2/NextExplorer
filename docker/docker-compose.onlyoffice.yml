@@ -1,0 +1,77 @@
+# nextExplorer Docker Compose - OnlyOffice Integration
+# 
+# INSTRUCTIONS:
+# 1. Edit this file and configure OnlyOffice settings below
+# 2. Update the volumes section to mount your directories
+# 3. Ensure your OnlyOffice Document Server is running and accessible
+# 4. Run from repo root: docker-compose -f docker/docker-compose.onlyoffice.yml up -d
+#
+# This setup includes OnlyOffice Document Server integration for editing Office documents.
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    volumes:
+      # Mount your directories here - update these paths to match your system
+      - /path/to/your/data:/mnt/data
+      - /path/to/your/config:/config
+      - /path/to/your/cache:/cache
+    environment:
+      # ============================================
+      # REQUIRED SETTINGS
+      # ============================================
+      # External public URL (no trailing slash) - REQUIRED for OnlyOffice
+      - PUBLIC_URL=https://your-domain.com
+      
+      # Session secret (REQUIRED in production)
+      - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
+      
+      # ============================================
+      # PATHS & VOLUMES
+      # ============================================
+      - VOLUME_ROOT=/mnt
+      - CONFIG_DIR=/config
+      - CACHE_DIR=/cache
+      
+      # ============================================
+      # CONTAINER USER MAPPING
+      # ============================================
+      - PUID=1000
+      - PGID=1000
+      
+      # ============================================
+      # AUTHENTICATION
+      # ============================================
+      - AUTH_MODE=local
+      # Optional: Bootstrap the first admin user
+      # - AUTH_ADMIN_EMAIL=admin@example.com
+      # - AUTH_ADMIN_PASSWORD=please-change-me
+      
+      # ============================================
+      # ONLYOFFICE INTEGRATION
+      # ============================================
+      # Public URL for OnlyOffice Document Server - REQUIRED
+      # Must be reachable from your app's PUBLIC_URL
+      # Example: https://office.example.com or http://onlyoffice:80 (if same Docker network)
+      - ONLYOFFICE_URL=https://office.example.com
+      
+      # JWT secret shared with OnlyOffice Document Server - REQUIRED
+      # This must match the JWT_SECRET configured in your OnlyOffice Document Server
+      - ONLYOFFICE_SECRET=your-onlyoffice-jwt-secret
+      
+      # Language code for the OnlyOffice editor UI
+      - ONLYOFFICE_LANG=en
+      
+      # When true, OnlyOffice forces users to save via the editor UI
+      # - ONLYOFFICE_FORCE_SAVE=false
+      
+      # Comma-separated list of file extensions to expose to OnlyOffice Document Server
+      # Default list includes: doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
+      # You can add or remove extensions as needed
+      - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
+
+    restart: unless-stopped

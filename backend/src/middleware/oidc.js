@@ -41,6 +41,70 @@ const shouldOidcCookieBeSecure = (baseURL) => {
 };
 
 /**
+ * Validates and parses a URL string
+ * @returns {URL|null} Parsed URL or null if invalid
+ */
+const parseUrl = (urlString) => {
+  if (!urlString) return null;
+  try {
+    return new URL(urlString);
+  } catch (_) {
+    return null;
+  }
+};
+
+/**
+ * Creates a custom logout handler for IdP logout
+ * @param {object} options - Configuration options
+ * @param {string} options.logoutURL - The IdP logout URL
+ * @param {string} options.baseURL - The application base URL
+ * @param {boolean} options.cookieSecure - Whether cookies should be secure
+ * @returns {Function} Express route handler
+ */
+const createLogoutHandler = ({ logoutURL, baseURL, cookieSecure }) => {
+  // Pre-validate the logout URL at configuration time
+  const parsedLogoutUrl = parseUrl(logoutURL);
+  if (!parsedLogoutUrl) {
+    logger.warn({ logoutURL }, 'Invalid OIDC_LOGOUT_URL, custom logout handler not configured');
+    return null;
+  }
+
+  return async (req, res) => {
+    // Calculate returnTo early for use in both success and error paths
+    const defaultReturnTo = baseURL ? `${baseURL}/auth/login` : '/auth/login';
+    const returnTo = req.query.returnTo || defaultReturnTo;
+
+    try {
+      // Clear local session (promisified for proper sequencing)
+      if (req.session) {
+        await new Promise((resolve) => {
+          req.session.destroy((err) => {
+            if (err) logger.debug({ err }, 'Session destroy error (non-fatal)');
+            resolve();
+          });
+        });
+      }
+
+      // Clear EOC session cookie (both secure variants for robustness)
+      const cookieOptions = { path: '/', sameSite: 'Lax', httpOnly: true };
+      res.clearCookie('appSession', { ...cookieOptions, secure: cookieSecure });
+      res.clearCookie('appSession', { ...cookieOptions, secure: false });
+
+      // Build logout URL with redirect parameter
+      // Use post_logout_redirect_uri (OIDC standard) as primary, but also support returnTo for Auth0
+      const idpLogoutUrl = new URL(parsedLogoutUrl.toString());
+      idpLogoutUrl.searchParams.set('post_logout_redirect_uri', returnTo);
+
+      logger.debug({ logoutUrl: idpLogoutUrl.toString() }, 'Redirecting to IdP logout URL');
+      res.redirect(idpLogoutUrl.toString());
+    } catch (e) {
+      logger.warn({ err: e }, 'Error during custom logout');
+      res.redirect(returnTo);
+    }
+  };
+};
+
+/**
  * Resolves OIDC scopes, ensuring 'openid' is always included
  */
 const resolveOidcScopes = (oidc) => {
@@ -218,6 +282,21 @@ const configureOidc = async (app) => {
     logger.debug({ eocCookieSecure }, 'OIDC session cookie security');
     logger.debug('Using shared SQLite session store for OIDC');
 
+    // Add custom logout handler if OIDC_LOGOUT_URL is configured
+    // This must be added before EOC middleware to intercept /logout requests
+    if (oidc.logoutURL) {
+      const logoutHandler = createLogoutHandler({
+        logoutURL: oidc.logoutURL,
+        baseURL,
+        cookieSecure: eocCookieSecure,
+      });
+
+      if (logoutHandler) {
+        app.get('/logout', logoutHandler);
+        logger.debug({ logoutURL: oidc.logoutURL }, 'Custom logout handler configured');
+      }
+    }
+
     // Configure OIDC middleware
     app.use(
       eocAuth({
@@ -236,6 +315,10 @@ const configureOidc = async (app) => {
         session: {
           store: oidcStore,
           rolling: true,
+          // Convert milliseconds to seconds for absoluteDuration
+          absoluteDuration: Math.floor(
+            ((envAuthConfig && envAuthConfig.sessionMaxAgeMs) || 30 * 24 * 60 * 60 * 1000) / 1000
+          ), // Default: 30 days in seconds
           cookie: {
             sameSite: 'Lax',
             secure: eocCookieSecure,

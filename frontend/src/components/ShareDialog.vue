@@ -1,6 +1,8 @@
 <script setup>
 import { ref, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAppSettings } from '@/stores/appSettings';
+import { calculateExpirationDate } from '@/utils/datetime';
 import ModalDialog from '@/components/ModalDialog.vue';
 import { createShare, copyShareUrl } from '@/api/shares.api';
 import { fetchShareableUsers } from '@/api/users.api';
@@ -17,6 +19,7 @@ import {
 } from '@heroicons/vue/24/outline';
 
 const { t } = useI18n();
+const appSettings = useAppSettings();
 
 const props = defineProps({
   modelValue: Boolean,
@@ -59,11 +62,22 @@ const sourcePath = computed(() => {
 });
 
 // Reset form when dialog opens/closes
-watch(isOpen, (opened) => {
+watch(isOpen, async (opened) => {
   if (opened) {
     resetForm();
     if (props.item?.name) {
       label.value = props.item.name;
+    }
+    
+    // Apply default share expiration if user has one set
+    const defaultExpiration = appSettings.userSettings?.defaultShareExpiration;
+    const expirationDate = calculateExpirationDate(defaultExpiration);
+    
+    if (expirationDate) {
+      enableExpiry.value = true;
+      expiresAtDate.value = expirationDate;
+      await nextTick();
+      await initExpiresPicker();
     }
   } else {
     shareResult.value = null;
@@ -106,7 +120,13 @@ function destroyExpiresPicker() {
 async function initExpiresPicker() {
   await nextTick();
   const el = expiresAtInputRef.value;
-  if (!el || expiresPicker) return;
+  if (!el) return;
+  
+  // Destroy existing picker if it exists
+  if (expiresPicker) {
+    expiresPicker.destroy();
+    expiresPicker = null;
+  }
 
   expiresPicker = flatpickr(el, {
     enableTime: true,
@@ -118,6 +138,11 @@ async function initExpiresPicker() {
       expiresAtDate.value = selectedDates?.[0] || null;
     },
   });
+  
+  // If we have a default date, set it in the picker
+  if (expiresAtDate.value) {
+    expiresPicker.setDate(expiresAtDate.value, false);
+  }
 }
 
 watch(enableExpiry, async (enabled) => {

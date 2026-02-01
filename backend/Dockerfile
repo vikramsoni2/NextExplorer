@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     imagemagick \
     curl \
     unzip \
+    openssh-client \
     libva-drm2 \
     libva2 \
     mesa-va-drivers \

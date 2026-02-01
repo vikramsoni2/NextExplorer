@@ -55,7 +55,7 @@ USER_FOLDER_NAME_ORDER=id,username,email_local
 
 ### Example: development compose
 
-The included `docker-compose.dev.yml` shows a development-friendly setup:
+The included `docker/docker-compose.dev.yml` shows a development-friendly setup:
 
 ```yaml
 services:

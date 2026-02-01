@@ -12,6 +12,7 @@ import {
   PhotoIcon,
   KeyIcon,
   UsersIcon,
+  UserCircleIcon,
 } from '@heroicons/vue/24/outline';
 
 const router = useRouter();
@@ -20,9 +21,17 @@ const appSettings = useAppSettings();
 const { t } = useI18n();
 const auth = useAuthStore();
 
-onMounted(() => {
+onMounted(async () => {
   if (!appSettings.loaded && !appSettings.loading) {
-    appSettings.load();
+    try {
+      await appSettings.load();
+    } catch (e) {
+      // Settings load may fail for non-admin users trying to access system settings
+      // This is handled gracefully in the store, but ensure branding is at least loaded
+      if (!appSettings.publicSettings.branding.appName) {
+        await appSettings.loadBranding();
+      }
+    }
   }
 });
 
@@ -39,6 +48,12 @@ const userCategories = [
     name: 'Change Password',
     icon: Cog8ToothIcon,
     requiresLocal: true,
+  },
+  {
+    key: 'user-preferences',
+    i18nKey: 'userPreferences',
+    name: 'Preferences',
+    icon: UserCircleIcon,
   },
   { key: 'about', i18nKey: 'about', name: 'About', icon: InformationCircleIcon },
   // Coming soon (user scope)
