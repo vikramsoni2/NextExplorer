@@ -6,8 +6,7 @@ const multer = require('multer');
 const { ensureDir, pathExists } = require('../utils/fsUtils');
 const { normalizeRelativePath, findAvailableName } = require('../utils/pathUtils');
 const { readMetaField } = require('../utils/requestUtils');
-const { getPermissionForPath } = require('./accessControlService');
-const { resolvePathWithAccess } = require('./accessManager');
+const { ACTIONS, authorizeAndResolve } = require('./authorizationService');
 const logger = require('../utils/logger');
 
 const resolveUploadPaths = async (req, file) => {
@@ -18,9 +17,8 @@ const resolveUploadPaths = async (req, file) => {
   const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
 
   const context = { user: req.user, guestSession: req.guestSession };
-  const { accessInfo, resolved } = await resolvePathWithAccess(context, uploadTo);
-
-  if (!accessInfo || !accessInfo.canAccess || !accessInfo.canUpload) {
+  const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, uploadTo, ACTIONS.upload);
+  if (!allowed || !resolved) {
     throw new Error(accessInfo?.denialReason || 'Cannot upload files to this path.');
   }
 
@@ -63,11 +61,6 @@ CustomStorage.prototype._handleFile = function handleFile(req, file, cb) {
       }
 
       await ensureDir(destinationDir);
-
-      const perm = await getPermissionForPath(relDestDir);
-      if (perm !== 'rw') {
-        throw new Error('Destination path is read-only.');
-      }
 
       let finalPath = destinationPath;
       if (await pathExists(finalPath)) {

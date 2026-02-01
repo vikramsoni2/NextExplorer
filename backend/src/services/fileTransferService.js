@@ -4,11 +4,10 @@ const fs = require('fs/promises');
 const { ensureDir, pathExists } = require('../utils/fsUtils');
 const {
   normalizeRelativePath,
-  resolveItemPaths,
   combineRelativePath,
   findAvailableName,
 } = require('../utils/pathUtils');
-const { resolvePathWithAccess } = require('./accessManager');
+const { ACTIONS, authorizeAndResolve, authorizePath } = require('./authorizationService');
 
 const copyEntry = async (sourcePath, destinationPath, isDirectory) => {
   if (isDirectory) {
@@ -65,12 +64,9 @@ const transferItems = async (items, destination, operation, options = {}) => {
     guestSession: options.guestSession || null,
   };
 
-  const { accessInfo: destAccess, resolved: destResolved } = await resolvePathWithAccess(
-    context,
-    destinationRelative
-  );
-
-  if (!destAccess || !destAccess.canAccess || !destAccess.canWrite) {
+  const { allowed: destAllowed, accessInfo: destAccess, resolved: destResolved } =
+    await authorizeAndResolve(context, destinationRelative, ACTIONS.write);
+  if (!destAllowed || !destResolved) {
     throw new Error(destAccess?.denialReason || 'Destination path is not writable.');
   }
 
@@ -82,12 +78,9 @@ const transferItems = async (items, destination, operation, options = {}) => {
 
   for (const item of items) {
     const sourceCombined = combineRelativePath(item.path || '', item.name);
-    const { accessInfo: srcAccess, resolved: srcResolved } = await resolvePathWithAccess(
-      context,
-      sourceCombined
-    );
-
-    if (!srcAccess || !srcAccess.canAccess || !srcAccess.canRead) {
+    const { allowed: srcAllowed, accessInfo: srcAccess, resolved: srcResolved } =
+      await authorizeAndResolve(context, sourceCombined, ACTIONS.read);
+    if (!srcAllowed || !srcResolved) {
       throw new Error(srcAccess?.denialReason || `Source path not accessible: ${sourceCombined}`);
     }
 
@@ -97,9 +90,15 @@ const transferItems = async (items, destination, operation, options = {}) => {
       throw new Error(`Source path not found: ${sourceRelative}`);
     }
 
-    // Check delete permission for moves (move = delete from source)
-    if (operation === 'move' && !srcAccess.canDelete) {
-      throw new Error('Cannot move items from a read-only or protected path.');
+    if (operation === 'move') {
+      const { allowed: deleteAllowed, accessInfo: deleteAccess } = await authorizePath(
+        context,
+        sourceCombined,
+        ACTIONS.delete
+      );
+      if (!deleteAllowed) {
+        throw new Error(deleteAccess?.denialReason || 'Cannot move items from this path.');
+      }
     }
 
     const stats = await fs.stat(sourceAbsolute);
@@ -142,9 +141,8 @@ const deleteItems = async (items = [], options = {}) => {
 
   for (const item of items) {
     const combined = combineRelativePath(item.path || '', item.name);
-    const { accessInfo, resolved } = await resolvePathWithAccess(context, combined);
-
-    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canDelete || !resolved) {
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, combined, ACTIONS.delete);
+    if (!allowed || !resolved) {
       throw new Error(accessInfo?.denialReason || 'Cannot delete items from this path.');
     }
 

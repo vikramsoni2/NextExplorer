@@ -5,7 +5,7 @@ const fs = require('fs/promises');
 const config = require('../config');
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const { ensureDir } = require('../utils/fsUtils');
-const { resolvePathWithAccess } = require('../services/accessManager');
+const { ACTIONS, authorizeAndResolve } = require('../services/authorizationService');
 const asyncHandler = require('../utils/asyncHandler');
 const {
   ValidationError,
@@ -47,12 +47,20 @@ async function readTextFileBuffer(req, relative) {
   let accessInfo;
   let resolved;
   try {
-    ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
+    const result = await authorizeAndResolve(context, relativePath, ACTIONS.read);
+    if (!result.allowed || !result.resolved) {
+      throw new ForbiddenError(result.accessInfo?.denialReason || 'Access denied.');
+    }
+    accessInfo = result.accessInfo;
+    resolved = result.resolved;
   } catch (error) {
+    if (error && error.isOperational) {
+      throw error;
+    }
     throw new NotFoundError('A valid file path is required.');
   }
 
-  if (!accessInfo || !accessInfo.canAccess || !accessInfo.canRead) {
+  if (!accessInfo || !resolved) {
     throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
   }
 
@@ -126,12 +134,20 @@ router.put(
     let accessInfo;
     let resolved;
     try {
-      ({ accessInfo, resolved } = await resolvePathWithAccess(context, relativePath));
+      const result = await authorizeAndResolve(context, relativePath, ACTIONS.write);
+      if (!result.allowed || !result.resolved) {
+        throw new ForbiddenError(result.accessInfo?.denialReason || 'This path is read-only.');
+      }
+      accessInfo = result.accessInfo;
+      resolved = result.resolved;
     } catch (error) {
+      if (error && error.isOperational) {
+        throw error;
+      }
       throw new NotFoundError('A valid file path is required.');
     }
 
-    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canWrite) {
+    if (!accessInfo || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'This path is read-only.');
     }
 

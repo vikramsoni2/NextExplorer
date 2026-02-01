@@ -1,3 +1,4 @@
+const path = require('path');
 const fs = require('fs/promises');
 const {
   normalizeRelativePath,
@@ -5,7 +6,7 @@ const {
   ensureValidName,
 } = require('../../utils/pathUtils');
 const { pathExists } = require('../../utils/fsUtils');
-const { resolvePathWithAccess } = require('../../services/accessManager');
+const { ACTIONS, authorizeAndResolve, authorizePath } = require('../../services/authorizationService');
 const asyncHandler = require('../../utils/asyncHandler');
 const {
   ValidationError,
@@ -31,24 +32,18 @@ router.post(
     const parentRelative = normalizeRelativePath(parentPath);
     const context = { user: req.user, guestSession: req.guestSession };
 
-    const { accessInfo: parentAccess, resolved: parentResolved } = await resolvePathWithAccess(
-      context,
-      parentRelative
-    );
-
-    if (!parentAccess || !parentAccess.canAccess || !parentAccess.canWrite) {
+    const { allowed: parentAllowed, accessInfo: parentAccess, resolved: parentResolved } =
+      await authorizeAndResolve(context, parentRelative, ACTIONS.write);
+    if (!parentAllowed || !parentResolved) {
       throw new ForbiddenError(parentAccess?.denialReason || 'Destination path is read-only.');
     }
 
     const { absolutePath: parentAbsolute } = parentResolved;
 
     const currentRelative = combineRelativePath(parentRelative, originalName);
-    const { accessInfo: currentAccess, resolved: currentResolved } = await resolvePathWithAccess(
-      context,
-      currentRelative
-    );
-
-    if (!currentAccess || !currentAccess.canAccess || !currentAccess.canWrite) {
+    const { allowed: currentAllowed, accessInfo: currentAccess, resolved: currentResolved } =
+      await authorizeAndResolve(context, currentRelative, ACTIONS.write);
+    if (!currentAllowed || !currentResolved) {
       throw new ForbiddenError(currentAccess?.denialReason || 'Cannot rename items in this path.');
     }
 
@@ -71,8 +66,15 @@ router.post(
     }
 
     const targetRelative = combineRelativePath(parentRelative, validatedNewName);
-    const { resolved: targetResolved } = await resolvePathWithAccess(context, targetRelative);
-    const { absolutePath: targetAbsolute } = targetResolved;
+    const { allowed: targetAllowed, accessInfo: targetAccess } = await authorizePath(
+      context,
+      targetRelative,
+      ACTIONS.write
+    );
+    if (!targetAllowed) {
+      throw new ForbiddenError(targetAccess?.denialReason || 'Destination path is not accessible.');
+    }
+    const targetAbsolute = path.join(parentAbsolute, validatedNewName);
 
     if (await pathExists(targetAbsolute)) {
       throw new ConflictError(`The name "${validatedNewName}" is already taken.`);

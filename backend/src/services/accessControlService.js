@@ -1,29 +1,37 @@
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const { getSettings, setSettings } = require('../services/settingsService');
 
-// Determine permission for a given relative path: 'rw' | 'ro' | 'hidden'
-const getPermissionForPath = async (relativePath) => {
-  const rel = normalizeRelativePath(relativePath || '');
-  const settings = await getSettings();
-  const rules = Array.isArray(settings?.access?.rules) ? settings.access.rules : [];
+const createPermissionResolver = (rules = []) => {
+  const normalizedRules = Array.isArray(rules) ? rules : [];
 
-  // first match wins
-  for (const rule of rules) {
-    const rulePath = normalizeRelativePath(rule.path || '');
-    if (!rulePath) continue;
+  return (relativePath) => {
+    const rel = normalizeRelativePath(relativePath || '');
 
-    if (rule.recursive) {
-      if (rel === rulePath || rel.startsWith(rulePath + '/')) {
-        return rule.permissions || 'rw';
-      }
-    } else {
-      if (rel === rulePath) {
-        return rule.permissions || 'rw';
+    // first match wins
+    for (const rule of normalizedRules) {
+      const rulePath = normalizeRelativePath(rule.path || '');
+      if (!rulePath) continue;
+
+      if (rule.recursive) {
+        if (rel === rulePath || rel.startsWith(rulePath + '/')) {
+          return rule.permissions || 'rw';
+        }
+      } else {
+        if (rel === rulePath) {
+          return rule.permissions || 'rw';
+        }
       }
     }
-  }
 
-  return 'rw';
+    return 'rw';
+  };
+};
+
+// Determine permission for a given relative path: 'rw' | 'ro' | 'hidden'
+const getPermissionForPath = async (relativePath) => {
+  const settings = await getSettings();
+  const rules = Array.isArray(settings?.access?.rules) ? settings.access.rules : [];
+  return createPermissionResolver(rules)(relativePath);
 };
 
 const getRules = async () => {
@@ -41,6 +49,7 @@ const setRules = async (rules) => {
 };
 
 module.exports = {
+  createPermissionResolver,
   getPermissionForPath,
   getRules,
   setRules,

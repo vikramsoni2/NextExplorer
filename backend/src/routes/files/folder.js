@@ -5,7 +5,7 @@ const {
   findAvailableFolderName,
   ensureValidName,
 } = require('../../utils/pathUtils');
-const { resolvePathWithAccess } = require('../../services/accessManager');
+const { ACTIONS, authorizeAndResolve } = require('../../services/authorizationService');
 const asyncHandler = require('../../utils/asyncHandler');
 const {
   ValidationError,
@@ -32,9 +32,12 @@ router.post(
     }
 
     const context = { user: req.user, guestSession: req.guestSession };
-    const { accessInfo, resolved } = await resolvePathWithAccess(context, parentRelative);
-
-    if (!accessInfo || !accessInfo.canAccess || !accessInfo.canCreateFolder) {
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+      context,
+      parentRelative,
+      ACTIONS.createFolder
+    );
+    if (!allowed || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Cannot create folders in this path.');
     }
 

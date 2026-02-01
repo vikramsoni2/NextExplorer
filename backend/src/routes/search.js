@@ -7,11 +7,12 @@ const readline = require('readline');
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const { pathExists } = require('../utils/fsUtils');
 const { excludedFiles, search: searchConfig } = require('../config/index');
-const { getPermissionForPath } = require('../services/accessControlService');
-const { resolvePathWithAccess } = require('../services/accessManager');
+const { resolvePathWithAccess, getAccessInfo } = require('../services/accessManager');
 const logger = require('../utils/logger');
 const asyncHandler = require('../utils/asyncHandler');
 const { ValidationError, NotFoundError, ForbiddenError } = require('../errors/AppError');
+const { createPermissionResolver } = require('../services/accessControlService');
+const { getSettings } = require('../services/settingsService');
 
 const router = express.Router();
 
@@ -89,13 +90,6 @@ const extractDirMatches = (fullPath, needle) => {
   return dirs;
 };
 
-const shouldIncludeResult = async (rel) => {
-  const name = path.posix.basename(rel);
-  if (excludedFiles.includes(name)) return false;
-  if ((await getPermissionForPath(rel)) === 'hidden') return false;
-  return true;
-};
-
 const formatResult = (rel, kind, line, lineNumber) => {
   const parent = path.posix.dirname(rel);
   const item = {
@@ -122,7 +116,14 @@ const parseJsonLine = (line) => {
 };
 
 // Optimized: Stream file list results (Optimization #1 & #3)
-async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet) {
+async function* streamFileListMatches(
+  baseAbsPath,
+  relBasePath,
+  needle,
+  seenPaths,
+  dirSet,
+  shouldInclude
+) {
   const globArgs = buildRipgrepArgs();
   const fileListProcess = spawn('rg', ['--files', '--hidden', '--no-messages', ...globArgs], {
     cwd: baseAbsPath,
@@ -144,7 +145,7 @@ async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPath
       if (!dirSet.has(dirPath) && !seenPaths.has(dirPath)) {
         dirSet.add(dirPath);
         seenPaths.add(dirPath);
-        if (await shouldIncludeResult(dirPath)) {
+        if (await shouldInclude(dirPath)) {
           yield formatResult(dirPath, 'dir');
         }
       }
@@ -154,7 +155,7 @@ async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPath
     const baseName = path.posix.basename(fullRel).toLowerCase();
     if (baseName.includes(needle) && !seenPaths.has(fullRel)) {
       seenPaths.add(fullRel);
-      if (await shouldIncludeResult(fullRel)) {
+      if (await shouldInclude(fullRel)) {
         yield formatResult(fullRel, 'file');
       }
     }
@@ -162,7 +163,7 @@ async function* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPath
 }
 
 // Optimized: Stream content matches with JSON output (Optimization #1 & #2)
-async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) {
+async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths, shouldInclude) {
   const globArgs = buildRipgrepArgs();
 
   const contentArgs = [
@@ -204,27 +205,27 @@ async function* streamContentMatches(baseAbsPath, relBasePath, term, seenPaths) 
     if (seenPaths.has(rel)) continue;
 
     seenPaths.add(rel);
-    if (await shouldIncludeResult(rel)) {
+    if (await shouldInclude(rel)) {
       yield formatResult(rel, 'file', lineText, lineNum);
     }
   }
 }
 
 // Optimized ripgrep with parallel execution (Optimization #1, #2, #3)
-async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = true) {
+async function* generateRipgrepResults(baseAbsPath, relBasePath, term, shouldInclude, deep = true) {
   const needle = term.toLowerCase();
   const seenPaths = new Set();
   const dirSet = new Set();
 
   if (!deep) {
     // If no deep search, only run file list matches
-    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
+    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet, shouldInclude);
     return;
   }
 
   // Optimization #3: Run both searches in parallel
-  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet);
-  const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths);
+  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet, shouldInclude);
+  const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths, shouldInclude);
 
   // Yield from file list first (directories and filename matches)
   for await (const result of fileListGen) {
@@ -238,7 +239,7 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, deep = tr
 }
 
 // Optimized fallback with streaming (Optimization #1)
-async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = true) {
+async function* generateFallbackResults(baseAbsPath, relBasePath, term, shouldInclude, deep = true) {
   const seenPaths = new Set();
   const needle = term.toLowerCase();
 
@@ -260,7 +261,7 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
       if (d.isDirectory()) {
         if (d.name.toLowerCase().includes(needle) && !seenPaths.has(rel)) {
           seenPaths.add(rel);
-          if (await shouldIncludeResult(rel)) {
+          if (await shouldInclude(rel)) {
             yield formatResult(rel, 'dir');
           }
         }
@@ -268,7 +269,7 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
       } else if (d.isFile()) {
         if (d.name.toLowerCase().includes(needle) && !seenPaths.has(rel)) {
           seenPaths.add(rel);
-          if (await shouldIncludeResult(rel)) {
+          if (await shouldInclude(rel)) {
             yield formatResult(rel, 'file');
           }
         } else if (deep && !seenPaths.has(rel)) {
@@ -283,7 +284,7 @@ async function* generateFallbackResults(baseAbsPath, relBasePath, term, deep = t
                 const lineNumber = (content.slice(0, idx).match(/\n/g)?.length ?? 0) + 1;
                 const matchedLine = content.split(/\r?\n/)[lineNumber - 1] || '';
                 seenPaths.add(rel);
-                if (await shouldIncludeResult(rel)) {
+                if (await shouldInclude(rel)) {
                   yield formatResult(rel, 'file', matchedLine, lineNumber);
                 }
               }
@@ -337,9 +338,32 @@ router.get(
     const useRipgrep = ripgrepAllowed && (await hasRipgrep());
     const deepEnabled = searchConfig?.deep !== false;
 
+    const settings = await getSettings();
+    const permissionRules = Array.isArray(settings?.access?.rules) ? settings.access.rules : [];
+    const permissionResolver = permissionRules.length ? createPermissionResolver(permissionRules) : null;
+    const shareCache = new Map();
+    const userVolumeCache = new Map();
+
+    const includeCache = new Map();
+    const shouldInclude = async (rel) => {
+      const name = path.posix.basename(rel);
+      if (excludedFiles.includes(name)) return false;
+
+      if (includeCache.has(rel)) return includeCache.get(rel);
+
+      const info = await getAccessInfo(context, rel, {
+        ...(permissionResolver ? { permissionResolver } : null),
+        shareCache,
+        userVolumeCache,
+      });
+      const ok = Boolean(info?.canAccess && info?.canRead);
+      includeCache.set(rel, ok);
+      return ok;
+    };
+
     const generator = useRipgrep
-      ? generateRipgrepResults(baseAbs, relBase, q, deepEnabled)
-      : generateFallbackResults(baseAbs, relBase, q, deepEnabled);
+      ? generateRipgrepResults(baseAbs, relBase, q, shouldInclude, deepEnabled)
+      : generateFallbackResults(baseAbs, relBase, q, shouldInclude, deepEnabled);
 
     const items = [];
     for await (const item of generator) {

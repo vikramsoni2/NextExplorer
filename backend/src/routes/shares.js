@@ -31,6 +31,7 @@ const { pathExists } = require('../utils/fsUtils');
 const { resolvePathWithAccess } = require('../services/accessManager');
 const { extensions } = require('../config/index');
 const { getSettings } = require('../services/settingsService');
+const { listDirectoryItems } = require('../services/directoryListingService');
 
 const router = express.Router();
 
@@ -513,44 +514,29 @@ router.get(
     }
 
     const stats = await fs.stat(resolved.absolutePath);
-    const { excludedFiles } = require('../config/index');
 
     // Determine thumbnail settings
     const settings = await getSettings();
     const thumbsEnabled = settings?.thumbnails?.enabled !== false;
-    const previewable = new Set([
-      ...extensions.images,
-      ...(extensions.rawImages || []),
-      ...extensions.videos,
-      ...(extensions.documents || []),
-    ]);
 
     // Directory share or navigating inside a directory share
     if (stats.isDirectory()) {
-      const files = await fs.readdir(resolved.absolutePath);
-      const filteredFiles = files.filter((file) => !excludedFiles.includes(file));
-
-      const itemsPromises = filteredFiles.map(async (file) => {
-        const filePath = path.join(resolved.absolutePath, file);
-        let fileStats;
-
-        try {
-          fileStats = await fs.stat(filePath);
-        } catch (err) {
-          return null;
-        }
-
-        const ext = fileStats.isDirectory()
-          ? 'directory'
-          : path.extname(file).slice(1).toLowerCase();
-        const kind = ext.length > 10 ? 'unknown' : ext || 'unknown';
-
-        const item = {
-          name: file,
-          path: resolved.relativePath,
-          dateModified: fileStats.mtime,
-          size: fileStats.size,
-          kind,
+      const shareCache = new Map();
+      if (resolved?.shareInfo?.shareToken) {
+        // shareInfo on resolved is the full share object
+        shareCache.set(resolved.shareInfo.shareToken, resolved.shareInfo);
+      }
+      const userVolumeCache = new Map();
+      const items = await listDirectoryItems({
+        absoluteDir: resolved.absolutePath,
+        parentLogicalPath: resolved.relativePath,
+        context,
+        thumbsEnabled,
+        excludeDownloadArtifacts: false,
+        permissionRules: settings?.access?.rules || [],
+        shareCache,
+        userVolumeCache,
+        itemExtras: () => ({
           access: {
             canRead: true,
             canWrite: accessInfo.canWrite,
@@ -558,22 +544,8 @@ router.get(
             canShare: false,
             canDownload: true,
           },
-        };
-
-        // Mark files that support thumbnails; client will lazily request them
-        if (
-          thumbsEnabled &&
-          fileStats.isFile() &&
-          kind !== 'pdf' &&
-          previewable.has(kind.toLowerCase())
-        ) {
-          item.supportsThumbnail = true;
-        }
-
-        return item;
+        }),
       });
-
-      const items = (await Promise.all(itemsPromises)).filter(Boolean);
 
       const response = {
         items,
@@ -621,12 +593,7 @@ router.get(
       },
     };
 
-    if (
-      thumbsEnabled &&
-      !stats.isDirectory() &&
-      kind !== 'pdf' &&
-      previewable.has(kind.toLowerCase())
-    ) {
+    if (thumbsEnabled && !stats.isDirectory() && kind !== 'pdf' && extensions.previewable.has(ext)) {
       item.supportsThumbnail = true;
     }
 

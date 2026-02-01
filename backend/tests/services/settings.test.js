@@ -2,7 +2,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { setupTestEnv } = require('../helpers/env-test-utils');
 
-const SETTINGS_MODULES = ['src/services/storage/jsonStorage', 'src/services/settingsService'];
+const SETTINGS_MODULES = [
+  'src/services/storage/jsonStorage',
+  'src/services/settingsService',
+  'src/services/db',
+];
 
 const createSettingsContext = async () => {
   const envContext = await setupTestEnv({
@@ -21,7 +25,7 @@ test('settingsService returns defaults when no config exists', async () => {
     assert.strictEqual(settings.thumbnails.enabled, true);
     assert.strictEqual(settings.thumbnails.size, 200);
     assert.strictEqual(settings.thumbnails.quality, 70);
-    assert.strictEqual(settings.thumbnails.concurrency, undefined);
+    assert.strictEqual(settings.thumbnails.concurrency, 10);
   } finally {
     await envContext.cleanup();
   }

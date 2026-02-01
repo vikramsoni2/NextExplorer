@@ -1,6 +1,7 @@
 const { getRequestUser } = require('../services/users');
 const { auth } = require('../config/index');
 const { ForbiddenError } = require('../errors/AppError');
+const logger = require('../utils/logger');
 
 const authMiddleware = async (req, res, next) => {
   const requestPath = req.path || '';
@@ -88,12 +89,12 @@ const authMiddleware = async (req, res, next) => {
   // Check for guest session (on all routes)
   const guestSessionId = req.headers['x-guest-session'] || req.cookies?.guestSession;
   if (guestSessionId) {
-    console.log('[DEBUG] Guest session found:', {
+    logger.debug({
       source: req.headers['x-guest-session'] ? 'header' : 'cookie',
       sessionId: guestSessionId,
       path: requestPath,
       cookies: Object.keys(req.cookies || {}),
-    });
+    }, 'Guest session found');
 
     try {
       const {
@@ -107,24 +108,24 @@ const authMiddleware = async (req, res, next) => {
         // Update activity timestamp
         await updateGuestSessionActivity(guestSessionId);
 
-        console.log('[DEBUG] Guest session validated:', {
+        logger.debug({
           sessionId: guestSessionId,
           shareId: session.shareId,
           path: requestPath,
-        });
+        }, 'Guest session validated');
       } else {
-        console.log('[DEBUG] Guest session invalid or expired:', guestSessionId);
+        logger.debug({ sessionId: guestSessionId }, 'Guest session invalid or expired');
       }
     } catch (err) {
-      console.error('[DEBUG] Guest session validation failed:', err);
+      logger.debug({ err }, 'Guest session validation failed');
     }
   } else if (requestPath.startsWith('/api/preview') || requestPath.startsWith('/api/thumbnails')) {
-    console.log('[DEBUG] No guest session for preview/thumbnail request:', {
+    logger.debug({
       path: requestPath,
       hasHeader: !!req.headers['x-guest-session'],
       hasCookie: !!req.cookies?.guestSession,
       cookies: Object.keys(req.cookies || {}),
-    });
+    }, 'No guest session for preview/thumbnail request');
   }
 
   if (isAuthRoute) {
@@ -177,7 +178,7 @@ const authMiddleware = async (req, res, next) => {
 
   // Allow access if valid guest session exists (for share paths on browse, files, etc.)
   if (req.guestSession) {
-    console.log('[DEBUG] Allowing request with guest session');
+    logger.debug('Allowing request with guest session');
     next();
     return;
   }

@@ -354,13 +354,13 @@ const setSettings = async (partial) => {
 
   // Save to DB
   if (partial.thumbnails) {
-    await setSystemSetting('system', 'thumbnails', merged.thumbnails);
+    merged.thumbnails = await setSystemSetting('system', 'thumbnails', merged.thumbnails);
   }
   if (partial.access) {
-    await setSystemSetting('system', 'access', merged.access);
+    merged.access = await setSystemSetting('system', 'access', merged.access);
   }
   if (partial.branding) {
-    await setSystemSetting('branding', 'branding', merged.branding);
+    merged.branding = await setSystemSetting('branding', 'branding', merged.branding);
   }
 
   // Also update JSON for backward compatibility during transition

@@ -11,6 +11,26 @@ const generateId = () =>
 
 const nowIso = () => new Date().toISOString();
 
+const RESERVED_VOLUME_LABELS = new Set(['personal', 'share', 'volumes']);
+
+const assertValidVolumeLabel = (labelRaw) => {
+  const label = typeof labelRaw === 'string' ? labelRaw.trim() : '';
+  if (!label) {
+    const e = new Error('Label is required');
+    e.status = 400;
+    throw e;
+  }
+
+  const lower = label.toLowerCase();
+  if (RESERVED_VOLUME_LABELS.has(lower)) {
+    const e = new Error(`Label "${label}" is reserved`);
+    e.status = 400;
+    throw e;
+  }
+
+  return label;
+};
+
 /**
  * Transform database row to client-friendly object
  */
@@ -100,11 +120,7 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
     throw e;
   }
 
-  if (!label || typeof label !== 'string' || !label.trim()) {
-    const e = new Error('Label is required');
-    e.status = 400;
-    throw e;
-  }
+  const normalizedLabel = assertValidVolumeLabel(label);
 
   if (!volumePath || typeof volumePath !== 'string' || !volumePath.trim()) {
     const e = new Error('Path is required');
@@ -152,7 +168,7 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
   // Check for duplicate label for this user
   const existingLabel = db
     .prepare('SELECT id FROM user_volumes WHERE user_id = ? AND label = ?')
-    .get(userId, label.trim());
+    .get(userId, normalizedLabel);
 
   if (existingLabel) {
     const e = new Error('A volume with this label already exists for this user');
@@ -168,7 +184,7 @@ const addVolumeToUser = async ({ userId, label, volumePath, accessMode = 'readwr
     INSERT INTO user_volumes (id, user_id, label, path, access_mode, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `
-  ).run(id, userId, label.trim(), normalizedPath, accessMode, now, now);
+  ).run(id, userId, normalizedLabel, normalizedPath, accessMode, now, now);
 
   return toClientVolume(db.prepare('SELECT * FROM user_volumes WHERE id = ?').get(id));
 };
@@ -190,16 +206,12 @@ const updateUserVolume = async (volumeId, { label, accessMode }) => {
   const values = [];
 
   if (label !== undefined) {
-    if (!label || typeof label !== 'string' || !label.trim()) {
-      const e = new Error('Label cannot be empty');
-      e.status = 400;
-      throw e;
-    }
+    const normalizedLabel = assertValidVolumeLabel(label);
 
     // Check for duplicate label for this user
     const duplicateLabel = db
       .prepare('SELECT id FROM user_volumes WHERE user_id = ? AND label = ? AND id != ?')
-      .get(existing.user_id, label.trim(), volumeId);
+      .get(existing.user_id, normalizedLabel, volumeId);
 
     if (duplicateLabel) {
       const e = new Error('A volume with this label already exists for this user');
@@ -208,7 +220,7 @@ const updateUserVolume = async (volumeId, { label, accessMode }) => {
     }
 
     updates.push('label = ?');
-    values.push(label.trim());
+    values.push(normalizedLabel);
   }
 
   if (accessMode !== undefined) {

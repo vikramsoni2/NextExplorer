@@ -1,18 +1,7 @@
 const path = require('path');
 const fs = require('fs/promises');
 const { normalizeRelativePath, combineRelativePath } = require('../../utils/pathUtils');
-const { getPermissionForPath } = require('../../services/accessControlService');
-const {
-  ValidationError,
-  ForbiddenError,
-} = require('../../errors/AppError');
-
-const assertWritable = async (relativePath) => {
-  const perm = await getPermissionForPath(relativePath);
-  if (perm !== 'rw') {
-    throw new ForbiddenError('Path is read-only.');
-  }
-};
+const { ValidationError } = require('../../errors/AppError');
 
 const buildItemMetadata = async (absolutePath, relativeParent, name) => {
   const stats = await fs.stat(absolutePath);
@@ -119,7 +108,6 @@ const stripBasePath = (relativePath, basePath) => {
 };
 
 module.exports = {
-  assertWritable,
   buildItemMetadata,
   collectInputPaths,
   toPosix,
