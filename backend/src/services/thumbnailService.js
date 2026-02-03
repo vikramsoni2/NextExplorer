@@ -26,12 +26,7 @@ sharp.concurrency(Math.max(1, Math.min(8, currentConcurrency)));
 sharp.cache({ memory: 256, files: 0 });
 
 const EXECUTABLE_CANDIDATES = {
-  ffmpeg: [
-    env.FFMPEG_PATH,
-    '/usr/local/bin/ffmpeg',
-    '/usr/bin/ffmpeg',
-    '/opt/homebrew/bin/ffmpeg',
-  ],
+  ffmpeg: [env.FFMPEG_PATH, '/usr/local/bin/ffmpeg', '/usr/bin/ffmpeg', '/opt/homebrew/bin/ffmpeg'],
   ffprobe: [
     env.FFPROBE_PATH,
     '/usr/local/bin/ffprobe',
@@ -200,7 +195,7 @@ const makeVideoThumb = async (srcPath, destPath) => {
     if (env.FFMPEG_HWACCEL_DEVICE) {
       inputOptions.push('-hwaccel_device', env.FFMPEG_HWACCEL_DEVICE);
     }
-    
+
     if (env.FFMPEG_HWACCEL_OUTPUT_FORMAT) {
       inputOptions.push('-hwaccel_output_format', env.FFMPEG_HWACCEL_OUTPUT_FORMAT);
     }

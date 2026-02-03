@@ -17,7 +17,11 @@ const resolveUploadPaths = async (req, file) => {
   const relativePath = normalizeRelativePath(relativePathMeta) || path.basename(file.originalname);
 
   const context = { user: req.user, guestSession: req.guestSession };
-  const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, uploadTo, ACTIONS.upload);
+  const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+    context,
+    uploadTo,
+    ACTIONS.upload
+  );
   if (!allowed || !resolved) {
     throw new Error(accessInfo?.denialReason || 'Cannot upload files to this path.');
   }

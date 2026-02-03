@@ -3,5 +3,10 @@ dist
 dist-ssr
 storybook-static
 coverage
+.vitepress/cache
+.vitepress/dist
 package-lock.json
 .env*
+.cache
+.config
+*.tgz

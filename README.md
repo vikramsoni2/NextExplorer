@@ -37,7 +37,7 @@ services:
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./config:/config
       - ./cache:/cache
@@ -59,7 +59,7 @@ services:
     container_name: nextexplorer
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./config:/config # contains config files, db, settings etc.
       - ./cache:/cache # contains thumbnail cache and other files which are generated automatically
@@ -70,8 +70,9 @@ services:
     environment:
       # Required basics
       NODE_ENV: production # Set to `production` for the Docker image defaults.
-      PORT: "3000" # Port the Express API + frontend listen on *inside* the container.
-      PUBLIC_URL: "http://localhost:3000" # External URL (no trailing slash); drives cookies, CORS defaults, and derived callback URLs.
+      PORT: '3000' # Port the Express API + frontend listen on *inside* the container.
+      PUBLIC_URL: 'http://localhost:3000' # External URL (no trailing slash); drives cookies, CORS defaults, and derived callback URLs.
+
 
       # Reverse proxy / networking (optional)
       # TRUST_PROXY: "loopback,uniquelocal" # Express trust proxy config; set when running behind a reverse proxy (often auto-derived when `PUBLIC_URL` is set).
@@ -136,6 +137,7 @@ services:
       # PUID: "1000" # Map container processes to host UID so created files have consistent ownership.
       # PGID: "1000" # Map container processes to host GID so created files have consistent ownership.
 ```
+
 </details>
 
 ## Documentation

@@ -26,15 +26,14 @@ const toExt = (filename = '') => {
 const resolveMime = (ext) => mimeTypes[ext] || 'application/octet-stream';
 
 const toBase64Url = (buf) =>
-  Buffer.from(buf)
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/g, '');
+  Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
 
 const buildFileId = ({ space, relativePath }) => {
   return toBase64Url(
-    crypto.createHash('sha256').update(`${space || ''}::${relativePath || ''}`).digest()
+    crypto
+      .createHash('sha256')
+      .update(`${space || ''}::${relativePath || ''}`)
+      .digest()
   );
 };
 
@@ -149,7 +148,8 @@ router.post(
         space: resolved.space,
         canWrite: userCanWrite,
         userId: req.user && req.user.id ? String(req.user.id) : null,
-        userName: req.user?.displayName || req.user?.username || (req.guestSession ? 'Guest User' : null),
+        userName:
+          req.user?.displayName || req.user?.username || (req.guestSession ? 'Guest User' : null),
         guestSessionId: req.guestSession?.id || null,
         shareToken: resolved.shareInfo?.shareToken || null,
       },
@@ -174,7 +174,10 @@ router.post(
       throw new ValidationError(`Collabora discovery is missing a usable urlsrc for .${ext}.`);
     }
 
-    const wopiSrc = new URL(`/api/collabora/wopi/files/${encodeURIComponent(fileId)}`, publicConfig.url);
+    const wopiSrc = new URL(
+      `/api/collabora/wopi/files/${encodeURIComponent(fileId)}`,
+      publicConfig.url
+    );
     const iframeUrl = new URL(urlTemplate);
     iframeUrl.searchParams.set('WOPISrc', wopiSrc.toString());
     iframeUrl.searchParams.set('access_token', accessToken);

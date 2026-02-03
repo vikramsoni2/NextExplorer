@@ -143,10 +143,12 @@ test('searchUsersForMentions falls back to username when display_name is missing
     // Insert user directly without display_name
     const db = await getDb();
     const now = new Date().toISOString();
-    db.prepare(`
+    db.prepare(
+      `
       INSERT INTO users (id, email, username, display_name, roles, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run('user-no-display', 'nodisplay@example.com', 'nodisplayuser', null, '["user"]', now, now);
+    `
+    ).run('user-no-display', 'nodisplay@example.com', 'nodisplayuser', null, '["user"]', now, now);
 
     const result = await searchUsersForMentions('nodisplay', 10);
     assert.equal(result.Users.length, 1);
@@ -179,7 +181,7 @@ test('searchUsersForMentions returns results in Collabora format', async () => {
     assert.ok(result.Users[0].UserId, 'Should have UserId');
     assert.ok(result.Users[0].UserFriendlyName, 'Should have UserFriendlyName');
     assert.ok(result.Users[0].UserEmail, 'Should have UserEmail');
-    
+
     // Verify exact format expected by Collabora
     assert.equal(result.Users[0].UserId, created.id);
     assert.equal(result.Users[0].UserFriendlyName, 'Format Test User');

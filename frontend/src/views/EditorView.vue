@@ -121,7 +121,6 @@
         >
           <XMarkIcon class="h-5 w-5" />
         </button>
-
       </div>
     </header>
 
@@ -158,7 +157,13 @@ import { Compartment } from '@codemirror/state';
 import { fetchFileContent, saveFileContent, getRawFileUrl, normalizePath } from '@/api';
 import { EditorView, keymap } from '@codemirror/view';
 import * as themeBundle from '@fsegurai/codemirror-theme-bundle';
-import { XMarkIcon, ArrowPathIcon, PaintBrushIcon, EllipsisVerticalIcon, CheckIcon } from '@heroicons/vue/24/outline';
+import {
+  XMarkIcon,
+  ArrowPathIcon,
+  PaintBrushIcon,
+  EllipsisVerticalIcon,
+  CheckIcon,
+} from '@heroicons/vue/24/outline';
 import { Save20Regular, Color20Regular } from '@vicons/fluent';
 import { onClickOutside, onKeyStroke, useLocalStorage } from '@vueuse/core';
 

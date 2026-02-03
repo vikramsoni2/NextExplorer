@@ -219,12 +219,26 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, shouldInc
 
   if (!deep) {
     // If no deep search, only run file list matches
-    yield* streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet, shouldInclude);
+    yield* streamFileListMatches(
+      baseAbsPath,
+      relBasePath,
+      needle,
+      seenPaths,
+      dirSet,
+      shouldInclude
+    );
     return;
   }
 
   // Optimization #3: Run both searches in parallel
-  const fileListGen = streamFileListMatches(baseAbsPath, relBasePath, needle, seenPaths, dirSet, shouldInclude);
+  const fileListGen = streamFileListMatches(
+    baseAbsPath,
+    relBasePath,
+    needle,
+    seenPaths,
+    dirSet,
+    shouldInclude
+  );
   const contentGen = streamContentMatches(baseAbsPath, relBasePath, term, seenPaths, shouldInclude);
 
   // Yield from file list first (directories and filename matches)
@@ -239,7 +253,13 @@ async function* generateRipgrepResults(baseAbsPath, relBasePath, term, shouldInc
 }
 
 // Optimized fallback with streaming (Optimization #1)
-async function* generateFallbackResults(baseAbsPath, relBasePath, term, shouldInclude, deep = true) {
+async function* generateFallbackResults(
+  baseAbsPath,
+  relBasePath,
+  term,
+  shouldInclude,
+  deep = true
+) {
   const seenPaths = new Set();
   const needle = term.toLowerCase();
 
@@ -340,7 +360,9 @@ router.get(
 
     const settings = await getSettings();
     const permissionRules = Array.isArray(settings?.access?.rules) ? settings.access.rules : [];
-    const permissionResolver = permissionRules.length ? createPermissionResolver(permissionRules) : null;
+    const permissionResolver = permissionRules.length
+      ? createPermissionResolver(permissionRules)
+      : null;
     const shareCache = new Map();
     const userVolumeCache = new Map();
 

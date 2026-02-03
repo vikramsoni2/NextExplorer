@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getBranding as getBrandingApi, getSettings as getSettingsApi, patchSettings as patchSettingsApi } from '@/api';
+import {
+  getBranding as getBrandingApi,
+  getSettings as getSettingsApi,
+  patchSettings as patchSettingsApi,
+} from '@/api';
 import { useAuthStore } from '@/stores/auth';
 
 export const useAppSettings = defineStore('appSettings', () => {
@@ -8,19 +12,19 @@ export const useAppSettings = defineStore('appSettings', () => {
   const loading = ref(false);
   const lastError = ref(null);
   const authStore = useAuthStore();
-  
+
   // Three-tier settings structure
   const publicSettings = ref({
     branding: { appName: 'Explorer', appLogoUrl: '/logo.svg', showPoweredBy: false },
   });
-  
+
   const userSettings = ref({
     showHiddenFiles: false,
     showThumbnails: true,
     defaultShareExpiration: null, // { value: number, unit: 'days' | 'weeks' | 'months' }
     skipHome: null, // null = use env var, true/false = override
   });
-  
+
   const systemSettings = ref({
     thumbnails: { enabled: true, size: 200, quality: 70 },
     access: { rules: [] },
@@ -78,7 +82,7 @@ export const useAppSettings = defineStore('appSettings', () => {
     lastError.value = null;
     try {
       const s = await getSettingsApi();
-      
+
       // Always update branding (public)
       if (s?.branding) {
         publicSettings.value.branding = {
@@ -120,8 +124,11 @@ export const useAppSettings = defineStore('appSettings', () => {
       // For non-admin users, 403 errors are expected for system settings
       // But we should still have branding loaded
       const authStore = useAuthStore();
-      const isAdmin = authStore.currentUser && Array.isArray(authStore.currentUser?.roles) && authStore.currentUser.roles.includes('admin');
-      
+      const isAdmin =
+        authStore.currentUser &&
+        Array.isArray(authStore.currentUser?.roles) &&
+        authStore.currentUser.roles.includes('admin');
+
       if (!isAdmin && e?.status === 403) {
         // Non-admin user - this is expected, just ensure branding is loaded
         await loadBranding();
@@ -146,7 +153,7 @@ export const useAppSettings = defineStore('appSettings', () => {
     lastError.value = null;
     try {
       const updated = await patchSettingsApi(partial);
-      
+
       // Update local state based on what was returned
       if (updated?.branding) {
         publicSettings.value.branding = {
@@ -156,14 +163,14 @@ export const useAppSettings = defineStore('appSettings', () => {
           ...updated.branding,
         };
       }
-      
+
       if (updated?.user) {
         userSettings.value = {
           ...userSettings.value,
           ...updated.user,
         };
       }
-      
+
       if (updated?.thumbnails) {
         systemSettings.value.thumbnails = {
           enabled: true,
@@ -172,13 +179,13 @@ export const useAppSettings = defineStore('appSettings', () => {
           ...updated.thumbnails,
         };
       }
-      
+
       if (updated?.access) {
         systemSettings.value.access = {
           rules: Array.isArray(updated.access.rules) ? updated.access.rules : [],
         };
       }
-      
+
       loaded.value = true;
       return state.value;
     } catch (e) {
@@ -187,18 +194,18 @@ export const useAppSettings = defineStore('appSettings', () => {
     }
   };
 
-  return { 
-    state, 
-    publicSettings, 
-    userSettings, 
+  return {
+    state,
+    publicSettings,
+    userSettings,
     systemSettings,
-    loaded, 
-    loading, 
-    lastError, 
+    loaded,
+    loading,
+    lastError,
     thumbnailsEnabledForSession,
-    load, 
+    load,
     ensureLoaded,
-    loadBranding, 
-    save 
+    loadBranding,
+    save,
   };
 });

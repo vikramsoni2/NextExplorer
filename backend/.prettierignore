@@ -1,7 +1,0 @@
-node_modules
-dist
-package-lock.json
-.env*
-.cache
-.config
-*.tgz

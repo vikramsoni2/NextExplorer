@@ -13,7 +13,9 @@ const local = reactive({
   concurrency: 10,
 });
 
-const original = computed(() => appSettings.systemSettings?.thumbnails || appSettings.state.thumbnails);
+const original = computed(
+  () => appSettings.systemSettings?.thumbnails || appSettings.state.thumbnails
+);
 const dirty = computed(
   () =>
     local.enabled !== original.value.enabled ||

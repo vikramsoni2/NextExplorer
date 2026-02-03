@@ -1,0 +1,26 @@
+{
+  "name": "nextexplorer",
+  "version": "2.1.2",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "docs"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "build": "npm run build -w frontend",
+    "test": "npm run test -w backend",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.2",
+    "prettier": "^3.6.2"
+  }
+}

@@ -187,8 +187,12 @@ class TerminalService {
             }
 
             if (payload?.type === 'resize') {
-              const cols = Number.isFinite(payload.cols) ? Math.max(1, Math.floor(payload.cols)) : null;
-              const rows = Number.isFinite(payload.rows) ? Math.max(1, Math.floor(payload.rows)) : null;
+              const cols = Number.isFinite(payload.cols)
+                ? Math.max(1, Math.floor(payload.cols))
+                : null;
+              const rows = Number.isFinite(payload.rows)
+                ? Math.max(1, Math.floor(payload.rows))
+                : null;
               if (!cols || !rows) return;
 
               try {

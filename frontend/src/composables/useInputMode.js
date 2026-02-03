@@ -14,4 +14,3 @@ export function useInputMode() {
 
   return { isTouchDevice };
 }
-

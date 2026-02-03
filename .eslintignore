@@ -1,4 +1,8 @@
 node_modules
+dist
+dist-ssr
+storybook-static
+coverage
 .vitepress/cache
 .vitepress/dist
 package-lock.json

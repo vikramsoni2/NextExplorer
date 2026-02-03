@@ -84,4 +84,3 @@ module.exports = {
   getDiscoveryActionsByExt,
   parseDiscoveryXml,
 };
-

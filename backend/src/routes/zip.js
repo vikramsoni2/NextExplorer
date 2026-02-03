@@ -21,7 +21,7 @@ const router = express.Router();
 const buildItemMetadata = async (absolutePath, relativeParent, name) => {
   const stats = await fs.stat(absolutePath);
   const ext = path.extname(name).slice(1).toLowerCase();
-  const kind = stats.isDirectory() ? 'directory' : (ext.length > 10 ? 'unknown' : ext || 'unknown');
+  const kind = stats.isDirectory() ? 'directory' : ext.length > 10 ? 'unknown' : ext || 'unknown';
 
   return { name, path: relativeParent, kind, size: stats.size, dateModified: stats.mtime };
 };
@@ -50,11 +50,13 @@ router.post(
     const relativePath = normalizeRelativePath(inputPath);
     const context = { user: req.user, guestSession: req.guestSession };
 
-    const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, relativePath, ACTIONS.read).catch(
-      () => {
-        throw new NotFoundError('File not found.');
-      }
-    );
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+      context,
+      relativePath,
+      ACTIONS.read
+    ).catch(() => {
+      throw new NotFoundError('File not found.');
+    });
     if (!allowed || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Access denied.');
     }
@@ -69,7 +71,9 @@ router.post(
       throw new ValidationError('Only .zip archives are supported.');
     }
 
-    const parentRelativePath = normalizeRelativePath(path.posix.dirname(resolved.relativePath || ''));
+    const parentRelativePath = normalizeRelativePath(
+      path.posix.dirname(resolved.relativePath || '')
+    );
     const {
       allowed: parentAllowed,
       accessInfo: parentAccessInfo,
@@ -88,8 +92,11 @@ router.post(
     const ext = path.extname(zipAbsolutePath);
     const zipBaseName = path.basename(zipAbsolutePath, ext);
     const baseFolderName = (() => {
-      try { return ensureValidName(zipBaseName || 'Archive'); }
-      catch (_) { return 'Archive'; }
+      try {
+        return ensureValidName(zipBaseName || 'Archive');
+      } catch (_) {
+        return 'Archive';
+      }
     })();
 
     const folderName = await findAvailableFolderName(parentAbsolutePath, baseFolderName);
@@ -105,7 +112,11 @@ router.post(
       throw error;
     }
 
-    const item = await buildItemMetadata(destinationFolderAbsolutePath, parentRelativePath, folderName);
+    const item = await buildItemMetadata(
+      destinationFolderAbsolutePath,
+      parentRelativePath,
+      folderName
+    );
     res.status(201).json({ success: true, item });
   })
 );
@@ -128,8 +139,11 @@ router.post(
     }
 
     const context = { user: req.user, guestSession: req.guestSession };
-    const { allowed: destAllowed, accessInfo: destAccess, resolved: destResolved } =
-      await authorizeAndResolve(context, normalizedDestination, ACTIONS.write);
+    const {
+      allowed: destAllowed,
+      accessInfo: destAccess,
+      resolved: destResolved,
+    } = await authorizeAndResolve(context, normalizedDestination, ACTIONS.write);
     if (!destAllowed || !destResolved) {
       throw new ForbiddenError(destAccess?.denialReason || 'Destination is read-only.');
     }

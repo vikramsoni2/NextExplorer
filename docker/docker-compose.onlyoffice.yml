@@ -1,5 +1,5 @@
 # nextExplorer Docker Compose - OnlyOffice Integration
-# 
+#
 # INSTRUCTIONS:
 # 1. Edit this file and configure OnlyOffice settings below
 # 2. Update the volumes section to mount your directories
@@ -26,23 +26,23 @@ services:
       # ============================================
       # External public URL (no trailing slash) - REQUIRED for OnlyOffice
       - PUBLIC_URL=https://your-domain.com
-      
+
       # Session secret (REQUIRED in production)
       - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
-      
+
       # ============================================
       # PATHS & VOLUMES
       # ============================================
       - VOLUME_ROOT=/mnt
       - CONFIG_DIR=/config
       - CACHE_DIR=/cache
-      
+
       # ============================================
       # CONTAINER USER MAPPING
       # ============================================
       - PUID=1000
       - PGID=1000
-      
+
       # ============================================
       # AUTHENTICATION
       # ============================================
@@ -50,7 +50,7 @@ services:
       # Optional: Bootstrap the first admin user
       # - AUTH_ADMIN_EMAIL=admin@example.com
       # - AUTH_ADMIN_PASSWORD=please-change-me
-      
+
       # ============================================
       # ONLYOFFICE INTEGRATION
       # ============================================
@@ -58,17 +58,17 @@ services:
       # Must be reachable from your app's PUBLIC_URL
       # Example: https://office.example.com or http://onlyoffice:80 (if same Docker network)
       - ONLYOFFICE_URL=https://office.example.com
-      
+
       # JWT secret shared with OnlyOffice Document Server - REQUIRED
       # This must match the JWT_SECRET configured in your OnlyOffice Document Server
       - ONLYOFFICE_SECRET=your-onlyoffice-jwt-secret
-      
+
       # Language code for the OnlyOffice editor UI
       - ONLYOFFICE_LANG=en
-      
+
       # When true, OnlyOffice forces users to save via the editor UI
       # - ONLYOFFICE_FORCE_SAVE=false
-      
+
       # Comma-separated list of file extensions to expose to OnlyOffice Document Server
       # Default list includes: doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
       # You can add or remove extensions as needed

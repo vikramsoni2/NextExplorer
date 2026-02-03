@@ -19,7 +19,13 @@ const parseScopes = (raw) => {
 
 // --- Personal folder naming ---
 const DEFAULT_USER_FOLDER_NAME_ORDER = ['id', 'username', 'email_local'];
-const VALID_USER_FOLDER_NAME_TOKENS = new Set(['id', 'username', 'email', 'email_local', 'displayname']);
+const VALID_USER_FOLDER_NAME_TOKENS = new Set([
+  'id',
+  'username',
+  'email',
+  'email_local',
+  'displayname',
+]);
 
 const parseUserFolderNameOrder = (raw) => {
   const requested = parseCommaOrSpaceList(raw).map((token) => token.toLowerCase());

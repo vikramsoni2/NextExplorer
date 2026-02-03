@@ -593,7 +593,12 @@ router.get(
       },
     };
 
-    if (thumbsEnabled && !stats.isDirectory() && kind !== 'pdf' && extensions.previewable.has(ext)) {
+    if (
+      thumbsEnabled &&
+      !stats.isDirectory() &&
+      kind !== 'pdf' &&
+      extensions.previewable.has(ext)
+    ) {
       item.supportsThumbnail = true;
     }
 

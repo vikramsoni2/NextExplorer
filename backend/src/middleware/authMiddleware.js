@@ -89,12 +89,15 @@ const authMiddleware = async (req, res, next) => {
   // Check for guest session (on all routes)
   const guestSessionId = req.headers['x-guest-session'] || req.cookies?.guestSession;
   if (guestSessionId) {
-    logger.debug({
-      source: req.headers['x-guest-session'] ? 'header' : 'cookie',
-      sessionId: guestSessionId,
-      path: requestPath,
-      cookies: Object.keys(req.cookies || {}),
-    }, 'Guest session found');
+    logger.debug(
+      {
+        source: req.headers['x-guest-session'] ? 'header' : 'cookie',
+        sessionId: guestSessionId,
+        path: requestPath,
+        cookies: Object.keys(req.cookies || {}),
+      },
+      'Guest session found'
+    );
 
     try {
       const {
@@ -108,11 +111,14 @@ const authMiddleware = async (req, res, next) => {
         // Update activity timestamp
         await updateGuestSessionActivity(guestSessionId);
 
-        logger.debug({
-          sessionId: guestSessionId,
-          shareId: session.shareId,
-          path: requestPath,
-        }, 'Guest session validated');
+        logger.debug(
+          {
+            sessionId: guestSessionId,
+            shareId: session.shareId,
+            path: requestPath,
+          },
+          'Guest session validated'
+        );
       } else {
         logger.debug({ sessionId: guestSessionId }, 'Guest session invalid or expired');
       }
@@ -120,12 +126,15 @@ const authMiddleware = async (req, res, next) => {
       logger.debug({ err }, 'Guest session validation failed');
     }
   } else if (requestPath.startsWith('/api/preview') || requestPath.startsWith('/api/thumbnails')) {
-    logger.debug({
-      path: requestPath,
-      hasHeader: !!req.headers['x-guest-session'],
-      hasCookie: !!req.cookies?.guestSession,
-      cookies: Object.keys(req.cookies || {}),
-    }, 'No guest session for preview/thumbnail request');
+    logger.debug(
+      {
+        path: requestPath,
+        hasHeader: !!req.headers['x-guest-session'],
+        hasCookie: !!req.cookies?.guestSession,
+        cookies: Object.keys(req.cookies || {}),
+      },
+      'No guest session for preview/thumbnail request'
+    );
   }
 
   if (isAuthRoute) {

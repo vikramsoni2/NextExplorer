@@ -1,5 +1,5 @@
 # nextExplorer Docker Compose - Minimum Setup
-# 
+#
 # INSTRUCTIONS:
 # 1. Edit this file and configure the environment variables below
 # 2. Update the volumes section to mount your directories
@@ -27,24 +27,24 @@ services:
       # External public URL (no trailing slash) - REQUIRED
       # This should be the URL users access the app from (e.g., https://files.example.com)
       - PUBLIC_URL=https://your-domain.com
-      
+
       # Session secret (REQUIRED in production)
       # Set to a long, random, stable value (at least 32 characters)
       # If left unset, users will be logged out after every restart
       - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
-      
+
       # ============================================
       # PATHS & VOLUMES
       # ============================================
       # Root directory that houses all mounted volumes
       - VOLUME_ROOT=/mnt
-      
+
       # Location for SQLite database, app-config.json, extensions, and settings
       - CONFIG_DIR=/config
-      
+
       # Location for thumbnails, ripgrep indexes, and temporary data
       - CACHE_DIR=/cache
-      
+
       # ============================================
       # CONTAINER USER MAPPING
       # ============================================
@@ -52,15 +52,15 @@ services:
       # This ensures created files have consistent ownership
       - PUID=1000
       - PGID=1000
-      
+
       # ============================================
       # AUTHENTICATION (Local username/password)
       # ============================================
-      # Authentication mode: 'local' (username/password), 'oidc' (SSO only), 
+      # Authentication mode: 'local' (username/password), 'oidc' (SSO only),
       # 'both' (both methods), or 'disabled' (no auth)
       # Default: 'both' if OIDC is configured, otherwise 'local'
       - AUTH_MODE=local
-      
+
       # Optional: Bootstrap the first admin user (skips setup wizard)
       # - AUTH_ADMIN_EMAIL=admin@example.com
       # - AUTH_ADMIN_PASSWORD=please-change-me

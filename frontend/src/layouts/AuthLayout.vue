@@ -93,12 +93,15 @@ const props = defineProps({
       </div>
 
       <div class="flex min-h-screen flex-col">
-         <header class="flex items-center justify-between px-6 py-6 sm:px-12">
-           <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">
-             <HeaderLogo :appname="appSettings.state.branding.appName" :logoUrl="appSettings.state.branding.appLogoUrl" />
-           </h1>
-           <LanguageSelector />
-         </header>
+        <header class="flex items-center justify-between px-6 py-6 sm:px-12">
+          <h1 class="mb-0 text-2xl font-bold tracking-tight text-white">
+            <HeaderLogo
+              :appname="appSettings.state.branding.appName"
+              :logoUrl="appSettings.state.branding.appLogoUrl"
+            />
+          </h1>
+          <LanguageSelector />
+        </header>
 
         <main class="flex flex-1 items-center justify-center px-6 sm:px-12">
           <div class="relative z-10 w-full max-w-md">
@@ -117,11 +120,11 @@ const props = defineProps({
           </div>
         </main>
 
-         <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/80">
-           <div class="flex items-center gap-2">
-             <div>© {{ new Date().getFullYear() }} {{ appSettings.state.branding.appName }}</div>
-             <span class="text-white">v{{ props.version }}</span>
-           </div>
+        <footer class="flex items-center justify-between px-6 py-4 sm:px-12 text-xs text-white/80">
+          <div class="flex items-center gap-2">
+            <div>© {{ new Date().getFullYear() }} {{ appSettings.state.branding.appName }}</div>
+            <span class="text-white">v{{ props.version }}</span>
+          </div>
 
           <div class="flex items-center gap-4 text-white/70">
             <a

@@ -9,4 +9,3 @@ export async function fetchCollaboraConfig(path, mode = 'edit') {
     body: JSON.stringify({ path: normalizedPath, mode }),
   });
 }
-

@@ -164,7 +164,9 @@ const handleOidcLogin = () => {
     </template>
 
     <template #subtitle>
-      <p class="mt-2 text-sm text-white/60">{{ t('auth.login.subtitle', { appName: appSettings.state.branding.appName }) }}</p>
+      <p class="mt-2 text-sm text-white/60">
+        {{ t('auth.login.subtitle', { appName: appSettings.state.branding.appName }) }}
+      </p>
     </template>
 
     <form v-if="supportsLocal" class="space-y-5" @submit.prevent="handleLoginSubmit">

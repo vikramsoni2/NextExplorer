@@ -3,8 +3,8 @@ name: Deploy VitePress docs to GitHub Pages
 on:
   push:
     branches:
-      - main   # or 'master' or whatever your default branch is
-  workflow_dispatch:  # allows manual triggers from the Actions tab
+      - main # or 'master' or whatever your default branch is
+  workflow_dispatch: # allows manual triggers from the Actions tab
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20   # or 20/18 if that's what your project uses
+          node-version: 20 # or 20/18 if that's what your project uses
           cache: npm
           cache-dependency-path: docs/package-lock.json
 

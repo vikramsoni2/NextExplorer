@@ -6,17 +6,23 @@ WORKDIR /app
 FROM base AS backend_deps
 ENV NODE_ENV=production
 WORKDIR /app
-COPY backend/package*.json ./
-RUN npm ci --omit=dev
+COPY package.json package-lock.json ./
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
+COPY docs/package.json docs/package.json
+RUN npm ci --omit=dev --workspace backend
 
 # Frontend build (needs dev dependencies)
 FROM base AS frontend_build
 ENV NODE_ENV=development
-WORKDIR /app/frontend
-COPY frontend/package*.json ./
-RUN npm ci
-COPY frontend/ ./
-RUN npm run build -- --sourcemap false
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY backend/package.json backend/package.json
+COPY frontend/package.json frontend/package.json
+COPY docs/package.json docs/package.json
+RUN npm ci --workspace frontend
+COPY frontend/ ./frontend/
+RUN npm run -w frontend build -- --sourcemap false
 
 # Final runtime image
 FROM base AS runtime

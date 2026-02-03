@@ -20,10 +20,7 @@ test('parseDiscoveryXml extracts actions by extension and decodes urlsrc', () =>
 
   const docx = map.get('docx');
   assert.ok(docx);
-  assert.equal(
-    docx.edit,
-    'https://office.example.com/loleaflet/123/loleaflet.html?WOPISrc='
-  );
+  assert.equal(docx.edit, 'https://office.example.com/loleaflet/123/loleaflet.html?WOPISrc=');
   assert.equal(
     docx.view,
     'https://office.example.com/loleaflet/123/loleaflet.html?permission=readonly&WOPISrc='
@@ -36,4 +33,3 @@ test('parseDiscoveryXml extracts actions by extension and decodes urlsrc', () =>
     'https://office.example.com/loleaflet/123/loleaflet.html?foo=bar&WOPISrc='
   );
 });
-

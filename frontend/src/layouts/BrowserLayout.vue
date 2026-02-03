@@ -132,7 +132,10 @@ const handleGuestLogin = () => {
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
       :style="{ width: asideWidth + 'px' }"
     >
-      <HeaderLogo :appname="appSettings.state.branding.appName" :logoUrl="appSettings.state.branding.appLogoUrl" />
+      <HeaderLogo
+        :appname="appSettings.state.branding.appName"
+        :logoUrl="appSettings.state.branding.appLogoUrl"
+      />
 
       <!-- Guest Info Card -->
       <div
@@ -218,9 +221,12 @@ const handleGuestLogin = () => {
     <NotificationToastContainer />
     <NotificationPanel />
     <TerminalPanel />
-    
+
     <!-- Footer with powered by link -->
-    <footer v-if="appSettings.state.branding.showPoweredBy" class="fixed bottom-0 right-0 p-2 sm:p-4 text-xs text-neutral-500 dark:text-neutral-400">
+    <footer
+      v-if="appSettings.state.branding.showPoweredBy"
+      class="fixed bottom-0 right-0 p-2 sm:p-4 text-xs text-neutral-500 dark:text-neutral-400"
+    >
       <a
         href="https://explorer.nxz.ai"
         target="_blank"

@@ -40,18 +40,18 @@ const router = createRouter({
         {
           path: '',
           component: SettingsView,
-           children: [
-             { path: '', redirect: '/settings/about' },
-             {
-               path: 'branding',
-               component: SettingsBranding,
-               meta: { requiresAdmin: true },
-             },
-             {
-               path: 'files-thumbnails',
-               component: SettingsFilesThumbnails,
-               meta: { requiresAdmin: true },
-             },
+          children: [
+            { path: '', redirect: '/settings/about' },
+            {
+              path: 'branding',
+              component: SettingsBranding,
+              meta: { requiresAdmin: true },
+            },
+            {
+              path: 'files-thumbnails',
+              component: SettingsFilesThumbnails,
+              meta: { requiresAdmin: true },
+            },
             { path: 'account-password', component: SettingsPassword },
             { path: 'user-preferences', component: SettingsUserPreferences },
             {
@@ -270,7 +270,7 @@ router.beforeEach(async (to) => {
   // jump straight into the only available volume (single-volume setups).
   if (to.name === 'HomeView') {
     const featuresStore = useFeaturesStore();
-    
+
     try {
       await featuresStore.ensureLoaded();
     } catch (_) {
@@ -279,9 +279,8 @@ router.beforeEach(async (to) => {
 
     // Check user preference first, then fall back to env var
     const userSkipHome = appSettings.userSettings?.skipHome;
-    const shouldSkipHome = userSkipHome !== null && userSkipHome !== undefined
-      ? userSkipHome
-      : featuresStore.skipHome;
+    const shouldSkipHome =
+      userSkipHome !== null && userSkipHome !== undefined ? userSkipHome : featuresStore.skipHome;
 
     if (shouldSkipHome) {
       try {

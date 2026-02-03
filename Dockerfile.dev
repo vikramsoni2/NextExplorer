@@ -1,0 +1,32 @@
+FROM public.ecr.aws/docker/library/node:24-bookworm-slim
+
+WORKDIR /repo
+ENV NODE_ENV=development
+
+# Keep dev images close to prod runtime dependencies so feature parity is high.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+  ffmpeg \
+  gosu \
+  ripgrep \
+  imagemagick \
+  curl \
+  unzip \
+  openssh-client \
+  libva-drm2 \
+  libva2 \
+  mesa-va-drivers \
+  vainfo \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install workspace dependencies (seeded into the named volume on first run).
+COPY package.json package-lock.json ./
+COPY backend/package.json ./backend/package.json
+COPY frontend/package.json ./frontend/package.json
+
+# Use npm install instead of npm ci for dev to properly handle optional dependencies
+# This avoids ARM64 rollup dependency issues in Docker
+RUN npm install --include=optional
+
+EXPOSE 3000 3001
+

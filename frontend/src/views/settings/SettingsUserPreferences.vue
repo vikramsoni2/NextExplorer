@@ -21,7 +21,7 @@ const dirty = computed(() => {
   const localExpiration = local.defaultShareExpirationValue
     ? { value: local.defaultShareExpirationValue, unit: local.defaultShareExpirationUnit }
     : null;
-  
+
   return (
     local.showHiddenFiles !== orig.showHiddenFiles ||
     local.showThumbnails !== orig.showThumbnails ||
@@ -35,7 +35,7 @@ watch(
   (userSettings) => {
     local.showHiddenFiles = userSettings.showHiddenFiles ?? false;
     local.showThumbnails = userSettings.showThumbnails ?? true;
-    
+
     const expiration = userSettings.defaultShareExpiration;
     if (expiration && typeof expiration === 'object') {
       local.defaultShareExpirationValue = expiration.value ?? null;
@@ -44,7 +44,7 @@ watch(
       local.defaultShareExpirationValue = null;
       local.defaultShareExpirationUnit = 'weeks';
     }
-    
+
     local.skipHome = userSettings.skipHome ?? null;
   },
   { immediate: true }
@@ -54,7 +54,7 @@ const reset = () => {
   const userSettings = appSettings.userSettings;
   local.showHiddenFiles = userSettings.showHiddenFiles ?? false;
   local.showThumbnails = userSettings.showThumbnails ?? true;
-  
+
   const expiration = userSettings.defaultShareExpiration;
   if (expiration && typeof expiration === 'object') {
     local.defaultShareExpirationValue = expiration.value ?? null;
@@ -63,7 +63,7 @@ const reset = () => {
     local.defaultShareExpirationValue = null;
     local.defaultShareExpirationUnit = 'weeks';
   }
-  
+
   local.skipHome = userSettings.skipHome ?? null;
 };
 
@@ -71,7 +71,7 @@ const save = async () => {
   const defaultShareExpiration = local.defaultShareExpirationValue
     ? { value: local.defaultShareExpirationValue, unit: local.defaultShareExpirationUnit }
     : null;
-  
+
   await appSettings.save({
     user: {
       showHiddenFiles: local.showHiddenFiles,

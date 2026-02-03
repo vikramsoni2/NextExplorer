@@ -22,13 +22,13 @@ nextExplorer is configured almost entirely through environment variables. The ba
 
 ## Paths & volumes
 
-| Variable      | Default                           | Description                                                                                                            |
-| ------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `VOLUME_ROOT` | `/mnt`                            | Root directory that houses all mounted volumes.                                                                        |
-| `CONFIG_DIR`  | `/config`                         | Location for SQLite, `app-config.json`, extensions, and settings.                                                      |
-| `CACHE_DIR`   | `/cache`                          | Location for thumbnails, ripgrep indexes, and temporary data.                                                          |
-| `USER_ROOT`   | `<VOLUME_ROOT>/_users` when unset | Root directory for **per-user personal folders**. Each authenticated user gets their own subdirectory under this path. |
-| `USER_FOLDER_NAME_ORDER` | `id,username,email_local` | Controls how per-user folder names are derived for personal folders (e.g. set `username,id` to reuse `/home/<username>` when `USER_ROOT=/home`). |
+| Variable                 | Default                           | Description                                                                                                                                      |
+| ------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VOLUME_ROOT`            | `/mnt`                            | Root directory that houses all mounted volumes.                                                                                                  |
+| `CONFIG_DIR`             | `/config`                         | Location for SQLite, `app-config.json`, extensions, and settings.                                                                                |
+| `CACHE_DIR`              | `/cache`                          | Location for thumbnails, ripgrep indexes, and temporary data.                                                                                    |
+| `USER_ROOT`              | `<VOLUME_ROOT>/_users` when unset | Root directory for **per-user personal folders**. Each authenticated user gets their own subdirectory under this path.                           |
+| `USER_FOLDER_NAME_ORDER` | `id,username,email_local`         | Controls how per-user folder names are derived for personal folders (e.g. set `username,id` to reuse `/home/<username>` when `USER_ROOT=/home`). |
 
 ## Authentication
 
@@ -80,26 +80,26 @@ The sharing system (toolbar **Share** button, guest links such as `/share/:token
 
 ## OnlyOffice & thumbnails
 
-| Variable                      | Default            | Description                                                                    |
-| ----------------------------- | ------------------ | ------------------------------------------------------------------------------ |
-| `ONLYOFFICE_URL`              | _none_             | Public URL for Document Server (must reach your app's `PUBLIC_URL`).           |
-| `ONLYOFFICE_SECRET`           | _none_             | JWT secret shared with OnlyOffice Document Server for `/api/onlyoffice` calls. |
-| `ONLYOFFICE_LANG`             | `en`               | Language code for the editor UI.                                               |
-| `ONLYOFFICE_FORCE_SAVE`       | `false`            | When true, OnlyOffice forces users to save via the editor UI.                  |
-| `ONLYOFFICE_FILE_EXTENSIONS`  | _default list_     | Extra file extensions to surface to the Document Server.                       |
-| `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn't suit your needs.          |
+| Variable                      | Default            | Description                                                                                                                             |
+| ----------------------------- | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `ONLYOFFICE_URL`              | _none_             | Public URL for Document Server (must reach your app's `PUBLIC_URL`).                                                                    |
+| `ONLYOFFICE_SECRET`           | _none_             | JWT secret shared with OnlyOffice Document Server for `/api/onlyoffice` calls.                                                          |
+| `ONLYOFFICE_LANG`             | `en`               | Language code for the editor UI.                                                                                                        |
+| `ONLYOFFICE_FORCE_SAVE`       | `false`            | When true, OnlyOffice forces users to save via the editor UI.                                                                           |
+| `ONLYOFFICE_FILE_EXTENSIONS`  | _default list_     | Extra file extensions to surface to the Document Server.                                                                                |
+| `FFMPEG_PATH`, `FFPROBE_PATH` | _bundled binaries_ | Point to custom ffmpeg/ffprobe if the bundle doesn't suit your needs.                                                                   |
 | `FFMPEG_HWACCEL`              | _none_             | Optional ffmpeg `-hwaccel` value used for video thumbnail generation when supported by your ffmpeg build (e.g. `vaapi`, `qsv`, `cuda`). |
-| `FFMPEG_HWACCEL_DEVICE`       | _none_             | Optional ffmpeg `-hwaccel_device` value used with `FFMPEG_HWACCEL` (e.g. `0` or `/dev/dri/renderD128`). |
+| `FFMPEG_HWACCEL_DEVICE`       | _none_             | Optional ffmpeg `-hwaccel_device` value used with `FFMPEG_HWACCEL` (e.g. `0` or `/dev/dri/renderD128`).                                 |
 
 ## Collabora (WOPI)
 
-| Variable                     | Default        | Description |
-| ---------------------------- | -------------- | ----------- |
-| `COLLABORA_URL`              | _none_         | Public base URL of your Collabora CODE server (used to build the iframe URL). |
-| `COLLABORA_DISCOVERY_URL`    | _derived_      | Override for discovery. Defaults to `${COLLABORA_URL}/hosting/discovery`. |
-| `COLLABORA_SECRET`           | _none_         | JWT secret used to sign WOPI `access_token` values for `/api/collabora/wopi/*`. |
-| `COLLABORA_LANG`             | `en`           | Language code for the Collabora UI. |
-| `COLLABORA_FILE_EXTENSIONS`  | _empty_        | Comma-separated list of extensions to expose (e.g. `doc,docx,xls,xlsx,ppt,pptx`). |
+| Variable                    | Default   | Description                                                                       |
+| --------------------------- | --------- | --------------------------------------------------------------------------------- |
+| `COLLABORA_URL`             | _none_    | Public base URL of your Collabora CODE server (used to build the iframe URL).     |
+| `COLLABORA_DISCOVERY_URL`   | _derived_ | Override for discovery. Defaults to `${COLLABORA_URL}/hosting/discovery`.         |
+| `COLLABORA_SECRET`          | _none_    | JWT secret used to sign WOPI `access_token` values for `/api/collabora/wopi/*`.   |
+| `COLLABORA_LANG`            | `en`      | Language code for the Collabora UI.                                               |
+| `COLLABORA_FILE_EXTENSIONS` | _empty_   | Comma-separated list of extensions to expose (e.g. `doc,docx,xls,xlsx,ppt,pptx`). |
 
 <!--
 ## Sharing (advanced)

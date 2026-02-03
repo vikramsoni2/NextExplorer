@@ -7,11 +7,7 @@ const {
 } = require('../../utils/pathUtils');
 const { ACTIONS, authorizeAndResolve } = require('../../services/authorizationService');
 const asyncHandler = require('../../utils/asyncHandler');
-const {
-  ValidationError,
-  ForbiddenError,
-  NotFoundError,
-} = require('../../errors/AppError');
+const { ValidationError, ForbiddenError, NotFoundError } = require('../../errors/AppError');
 const { buildItemMetadata } = require('./utils');
 
 const router = require('express').Router();

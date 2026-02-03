@@ -8,8 +8,8 @@
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview --host",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format": "prettier --config ../prettier.config.cjs --write .",
+    "format:check": "prettier --config ../prettier.config.cjs --check ."
   },
   "devDependencies": {
     "prettier": "^3.6.2",

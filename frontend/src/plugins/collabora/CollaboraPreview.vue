@@ -53,13 +53,13 @@ const sendToCollabora = (messageId, values = {}) => {
     console.error('[Collabora] No iframe contentWindow available');
     return;
   }
-  
+
   const message = {
     MessageId: messageId,
     SendTime: Date.now(),
     Values: values,
   };
-  
+
   console.log('[Collabora] Sending:', message);
   iframe.contentWindow.postMessage(JSON.stringify(message), collaboraOrigin.value || '*');
 };
@@ -130,14 +130,14 @@ const load = async () => {
   error.value = null;
   urlSrc.value = null;
   collaboraOrigin.value = null;
-  
+
   try {
     const filePath = props.filePath;
     if (!filePath) throw new Error('Missing file path.');
     const config = await fetchCollaboraConfig(filePath, 'edit');
     urlSrc.value = config?.urlSrc || null;
     if (!urlSrc.value) throw new Error('Missing Collabora iframe URL.');
-    
+
     // Extract origin from urlSrc
     try {
       const url = new URL(urlSrc.value);

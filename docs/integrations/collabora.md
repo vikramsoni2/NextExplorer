@@ -10,14 +10,14 @@ Use **Collabora Online (CODE)** to view and edit office files inside nextExplore
 
 ## Environment variables (nextExplorer backend)
 
-| Variable                     | Required?         | Description |
-| ---------------------------- | ----------------- | ----------- |
-| `COLLABORA_URL`              | Yes               | Public base URL of Collabora (e.g. `https://collabora.example.com`). |
-| `PUBLIC_URL`                 | Yes               | Public base URL of nextExplorer (e.g. `https://files.example.com`). Used to build the WOPI URLs Collabora calls. |
-| `COLLABORA_SECRET`           | Yes               | Shared JWT secret used to sign WOPI `access_token` values. |
-| `COLLABORA_DISCOVERY_URL`    | No                | Discovery endpoint override. Defaults to `${COLLABORA_URL}/hosting/discovery`. |
-| `COLLABORA_LANG`             | No (default `en`) | Language code for the Collabora UI. |
-| `COLLABORA_FILE_EXTENSIONS`  | No                | Comma-separated list of office extensions to enable (otherwise nextExplorer uses defaults or discovery). |
+| Variable                    | Required?         | Description                                                                                                      |
+| --------------------------- | ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `COLLABORA_URL`             | Yes               | Public base URL of Collabora (e.g. `https://collabora.example.com`).                                             |
+| `PUBLIC_URL`                | Yes               | Public base URL of nextExplorer (e.g. `https://files.example.com`). Used to build the WOPI URLs Collabora calls. |
+| `COLLABORA_SECRET`          | Yes               | Shared JWT secret used to sign WOPI `access_token` values.                                                       |
+| `COLLABORA_DISCOVERY_URL`   | No                | Discovery endpoint override. Defaults to `${COLLABORA_URL}/hosting/discovery`.                                   |
+| `COLLABORA_LANG`            | No (default `en`) | Language code for the Collabora UI.                                                                              |
+| `COLLABORA_FILE_EXTENSIONS` | No                | Comma-separated list of office extensions to enable (otherwise nextExplorer uses defaults or discovery).         |
 
 ## Collabora container example (TLS termination at reverse proxy)
 
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     cap_add: [MKNOD]
     ports:
-      - "9980:9980"
+      - '9980:9980'
     environment:
       - domain=files\\.example\\.com
       - server_name=collabora.example.com
@@ -65,4 +65,3 @@ If you use **Nginx Proxy Manager**, turn on **Websockets Support** for the `coll
 - **Socket connection closed / websocket 400**: enable WebSocket support on the reverse proxy in front of Collabora and ensure `/cool/(.*)/ws` is proxied with `Upgrade`/`Connection` headers and long read timeouts.
 - **Collabora says the WOPI host is not allowed**: your Collabora `domain` regex doesn’t match `PUBLIC_URL`’s host.
 - **`Invalid access_token` in nextExplorer logs**: `COLLABORA_SECRET` mismatch, multiple backend instances using different secrets, or the request URL/token is being modified/truncated by a proxy.
-

@@ -20,7 +20,11 @@ const buildApp = (routes, { notFoundHandler, errorHandler }) => {
 test('Collabora WOPI endpoints reject missing token', async () => {
   const env = await setupTestEnv({
     tag: 'collabora-wopi-',
-    modules: ['src/routes/collabora', 'src/services/wopiLockService', 'src/middleware/errorHandler'],
+    modules: [
+      'src/routes/collabora',
+      'src/services/wopiLockService',
+      'src/middleware/errorHandler',
+    ],
     env: {
       COLLABORA_URL: 'https://collabora.example.com',
       COLLABORA_SECRET: 'test-collabora-secret',

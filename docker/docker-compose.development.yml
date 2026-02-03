@@ -1,5 +1,5 @@
 # nextExplorer Docker Compose - Development Setup
-# 
+#
 # INSTRUCTIONS:
 # 1. Edit this file and configure the environment variables below
 # 2. Update the volumes section to mount your directories
@@ -10,78 +10,82 @@
 #
 # NOTE: This file can be renamed to docker-compose.dev.yml for convenience.
 
+x-dev-image: &dev_image
+  build:
+    context: ..
+    dockerfile: Dockerfile.dev
+  image: nextexplorer-dev
+
 services:
   backend:
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
+    <<: *dev_image
+    command: ['bash', '-lc', 'npm run dev --workspace=backend']
     volumes:
       # Mount backend source for hot-reload
-      - ../backend:/app
-      - backend_node_modules:/app/node_modules
-      
+      - ../backend:/repo/backend
+
       # Mount your directories here - update these paths to match your system
       # Format: /host/path:/container/path
       - /path/to/your/data:/mnt/data
       - /path/to/your/config:/config
       - /path/to/your/cache:/cache
       - /path/to/your/user_vols:/srv/users
-      
+
       # Optional: Mount additional volumes
       # - /path/to/another/volume:/mnt/another-volume
-    
+
     # Optional: Map container user to host user (uncomment and adjust if needed)
     # user: "${UID:-1000}:${GID:-1000}"
-    
+
     environment:
       # ============================================
       # SERVER & NETWORKING
       # ============================================
       # Backend port (frontend proxies to this)
       - PORT=3001
-      
+
       # HTTP request timeout in milliseconds (0 = disabled)
       # - HTTP_TIMEOUT=0
-      
+
       # External public URL (no trailing slash) - REQUIRED for OIDC, OnlyOffice, and proper cookie/CORS settings
       - PUBLIC_URL=https://your-domain.com
-      
+
       # Express trust proxy configuration
       # - TRUST_PROXY=loopback,uniquelocal
-      
+
       # CORS allowed origins (comma-separated)
       # - CORS_ORIGINS=https://your-domain.com
-      
+
       # ============================================
       # PATHS & VOLUMES
       # ============================================
       # Root directory that houses all mounted volumes
       - VOLUME_ROOT=/mnt
-      
+
       # Location for SQLite database, app-config.json, extensions, and settings
       - CONFIG_DIR=/config
-      
+
       # Location for thumbnails, ripgrep indexes, and temporary data
       - CACHE_DIR=/cache
-      
+
       # Root directory for per-user personal folders
       - USER_ROOT=/srv/users
-      
+
       # Controls how per-user folder names are derived
       # - USER_FOLDER_NAME_ORDER=id,username,email_local
-      
+
       # ============================================
       # LOGGING & DEBUGGING
       # ============================================
       # Application log level: trace, debug, info, warn, or error
       - LOG_LEVEL=debug
-      
+
       # When true, forces LOG_LEVEL=debug and shows verbose diagnostics
       # - DEBUG=false
-      
+
       # Enable HTTP request logging
       # - ENABLE_HTTP_LOGGING=false
-      
+
       # ============================================
       # AUTHENTICATION
       # ============================================
@@ -91,171 +95,171 @@ services:
       #   - 'both': Both local and OIDC (default if not specified)
       #   - 'disabled': Skip authentication entirely
       # - AUTH_MODE=both
-      
+
       # Legacy auth toggle (deprecated, use AUTH_MODE=disabled instead)
       # - AUTH_ENABLED=true
-      
+
       # Session secret (use a strong random value in production)
       # In development, you can use a simple value, but change it for production
       - SESSION_SECRET=dev-change-me
-      
+
       # Failed login attempts before temporary lockout
       # - AUTH_MAX_FAILED=5
-      
+
       # Lockout duration in minutes
       # - AUTH_LOCK_MINUTES=15
-      
+
       # Optional: Bootstrap the first local admin
       # - AUTH_ADMIN_EMAIL=admin@example.com
       # - AUTH_ADMIN_PASSWORD=please-change-me
-      
+
       # ============================================
       # OIDC & SSO
       # ============================================
       # Enable Express OpenID Connect authentication flow
       # - OIDC_ENABLED=false
-      
+
       # IdP issuer URL (discovery endpoint) - REQUIRED if OIDC_ENABLED=true
       # Examples:
       #   Keycloak: https://auth.example.com/realms/your-realm
       #   Authentik: https://auth.example.com/application/o/next/
       #   Authelia: https://auth.example.com/
       # - OIDC_ISSUER=https://auth.example.com/application/o/next/
-      
+
       # IdP client credentials - REQUIRED if OIDC_ENABLED=true
       # - OIDC_CLIENT_ID=your-client-id
       # - OIDC_CLIENT_SECRET=your-client-secret
-      
+
       # OIDC scopes (space or comma-separated)
       # - OIDC_SCOPES=openid,profile,email,groups
-      
+
       # Space/comma-separated group names that grant admin rights
       # - OIDC_ADMIN_GROUPS=next-admin,admins
-      
+
       # Optional: Override discovery endpoints
       # - OIDC_AUTHORIZATION_URL=https://auth.example.com/application/o/authorize/
       # - OIDC_TOKEN_URL=https://auth.example.com/application/o/token/
       # - OIDC_USERINFO_URL=https://auth.example.com/application/o/userinfo/
-      
+
       # Optional: Custom IdP logout URL
       # - OIDC_LOGOUT_URL=https://auth.example.com/application/o/next/end-session/
-      
+
       # Optional: Explicit callback path
       # - OIDC_CALLBACK_URL=https://your-domain.com/callback
-      
+
       # Require email verification from IdP
       # - OIDC_REQUIRE_EMAIL_VERIFIED=false
-      
+
       # Auto-create users on OIDC login
       # - OIDC_AUTO_CREATE_USERS=true
-      
+
       # ============================================
       # ONLYOFFICE INTEGRATION
       # ============================================
       # Public URL for OnlyOffice Document Server
       # - ONLYOFFICE_URL=https://office.example.com
-      
+
       # JWT secret shared with OnlyOffice Document Server
       # - ONLYOFFICE_SECRET=your-onlyoffice-secret
-      
+
       # Language code for the OnlyOffice editor UI
       # - ONLYOFFICE_LANG=en
-      
+
       # Force save via editor UI
       # - ONLYOFFICE_FORCE_SAVE=false
-      
+
       # File extensions to expose to OnlyOffice
       # - ONLYOFFICE_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,pdf
-      
+
       # ============================================
       # COLLABORA (WOPI) INTEGRATION
       # ============================================
       # Public base URL of your Collabora CODE server
       # - COLLABORA_URL=https://collabora.example.com
-      
+
       # Override for discovery endpoint
       # - COLLABORA_DISCOVERY_URL=https://collabora.example.com/hosting/discovery
-      
+
       # JWT secret used to sign WOPI access_token values
       # - COLLABORA_SECRET=dev-collabora-secret-change-me
-      
+
       # Language code for the Collabora UI
       # - COLLABORA_LANG=en
-      
+
       # File extensions to expose to Collabora
       # - COLLABORA_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,csv
-      
+
       # ============================================
       # FEATURE TOGGLES
       # ============================================
       # Enable deep content search
       # - SEARCH_DEEP=false
-      
+
       # Prefer ripgrep for fast searches
       # - SEARCH_RIPGREP=true
-      
+
       # Skip ripgrep for files larger than this
       # - SEARCH_MAX_FILESIZE=
-      
+
       # Show volume usage badges in the sidebar
       # - SHOW_VOLUME_USAGE=false
-      
+
       # Enable personal "My Files" space for each authenticated user
       - USER_DIR_ENABLED=true
-      
+
       # Non-admin users only see volumes assigned to them by an admin
       # - USER_VOLUMES=false
-      
+
       # Auto-redirect home view to first volume
       # - SKIP_HOME=false
-      
+
       # ============================================
       # EDITOR
       # ============================================
       # Additional file extensions to support in the inline text editor
       # - EDITOR_EXTENSIONS=
-      
+
       # ============================================
       # FFMPEG & VIDEO THUMBNAILS
       # ============================================
       # Custom ffmpeg/ffprobe paths
       # - FFMPEG_PATH=
       # - FFPROBE_PATH=
-      
+
       # Hardware acceleration for video thumbnail generation
       # Uncomment and configure based on your hardware:
       # - FFMPEG_HWACCEL=vaapi
       # - FFMPEG_HWACCEL_DEVICE=/dev/dri/renderD128
       # - FFMPEG_HWACCEL_OUTPUT_FORMAT=nv12
-      
+
       # If using hardware acceleration, you may need to pass GPU devices to container:
       # devices:
       #   - /dev/dri:/dev/dri
-      
+
       # ============================================
       # SHARING (Advanced)
       # ============================================
       # Master toggle for the share feature
       # - SHARES_ENABLED=true
-      
+
       # Length of generated share tokens
       # - SHARES_TOKEN_LENGTH=10
-      
+
       # Soft cap on the number of shares per user
       # - SHARES_MAX_PER_USER=100
-      
+
       # Default expiration in days for shares
       # - SHARES_DEFAULT_EXPIRY_DAYS=30
-      
+
       # Guest session lifetime in hours
       # - SHARES_GUEST_SESSION_HOURS=24
-      
+
       # Whether password-protected shares are allowed
       # - SHARES_ALLOW_PASSWORD=true
-      
+
       # Whether "anyone with the link" shares are allowed
       # - SHARES_ALLOW_ANONYMOUS=true
-      
+
       # ============================================
       # FAVORITES
       # ============================================
@@ -263,36 +267,30 @@ services:
       # - FAVORITES_DEFAULT_ICON=outline:StarIcon
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    <<: *dev_image
+    command: ['bash', '-lc', 'npm run dev --workspace=frontend -- --host 0.0.0.0 --port 3000']
     ports:
       - '3000:3000'
     environment:
       # Vite proxies API requests to the backend container
       # This should match the backend service name and port
       - VITE_BACKEND_ORIGIN=http://backend:3001
-      
+
       # Often needed on macOS/Windows for file change detection (hot-reload)
       - CHOKIDAR_USEPOLLING=1
-      
+
       # Optional: Frontend build-time variables (usually not needed in dev)
       # - VITE_APP_VERSION=
       # - VITE_GIT_COMMIT=
       # - VITE_GIT_BRANCH=
       # - VITE_REPO_URL=
-    
+
     depends_on:
       - backend
-    
+
     volumes:
       # Mount frontend source for hot-reload
-      - ../frontend:/app
-      - frontend_node_modules:/app/node_modules
-    
+      - ../frontend:/repo/frontend
+
     # Optional: Map container user to host user
     # user: "${UID:-1000}:${GID:-1000}"
-
-volumes:
-  backend_node_modules:
-  frontend_node_modules:

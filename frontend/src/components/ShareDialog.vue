@@ -68,11 +68,11 @@ watch(isOpen, async (opened) => {
     if (props.item?.name) {
       label.value = props.item.name;
     }
-    
+
     // Apply default share expiration if user has one set
     const defaultExpiration = appSettings.userSettings?.defaultShareExpiration;
     const expirationDate = calculateExpirationDate(defaultExpiration);
-    
+
     if (expirationDate) {
       enableExpiry.value = true;
       expiresAtDate.value = expirationDate;
@@ -121,7 +121,7 @@ async function initExpiresPicker() {
   await nextTick();
   const el = expiresAtInputRef.value;
   if (!el) return;
-  
+
   // Destroy existing picker if it exists
   if (expiresPicker) {
     expiresPicker.destroy();
@@ -138,7 +138,7 @@ async function initExpiresPicker() {
       expiresAtDate.value = selectedDates?.[0] || null;
     },
   });
-  
+
   // If we have a default date, set it in the picker
   if (expiresAtDate.value) {
     expiresPicker.setDate(expiresAtDate.value, false);

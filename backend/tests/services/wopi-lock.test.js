@@ -27,4 +27,3 @@ test('wopiLockService supports lock/unlock flow', () => {
   assert.deepEqual(lockService.tryUnlock(fileId, 'lock-a', now + 4), { ok: true });
   assert.equal(lockService.getLock(fileId, now + 5), null);
 });
-

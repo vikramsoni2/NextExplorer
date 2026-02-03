@@ -32,7 +32,11 @@ router.get(
     }
 
     const context = { user: req.user, guestSession: req.guestSession };
-    const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, relativePath, ACTIONS.read);
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+      context,
+      relativePath,
+      ACTIONS.read
+    );
     if (!allowed || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
@@ -107,7 +111,11 @@ router.post(
 
     const relativePath = normalizeRelativePath(rawPath);
     const context = { user: req.user, guestSession: req.guestSession };
-    const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, relativePath, ACTIONS.write);
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+      context,
+      relativePath,
+      ACTIONS.write
+    );
     if (!allowed || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }
@@ -184,7 +192,11 @@ router.post(
 
     const relativePath = normalizeRelativePath(rawPath);
     const context = { user: req.user, guestSession: req.guestSession };
-    const { allowed, accessInfo, resolved } = await authorizeAndResolve(context, relativePath, ACTIONS.write);
+    const { allowed, accessInfo, resolved } = await authorizeAndResolve(
+      context,
+      relativePath,
+      ACTIONS.write
+    );
     if (!allowed || !resolved) {
       throw new ForbiddenError(accessInfo?.denialReason || 'Path is not accessible.');
     }

@@ -1,5 +1,5 @@
 # nextExplorer Docker Compose - Collabora (WOPI) Integration
-# 
+#
 # INSTRUCTIONS:
 # 1. Edit this file and configure Collabora settings below
 # 2. Update the volumes section to mount your directories
@@ -26,23 +26,23 @@ services:
       # ============================================
       # External public URL (no trailing slash) - REQUIRED for Collabora
       - PUBLIC_URL=https://your-domain.com
-      
+
       # Session secret (REQUIRED in production)
       - SESSION_SECRET=change-me-to-a-random-secret-at-least-32-characters-long
-      
+
       # ============================================
       # PATHS & VOLUMES
       # ============================================
       - VOLUME_ROOT=/mnt
       - CONFIG_DIR=/config
       - CACHE_DIR=/cache
-      
+
       # ============================================
       # CONTAINER USER MAPPING
       # ============================================
       - PUID=1000
       - PGID=1000
-      
+
       # ============================================
       # AUTHENTICATION
       # ============================================
@@ -50,7 +50,7 @@ services:
       # Optional: Bootstrap the first admin user
       # - AUTH_ADMIN_EMAIL=admin@example.com
       # - AUTH_ADMIN_PASSWORD=please-change-me
-      
+
       # ============================================
       # COLLABORA (WOPI) INTEGRATION
       # ============================================
@@ -58,18 +58,18 @@ services:
       # Used to build the iframe URL for the editor
       # Example: https://collabora.example.com or http://collabora:9980 (if same Docker network)
       - COLLABORA_URL=https://collabora.example.com
-      
+
       # Override for discovery endpoint (defaults to ${COLLABORA_URL}/hosting/discovery)
       # Usually not needed unless your Collabora setup uses a custom discovery path
       # - COLLABORA_DISCOVERY_URL=https://collabora.example.com/hosting/discovery
-      
+
       # JWT secret used to sign WOPI access_token values - REQUIRED
       # This must match the JWT_SECRET configured in your Collabora CODE server
       - COLLABORA_SECRET=your-collabora-jwt-secret
-      
+
       # Language code for the Collabora UI
       - COLLABORA_LANG=en
-      
+
       # Comma-separated list of file extensions to expose to Collabora
       # Common extensions: doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,csv
       - COLLABORA_FILE_EXTENSIONS=doc,docx,xls,xlsx,ppt,pptx,odt,ods,odp,rtf,txt,csv

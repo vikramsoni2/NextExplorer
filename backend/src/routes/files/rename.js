@@ -6,7 +6,11 @@ const {
   ensureValidName,
 } = require('../../utils/pathUtils');
 const { pathExists } = require('../../utils/fsUtils');
-const { ACTIONS, authorizeAndResolve, authorizePath } = require('../../services/authorizationService');
+const {
+  ACTIONS,
+  authorizeAndResolve,
+  authorizePath,
+} = require('../../services/authorizationService');
 const asyncHandler = require('../../utils/asyncHandler');
 const {
   ValidationError,
@@ -32,8 +36,11 @@ router.post(
     const parentRelative = normalizeRelativePath(parentPath);
     const context = { user: req.user, guestSession: req.guestSession };
 
-    const { allowed: parentAllowed, accessInfo: parentAccess, resolved: parentResolved } =
-      await authorizeAndResolve(context, parentRelative, ACTIONS.write);
+    const {
+      allowed: parentAllowed,
+      accessInfo: parentAccess,
+      resolved: parentResolved,
+    } = await authorizeAndResolve(context, parentRelative, ACTIONS.write);
     if (!parentAllowed || !parentResolved) {
       throw new ForbiddenError(parentAccess?.denialReason || 'Destination path is read-only.');
     }
@@ -41,8 +48,11 @@ router.post(
     const { absolutePath: parentAbsolute } = parentResolved;
 
     const currentRelative = combineRelativePath(parentRelative, originalName);
-    const { allowed: currentAllowed, accessInfo: currentAccess, resolved: currentResolved } =
-      await authorizeAndResolve(context, currentRelative, ACTIONS.write);
+    const {
+      allowed: currentAllowed,
+      accessInfo: currentAccess,
+      resolved: currentResolved,
+    } = await authorizeAndResolve(context, currentRelative, ACTIONS.write);
     if (!currentAllowed || !currentResolved) {
       throw new ForbiddenError(currentAccess?.denialReason || 'Cannot rename items in this path.');
     }

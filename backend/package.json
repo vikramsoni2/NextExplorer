@@ -5,8 +5,9 @@
   "main": "src/app.js",
   "scripts": {
     "download_samples": "node src/scripts/downloadSamples.js",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
+    "dev": "node --watch src/app.js",
+    "format": "prettier --config ../prettier.config.cjs --write .",
+    "format:check": "prettier --config ../prettier.config.cjs --check .",
     "test": "node --test",
     "start": "node --watch src/app.js"
   },
@@ -14,8 +15,8 @@
   "license": "ISC",
   "dependencies": {
     "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
-    "archiver": "^6.0.2",
     "adm-zip": "^0.5.16",
+    "archiver": "^6.0.2",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^12.5.0",

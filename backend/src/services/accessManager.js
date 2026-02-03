@@ -37,7 +37,8 @@ const getVolumeAccess = async (context, relativePath, options = {}) => {
   const { user, guestSession } = context;
   const permissionResolver =
     typeof options.permissionResolver === 'function' ? options.permissionResolver : null;
-  const getPerm = async (p) => (permissionResolver ? permissionResolver(p) : await getPermissionForPath(p));
+  const getPerm = async (p) =>
+    permissionResolver ? permissionResolver(p) : await getPermissionForPath(p);
 
   // Guests cannot access volumes directly (only through shares).
   // If an authenticated user is present, prefer the user context over any stale guest session.
@@ -152,9 +153,11 @@ const getShareAccess = async (context, shareToken, innerPath, options = {}) => {
   const { user, guestSession } = context;
   const permissionResolver =
     typeof options.permissionResolver === 'function' ? options.permissionResolver : null;
-  const getPerm = async (p) => (permissionResolver ? permissionResolver(p) : await getPermissionForPath(p));
+  const getPerm = async (p) =>
+    permissionResolver ? permissionResolver(p) : await getPermissionForPath(p);
   const shareCache = options && options.shareCache instanceof Map ? options.shareCache : null;
-  const userVolumeCache = options && options.userVolumeCache instanceof Map ? options.userVolumeCache : null;
+  const userVolumeCache =
+    options && options.userVolumeCache instanceof Map ? options.userVolumeCache : null;
 
   if (!shareToken) {
     return createDeniedAccess('Share token is required');

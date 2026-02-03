@@ -3,6 +3,7 @@
 This document covers local development, testing, and release workflows for nextExplorer. For user-facing deployment instructions, see `README.md`.
 
 ## Project Layout
+
 - `frontend/` – Vue 3 + Vite SPA (Pinia, TailwindCSS).
 - `backend/` – Express server exposing the file-system API, thumbnail generation, uploads, and terminal bridge.
 - `Dockerfile` – Multi-stage build that bakes the frontend into the backend image.
@@ -10,6 +11,7 @@ This document covers local development, testing, and release workflows for nextE
 - `docker/docker-compose.dev.yml` – Two-service stack for running frontend and backend with live reload.
 
 ## Prerequisites
+
 - Node.js 18 or later and npm 9 or later.
 - FFmpeg installed locally (the Docker image installs it automatically).
 - Docker Desktop / Docker Engine + Compose v2 if you plan to build or run containers.
@@ -18,6 +20,7 @@ This document covers local development, testing, and release workflows for nextE
 ## Local Setup
 
 ### Backend API
+
 ```bash
 cd backend
 npm install
@@ -46,14 +49,17 @@ npm start
     - `ONLYOFFICE_URL`, `ONLYOFFICE_FILE_EXTENSIONS` – OnlyOffice integration is also loaded via the features store.
 
 When EOC is enabled, the backend exposes default OIDC routes:
+
 - `GET /login` – start login
 - `GET /callback` – OIDC callback (configure this in your provider)
 - `GET /logout` – logout (IdP logout enabled)
 
 For backward compatibility with the UI, the wrapper route `GET /api/auth/oidc/login` also triggers EOC login when available.
+
 - Ensure the process user can read/write the directories pointed to by `VOLUME_ROOT`, `CONFIG_DIR`, `CACHE_DIR`, and `LOG_DIR`.
 
 ### Frontend SPA
+
 ```bash
 cd frontend
 npm install
@@ -79,18 +85,20 @@ npm run dev
 The frontend uses a centralized Pinia store (`frontend/src/stores/features.js`) to manage all runtime configuration from Docker environment variables. This provides optimal performance and consistency.
 
 **Key Characteristics**:
+
 - **Eager initialization**: Features load immediately at app startup (`main.js`) in parallel with other initialization
 - **Single source of truth**: All components access features through the store, ensuring consistency
 - **Performance optimized**: Only one HTTP request to `/api/features` per app load
 - **Reactive state**: Components automatically update when features load
 
 **Usage in Components**:
+
 ```javascript
 // Async components (wait for features to load)
-import { useFeaturesStore } from '@/stores/features'
+import { useFeaturesStore } from '@/stores/features';
 
-const featuresStore = useFeaturesStore()
-await featuresStore.ensureLoaded()
+const featuresStore = useFeaturesStore();
+await featuresStore.ensureLoaded();
 
 // Now access features
 if (featuresStore.volumeUsageEnabled) {
@@ -100,13 +108,14 @@ if (featuresStore.volumeUsageEnabled) {
 
 ```javascript
 // Reactive computed (automatically updates when features load)
-import { useFeaturesStore } from '@/stores/features'
+import { useFeaturesStore } from '@/stores/features';
 
-const featuresStore = useFeaturesStore()
-const extensions = computed(() => featuresStore.editorExtensions)
+const featuresStore = useFeaturesStore();
+const extensions = computed(() => featuresStore.editorExtensions);
 ```
 
 **Available Features**:
+
 - `editorExtensions` – array of custom file extensions from `EDITOR_EXTENSIONS`
 - `onlyofficeEnabled` – boolean from `ONLYOFFICE_URL`
 - `onlyofficeExtensions` – array from `ONLYOFFICE_FILE_EXTENSIONS`
@@ -117,9 +126,11 @@ const extensions = computed(() => featuresStore.editorExtensions)
 **Backend API**: Features are served by `GET /api/features` which consolidates all runtime configuration from environment variables.
 
 ### Single-port Dev via Vite proxy (recommended)
+
 Serve the SPA on port 3000 and proxy API calls to the backend on an internal port 3001.
 
 Local (no Docker):
+
 ```bash
 # Backend on 3001
 cd backend && npm ci
@@ -132,32 +143,39 @@ VITE_BACKEND_ORIGIN=http://localhost:3001 npm run dev
 ```
 
 Docker (two services, one exposed port):
+
 ```bash
 docker compose -f docker/docker-compose.dev.yml up --build
 ```
+
 - Only `http://localhost:3000` is exposed; backend listens on 3001 internally.
 - Update the host volume paths under the `backend` service to match directories you want to expose.
 
 If you run the dev stack behind a local reverse proxy, set `PUBLIC_URL` for the backend to the proxy URL (defaults to `http://localhost:3000` in `docker/docker-compose.dev.yml`). This centralizes:
+
 - CORS origin (derived from the origin of `PUBLIC_URL` unless `CORS_ORIGINS` is set)
 - OIDC callback URL (defaults to `PUBLIC_URL + /api/auth/oidc/callback` unless `OIDC_CALLBACK_URL` is set)
 
 Note: When using EOC, prefer setting your provider redirect URI to `${PUBLIC_URL}/callback` (the EOC default). The legacy Passport OIDC flow still supports `${PUBLIC_URL}/api/auth/oidc/callback`.
 
 ## Testing & Quality
+
 - Frontend unit tests: `cd frontend && npm run test:unit`.
 - Frontend lint: `cd frontend && npm run lint` (expect a few legacy warnings that still need cleanup).
 - Backend currently has no automated tests; consider adding Vitest or Jest when introducing new API surface.
 
 ## Building Production Images
+
 The multi-stage `Dockerfile` builds the Vue app and packages it with the Node backend.
 
 ### Local build
+
 ```bash
 docker build -t nextexplorer:dev .
 ```
 
 ### Multi-architecture build & push
+
 ```bash
 docker buildx create --use --name multi || docker buildx use multi
 # Install QEMU binfmt for cross-compilation (one-time per host)
@@ -170,6 +188,7 @@ docker buildx build \
 ```
 
 ## Release Checklist
+
 - Update `README.md` screenshots or feature descriptions if UX changes.
 - Regenerate the frontend production build (`npm run build`) and smoke-test locally.
 - Run through critical file operations (upload/move/delete) on a staging instance.

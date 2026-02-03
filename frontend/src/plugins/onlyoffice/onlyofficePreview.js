@@ -30,7 +30,9 @@ export const onlyofficePreviewPlugin = (extensions) => ({
     if (!list.includes(ext)) return false;
 
     const featuresStore = useFeaturesStore();
-    const hasBothEditors = Boolean(featuresStore.onlyofficeEnabled && featuresStore.collaboraEnabled);
+    const hasBothEditors = Boolean(
+      featuresStore.onlyofficeEnabled && featuresStore.collaboraEnabled
+    );
     if (!hasBothEditors) return true;
 
     const settingsStore = useSettingsStore();
