@@ -103,6 +103,7 @@
     "username": "Standard ist E-Mail-Präfix",
     "password": "Wählen Sie ein sicheres Passwort",
     "confirmPassword": "Passwort erneut eingeben",
+    "currentPassword": "Aktuelles Passwort eingeben",
     "label": "Meine freigegebenen Dateien",
     "path": "z. B. Bilder/Urlaub",
     "search": "Dateien und Ordner durchsuchen…",
@@ -440,7 +441,12 @@
       "confirm": "Neues Passwort bestätigen",
       "update": "Passwort aktualisieren",
       "success": "Passwort erfolgreich aktualisiert.",
-      "validation": "Bitte füllen Sie alle Felder aus; das neue Passwort muss mindestens 6 Zeichen lang sein und mit der Bestätigung übereinstimmen."
+      "subtitle": "Aktualisieren Sie Ihr Passwort, um Ihr Konto sicher zu halten.",
+      "rules": {
+        "currentRequired": "Aktuelles Passwort ist erforderlich",
+        "length": "Das neue Passwort muss mindestens 6 Zeichen lang sein",
+        "match": "Passwörter stimmen nicht überein"
+      }
     },
     "users": {
       "cannotDeleteSelf": "Sie können Ihr eigenes Konto nicht löschen.",

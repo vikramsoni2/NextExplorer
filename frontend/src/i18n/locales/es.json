@@ -103,6 +103,7 @@
     "username": "Por defecto, prefijo del correo",
     "password": "Elige una contraseña segura",
     "confirmPassword": "Vuelve a escribir tu contraseña",
+    "currentPassword": "Introduce tu contraseña actual",
     "label": "Mis archivos compartidos",
     "path": "p. ej. Imágenes/Vacaciones",
     "search": "Buscar archivos y carpetas…",
@@ -440,7 +441,12 @@
       "confirm": "Confirmar nueva contraseña",
       "update": "Actualizar contraseña",
       "success": "Contraseña actualizada correctamente.",
-      "validation": "Rellena todos los campos; la nueva contraseña debe tener al menos 6 caracteres y coincidir con la confirmación."
+      "subtitle": "Actualiza tu contraseña para mantener tu cuenta segura.",
+      "rules": {
+        "currentRequired": "Se requiere la contraseña actual",
+        "length": "La nueva contraseña debe tener al menos 6 caracteres",
+        "match": "Las contraseñas no coinciden"
+      }
     },
     "users": {
       "cannotDeleteSelf": "No puedes eliminar tu propia cuenta.",

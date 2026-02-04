@@ -103,6 +103,7 @@
     "username": "Implicit: prefixul emailului",
     "password": "Alege o parolă puternică",
     "confirmPassword": "Reintrodu parola",
+    "currentPassword": "Introdu parola curentă",
     "label": "Fișierele mele partajate",
     "path": "ex. Imagini/Vacanțe",
     "search": "Caută fișiere și dosare…",
@@ -440,7 +441,12 @@
       "confirm": "Confirmă parola nouă",
       "update": "Actualizează parola",
       "success": "Parola a fost actualizată cu succes.",
-      "validation": "Completează toate câmpurile; parola nouă trebuie să aibă cel puțin 6 caractere și să se potrivească cu confirmarea."
+      "subtitle": "Actualizează-ți parola pentru a-ți menține contul în siguranță.",
+      "rules": {
+        "currentRequired": "Parola curentă este obligatorie",
+        "length": "Parola nouă trebuie să aibă cel puțin 6 caractere",
+        "match": "Parolele nu se potrivesc"
+      }
     },
     "users": {
       "cannotDeleteSelf": "Nu îți poți șterge propriul cont.",

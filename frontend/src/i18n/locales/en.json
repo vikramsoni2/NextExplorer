@@ -104,6 +104,7 @@
     "username": "Defaults to email prefix",
     "password": "Choose a strong password",
     "confirmPassword": "Re-type your password",
+    "currentPassword": "Enter your current password",
     "label": "My Shared Files",
     "path": "e.g. Pictures/Holidays",
     "search": "Search files and folders…",
@@ -441,7 +442,12 @@
       "confirm": "Confirm new password",
       "update": "Update Password",
       "success": "Password updated successfully.",
-      "validation": "Please fill all fields; new password must be at least 6 characters and match confirmation."
+      "subtitle": "Update your password to keep your account secure.",
+      "rules": {
+        "currentRequired": "Current password is required",
+        "length": "New password must be at least 6 characters",
+        "match": "Passwords do not match"
+      }
     },
     "users": {
       "cannotDeleteSelf": "You cannot delete your own account.",

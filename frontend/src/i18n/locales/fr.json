@@ -103,6 +103,7 @@
     "username": "Par défaut, préfixe de l'e-mail",
     "password": "Choisissez un mot de passe fort",
     "confirmPassword": "Retapez votre mot de passe",
+    "currentPassword": "Saisissez votre mot de passe actuel",
     "label": "Mes fichiers partagés",
     "path": "ex. Images/Vacances",
     "search": "Rechercher des fichiers et des dossiers…",
@@ -440,7 +441,12 @@
       "confirm": "Confirmer le nouveau mot de passe",
       "update": "Mettre à jour le mot de passe",
       "success": "Mot de passe mis à jour avec succès.",
-      "validation": "Veuillez remplir tous les champs ; le nouveau mot de passe doit comporter au moins 6 caractères et correspondre à la confirmation."
+      "subtitle": "Mettez à jour votre mot de passe pour sécuriser votre compte.",
+      "rules": {
+        "currentRequired": "Le mot de passe actuel est requis",
+        "length": "Le nouveau mot de passe doit comporter au moins 6 caractères",
+        "match": "Les mots de passe ne correspondent pas"
+      }
     },
     "users": {
       "cannotDeleteSelf": "Vous ne pouvez pas supprimer votre propre compte.",

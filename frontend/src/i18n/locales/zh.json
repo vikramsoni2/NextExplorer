@@ -103,6 +103,7 @@
     "username": "默认为邮箱前缀",
     "password": "选择一个强密码",
     "confirmPassword": "再次输入密码",
+    "currentPassword": "输入您当前的密码",
     "label": "我的共享文件",
     "path": "例如：Pictures/Holidays",
     "search": "搜索文件和文件夹…",
@@ -440,7 +441,12 @@
       "confirm": "确认新密码",
       "update": "更新密码",
       "success": "密码更新成功。",
-      "validation": "请填写所有字段；新密码至少 6 个字符，并且需要与确认密码一致。"
+      "subtitle": "更新您的密码以保护您的账户安全。",
+      "rules": {
+        "currentRequired": "必须输入当前密码",
+        "length": "新密码至少需要6个字符",
+        "match": "密码不匹配"
+      }
     },
     "users": {
       "cannotDeleteSelf": "无法删除您自己的账户。",

@@ -103,6 +103,7 @@
     "username": "Domyślnie prefiks adresu e-mail",
     "password": "Wybierz silne hasło",
     "confirmPassword": "Wpisz hasło ponownie",
+    "currentPassword": "Wpisz swoje obecne hasło",
     "label": "Moje udostępnione pliki",
     "path": "np. Obrazy/Wakacje",
     "search": "Szukaj plików i folderów…",
@@ -440,7 +441,12 @@
       "confirm": "Potwierdź nowe hasło",
       "update": "Zaktualizuj hasło",
       "success": "Hasło zostało pomyślnie zaktualizowane.",
-      "validation": "Wypełnij wszystkie pola; nowe hasło musi mieć co najmniej 6 znaków i zgadzać się z potwierdzeniem."
+      "subtitle": "Zaktualizuj hasło, aby zabezpieczyć swoje konto.",
+      "rules": {
+        "currentRequired": "Obecne hasło jest wymagane",
+        "length": "Nowe hasło musi mieć co najmniej 6 znaków",
+        "match": "Hasła nie są zgodne"
+      }
     },
     "users": {
       "cannotDeleteSelf": "Nie możesz usunąć własnego konta.",

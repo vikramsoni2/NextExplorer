@@ -103,6 +103,7 @@
     "username": "E-postprefix är standardvärde",
     "password": "Välj ett starkt lösenord",
     "confirmPassword": "Skriv ditt lösenord igen",
+    "currentPassword": "Ange ditt nuvarande lösenord",
     "label": "Mina utdelade filer",
     "path": "t.ex. Bilder/Semestrar",
     "search": "Sök efter filer och mappar…",
@@ -440,7 +441,12 @@
       "confirm": "Bekräfta nytt lösenord",
       "update": "Uppdatera lösenordet",
       "success": "Lösenordet har uppdaterats.",
-      "validation": "Fyll i alla fält; nytt lösenord måste vara minst 6 tecken och stämma överens."
+      "subtitle": "Uppdatera ditt lösenord för att hålla ditt konto säkert.",
+      "rules": {
+        "currentRequired": "Nuvarande lösenord krävs",
+        "length": "Nytt lösenord måste vara minst 6 tecken",
+        "match": "Lösenorden stämmer inte överens"
+      }
     },
     "users": {
       "cannotDeleteSelf": "Du kan inte ta bort ditt egna konto.",

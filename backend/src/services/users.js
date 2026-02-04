@@ -185,7 +185,11 @@ const attemptLocalLogin = async ({ email, password }) => {
   await clearLock(normEmail);
   db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(nowIso(), authMethod.id);
 
-  return toClientUser(user);
+  let clientUser = toClientUser(user);
+  if (clientUser) {
+    clientUser.provider = 'local';
+  }
+  return clientUser;
 };
 
 // Create user with local password authentication
