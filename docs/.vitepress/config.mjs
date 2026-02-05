@@ -58,6 +58,7 @@ export default defineConfig({
         text: 'Help & FAQ',
         items: [
           { text: 'Troubleshooting', link: '/reference/troubleshooting' },
+          { text: 'Contributing', link: '/reference/contributing' },
           { text: 'FAQ', link: '/reference/faq' },
         ],
       },
@@ -120,6 +121,7 @@ export default defineConfig({
         text: 'Help & FAQ',
         items: [
           { text: 'Troubleshooting', link: '/reference/troubleshooting' },
+          { text: 'Contributing', link: '/reference/contributing' },
           { text: 'FAQ', link: '/reference/faq' },
         ],
       },

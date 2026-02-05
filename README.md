@@ -152,3 +152,4 @@ services:
 - Integrations (OIDC, Authelia, ONLYOFFICE): https://explorer.nxz.ai/integrations/oidc.html
 - Troubleshooting/FAQ: https://explorer.nxz.ai/reference/troubleshooting.html and https://explorer.nxz.ai/reference/faq.html
 - Releases: https://explorer.nxz.ai/reference/releases.html
+- Contributing: https://explorer.nxz.ai/reference/contributing.html

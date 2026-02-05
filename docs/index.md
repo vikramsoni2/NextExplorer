@@ -76,6 +76,7 @@ Run it with `docker compose up -d`, then visit `http://localhost:3000` to finish
 - [Personal user folders](/configuration/personal-folders): per-user “My Files” home directories with `USER_ROOT` and `USER_DIR_ENABLED`.
 - [Integrations](/integrations/oidc): OIDC, Authelia, and ONLYOFFICE examples for SSO and document editing.
 - [Reference](/reference/troubleshooting): troubleshooting notes, the screenshot catalog, and release changelog.
+- [Contributing](/reference/contributing): local dev workflow, tests, and PR guidelines.
 
 ### Screenshots
 
