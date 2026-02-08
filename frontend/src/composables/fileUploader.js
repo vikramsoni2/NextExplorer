@@ -6,11 +6,14 @@ import { useFileStore } from '@/stores/fileStore';
 import { apiBase, normalizePath } from '@/api';
 import { isDisallowedUpload } from '@/utils/uploads';
 import DropTarget from '@uppy/drop-target';
+import { nanoid } from 'nanoid';
+import { useNotificationsStore } from '@/stores/notifications';
 
 export function useFileUploader() {
   // Filtering is centralized in utils/uploads
   const uppyStore = useUppyStore();
   const fileStore = useFileStore();
+  const notificationsStore = useNotificationsStore();
   const inputRef = ref(null);
   const files = ref([]);
 
@@ -20,9 +23,22 @@ export function useFileUploader() {
 
   if (!uppy) {
     uppy = new Uppy({
-      debug: true,
+      debug: Boolean(import.meta.env?.DEV),
       autoProceed: true,
       store: uppyStore,
+      // Allow re-uploading the "same" file (same name/size/mtime) by making IDs unique when needed.
+      // This avoids silent no-op adds when a user uploads a duplicate to intentionally trigger server-side renaming.
+      onBeforeFileAdded: (file, files) => {
+        if (isDisallowedUpload(file?.name)) return false;
+
+        if (!Object.hasOwn(files, file.id)) return true;
+
+        let uniqueId = `${file.id}-${nanoid(6)}`;
+        while (Object.hasOwn(files, uniqueId)) {
+          uniqueId = `${file.id}-${nanoid(6)}`;
+        }
+        return { ...file, id: uniqueId };
+      },
     });
 
     uppy.use(XHRUpload, {
@@ -32,14 +48,31 @@ export function useFileUploader() {
       bundle: false,
       allowedMetaFields: null,
       withCredentials: true,
+      // Default is 30s which is too short for many real-world uploads.
+      timeout: 30 * 60 * 1000,
     });
+
+    const uploadTargets = new Set();
+    let resetTimer = null;
+
+    const clearScheduledReset = () => {
+      if (resetTimer) {
+        clearTimeout(resetTimer);
+        resetTimer = null;
+      }
+    };
+
+    const notifyUploadError = (heading, details) => {
+      notificationsStore.addNotification({
+        type: 'error',
+        heading: heading || 'Upload failed',
+        body: details || '',
+      });
+    };
 
     // Cookies carry auth; no token headers
     uppy.on('file-added', (file) => {
-      if (isDisallowedUpload(file?.name)) {
-        uppy.removeFile?.(file.id);
-        return;
-      }
+      clearScheduledReset();
 
       // Ensure server always receives a usable relativePath, even for drag-and-drop
       const inferredRelativePath =
@@ -64,8 +97,53 @@ export function useFileUploader() {
       });
     });
 
-    uppy.on('upload-success', () => {
-      fileStore.fetchPathItems(fileStore.currentPath).catch(() => {});
+    uppy.on('upload-success', (file) => {
+      const target = typeof file?.meta?.uploadTo === 'string' ? normalizePath(file.meta.uploadTo) : '';
+      uploadTargets.add(target);
+    });
+
+    uppy.on('upload-error', (file, error, response) => {
+      const name = file?.name || 'file';
+      const message =
+        (response && response.body && (response.body.error || response.body.message)) ||
+        error?.message ||
+        'Upload failed';
+      notifyUploadError(`Upload failed: ${name}`, String(message || ''));
+
+      try {
+        if (file?.id) uppy.removeFile(file.id);
+      } catch (_) {
+        /* noop */
+      }
+    });
+
+    uppy.on('restriction-failed', (file, error) => {
+      const name = file?.name || 'file';
+      const message = error?.message || 'File could not be added.';
+      notifyUploadError(`Upload skipped: ${name}`, String(message || ''));
+    });
+
+    uppy.on('complete', () => {
+      const current = normalizePath(fileStore.currentPath || '');
+      if (uploadTargets.has(current)) {
+        fileStore.fetchPathItems(current).catch(() => {});
+      }
+      uploadTargets.clear();
+
+      // Clear Uppy state once the queue is done so the progress panel doesn't get stuck
+      // and users can re-upload the same file/folder again.
+      clearScheduledReset();
+      resetTimer = setTimeout(() => {
+        try {
+          // If a new upload started since completion, don't wipe the new queue.
+          const currentUploads = uppy.getState?.()?.currentUploads || {};
+          if (Object.keys(currentUploads).length === 0) {
+            uppy.reset?.();
+          }
+        } catch (_) {
+          /* noop */
+        }
+      }, 750);
     });
 
     uppyStore.uppy = uppy;
@@ -108,7 +186,18 @@ export function useFileUploader() {
         );
 
         files.value = selectedFiles.map((file) => uppyFile(file));
-        files.value.forEach((file) => uppy.addFile(file));
+        files.value.forEach((file) => {
+          try {
+            uppy.addFile(file);
+          } catch (err) {
+            // Common case: duplicates or restrictions, which would otherwise look like a no-op.
+            notificationsStore.addNotification({
+              type: 'error',
+              heading: 'Upload skipped',
+              body: err?.message ? String(err.message) : 'Could not add file to upload queue.',
+            });
+          }
+        });
 
         // Reset the input so the same file can be selected again if needed
         e.target.value = '';

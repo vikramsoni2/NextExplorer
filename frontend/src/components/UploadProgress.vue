@@ -137,6 +137,8 @@ function onTogglePause() {
 
 function onCancelAll() {
   uppyStore.uppy.cancelAll?.({ reason: 'user' });
+  // Ensure UI doesn't stay stuck if Uppy keeps errored files around.
+  uppyStore.uppy.reset?.();
 }
 
 // Keyboard access for details chevron

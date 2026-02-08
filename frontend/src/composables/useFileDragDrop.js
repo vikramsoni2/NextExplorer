@@ -13,6 +13,19 @@ export function useFileDragDrop() {
   const isDraggingOver = ref(false);
   const dragOverTarget = ref(null);
 
+  const isExternalFileDrag = (event) => {
+    const types = event?.dataTransfer?.types;
+    if (!types) return false;
+    return Array.from(types).includes('Files');
+  };
+
+  const isInternalMoveDrag = (event) => {
+    const types = event?.dataTransfer?.types;
+    if (!types) return false;
+    // Our internal drags set application/json and a text/plain fallback for Safari.
+    return Array.from(types).includes('application/json') || Array.from(types).includes('text/plain');
+  };
+
   const serializeItems = (items) =>
     (Array.isArray(items) ? items : [])
       .filter((item) => item && item.name && item.kind !== 'volume')
@@ -63,6 +76,8 @@ export function useFileDragDrop() {
     // Store the items being dragged in dataTransfer
     const dragData = JSON.stringify(itemsToDrag);
     event.dataTransfer.setData('application/json', dragData);
+    // Safari is inconsistent about exposing custom types during dragover/drop, so add a fallback.
+    event.dataTransfer.setData('text/plain', dragData);
     event.dataTransfer.effectAllowed = 'move';
 
     // Create custom drag image with badge
@@ -152,6 +167,9 @@ export function useFileDragDrop() {
    */
   const handleDragOver = (event, targetFolder) => {
     if (!canDragDrop()) return;
+    // External file drops should be handled by Uppy DropTarget.
+    if (isExternalFileDrag(event)) return;
+    if (!isInternalMoveDrag(event)) return;
 
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
@@ -168,6 +186,8 @@ export function useFileDragDrop() {
    */
   const handleDragLeave = (event, targetFolder) => {
     if (!canDragDrop()) return;
+    if (isExternalFileDrag(event)) return;
+    if (!isInternalMoveDrag(event)) return;
 
     // Only clear if we're actually leaving the folder (not just entering a child)
     // Check if the related target is still within the folder
@@ -191,15 +211,18 @@ export function useFileDragDrop() {
   const handleDrop = async (event, targetFolder) => {
     if (!canDragDrop()) return;
 
+    // Get the dragged items from dataTransfer
+    // If this is an external file drop, let Uppy handle it.
+    if (isExternalFileDrag(event)) return;
+
+    const dragData = event.dataTransfer.getData('application/json');
+    if (!dragData) return;
+
     event.preventDefault();
     event.stopPropagation();
 
     isDraggingOver.value = false;
     dragOverTarget.value = null;
-
-    // Get the dragged items from dataTransfer
-    const dragData = event.dataTransfer.getData('application/json');
-    if (!dragData) return;
 
     const draggedItems = JSON.parse(dragData);
     if (!Array.isArray(draggedItems) || draggedItems.length === 0) return;
