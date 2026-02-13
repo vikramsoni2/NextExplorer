@@ -3,6 +3,7 @@ const { getDb } = require('../db');
 const logger = require('../../utils/logger');
 const { nowIso, toClientUser, generateId, normalizeEmail } = require('./utils');
 const { isLocked, incrementFailedAttempts, clearLock, getLock } = require('./lockout');
+const { NotFoundError, UnauthorizedError, ValidationError } = require('../../errors/AppError');
 
 // Attempt local login with email + password
 const attemptLocalLogin = async ({ email, password }) => {
@@ -53,7 +54,11 @@ const attemptLocalLogin = async ({ email, password }) => {
   await clearLock(normEmail);
   db.prepare('UPDATE auth_methods SET last_used_at = ? WHERE id = ?').run(nowIso(), authMethod.id);
 
-  return toClientUser(user);
+  let clientUser = toClientUser(user);
+  if (clientUser) {
+    clientUser.provider = 'local';
+  }
+  return clientUser;
 };
 
 // Create user with local password authentication
@@ -142,9 +147,7 @@ const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => 
   const db = await getDb();
   const user = db.prepare('SELECT * FROM users WHERE id = ?').get(userId);
   if (!user) {
-    const e = new Error('User not found.');
-    e.status = 404;
-    throw e;
+    throw new NotFoundError('User not found.');
   }
 
   // Check if user has local password auth
@@ -157,22 +160,22 @@ const changeLocalPassword = async ({ userId, currentPassword, newPassword }) => 
     )
     .get(userId);
 
-  if (!authMethod) {
-    const e = new Error('Password change is only allowed for users with password authentication.');
-    e.status = 400;
-    throw e;
+  if (!authMethod || !authMethod.password_hash) {
+    throw new ValidationError(
+      'Password change is only allowed for users with password authentication.'
+    );
+  }
+
+  if (typeof currentPassword !== 'string' || currentPassword.length === 0) {
+    throw new ValidationError('Current password is required.');
   }
 
   if (typeof newPassword !== 'string' || newPassword.length < 6) {
-    const e = new Error('Password must be at least 6 characters long.');
-    e.status = 400;
-    throw e;
+    throw new ValidationError('Password must be at least 6 characters long.');
   }
 
-  if (!bcrypt.compareSync(currentPassword || '', authMethod.password_hash)) {
-    const e = new Error('Current password is incorrect.');
-    e.status = 401;
-    throw e;
+  if (!bcrypt.compareSync(currentPassword, authMethod.password_hash)) {
+    throw new UnauthorizedError('Current password is incorrect.');
   }
 
   const hash = bcrypt.hashSync(newPassword, 12);

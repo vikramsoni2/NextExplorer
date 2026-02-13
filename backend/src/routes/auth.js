@@ -19,11 +19,16 @@ const {
   NotFoundError,
 } = require('../errors/AppError');
 
+const rateLimitHandler = (req, res, next) => {
+  next(new RateLimitError('Too many attempts. Please try again later.'));
+};
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
+  handler: rateLimitHandler,
 });
 
 const setupLimiter = rateLimit({
@@ -31,6 +36,7 @@ const setupLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
+  handler: rateLimitHandler,
 });
 
 const passwordLimiter = rateLimit({
@@ -38,6 +44,7 @@ const passwordLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
+  handler: rateLimitHandler,
 });
 
 const router = express.Router();

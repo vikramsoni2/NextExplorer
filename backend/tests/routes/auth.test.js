@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import fs from 'node:fs';
+import path from 'node:path';
 import express from 'express';
 import session from 'express-session';
 import bodyParser from 'body-parser';
@@ -23,6 +25,13 @@ const buildApp = ({ authEnabled } = {}) => {
     throw new Error('Test environment not initialized');
   }
 
+  // Ensure each test app starts with a clean database.
+  try {
+    fs.rmSync(path.join(envContext.configDir, 'app.db'), { force: true });
+  } catch (_) {
+    // ignore
+  }
+
   if (authEnabled === true) {
     process.env.AUTH_ENABLED = 'true';
   } else if (authEnabled === false) {
@@ -37,6 +46,7 @@ const buildApp = ({ authEnabled } = {}) => {
   clearModuleCache('src/services/users');
 
   const authRoutes = envContext.requireFresh('src/routes/auth');
+  const { notFoundHandler, errorHandler } = envContext.requireFresh('src/middleware/errorHandler');
   const app = express();
   app.use(bodyParser.json());
   app.use(
@@ -54,6 +64,8 @@ const buildApp = ({ authEnabled } = {}) => {
   });
 
   app.use('/api/auth', authRoutes);
+  app.use(notFoundHandler);
+  app.use(errorHandler);
   return app;
 };
 
@@ -101,6 +113,37 @@ describe('Auth Routes', () => {
       // logout
       const logout = await agent.post('/api/auth/logout');
       expect(logout.status).toBe(204);
+    });
+
+    it('should return JSON 401 when current password is incorrect', async () => {
+      const app = buildApp({ authEnabled: true });
+
+      // setup admin
+      const setup = await request(app)
+        .post('/api/auth/setup')
+        .send({
+          email: 'admin@example.com',
+          username: 'admin',
+          password: 'secret123',
+        });
+      expect(setup.status).toBe(201);
+
+      // login
+      const agent = request.agent(app);
+      const loginResponse = await agent
+        .post('/api/auth/login')
+        .send({ email: 'admin@example.com', password: 'secret123' });
+      expect(loginResponse.status).toBe(200);
+
+      // change password with wrong current password
+      const passwordChange = await agent
+        .post('/api/auth/password')
+        .send({ currentPassword: 'wrong-password', newPassword: 'newpass456' });
+
+      expect(passwordChange.status).toBe(401);
+      expect(passwordChange.headers['content-type']).toMatch(/application\/json/i);
+      expect(passwordChange.body?.success).toBe(false);
+      expect(passwordChange.body?.error?.message).toMatch(/current password is incorrect/i);
     });
   });
 

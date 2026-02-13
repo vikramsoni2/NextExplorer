@@ -42,13 +42,15 @@ const clearOidcSessionCookies = (res) => {
  *
  * Handles both operational errors (AppError instances) and unexpected errors
  */
-const errorHandler = (err, req, res) => {
+// Express only recognizes error middleware when it has 4 args: (err, req, res, next)
+// eslint-disable-next-line no-unused-vars
+const errorHandler = (err, req, res, next) => {
   // Generate unique request ID for tracking
   const requestId = uuidv4();
 
   // Determine if this is an operational error (expected) or programmer error (unexpected)
   const isOperational = err.isOperational || false;
-  const statusCode = err.statusCode || 500;
+  const statusCode = err.statusCode || err.status || 500;
   const message = err.message || 'An unexpected error occurred';
 
   // For OIDC callback navigations, redirect back into the SPA so the login screen can show the error.
