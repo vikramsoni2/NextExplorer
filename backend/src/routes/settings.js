@@ -3,6 +3,7 @@ const {
   getPublicSettings,
   getSettingsForUser,
   setUserSetting,
+  setUserFolderSort,
   setSystemSetting,
   getSettings,
 } = require('../services/settingsService');
@@ -155,7 +156,12 @@ router.patch(
     if (payload.user && typeof payload.user === 'object' && user && user.id) {
       const userUpdates = {};
       for (const [key, value] of Object.entries(payload.user)) {
-        if (
+        if (key === 'folderSort') {
+          const folderSorts = await setUserFolderSort(user.id, value?.path, value?.sort);
+          if (folderSorts) {
+            userUpdates.folderSorts = folderSorts;
+          }
+        } else if (
           key === 'showHiddenFiles' ||
           key === 'showThumbnails' ||
           key === 'showSidebarFavorites' ||

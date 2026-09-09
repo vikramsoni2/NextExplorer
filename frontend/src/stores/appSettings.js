@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import {
   getBranding as getBrandingApi,
   getSettings as getSettingsApi,
@@ -10,28 +10,46 @@ import { useAuthStore } from '@/stores/auth';
 export const useAppSettings = defineStore('appSettings', () => {
   const loaded = ref(false);
   const loading = ref(false);
+  const loadedForUserId = ref(null);
   const lastError = ref(null);
   const authStore = useAuthStore();
+
+  const createDefaultUserSettings = () => ({
+    showHiddenFiles: false,
+    showThumbnails: true,
+    showSidebarFavorites: true,
+    showSidebarShares: true,
+    showSidebarTools: true,
+    defaultShareExpiration: null,
+    skipHome: null,
+    folderSorts: {},
+  });
+
+  const createDefaultSystemSettings = () => ({
+    thumbnails: { enabled: true, size: 200, quality: 70 },
+    access: { rules: [] },
+  });
 
   // Three-tier settings structure
   const publicSettings = ref({
     branding: { appName: 'Explorer', appLogoUrl: '/logo.svg', showPoweredBy: false },
   });
 
-  const userSettings = ref({
-    showHiddenFiles: false,
-    showThumbnails: true,
-    showSidebarFavorites: true,
-    showSidebarShares: true,
-    showSidebarTools: true,
-    defaultShareExpiration: null, // { value: number, unit: 'days' | 'weeks' | 'months' }
-    skipHome: null, // null = use env var, true/false = override
-  });
+  const userSettings = ref(createDefaultUserSettings());
+  const systemSettings = ref(createDefaultSystemSettings());
 
-  const systemSettings = ref({
-    thumbnails: { enabled: true, size: 200, quality: 70 },
-    access: { rules: [] },
-  });
+  watch(
+    () => authStore.currentUser?.id ?? null,
+    (userId, previousUserId) => {
+      if (userId === previousUserId) return;
+
+      loaded.value = false;
+      loadedForUserId.value = null;
+      userSettings.value = createDefaultUserSettings();
+      systemSettings.value = createDefaultSystemSettings();
+    },
+    { flush: 'sync' }
+  );
 
   // Computed state that combines all settings (for backward compatibility)
   const state = computed(() => ({
@@ -81,6 +99,7 @@ export const useAppSettings = defineStore('appSettings', () => {
   // - Authenticated user: branding + user settings
   // - Admin: branding + user settings + system settings
   const load = async () => {
+    const userId = authStore.currentUser?.id ?? null;
     loading.value = true;
     lastError.value = null;
     try {
@@ -97,21 +116,15 @@ export const useAppSettings = defineStore('appSettings', () => {
       }
 
       // Update user settings if present (authenticated users)
-      if (s?.user && typeof s.user === 'object') {
+      if (userId === authStore.currentUser?.id && s?.user && typeof s.user === 'object') {
         userSettings.value = {
-          showHiddenFiles: false,
-          showThumbnails: true,
-          showSidebarFavorites: true,
-          showSidebarShares: true,
-          showSidebarTools: true,
-          defaultShareExpiration: null,
-          skipHome: null,
+          ...createDefaultUserSettings(),
           ...s.user,
         };
       }
 
       // Update system settings if present (admin only)
-      if (s?.thumbnails) {
+      if (userId === authStore.currentUser?.id && s?.thumbnails) {
         systemSettings.value.thumbnails = {
           enabled: true,
           size: 200,
@@ -119,13 +132,16 @@ export const useAppSettings = defineStore('appSettings', () => {
           ...s.thumbnails,
         };
       }
-      if (s?.access) {
+      if (userId === authStore.currentUser?.id && s?.access) {
         systemSettings.value.access = {
           rules: Array.isArray(s.access.rules) ? s.access.rules : [],
         };
       }
 
-      loaded.value = true;
+      if (userId === authStore.currentUser?.id) {
+        loadedForUserId.value = userId;
+        loaded.value = true;
+      }
     } catch (e) {
       // For non-admin users, 403 errors are expected for system settings
       // But we should still have branding loaded
@@ -138,7 +154,10 @@ export const useAppSettings = defineStore('appSettings', () => {
       if (!isAdmin && e?.status === 403) {
         // Non-admin user - this is expected, just ensure branding is loaded
         await loadBranding();
-        loaded.value = true;
+        if (userId === authStore.currentUser?.id) {
+          loadedForUserId.value = userId;
+          loaded.value = true;
+        }
       } else {
         lastError.value = e?.message || 'Failed to load settings';
       }
@@ -148,7 +167,8 @@ export const useAppSettings = defineStore('appSettings', () => {
   };
 
   const ensureLoaded = async () => {
-    if (loaded.value || loading.value) {
+    const userId = authStore.currentUser?.id ?? null;
+    if (loaded.value && loadedForUserId.value === userId) {
       return state.value;
     }
     await load();
@@ -156,11 +176,16 @@ export const useAppSettings = defineStore('appSettings', () => {
   };
 
   const save = async (partial) => {
+    const userId = authStore.currentUser?.id ?? null;
     lastError.value = null;
     try {
       const updated = await patchSettingsApi(partial);
 
       // Update local state based on what was returned
+      if (userId !== authStore.currentUser?.id) {
+        return state.value;
+      }
+
       if (updated?.branding) {
         publicSettings.value.branding = {
           appName: 'Explorer',
@@ -193,6 +218,7 @@ export const useAppSettings = defineStore('appSettings', () => {
       }
 
       loaded.value = true;
+      loadedForUserId.value = userId;
       return state.value;
     } catch (e) {
       lastError.value = e?.message || 'Failed to save settings';

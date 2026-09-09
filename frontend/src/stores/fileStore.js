@@ -437,6 +437,7 @@ export const useFileStore = defineStore('fileStore', () => {
     const previousItems = Array.isArray(currentPathItems.value) ? currentPathItems.value : [];
 
     const normalizedPath = normalizePath(typeof path === 'string' ? path : currentPath.value);
+    useSettingsStore().restoreSortForFolder(normalizedPath);
     currentPath.value = normalizedPath;
     clearSelection();
     // When changing folders, exit selection mode (mobile UX).

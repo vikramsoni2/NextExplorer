@@ -2,11 +2,56 @@ const { getDb } = require('./db');
 const { normalizeRelativePath } = require('../utils/pathUtils');
 const storage = require('./storage/jsonStorage'); // Keep for backward compatibility fallback
 
+const MAX_FOLDER_SORTS = 100;
+const MAX_FOLDER_PATH_LENGTH = 1024;
+const MAX_SORT_FIELD_LENGTH = 128;
+
 const generateId = () => {
   const crypto = require('crypto');
   return typeof crypto.randomUUID === 'function'
     ? crypto.randomUUID()
     : `${Date.now().toString(36)}-${crypto.randomBytes(8).toString('hex')}`;
+};
+
+const isValidFolderPath = (folderPath) =>
+  typeof folderPath === 'string' &&
+  folderPath.length > 0 &&
+  folderPath.length <= MAX_FOLDER_PATH_LENGTH;
+
+const sanitizeFolderSort = (sort) => {
+  if (
+    !sort ||
+    typeof sort !== 'object' ||
+    typeof sort.by !== 'string' ||
+    sort.by.trim().length === 0 ||
+    sort.by.length > MAX_SORT_FIELD_LENGTH ||
+    (sort.order !== 'asc' && sort.order !== 'desc')
+  ) {
+    return null;
+  }
+
+  return {
+    by: sort.by.trim(),
+    order: sort.order,
+    updatedAt: Number.isFinite(sort.updatedAt) ? Math.floor(sort.updatedAt) : 0,
+  };
+};
+
+const sanitizeFolderSorts = (folderSorts) => {
+  if (!folderSorts || typeof folderSorts !== 'object' || Array.isArray(folderSorts)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(folderSorts)
+      .map(([folderPath, sort]) => {
+        const sanitizedSort = sanitizeFolderSort(sort);
+        return isValidFolderPath(folderPath) && sanitizedSort ? [folderPath, sanitizedSort] : null;
+      })
+      .filter(Boolean)
+      .sort(([, a], [, b]) => b.updatedAt - a.updatedAt)
+      .slice(0, MAX_FOLDER_SORTS)
+  );
 };
 
 /**
@@ -137,6 +182,24 @@ const getUserSettings = async (userId) => {
   }
 };
 
+const upsertUserSetting = (db, userId, key, value) => {
+  const now = new Date().toISOString();
+  const valueJson = JSON.stringify(value);
+  const existing = db
+    .prepare('SELECT id FROM user_settings WHERE user_id = ? AND key = ?')
+    .get(userId, key);
+
+  if (existing) {
+    db.prepare(
+      'UPDATE user_settings SET value = ?, updated_at = ? WHERE user_id = ? AND key = ?'
+    ).run(valueJson, now, userId, key);
+  } else {
+    db.prepare(
+      'INSERT INTO user_settings (id, user_id, key, value, updated_at) VALUES (?, ?, ?, ?, ?)'
+    ).run(generateId(), userId, key, valueJson, now);
+  }
+};
+
 /**
  * Get system settings (admin only)
  */
@@ -226,9 +289,7 @@ const setUserSetting = async (userId, key, value) => {
   if (!userId) {
     throw new Error('User ID is required');
   }
-
   const db = await getDb();
-  const now = new Date().toISOString();
 
   // Validate and sanitize value based on key
   let sanitizedValue = value;
@@ -260,26 +321,50 @@ const setUserSetting = async (userId, key, value) => {
     } else {
       sanitizedValue = Boolean(value);
     }
+  } else if (key === 'folderSorts') {
+    sanitizedValue = sanitizeFolderSorts(value);
   }
 
-  const valueJson = JSON.stringify(sanitizedValue);
-
-  // Check if setting exists
-  const existing = db
-    .prepare('SELECT id FROM user_settings WHERE user_id = ? AND key = ?')
-    .get(userId, key);
-
-  if (existing) {
-    db.prepare(
-      'UPDATE user_settings SET value = ?, updated_at = ? WHERE user_id = ? AND key = ?'
-    ).run(valueJson, now, userId, key);
-  } else {
-    db.prepare(
-      'INSERT INTO user_settings (id, user_id, key, value, updated_at) VALUES (?, ?, ?, ?, ?)'
-    ).run(generateId(), userId, key, valueJson, now);
-  }
+  upsertUserSetting(db, userId, key, sanitizedValue);
 
   return sanitizedValue;
+};
+
+const setUserFolderSort = async (userId, folderPath, sort) => {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
+
+  const sanitizedSort = sanitizeFolderSort(sort);
+  if (!isValidFolderPath(folderPath) || !sanitizedSort) {
+    return null;
+  }
+
+  const db = await getDb();
+  const existing = db
+    .prepare('SELECT value FROM user_settings WHERE user_id = ? AND key = ?')
+    .get(userId, 'folderSorts');
+  let existingFolderSorts = {};
+
+  if (existing) {
+    try {
+      existingFolderSorts = JSON.parse(existing.value);
+    } catch {
+      existingFolderSorts = {};
+    }
+  }
+  existingFolderSorts = sanitizeFolderSorts(existingFolderSorts);
+
+  const folderSorts = sanitizeFolderSorts({
+    ...existingFolderSorts,
+    [folderPath]: {
+      ...sanitizedSort,
+      updatedAt: Date.now(),
+    },
+  });
+  upsertUserSetting(db, userId, 'folderSorts', folderSorts);
+
+  return folderSorts;
 };
 
 /**
@@ -398,6 +483,7 @@ module.exports = {
   getSystemSettings,
   getSettingsForUser,
   setUserSetting,
+  setUserFolderSort,
   setSystemSetting,
   // Legacy methods for backward compatibility
   getSettings,
