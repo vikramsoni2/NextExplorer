@@ -1,0 +1,40 @@
+name: Build check
+
+# Nothing runs on a pull request today, so a branch that cannot start the
+# application looks exactly like one that can. These two steps are the cheapest
+# check that would have caught it: the frontend has to bundle, and the backend
+# has to load every module it requires.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    name: Frontend bundles, backend loads
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Bundle the frontend
+        run: npm run build
+
+      - name: Load every backend module
+        env:
+          CONFIG_DIR: ${{ runner.temp }}/config
+          CACHE_DIR: ${{ runner.temp }}/cache
+          VOLUME_ROOT: ${{ runner.temp }}/files
+        run: |
+          mkdir -p "$CONFIG_DIR" "$CACHE_DIR" "$VOLUME_ROOT"
+          # Requiring app.js pulls in every route, service and middleware, so a
+          # missing file fails here rather than on someone's machine. The delay
+          # lets the deferred work (migrations, session store) report too.
+          node -e "require('./backend/src/app.js'); setTimeout(() => process.exit(0), 5000)"

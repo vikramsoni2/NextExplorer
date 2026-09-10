@@ -19,6 +19,26 @@ async function getUsage(path = '') {
   return requestJson(`/api/usage/${encodedPath}`, { method: 'GET' });
 }
 
+async function getFolderSizesBatch(paths = [], options = {}) {
+  const normalizedPaths = (Array.isArray(paths) ? paths : [])
+    .map((p) => normalizePath(p))
+    .filter(Boolean);
+  return requestJson('/api/folder-size/batch', {
+    ...options,
+    method: 'POST',
+    body: JSON.stringify({ paths: normalizedPaths }),
+  });
+}
+
+async function refreshFolderSize(relativePath, options = {}) {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) {
+    throw new Error('A folder path is required to refresh its size.');
+  }
+  const encodedPath = encodePath(normalizedPath);
+  return requestJson(`/api/folder-size/refresh/${encodedPath}`, { ...options, method: 'POST' });
+}
+
 async function copyItems(items, destination) {
   return requestJson('/api/files/copy', {
     method: 'POST',
@@ -255,10 +275,63 @@ async function changeOwnership(path, owner, group) {
   });
 }
 
+/**
+ * The audio and subtitle tracks a media file carries.
+ *
+ * The player does not transcode, so a track it cannot decode simply produces
+ * nothing — a film with an AC-3 soundtrack plays in silence, and until this
+ * existed the interface had no way to say why. Returns null when the server
+ * cannot read the file, which the caller treats as "say nothing" rather than
+ * "there is nothing".
+ */
+async function fetchMediaTracks(relativePath) {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) return null;
+
+  const params = new URLSearchParams({ path: normalizedPath });
+  try {
+    return await requestJson(`/api/media/tracks?${params.toString()}`, { method: 'GET' });
+  } catch (_) {
+    // A file ffprobe will not read is not an error worth showing anyone; the
+    // video still plays, and the extra information is simply unavailable.
+    return null;
+  }
+}
+
+/**
+ * A URL for one subtitle track, converted to WebVTT.
+ *
+ * Handed straight to a `<track>` element rather than fetched, so the browser's
+ * own caption menu drives it. That works because the API is served from the
+ * same origin as the application; a `<track>` pointing somewhere else would
+ * need CORS and would not carry the session cookie.
+ *
+ * @param {string} relativePath the media file
+ * @param {{stream?: number, file?: string}} track as named by fetchMediaTracks:
+ *   a stream index for an embedded track, a filename for a sidecar
+ */
+const getSubtitleUrl = (relativePath, track = {}) => {
+  const normalizedPath = normalizePath(relativePath);
+  if (!normalizedPath) return null;
+
+  const params = new URLSearchParams({ path: normalizedPath });
+  if (typeof track.file === 'string' && track.file) {
+    params.set('file', track.file);
+  } else if (Number.isInteger(track.stream)) {
+    params.set('stream', String(track.stream));
+  } else {
+    return null;
+  }
+
+  return buildUrl(`/api/media/subtitle?${params.toString()}`);
+};
+
 export {
   browse,
   getVolumes,
   getUsage,
+  getFolderSizesBatch,
+  refreshFolderSize,
   copyItems,
   moveItems,
   deleteItems,
@@ -270,6 +343,8 @@ export {
   getRawFileUrl,
   fetchThumbnail,
   fetchMetadata,
+  fetchMediaTracks,
+  getSubtitleUrl,
   downloadItems,
   extractZip,
   compressToZip,
